@@ -1,3 +1,4 @@
+package Tiles;
 /**
  * Tile
  * @author Benjamin

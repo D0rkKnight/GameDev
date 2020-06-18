@@ -1,3 +1,4 @@
+package Entities;
 /**
  * superclass for all entities
  * @author Benjamin

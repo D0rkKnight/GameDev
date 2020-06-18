@@ -1,4 +1,6 @@
 import java.util.Arrays;
+
+import Tiles.Tile;
 public class Map {
 	private Tile[][] grid; //[x][y]
 	public Map(Tile[][] mapData) {

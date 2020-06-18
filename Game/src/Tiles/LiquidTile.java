@@ -1,3 +1,4 @@
+package Tiles;
 /**
  * Example class for type of tiles
  * @author Benjamin
