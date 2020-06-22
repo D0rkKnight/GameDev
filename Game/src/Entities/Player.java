@@ -54,4 +54,10 @@ public class Player extends Combatant{
 		
 	}
 
+	@Override
+	public void render() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

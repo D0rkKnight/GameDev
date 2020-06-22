@@ -28,4 +28,6 @@ public abstract class Entity {
 	
 	public abstract void getPosition();
 	
+	public abstract void render();
+	
 }

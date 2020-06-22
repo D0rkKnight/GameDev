@@ -34,4 +34,10 @@ public class LockedEntity extends Entity{
 		
 	}
 
+	@Override
+	public void render() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
