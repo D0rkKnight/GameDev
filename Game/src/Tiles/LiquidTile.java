@@ -1,8 +1,8 @@
 package Tiles;
 
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 
-import GameController.Map;
+import Shaders.Shader;
 
 /**
  * Example class for type of tiles
@@ -11,8 +11,8 @@ import GameController.Map;
  */
 public abstract class LiquidTile extends Tile {
 
-	public LiquidTile(int ID, Image sprite, Map map) {
-		super(ID, sprite, map);
+	public LiquidTile(int ID, BufferedImage sprite, Shader shader) {
+		super(ID, sprite, shader);
 		// TODO Auto-generated constructor stub
 	}
 

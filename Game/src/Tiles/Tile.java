@@ -1,7 +1,11 @@
 package Tiles;
 
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+
 import GameController.Map;
-import java.awt.Image;
+import Shaders.Shader;
+import Wrappers.Position;
 
 /**
  * Tile
@@ -10,17 +14,24 @@ import java.awt.Image;
  */
 public abstract class Tile {
 	private int ID;
-	private Image sprite;
+	private BufferedImage sprite;
 	private Map map;
+	private Shader shader;
 	
-	public Tile(int ID, Image sprite, Map map) {
+	public Tile(int ID, BufferedImage sprite, Shader shader) {
 		this.ID = ID;
 		this.sprite = sprite;
-		this.map = map;
+		this.shader = shader;
 	}
 	
 	//renders tile in 
-	public abstract void render();
-	public abstract int getID();
-	public abstract Image getImage();
+	public void render(Graphics g, Position pos) {
+		shader.render(g, pos, sprite);
+	}
+	public int getID() {
+		return ID;
+	}
+	public BufferedImage getImage() {
+		return sprite;
+	}
 }
