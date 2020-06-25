@@ -50,10 +50,10 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
+import Accessories.*;
 import Entities.*;
 import Shaders.Shader;
-import Tiles.SquareTile;
-import Tiles.Tile;
+import Tiles.*;
 
 public class GameManager {
 
@@ -72,6 +72,8 @@ public class GameManager {
 
 	// Lookup table for different kinds of tiles
 	private HashMap<Integer, Tile> tileLookup;
+	// Lookup table for different kinds of accessories
+	private HashMap<Integer, Accessory> accessoryLookup;
 
 	// current progression of player ingame
 	private int chapter; // chapter, determines plot events
@@ -81,6 +83,7 @@ public class GameManager {
 
 	// Entity positions in current room
 	private ArrayList<Entity> entities;
+	private Serializer serializer;
 
 	/*
 	 * Creates components before entering loop
@@ -105,6 +108,7 @@ public class GameManager {
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();
+		serializer = new Serializer();
 	}
 
 	private void init() {
@@ -113,7 +117,7 @@ public class GameManager {
 
 		initTiles();
 		try {
-			loadMap("place holder file name"); //TODO set up code to load each map that is needed in the level
+			serializer.loadMap("place holder file name", tileLookup); //TODO set up code to load each map that is needed in the level
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -202,106 +206,13 @@ public class GameManager {
 
 		Shader redShader = new Shader("shader");
 
-		BufferedImage img = loadImage("tile1.png");
+		BufferedImage img = serializer.loadImage("tile1.png");
 		SquareTile t1 = new SquareTile(1, img, redShader);
 
 		tileLookup.put(1, t1);
 	}
 
 	
-	private void loadTileHash(String filename) { // loads a hashmap assigning tile ID to Tile objects
-		BufferedReader tileHashFile = null;
-
-		try {
-			tileHashFile = new BufferedReader(new FileReader(filename));
-		} catch (FileNotFoundException e) {
-			System.out.println("File not found");
-			e.printStackTrace();
-		}
-		int num = 0;
-		try {
-			num = Integer.parseInt(tileHashFile.readLine());
-		} catch (NumberFormatException e) {
-			System.out.println("First line of file should be int");
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		for (int i = 0; i < num; i++) {
-			try {
-				/*
-				 * info[0] is tyr type of tile object we will put in .
-				 * info[1] is the name of the sprite image
-				 */
-				String info[] = tileHashFile.readLine().split(":");
-				BufferedImage sprite = ImageIO.read(new File(info[1]));
-				// TODO change type of til
-				if (Integer.parseInt(info[0]) == 0) { // squaretile: placeholder
-					tileLookup.put(i, new SquareTile(i, sprite, shader));
-				}
-				//TODO add more types of tiles
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-	}
-
-	private void finishArea() { // called when character finishes a major area, updates level and chapter of
-								// character
-
-	}
-
-	/**
-	 * Adds a map object to maps variable. File should be directed to the correct map.
-	 * @return 
-	 * @throws IOException 
-	 */
-	private void loadMap(String filename) throws IOException {
-		BufferedReader mapFile = null;
-
-		try {
-			mapFile = new BufferedReader(new FileReader(filename));
-		} catch (FileNotFoundException e) {
-			System.out.println("File not found");
-			e.printStackTrace();
-		}
-		//first line is in format [xwidth]:[yheight]
-		String[] mapsize = mapFile.readLine().split(":");
-		int xwidth = Integer.parseInt(mapsize[0]);
-		int yheight = Integer.parseInt(mapsize[1]);
-		Tile[][] maptiles = new Tile[Integer.parseInt(mapsize[0])][Integer.parseInt(mapsize[1])];
-		for(int i = 0; i < yheight; i++) {
-			String[] tileLine = mapFile.readLine().split(":");
-			for(int j = 0; j < xwidth; j++) {
-				maptiles[i][j] = (tileLookup.get(Integer.parseInt(tileLine[i]))).clone(); //want to clone the tile we load into array
-			}
-		}
-		maps.add(new Map(maptiles));
-	}
-	private void loadCharData(String chardata) {
-		//TODO
-		
-	}
-	private void loadEntityData(String entityData) {
-		
-	}
-
-	/*
-	 * Wrapper function for loading an image
-	 */
-	private BufferedImage loadImage(String path) {
-		BufferedImage img = null;
-		try {
-			img = ImageIO.read(new File(path));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return img;
-	}
 
 	/*
 	 * Game loop that handles rendering and stuff
