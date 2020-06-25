@@ -1,29 +1,55 @@
 package GameController;
 
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
+import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
+import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
+import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
+import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
+import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
+import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
+import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
+import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
+import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
+import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
+import static org.lwjgl.glfw.GLFW.glfwShowWindow;
+import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
+import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
+import static org.lwjgl.glfw.GLFW.glfwTerminate;
+import static org.lwjgl.glfw.GLFW.glfwWindowHint;
+import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.system.MemoryStack.stackPush;
+import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.opengl.GL11.*;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
-import Shaders.SpriteShader;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.system.MemoryStack;
+
+import Shaders.Shader;
 import Tiles.SquareTile;
 import Tiles.Tile;
-
-import org.lwjgl.*;
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
-import org.lwjgl.system.*;
-
-import java.nio.*;
-
-import static org.lwjgl.glfw.Callbacks.*;
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.system.MemoryUtil.*;
 
 public class GameManager {
 	
@@ -68,11 +94,11 @@ public class GameManager {
 	}
 	
 	private void init() {
-		initTiles();
-		map = loadMap();
-		
 		initGraphics();
 		renderer = new Renderer();
+		
+		initTiles();
+		map = loadMap();
 	}
 	
 	private void initGraphics() {
@@ -123,7 +149,7 @@ public class GameManager {
 		//Another benefit: garbage collection bsery is avoided because the stack is 
 		//					popped and reclaimed immediately after the try block.
 		
-		//Now make it current
+		//Tells the GPU to write to this window.
 		glfwMakeContextCurrent(window);
 		
 		//V-SYNC!!!
@@ -131,6 +157,9 @@ public class GameManager {
 		
 		//Make the window visible
 		glfwShowWindow(window);
+		
+		//Creating the context to which all graphics operations will be executed upon
+		GL.createCapabilities();
 	}
 	
 	/*
@@ -139,10 +168,10 @@ public class GameManager {
 	private void initTiles() {
 		tileLookup = new HashMap<>();
 		
-		SpriteShader sprShader = new SpriteShader();
+		Shader redShader = new Shader("shader");
 		
 		BufferedImage img = loadImage("tile1.png");
-		SquareTile t1 = new SquareTile(1, img, sprShader);
+		SquareTile t1 = new SquareTile(1, img, redShader);
 		
 		tileLookup.put(1, t1);
 	}
@@ -180,8 +209,6 @@ public class GameManager {
 	 * Game loop that handles rendering and stuff
 	 */
 	private void loop() {
-		//Some setup stuff I don't quite understand
-		GL.createCapabilities();
 		
 		//Set clear color
 		glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
@@ -191,6 +218,17 @@ public class GameManager {
 		while(!glfwWindowShouldClose(window)) {
 			//Clear frame buffer
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			
+			//Drawing stuff
+			/*map.getGrid()[0][0].shader.bind();
+			glBegin(GL_QUADS);
+				glVertex2f(-0.5f, 0.5f);
+				glVertex2f(0.5f, 0.5f);
+				glVertex2f(0.5f, -0.5f);
+				glVertex2f(-0.5f, -0.5f);
+			glEnd();*/
+			renderer.draw(map);
+			
 			
 			//tldr: there are two buffers, one that is being displayed and one that we are writing to.
 			//This function waits until one buffer is written to before writing the next one.

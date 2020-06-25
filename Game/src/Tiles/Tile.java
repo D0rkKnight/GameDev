@@ -1,6 +1,7 @@
 package Tiles;
 
-import java.awt.Graphics;
+import static org.lwjgl.opengl.GL11.*;
+
 import java.awt.image.BufferedImage;
 
 import GameController.Map;
@@ -16,7 +17,7 @@ public abstract class Tile {
 	private int ID;
 	private BufferedImage sprite;
 	private Map map;
-	private Shader shader;
+	public Shader shader;
 	
 	public Tile(int ID, BufferedImage sprite, Shader shader) {
 		this.ID = ID;
@@ -25,8 +26,23 @@ public abstract class Tile {
 	}
 	
 	//renders tile in 
-	public void render(Graphics g, Position pos) {
-		shader.render(g, pos, sprite);
+	/*
+	 * TODO: Remove jank and deprecated GL_QUADS drawing
+	 */
+	public void render(Position pos, float dim) {
+		//shader.render(g, pos, sprite);
+		shader.bind();
+		
+		glBegin(GL_QUADS);
+			/*glVertex2f(-0.5f, 0.5f);
+			glVertex2f(0.5f, 0.5f);
+			glVertex2f(0.5f, -0.5f);
+			glVertex2f(-0.5f, -0.5f);*/
+			glVertex2f(pos.x, pos.y);
+			glVertex2f(pos.x + dim, pos.y);
+			glVertex2f(pos.x + dim, pos.y + dim);
+			glVertex2f(pos.x, pos.y + dim);
+		glEnd();
 	}
 	public int getID() {
 		return ID;

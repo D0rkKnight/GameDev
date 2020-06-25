@@ -37,7 +37,7 @@ public class RendererOld extends Canvas{
   				Tile tile = grid[i][j];
   				if (tile == null) continue;
   				
-  				tile.render(g, new Position(i*tileWidth, j*tileWidth));
+  				//tile.render(g, new Position(i*tileWidth, j*tileWidth));
   			}
   		}
     }
