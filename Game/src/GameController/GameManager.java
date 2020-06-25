@@ -1,37 +1,13 @@
 package GameController;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
-import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
-import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
-import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
-import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
-import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
-import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
-import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
-import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
-import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
-import static org.lwjgl.glfw.GLFW.glfwInit;
-import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
-import static org.lwjgl.glfw.GLFW.glfwPollEvents;
-import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
-import static org.lwjgl.glfw.GLFW.glfwShowWindow;
-import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
-import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
-import static org.lwjgl.glfw.GLFW.glfwTerminate;
-import static org.lwjgl.glfw.GLFW.glfwWindowHint;
-import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
-import static org.lwjgl.opengl.GL11.*;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -54,6 +30,14 @@ import Accessories.*;
 import Entities.*;
 import Shaders.Shader;
 import Tiles.*;
+import Wrappers.*
+
+import Accessories.*;
+import Entities.*;
+import Shaders.Shader;
+import Tiles.*;
+import Wrappers.*
+
 
 public class GameManager {
 
@@ -62,6 +46,7 @@ public class GameManager {
 	 * private JFrame frame; private RendererOld canvas;
 	 */
 	private long window;
+	private boolean[] keyStates;
 	//
 	private Renderer renderer;
 	private Shader shader;
@@ -84,6 +69,11 @@ public class GameManager {
 	// Entity positions in current room
 	private ArrayList<Entity> entities;
 	private Serializer serializer;
+  private Player player;
+
+	private Serializer serializer;
+	private Player player;
+
 
 	/*
 	 * Creates components before entering loop
@@ -112,16 +102,54 @@ public class GameManager {
 	}
 
 	private void init() {
+		keyStates = new boolean[GLFW_KEY_LAST];
 		initGraphics();
 		renderer = new Renderer();
 
 		initTiles();
 		try {
 			serializer.loadMap("place holder file name", tileLookup); //TODO set up code to load each map that is needed in the level
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+		
+		//Just do this for now
+		Tile[][] mapData = new Tile[10][10];
+		Tile tile = tileLookup.get(1);
+		mapData[2][0] = tile.clone();
+		mapData[0][3] = tile.clone();
+		mapData[2][9] = tile.clone();
+		currmap = new Map(mapData);
+		
+		
+		
+		
+		//Init player
+		initEntities();
+		initPlayer();
+	}
+	
+	/*
+	 * This is the LWJGL backed input solution.
+	 */
+	public void inputListener(long window, int key, int scancode, int action, int mods) {
+		//Record key states here
+		if (action == GLFW_PRESS) keyStates[key] = true;
+		if (action == GLFW_RELEASE) keyStates[key] = false;
+		
+		//Individual press and release stuff
+		if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
+			glfwSetWindowShouldClose(window, true); // Later detected in rendering loop
 		}
+		
+		//Player movement!
+		float moveX = 0;
+		if (keyStates[GLFW_KEY_D]) moveX ++;
+		if (keyStates[GLFW_KEY_A]) moveX --;
+		player.input.moveX = moveX;
+		
+		float moveY = 0;
+		if (keyStates[GLFW_KEY_W]) moveY ++;
+		if (keyStates[GLFW_KEY_S]) moveY --;
+		player.input.moveY = moveY;
 	}
 
 	private void loadProgression() {
@@ -156,9 +184,7 @@ public class GameManager {
 		// Setup key callbacks (includes a lambda, fun.)
 		// We can pass in a delegate to handle controls.
 		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-			if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-				glfwSetWindowShouldClose(window, true); // Later detected in rendering loop
-			}
+			inputListener(window, key, scancode, action, mods);
 		});
 
 		// A wack process required to move the window. Why this is necessary, I'm not
@@ -204,7 +230,8 @@ public class GameManager {
 	private void initTiles() {
 		tileLookup = new HashMap<>();
 
-		Shader redShader = new Shader("shader");
+		shader = new Shader("shader");
+
 
 		BufferedImage img = serializer.loadImage("tile1.png");
 		SquareTile t1 = new SquareTile(1, img, redShader);
@@ -213,6 +240,110 @@ public class GameManager {
 	}
 
 	
+	private void loadTileHash(String filename) { // loads a hashmap assigning tile ID to Tile objects
+		BufferedReader tileHashFile = null;
+
+		try {
+			tileHashFile = new BufferedReader(new FileReader(filename));
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found");
+			e.printStackTrace();
+		}
+		int num = 0;
+		try {
+			num = Integer.parseInt(tileHashFile.readLine());
+		} catch (NumberFormatException e) {
+			System.out.println("First line of file should be int");
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for (int i = 0; i < num; i++) {
+			try {
+				/*
+				 * info[0] is tyr type of tile object we will put in .
+				 * info[1] is the name of the sprite image
+				 */
+				String info[] = tileHashFile.readLine().split(":");
+				BufferedImage sprite = ImageIO.read(new File(info[1]));
+				// TODO change type of til
+				if (Integer.parseInt(info[0]) == 0) { // squaretile: placeholder
+					tileLookup.put(i, new SquareTile(i, sprite, shader));
+				}
+				//TODO add more types of tiles
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	private void finishArea() { // called when character finishes a major area, updates level and chapter of
+								// character
+
+	}
+
+	/**
+	 * Adds a map object to maps variable. File should be directed to the correct map.
+	 * @return 
+	 * @throws IOException 
+	 */
+	private void loadMap(String filename) throws IOException {
+		BufferedReader mapFile = null;
+
+		try {
+			mapFile = new BufferedReader(new FileReader(filename));
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found");
+			e.printStackTrace();
+		}
+		//first line is in format [xwidth]:[yheight]
+		String[] mapsize = mapFile.readLine().split(":");
+		int xwidth = Integer.parseInt(mapsize[0]);
+		int yheight = Integer.parseInt(mapsize[1]);
+		Tile[][] maptiles = new Tile[Integer.parseInt(mapsize[0])][Integer.parseInt(mapsize[1])];
+		for(int i = 0; i < yheight; i++) {
+			String[] tileLine = mapFile.readLine().split(":");
+			for(int j = 0; j < xwidth; j++) {
+				maptiles[i][j] = (Tile) (tileLookup.get(Integer.parseInt(tileLine[i]))).clone(); //want to clone the tile we load into array
+			}
+		}
+		maps.add(new Map(maptiles));
+	}
+	private void loadCharData(String chardata) {
+		//TODO
+		
+	}
+	private void loadEntityData(String entityData) {
+		
+	}
+
+	/*
+	 * Wrapper function for loading an image
+	 */
+	private BufferedImage loadImage(String path) {
+		BufferedImage img = null;
+		try {
+			img = ImageIO.read(new File(path));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return img;
+	}
+	
+	private void initEntities() {
+		entities = new ArrayList();
+	}
+	
+	private void initPlayer() {
+		player = new Player(0, new Position(0, 0), null, shader, null);
+		
+		
+		entities.add(player);
+	}
 
 	/*
 	 * Game loop that handles rendering and stuff
@@ -235,7 +366,8 @@ public class GameManager {
 			 * 0.5f); glVertex2f(0.5f, 0.5f); glVertex2f(0.5f, -0.5f); glVertex2f(-0.5f,
 			 * -0.5f); glEnd();
 			 */
-			renderer.draw(currmap);
+			update();
+			renderer.draw(currmap, entities);
 
 			// tldr: there are two buffers, one that is being displayed and one that we are
 			// writing to.
@@ -248,6 +380,12 @@ public class GameManager {
 			glfwPollEvents();
 
 			// canvas.paint();
+		}
+	}
+	
+	private void update() {
+		for (Entity ent : entities) {
+			ent.calculate();
 		}
 	}
 

@@ -14,10 +14,10 @@ import Wrappers.Position;
  *
  */
 public abstract class Tile implements Cloneable{
-	private int ID;
-	private BufferedImage sprite;
-	private Map map;
-	public Shader shader;
+	protected int ID;
+	protected BufferedImage sprite;
+	protected Map map;
+	protected Shader shader;
 	
 	public Tile(int ID, BufferedImage sprite, Shader shader) {
 		this.ID = ID;
@@ -34,10 +34,6 @@ public abstract class Tile implements Cloneable{
 		shader.bind();
 		
 		glBegin(GL_QUADS);
-			/*glVertex2f(-0.5f, 0.5f);
-			glVertex2f(0.5f, 0.5f);
-			glVertex2f(0.5f, -0.5f);
-			glVertex2f(-0.5f, -0.5f);*/
 			glVertex2f(pos.x, pos.y);
 			glVertex2f(pos.x + dim, pos.y);
 			glVertex2f(pos.x + dim, pos.y + dim);

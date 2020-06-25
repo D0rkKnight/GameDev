@@ -1,5 +1,6 @@
 package Entities;
 
+import Shaders.Shader;
 import Wrappers.Position;
 import Wrappers.Sprites;
 import Wrappers.Stats;
@@ -10,8 +11,8 @@ import Wrappers.Stats;
  */
 public abstract class Enemy extends Combatant{
 
-	public Enemy(int ID, Position position, Sprites sprites, Stats stats) {
-		super(ID, position, sprites, stats);
+	public Enemy(int ID, Position position, Sprites sprites, Shader shader, Stats stats) {
+		super(ID, position, sprites, shader, stats);
 		// TODO Auto-generated constructor stub
 	}
 

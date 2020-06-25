@@ -1,4 +1,5 @@
 package Entities;
+import Shaders.Shader;
 import Wrappers.Position;
 import Wrappers.Sprites;
 
@@ -8,14 +9,16 @@ import Wrappers.Sprites;
  *
  */
 public abstract class Entity {
-	private int ID;
-	private Position position;
-	private Sprites sprites;
+	protected int ID;
+	protected Position position;
+	protected Sprites sprites;
+	protected Shader shader;
 	
-	public Entity(int ID, Position position, Sprites sprites) {
+	public Entity(int ID, Position position, Sprites sprites, Shader shader) {
 		this.ID = ID;
 		this.position = position;
 		this.sprites = sprites;
+		this.shader = shader;
 	}
 	
 	//AI of the object, calls animation frame changes, moves, and attacks

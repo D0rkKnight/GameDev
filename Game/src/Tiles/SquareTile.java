@@ -14,7 +14,8 @@ public class SquareTile extends SolidTile{
 	@Override
 	public Tile clone() {
 		// TODO Auto-generated method stub
-		return null;
+		SquareTile out = new SquareTile(ID, sprite, shader);
+		return out;
 	}
 
 }
