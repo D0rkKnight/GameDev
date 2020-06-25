@@ -11,4 +11,10 @@ public class SquareTile extends SolidTile{
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public Tile clone() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

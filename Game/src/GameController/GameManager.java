@@ -34,7 +34,10 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 import static org.lwjgl.opengl.GL11.*;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -47,149 +50,244 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
+import Entities.*;
 import Shaders.Shader;
 import Tiles.SquareTile;
 import Tiles.Tile;
 
 public class GameManager {
-	
-	//The frame and canvas
-	/*private JFrame frame;
-	private RendererOld canvas;*/
+
+	// The frame and canvas
+	/*
+	 * private JFrame frame; private RendererOld canvas;
+	 */
 	private long window;
 	//
 	private Renderer renderer;
-	
-	//Storage for tiles
+	private Shader shader;
+
+	// Storage for tiles
 	private ArrayList<Map> maps;
-	private Map map;
-	
-	//Lookup table for different kinds of tiles
+	private Map currmap;
+
+	// Lookup table for different kinds of tiles
 	private HashMap<Integer, Tile> tileLookup;
-	
+
+	// current progression of player ingame
+	private int chapter; // chapter, determines plot events
+	private int[] levelnums; // number of levels within each chapter - down to map design
+	private int level; // level within each chapter (represents biomes
+	private int room; // specific room within each level
+
+	// Entity positions in current room
+	private ArrayList<Entity> entities;
+
 	/*
 	 * Creates components before entering loop
 	 */
 	GameManager() {
-		//Initialization
+		// Initialization
 		init();
-		
-		//Setting up renderer
-		/*frame = new JFrame();
-		
-		canvas = new RendererOld(map);
-		canvas.setSize(1280, 720);
-		frame.add(canvas);
-		frame.pack();
-		frame.setVisible(true);*/
-		
+
+		// Setting up renderer
+		/*
+		 * frame = new JFrame();
+		 * 
+		 * canvas = new RendererOld(map); canvas.setSize(1280, 720); frame.add(canvas);
+		 * frame.pack(); frame.setVisible(true);
+		 */
+
 		loop();
-		
+
 		glfwFreeCallbacks(window);
 		glfwDestroyWindow(window);
-		
+
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();
 	}
-	
+
 	private void init() {
 		initGraphics();
 		renderer = new Renderer();
-		
+
 		initTiles();
-		map = loadMap();
+		try {
+			loadMap("place holder file name"); //TODO set up code to load each map that is needed in the level
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-	
+
+	private void loadProgression() {
+
+	}
+
+	private void loadState() {
+
+	}
+
 	private void initGraphics() {
-		//Error callback
+		// Error callback
 		GLFWErrorCallback.createPrint(System.err).set();
-		
-		//Initialize glfw, pretty important. Anything glfw stuff that happens before this will break.
-		if (!glfwInit()) throw new IllegalStateException("Unable to initialize GLFW");
-		
-		//Configure GLFW
-		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); //Hidden after creation
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);//Window will be resizeable
-		
-		//Create the window!
-		//Note: NULL is a constant that denotes the null value in OpenGL. Not the same thing as Java null.
+
+		// Initialize glfw, pretty important. Anything glfw stuff that happens before
+		// this will break.
+		if (!glfwInit())
+			throw new IllegalStateException("Unable to initialize GLFW");
+
+		// Configure GLFW
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Hidden after creation
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);// Window will be resizeable
+
+		// Create the window!
+		// Note: NULL is a constant that denotes the null value in OpenGL. Not the same
+		// thing as Java null.
 		window = glfwCreateWindow(300, 300, "Hello World!", NULL, NULL);
 		if (window == NULL) {
 			throw new RuntimeException("Failed to create GLFW window");
 		}
-		
-		//Setup key callbacks (includes a lambda, fun.)
-		//We can pass in a delegate to handle controls.
+
+		// Setup key callbacks (includes a lambda, fun.)
+		// We can pass in a delegate to handle controls.
 		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
 			if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-				glfwSetWindowShouldClose(window, true); //Later detected in rendering loop
+				glfwSetWindowShouldClose(window, true); // Later detected in rendering loop
 			}
 		});
-		
-		//A wack process required to move the window. Why this is necessary, I'm not entirely clear on.
-		//Oh I think it's because the wrapped OpenGL function has to return multiple values so
-		//this allocates the memory in a manner that C recognizes.
-		//Read more on MemoryStack as a solution to interfacing problems between the two languages.
+
+		// A wack process required to move the window. Why this is necessary, I'm not
+		// entirely clear on.
+		// Oh I think it's because the wrapped OpenGL function has to return multiple
+		// values so
+		// this allocates the memory in a manner that C recognizes.
+		// Read more on MemoryStack as a solution to interfacing problems between the
+		// two languages.
 		try (MemoryStack stack = stackPush()) {
 			IntBuffer pWidth = stack.mallocInt(1);
 			IntBuffer pHeight = stack.mallocInt(1);
-			
-			//Get window size
+
+			// Get window size
 			glfwGetWindowSize(window, pWidth, pHeight);
-			
-			//Get resolution of primary monitor
+
+			// Get resolution of primary monitor
 			GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-			
-			//Set pos
-			glfwSetWindowPos(window, 
-					(vidmode.width() - pWidth.get(0))/2,
-					(vidmode.height() - pHeight.get(0))/2);
+
+			// Set pos
+			glfwSetWindowPos(window, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
 		}
-		//Another benefit: garbage collection bsery is avoided because the stack is 
-		//					popped and reclaimed immediately after the try block.
-		
-		//Tells the GPU to write to this window.
+		// Another benefit: garbage collection bsery is avoided because the stack is
+		// popped and reclaimed immediately after the try block.
+
+		// Tells the GPU to write to this window.
 		glfwMakeContextCurrent(window);
-		
-		//V-SYNC!!!
+
+		// V-SYNC!!!
 		glfwSwapInterval(1);
-		
-		//Make the window visible
+
+		// Make the window visible
 		glfwShowWindow(window);
-		
-		//Creating the context to which all graphics operations will be executed upon
+
+		// Creating the context to which all graphics operations will be executed upon
 		GL.createCapabilities();
 	}
-	
+
 	/*
-	 * Loads and constructs tiles based off of external file, then logs in tileLookup
+	 * Loads and constructs tiles based off of external file, then logs in
+	 * tileLookup
 	 */
 	private void initTiles() {
 		tileLookup = new HashMap<>();
-		
+
 		Shader redShader = new Shader("shader");
-		
+
 		BufferedImage img = loadImage("tile1.png");
 		SquareTile t1 = new SquareTile(1, img, redShader);
-		
+
 		tileLookup.put(1, t1);
 	}
+
 	
-	/*
-	 * Load a map from an external file.
-	 * Right now using placeholder
-	 */
-	private Map loadMap() {
-		Tile[][] mapData = new Tile[10][10];
-		mapData[0][0] = tileLookup.get(1);
-		mapData[0][5] = tileLookup.get(1);
-		mapData[5][3] = tileLookup.get(1);
-		
-		Map m = new Map(mapData);
-		return m;
+	private void loadTileHash(String filename) { // loads a hashmap assigning tile ID to Tile objects
+		BufferedReader tileHashFile = null;
+
+		try {
+			tileHashFile = new BufferedReader(new FileReader(filename));
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found");
+			e.printStackTrace();
+		}
+		int num = 0;
+		try {
+			num = Integer.parseInt(tileHashFile.readLine());
+		} catch (NumberFormatException e) {
+			System.out.println("First line of file should be int");
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for (int i = 0; i < num; i++) {
+			try {
+				/*
+				 * info[0] is tyr type of tile object we will put in .
+				 * info[1] is the name of the sprite image
+				 */
+				String info[] = tileHashFile.readLine().split(":");
+				BufferedImage sprite = ImageIO.read(new File(info[1]));
+				// TODO change type of til
+				if (Integer.parseInt(info[0]) == 0) { // squaretile: placeholder
+					tileLookup.put(i, new SquareTile(i, sprite, shader));
+				}
+				//TODO add more types of tiles
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 	}
-	
+
+	private void finishArea() { // called when character finishes a major area, updates level and chapter of
+								// character
+
+	}
+
+	/**
+	 * Adds a map object to maps variable. File should be directed to the correct map.
+	 * @return 
+	 * @throws IOException 
+	 */
+	private void loadMap(String filename) throws IOException {
+		BufferedReader mapFile = null;
+
+		try {
+			mapFile = new BufferedReader(new FileReader(filename));
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found");
+			e.printStackTrace();
+		}
+		//first line is in format [xwidth]:[yheight]
+		String[] mapsize = mapFile.readLine().split(":");
+		int xwidth = Integer.parseInt(mapsize[0]);
+		int yheight = Integer.parseInt(mapsize[1]);
+		Tile[][] maptiles = new Tile[Integer.parseInt(mapsize[0])][Integer.parseInt(mapsize[1])];
+		for(int i = 0; i < yheight; i++) {
+			String[] tileLine = mapFile.readLine().split(":");
+			for(int j = 0; j < xwidth; j++) {
+				maptiles[i][j] = (tileLookup.get(Integer.parseInt(tileLine[i]))).clone(); //want to clone the tile we load into array
+			}
+		}
+		maps.add(new Map(maptiles));
+	}
+	private void loadCharData(String chardata) {
+		//TODO
+		
+	}
+	private void loadEntityData(String entityData) {
+		
+	}
+
 	/*
 	 * Wrapper function for loading an image
 	 */
@@ -201,44 +299,45 @@ public class GameManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return img;
 	}
-	
+
 	/*
 	 * Game loop that handles rendering and stuff
 	 */
 	private void loop() {
-		
-		//Set clear color
+
+		// Set clear color
 		glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-		
-		//Into the rendering loop we go
-		//Remember the lambda callback we attached to key presses? This is where the function returns.
-		while(!glfwWindowShouldClose(window)) {
-			//Clear frame buffer
+
+		// Into the rendering loop we go
+		// Remember the lambda callback we attached to key presses? This is where the
+		// function returns.
+		while (!glfwWindowShouldClose(window)) {
+			// Clear frame buffer
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			
-			//Drawing stuff
-			/*map.getGrid()[0][0].shader.bind();
-			glBegin(GL_QUADS);
-				glVertex2f(-0.5f, 0.5f);
-				glVertex2f(0.5f, 0.5f);
-				glVertex2f(0.5f, -0.5f);
-				glVertex2f(-0.5f, -0.5f);
-			glEnd();*/
-			renderer.draw(map);
-			
-			
-			//tldr: there are two buffers, one that is being displayed and one that we are writing to.
-			//This function waits until one buffer is written to before writing the next one.
-			//This is because of v-sync.
+
+			// Drawing stuff
+			/*
+			 * map.getGrid()[0][0].shader.bind(); glBegin(GL_QUADS); glVertex2f(-0.5f,
+			 * 0.5f); glVertex2f(0.5f, 0.5f); glVertex2f(0.5f, -0.5f); glVertex2f(-0.5f,
+			 * -0.5f); glEnd();
+			 */
+			renderer.draw(currmap);
+
+			// tldr: there are two buffers, one that is being displayed and one that we are
+			// writing to.
+			// This function waits until one buffer is written to before writing the next
+			// one.
+			// This is because of v-sync.
 			glfwSwapBuffers(window);
-			
-			//Event listening stuff. Key callback is invoked here.
+
+			// Event listening stuff. Key callback is invoked here.
 			glfwPollEvents();
-			
-			//canvas.paint();
+
+			// canvas.paint();
 		}
 	}
+
 }

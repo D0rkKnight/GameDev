@@ -13,7 +13,7 @@ import Wrappers.Position;
  * @author Benjamin
  *
  */
-public abstract class Tile {
+public abstract class Tile implements Cloneable{
 	private int ID;
 	private BufferedImage sprite;
 	private Map map;
@@ -50,4 +50,5 @@ public abstract class Tile {
 	public BufferedImage getImage() {
 		return sprite;
 	}
+	public abstract Tile clone();
 }
