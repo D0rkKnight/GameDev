@@ -1,6 +1,4 @@
 package Entities;
-import java.awt.Image;
-
 import Collision.Collider;
 import Wrappers.Position;
 import Wrappers.Sprites;

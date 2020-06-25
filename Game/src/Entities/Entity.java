@@ -1,7 +1,6 @@
 package Entities;
 import Wrappers.Position;
 import Wrappers.Sprites;
-import java.awt.Image;
 
 /**
  * superclass for all entities

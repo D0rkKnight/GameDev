@@ -7,17 +7,32 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
 
 import Shaders.SpriteShader;
 import Tiles.SquareTile;
 import Tiles.Tile;
 
+import org.lwjgl.*;
+import org.lwjgl.glfw.*;
+import org.lwjgl.opengl.*;
+import org.lwjgl.system.*;
+
+import java.nio.*;
+
+import static org.lwjgl.glfw.Callbacks.*;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.system.MemoryStack.*;
+import static org.lwjgl.system.MemoryUtil.*;
+
 public class GameManager {
 	
 	//The frame and canvas
-	private JFrame frame;
-	private Renderer canvas;
+	/*private JFrame frame;
+	private RendererOld canvas;*/
+	private long window;
+	//
+	private Renderer renderer;
 	
 	//Storage for tiles
 	private ArrayList<Map> maps;
@@ -31,19 +46,91 @@ public class GameManager {
 	 */
 	GameManager() {
 		//Initialization
-		initTiles();
-		map = loadMap();
+		init();
 		
 		//Setting up renderer
-		frame = new JFrame();
+		/*frame = new JFrame();
 		
-		canvas = new Renderer(map);
+		canvas = new RendererOld(map);
 		canvas.setSize(1280, 720);
 		frame.add(canvas);
 		frame.pack();
-		frame.setVisible(true);
+		frame.setVisible(true);*/
 		
 		loop();
+		
+		glfwFreeCallbacks(window);
+		glfwDestroyWindow(window);
+		
+		// Terminate GLFW and free the error callback
+		glfwTerminate();
+		glfwSetErrorCallback(null).free();
+	}
+	
+	private void init() {
+		initTiles();
+		map = loadMap();
+		
+		initGraphics();
+		renderer = new Renderer();
+	}
+	
+	private void initGraphics() {
+		//Error callback
+		GLFWErrorCallback.createPrint(System.err).set();
+		
+		//Initialize glfw, pretty important. Anything glfw stuff that happens before this will break.
+		if (!glfwInit()) throw new IllegalStateException("Unable to initialize GLFW");
+		
+		//Configure GLFW
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); //Hidden after creation
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);//Window will be resizeable
+		
+		//Create the window!
+		//Note: NULL is a constant that denotes the null value in OpenGL. Not the same thing as Java null.
+		window = glfwCreateWindow(300, 300, "Hello World!", NULL, NULL);
+		if (window == NULL) {
+			throw new RuntimeException("Failed to create GLFW window");
+		}
+		
+		//Setup key callbacks (includes a lambda, fun.)
+		//We can pass in a delegate to handle controls.
+		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+			if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
+				glfwSetWindowShouldClose(window, true); //Later detected in rendering loop
+			}
+		});
+		
+		//A wack process required to move the window. Why this is necessary, I'm not entirely clear on.
+		//Oh I think it's because the wrapped OpenGL function has to return multiple values so
+		//this allocates the memory in a manner that C recognizes.
+		//Read more on MemoryStack as a solution to interfacing problems between the two languages.
+		try (MemoryStack stack = stackPush()) {
+			IntBuffer pWidth = stack.mallocInt(1);
+			IntBuffer pHeight = stack.mallocInt(1);
+			
+			//Get window size
+			glfwGetWindowSize(window, pWidth, pHeight);
+			
+			//Get resolution of primary monitor
+			GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+			
+			//Set pos
+			glfwSetWindowPos(window, 
+					(vidmode.width() - pWidth.get(0))/2,
+					(vidmode.height() - pHeight.get(0))/2);
+		}
+		//Another benefit: garbage collection bsery is avoided because the stack is 
+		//					popped and reclaimed immediately after the try block.
+		
+		//Now make it current
+		glfwMakeContextCurrent(window);
+		
+		//V-SYNC!!!
+		glfwSwapInterval(1);
+		
+		//Make the window visible
+		glfwShowWindow(window);
 	}
 	
 	/*
@@ -93,13 +180,26 @@ public class GameManager {
 	 * Game loop that handles rendering and stuff
 	 */
 	private void loop() {
-		while(true) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		//Some setup stuff I don't quite understand
+		GL.createCapabilities();
+		
+		//Set clear color
+		glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+		
+		//Into the rendering loop we go
+		//Remember the lambda callback we attached to key presses? This is where the function returns.
+		while(!glfwWindowShouldClose(window)) {
+			//Clear frame buffer
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			
+			//tldr: there are two buffers, one that is being displayed and one that we are writing to.
+			//This function waits until one buffer is written to before writing the next one.
+			//This is because of v-sync.
+			glfwSwapBuffers(window);
+			
+			//Event listening stuff. Key callback is invoked here.
+			glfwPollEvents();
+			
 			//canvas.paint();
 		}
 	}

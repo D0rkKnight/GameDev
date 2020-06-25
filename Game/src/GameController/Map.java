@@ -1,6 +1,4 @@
 package GameController;
-import java.util.Arrays;
-
 import Tiles.Tile;
 public class Map {
 	private Tile[][] grid; //[x][y]
