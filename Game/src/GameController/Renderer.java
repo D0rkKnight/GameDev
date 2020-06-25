@@ -1,5 +1,8 @@
 package GameController;
 
+import java.util.ArrayList;
+
+import Entities.Entity;
 import Tiles.Tile;
 import Wrappers.Position;
 
@@ -13,7 +16,7 @@ public class Renderer {
 		tileWidth = 0.1f;
 	}
 	
-	public void draw(Map map) {
+	public void draw(Map map, ArrayList<Entity> entities) {
 		//calls render function of every tile of map within distance of player, and entities within certain distance
   		Tile[][] grid = map.getGrid();
   		
@@ -24,6 +27,10 @@ public class Renderer {
   				
   				tile.render(new Position(i*tileWidth, j*tileWidth), tileWidth);
   			}
+  		}
+  		
+  		for (Entity ent : entities) {
+  			ent.render();
   		}
 	}
 }
