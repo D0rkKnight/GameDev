@@ -30,13 +30,7 @@ import Accessories.*;
 import Entities.*;
 import Shaders.Shader;
 import Tiles.*;
-import Wrappers.*
-
-import Accessories.*;
-import Entities.*;
-import Shaders.Shader;
-import Tiles.*;
-import Wrappers.*
+import Wrappers.*;
 
 
 public class GameManager {
@@ -68,9 +62,6 @@ public class GameManager {
 
 	// Entity positions in current room
 	private ArrayList<Entity> entities;
-	private Serializer serializer;
-  private Player player;
-
 	private Serializer serializer;
 	private Player player;
 
@@ -109,7 +100,10 @@ public class GameManager {
 		initTiles();
 		try {
 			serializer.loadMap("place holder file name", tileLookup); //TODO set up code to load each map that is needed in the level
-
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		
 		//Just do this for now
 		Tile[][] mapData = new Tile[10][10];
@@ -125,6 +119,7 @@ public class GameManager {
 		//Init player
 		initEntities();
 		initPlayer();
+		
 	}
 	
 	/*
