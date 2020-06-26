@@ -1,0 +1,26 @@
+SERIALIZER FILE INPUT/OUTPUT FORMAT
+
+
+mapFile:
+line one-[xsize]:[ysize]
+
+ysize amount of lines below, each line with xsize tiles. Each tile in the form
+[tile] = [tileID],[tileHammerShapes] 
+
+Lines in the format
+[tileID].[tilehammershape]:[tileID].[tilehammershape]
+
+
+
+tileHashFile:
+
+line one-[number of tiles]
+
+amount of lines below is amount of tiles
+
+each line is in format
+[classtype (in int format, class-int relationship will be hardcoded)]:[spritename]:[additionalinfoetc]:
+
+
+progressionFile:
+first line 

@@ -18,6 +18,7 @@ public abstract class Tile implements Cloneable{
 	protected BufferedImage sprite;
 	protected Map map;
 	protected Shader shader;
+	protected int hammerState; //NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when loaded in maps)
 	
 	public Tile(int ID, BufferedImage sprite, Shader shader) {
 		this.ID = ID;
@@ -45,6 +46,12 @@ public abstract class Tile implements Cloneable{
 	}
 	public BufferedImage getImage() {
 		return sprite;
+	}
+	public void setHammerState(int hammerState) {
+		this.hammerState = hammerState;
+	}
+	public int getHammerState() {
+		return hammerState;
 	}
 	public abstract Tile clone();
 }

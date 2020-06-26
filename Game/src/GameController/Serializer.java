@@ -92,14 +92,16 @@ public class Serializer {
 		String[] mapsize = mapFile.readLine().split(":");
 		int xwidth = Integer.parseInt(mapsize[0]);
 		int yheight = Integer.parseInt(mapsize[1]);
-		Tile[][] maptiles = new Tile[Integer.parseInt(mapsize[0])][Integer.parseInt(mapsize[1])];
+		Tile[][] maptiles = new Tile[xwidth][yheight];
 		for (int i = 0; i < yheight; i++) {
 			String[] tileLine = mapFile.readLine().split(":");
 			for (int j = 0; j < xwidth; j++) {
-				maptiles[i][j] = (tileLookup.get(Integer.parseInt(tileLine[i]))).clone(); // want to clone the tile we
-																							// load into array
+				String[] tileInfo = tileLine[i].split(",");
+				maptiles[i][j] = (tileLookup.get(Integer.parseInt(tileInfo[0]))).clone(); // want to clone the tile we load into array
+				maptiles[i][j].setHammerState(Integer.parseInt(tileInfo[1]));
 			}
 		}
+		mapFile.close();
 		return maptiles;
 	}
 
