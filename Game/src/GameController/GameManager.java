@@ -26,12 +26,18 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
-import Entities.Entity;
-import Entities.Player;
+import Accessories.*;
+import Entities.*;
 import Shaders.Shader;
-import Tiles.SquareTile;
-import Tiles.Tile;
-import Wrappers.Position;
+import Tiles.*;
+import Wrappers.*
+
+import Accessories.*;
+import Entities.*;
+import Shaders.Shader;
+import Tiles.*;
+import Wrappers.*
+
 
 public class GameManager {
 
@@ -51,6 +57,8 @@ public class GameManager {
 
 	// Lookup table for different kinds of tiles
 	private HashMap<Integer, Tile> tileLookup;
+	// Lookup table for different kinds of accessories
+	private HashMap<Integer, Accessory> accessoryLookup;
 
 	// current progression of player ingame
 	private int chapter; // chapter, determines plot events
@@ -60,7 +68,12 @@ public class GameManager {
 
 	// Entity positions in current room
 	private ArrayList<Entity> entities;
+	private Serializer serializer;
+  private Player player;
+
+	private Serializer serializer;
 	private Player player;
+
 
 	/*
 	 * Creates components before entering loop
@@ -85,6 +98,7 @@ public class GameManager {
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();
+		serializer = new Serializer();
 	}
 
 	private void init() {
@@ -93,12 +107,9 @@ public class GameManager {
 		renderer = new Renderer();
 
 		initTiles();
-		/*try {
-			loadMap("place holder file name"); //TODO set up code to load each map that is needed in the level
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+		try {
+			serializer.loadMap("place holder file name", tileLookup); //TODO set up code to load each map that is needed in the level
+
 		
 		//Just do this for now
 		Tile[][] mapData = new Tile[10][10];
@@ -221,8 +232,9 @@ public class GameManager {
 
 		shader = new Shader("shader");
 
-		BufferedImage img = loadImage("tile1.png");
-		SquareTile t1 = new SquareTile(1, img, shader);
+
+		BufferedImage img = serializer.loadImage("tile1.png");
+		SquareTile t1 = new SquareTile(1, img, redShader);
 
 		tileLookup.put(1, t1);
 	}
