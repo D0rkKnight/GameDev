@@ -2,7 +2,7 @@ package Tiles;
 
 import java.awt.image.BufferedImage;
 
-import Shaders.Shader;
+import Rendering.Shader;
 
 /**
  * Example class for possible types of tiles

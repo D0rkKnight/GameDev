@@ -58,7 +58,7 @@ import org.lwjgl.system.MemoryStack;
 import Accessories.Accessory;
 import Entities.Entity;
 import Entities.Player;
-import Shaders.Shader;
+import Rendering.Shader;
 import Tiles.SquareTile;
 import Tiles.Tile;
 import Wrappers.Position;
@@ -73,7 +73,7 @@ public class GameManager {
 	private long window;
 	private boolean[] keyStates;
 	//
-	private Renderer renderer;
+	private Drawer renderer;
 	private Shader shader;
 
 	// Storage for tiles
@@ -126,7 +126,7 @@ public class GameManager {
 		serializer = new Serializer();
 		keyStates = new boolean[GLFW_KEY_LAST];
 		initGraphics();
-		renderer = new Renderer();
+		renderer = new Drawer();
 
 		initTiles();
 		

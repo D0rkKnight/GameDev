@@ -12,7 +12,7 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 import Accessories.*;
-import Shaders.Shader;
+import Rendering.Shader;
 import Tiles.*;
 
 public class Serializer {

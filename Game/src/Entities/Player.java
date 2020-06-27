@@ -7,7 +7,7 @@ import static org.lwjgl.opengl.GL11.glVertex2f;
 
 import Collision.Collider;
 import GameController.Input;
-import Shaders.Shader;
+import Rendering.Shader;
 import Wrappers.Position;
 import Wrappers.Sprites;
 import Wrappers.Stats;
