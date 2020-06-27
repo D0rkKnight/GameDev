@@ -1,7 +1,36 @@
 package GameController;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_LAST;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
+import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
+import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
+import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
+import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
+import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
+import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
+import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
+import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
+import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
+import static org.lwjgl.glfw.GLFW.glfwShowWindow;
+import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
+import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
+import static org.lwjgl.glfw.GLFW.glfwTerminate;
+import static org.lwjgl.glfw.GLFW.glfwWindowHint;
+import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
@@ -26,17 +55,13 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
-import Accessories.*;
-import Entities.*;
+import Accessories.Accessory;
+import Entities.Entity;
+import Entities.Player;
 import Shaders.Shader;
-import Tiles.*;
-import Wrappers.*
-
-import Accessories.*;
-import Entities.*;
-import Shaders.Shader;
-import Tiles.*;
-import Wrappers.*
+import Tiles.SquareTile;
+import Tiles.Tile;
+import Wrappers.Position;
 
 
 public class GameManager {
@@ -69,9 +94,6 @@ public class GameManager {
 	// Entity positions in current room
 	private ArrayList<Entity> entities;
 	private Serializer serializer;
-  private Player player;
-
-	private Serializer serializer;
 	private Player player;
 
 
@@ -98,17 +120,22 @@ public class GameManager {
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();
-		serializer = new Serializer();
 	}
 
 	private void init() {
+		serializer = new Serializer();
 		keyStates = new boolean[GLFW_KEY_LAST];
 		initGraphics();
 		renderer = new Renderer();
 
 		initTiles();
+		
+		/*
 		try {
 			serializer.loadMap("place holder file name", tileLookup); //TODO set up code to load each map that is needed in the level
+		} catch (IOException e) {
+			e.printStackTrace();
+		}*/
 
 		
 		//Just do this for now
@@ -234,7 +261,7 @@ public class GameManager {
 
 
 		BufferedImage img = serializer.loadImage("tile1.png");
-		SquareTile t1 = new SquareTile(1, img, redShader);
+		SquareTile t1 = new SquareTile(1, img, shader);
 
 		tileLookup.put(1, t1);
 	}
