@@ -1,6 +1,6 @@
 package Entities;
 
-import Shaders.Shader;
+import Rendering.Shader;
 import Wrappers.Position;
 import Wrappers.Sprites;
 import Wrappers.Stats;

@@ -1,5 +1,5 @@
-package Shaders;
-import static org.lwjgl.opengl.GL46C.*;
+package Rendering;
+import static org.lwjgl.opengl.GL30.*;
 
 import java.io.BufferedReader;
 import java.io.File;

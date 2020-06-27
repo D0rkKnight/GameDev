@@ -5,7 +5,7 @@ import static org.lwjgl.opengl.GL11.*;
 import java.awt.image.BufferedImage;
 
 import GameController.Map;
-import Shaders.Shader;
+import Rendering.Shader;
 import Wrappers.Position;
 
 /**

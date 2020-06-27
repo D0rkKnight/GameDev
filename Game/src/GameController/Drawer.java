@@ -9,10 +9,10 @@ import Wrappers.Position;
 /*
  * Calls shaders to render themselves.
  */
-public class Renderer {
+public class Drawer {
 	private float tileWidth;
 	
-	Renderer() {
+	Drawer() {
 		tileWidth = 0.1f;
 	}
 	
