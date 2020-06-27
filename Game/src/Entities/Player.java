@@ -50,10 +50,30 @@ public class Player extends Combatant{
 	}
 
 	@Override
-	public void move() {
-		// TODO Auto-generated method stub
-		position.x += input.moveX * 0.01;
-		position.y += input.moveY * 0.01;
+	public void move() {//TODO add collision
+		if(input.moveX < 0 && true) {//moving left, check collision left
+			xVelocity = -5;
+			position.x += input.moveX;
+		}
+		else if(input.moveX > 0 && true) {//moving right, check collision right
+			xVelocity = 5;
+			position.x += input.moveX;
+		}
+		else {
+			xVelocity = 0;
+		}
+		if(true && input.moveY != 0) { //if player is colliding with ground underneath and digital input detected (space pressed)
+			yVelocity = 10;
+			position.y += yVelocity;
+		}
+		else if(false) { //player not colliding with ground
+			yVelocity -= yAcceleration;
+			position.y += yVelocity;
+		}
+		else {
+			//player colliding with ground without vertical input detected
+		}
+		
 	}
 
 	@Override

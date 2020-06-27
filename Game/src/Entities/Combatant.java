@@ -6,7 +6,10 @@ import Wrappers.Sprites;
 import Wrappers.Stats;
 
 public abstract class Combatant extends Entity{
-	private Stats stats;
+	protected Stats stats;
+	protected float yVelocity;
+	protected float xVelocity;
+	protected float yAcceleration;
 	public Combatant(int ID, Position position, Sprites sprites, Renderer renderer, Stats stats) {
 		super(ID, position, sprites, renderer);
 		this.stats = stats;
