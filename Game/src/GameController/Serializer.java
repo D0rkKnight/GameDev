@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 
 import Accessories.*;
 import Entities.*;
+import Rendering.RectRenderer;
 import Rendering.Shader;
 import Tiles.*;
 import Wrappers.Position;
