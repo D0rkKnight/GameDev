@@ -1,14 +1,11 @@
 package Entities;
 
-import static org.lwjgl.opengl.GL11.GL_QUADS;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glVertex2f;
-
 import Collision.Collider;
 import GameController.Input;
-import Rendering.Shader;
+import Rendering.RectRenderer;
+import Rendering.Renderer;
 import Wrappers.Position;
+import Wrappers.Rect;
 import Wrappers.Sprites;
 import Wrappers.Stats;
 
@@ -16,8 +13,8 @@ public class Player extends Combatant{
 	
 	public Input input;
 	
-	public Player(int ID, Position position, Sprites sprites, Shader shader, Stats stats) {
-		super(ID, position, sprites, shader, stats);
+	public Player(int ID, Position position, Sprites sprites, Renderer renderer, Stats stats) {
+		super(ID, position, sprites, renderer, stats);
 		input = new Input();
 		// TODO Auto-generated constructor stub
 	}
@@ -69,14 +66,12 @@ public class Player extends Combatant{
 	public void render() {
 		float dim = 0.2f;
 		
-		// TODO Auto-generated method stub
-		shader.bind();
-		glBegin(GL_QUADS);
-			glVertex2f(position.x, position.y);
-			glVertex2f(position.x + dim, position.y);
-			glVertex2f(position.x + dim, position.y + dim);
-			glVertex2f(position.x, position.y + dim);
-		glEnd();
+		//Assume to be a rectRenderer
+		RectRenderer rectRender = (RectRenderer) renderer;
+		
+		rectRender.rect = new Rect(dim, dim);
+		rectRender.pos = position;
+		rectRender.render();
 	}
 
 }

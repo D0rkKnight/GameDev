@@ -11,13 +11,14 @@ import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
-import Accessories.*;
-import Rendering.Shader;
-import Tiles.*;
+import Accessories.Accessory;
+import Rendering.RectRenderer;
+import Tiles.SquareTile;
+import Tiles.Tile;
 import Wrappers.Position;
 
 public class Serializer {
-	public void loadTileHash(String filename, HashMap<Integer, Tile> tileLookup, Shader shader) { // loads a hashmap
+	public void loadTileHash(String filename, HashMap<Integer, Tile> tileLookup, RectRenderer renderer) { // loads a hashmap
 																									// assigning tile ID
 																									// to Tile objects
 		BufferedReader tileHashFile = null;
@@ -48,7 +49,7 @@ public class Serializer {
 				BufferedImage sprite = ImageIO.read(new File(info[1]));
 				// TODO change type of til
 				if (Integer.parseInt(info[0]) == 0) { // squaretile: placeholder
-					tileLookup.put(i, new SquareTile(i, sprite, shader));
+					tileLookup.put(i, new SquareTile(i, sprite, renderer));
 				}
 				// TODO add more types of tiles
 			} catch (IOException e) {

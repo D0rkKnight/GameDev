@@ -1,13 +1,13 @@
 package Entities;
 
-import Rendering.Shader;
+import Rendering.Renderer;
 import Wrappers.Position;
 import Wrappers.Sprites;
 
 public class LockedEntity extends Entity{
 
-	public LockedEntity(int ID, Position position, Shader shader, Sprites sprites) {
-		super(ID, position, sprites, shader);
+	public LockedEntity(int ID, Position position, Renderer renderer, Sprites sprites) {
+		super(ID, position, sprites, renderer);
 		// TODO Auto-generated constructor stub
 	}
 
