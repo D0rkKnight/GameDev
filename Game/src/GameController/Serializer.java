@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import Accessories.*;
 import Rendering.Shader;
 import Tiles.*;
+import Wrappers.Position;
 
 public class Serializer {
 	public void loadTileHash(String filename, HashMap<Integer, Tile> tileLookup, Shader shader) { // loads a hashmap
@@ -75,7 +76,7 @@ public class Serializer {
 	 * @return
 	 * @throws IOException
 	 */
-	public Tile[][] loadMap(String filename, HashMap<Integer, Tile> tileLookup) throws IOException {
+	public Map loadMap(String filename, HashMap<Integer, Tile> tileLookup) throws IOException {
 		BufferedReader mapFile = null;
 
 		try {
@@ -92,15 +93,31 @@ public class Serializer {
 		String[] mapsize = mapFile.readLine().split(":");
 		int xwidth = Integer.parseInt(mapsize[0]);
 		int yheight = Integer.parseInt(mapsize[1]);
-		Tile[][] maptiles = new Tile[Integer.parseInt(mapsize[0])][Integer.parseInt(mapsize[1])];
+		Tile[][] maptiles = new Tile[xwidth][yheight];
 		for (int i = 0; i < yheight; i++) {
 			String[] tileLine = mapFile.readLine().split(":");
 			for (int j = 0; j < xwidth; j++) {
-				maptiles[i][j] = (tileLookup.get(Integer.parseInt(tileLine[i]))).clone(); // want to clone the tile we
-																							// load into array
+				String[] tileInfo = tileLine[i].split(".");
+				maptiles[i][j] = (tileLookup.get(Integer.parseInt(tileInfo[0]))).clone(); // want to clone the tile we load into array
+				maptiles[i][j].setHammerState(Integer.parseInt(tileInfo[1]));
 			}
 		}
-		return maptiles;
+		int entrances = Integer.parseInt(mapFile.readLine());
+		Position[][] coords = new Position[entrances][4];
+		int[][] entranceInfo = new int[entrances][2];
+		for(int i = 0; i < entrances; i++) { //looping through entrances
+			String[] info = mapFile.readLine().split(":");
+			for(int j = 0; j < 4; j++) { //looping through coordinates
+				String[] coord = info[j].split(",");
+				coords[i][j] = new Position(Float.parseFloat(coord[0]), Float.parseFloat(coord[1]));
+			}
+			entranceInfo[i][0] = Integer.parseInt(info[4]); //taking care of ID and connection
+			entranceInfo[i][1] = Integer.parseInt(info[5]);
+			
+		}
+		mapFile.close();
+		Map returnMap = new Map(maptiles, coords, entranceInfo);
+		return returnMap;
 	}
 
 	public void loadAccessoryHash(String filename) {

@@ -1,9 +1,20 @@
 package GameController;
 import Tiles.Tile;
+import Wrappers.Position;
 public class Map {
 	private Tile[][] grid; //[x][y]
-	public Map(Tile[][] mapData) {
+	/*
+	 * entrance coordinates, contains list of positions [topleft, topright, botleft, botright]
+	 */
+	private Position[][] entrances; 
+	/*
+	 * entrance info, contains list of entrance info [entranceID, entrancethatitlinkstoID]
+	 */
+	private int[][] entranceInfo;
+	public Map(Tile[][] mapData, Position[][] entrances, int[][] entranceInfo) {
 		grid = mapData;
+		this.entrances = entrances;
+		this.entranceInfo = entranceInfo;
 	}
 	public Tile[][] getGrid(){
 		return grid;

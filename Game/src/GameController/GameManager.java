@@ -136,7 +136,6 @@ public class GameManager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}*/
-
 		
 		//Just do this for now
 		Tile[][] mapData = new Tile[10][10];
@@ -144,7 +143,7 @@ public class GameManager {
 		mapData[2][0] = tile.clone();
 		mapData[0][3] = tile.clone();
 		mapData[2][9] = tile.clone();
-		currmap = new Map(mapData);
+		currmap = new Map(mapData, null, null);//TODO
 		
 		
 		
@@ -152,6 +151,7 @@ public class GameManager {
 		//Init player
 		initEntities();
 		initPlayer();
+		
 	}
 	
 	/*
@@ -336,7 +336,7 @@ public class GameManager {
 				maptiles[i][j] = (Tile) (tileLookup.get(Integer.parseInt(tileLine[i]))).clone(); //want to clone the tile we load into array
 			}
 		}
-		maps.add(new Map(maptiles));
+		maps.add(new Map(maptiles, null, null));//TODO
 	}
 	private void loadCharData(String chardata) {
 		//TODO

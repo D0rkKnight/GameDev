@@ -1,0 +1,42 @@
+SERIALIZER FILE INPUT/OUTPUT FORMAT
+
+
+mapFile:
+line one-[xsize]:[ysize]
+
+ysize amount of lines below, each line with xsize tiles. Each tile in the form
+[tile] = [tileID],[tileHammerShapes]
+
+Lines in the format
+[tileID],[tilehammershape]:[tileID],[tilehammershape]
+
+below that is a line with a number indicating amount of entrances
+below that line is a number of lines equal to amount of entrances
+each line is in the format:
+[topleftx,toplefty]:[toprightx,toprighty]:[botleftx,botlefty]:[botrightx,botrighty]:[ID]:[ID connected to]
+
+
+
+
+tileHashFile:
+
+line one-[number of tiles]
+
+amount of lines below is amount of tiles
+
+each line is in format
+[classtype (in int format, class-int relationship will be hardcoded)]:[spritename]:[additionalinfoetc]:
+
+
+progressionFile:
+first line chapter num
+second line level num within chapter
+third line room num within level
+
+mapProgressionOrder:
+first line number of levels within chapter 1
+after that, you have a number of sections equal to the amount of levels
+
+each section is in the form:  (note that room id is assigned by order)
+first line [number of rooms within level]
+[roommapname]:[true if entrance]:[entrancenum]:[false if exit]:[exitnum]
