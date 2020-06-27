@@ -1,13 +1,13 @@
 package Entities;
 
-import Rendering.Shader;
+import Rendering.Renderer;
 import Wrappers.Position;
 import Wrappers.Sprites;
 
 public class NPC extends Entity {
 
-	public NPC(int ID, Position position, Sprites sprites, Shader shader) {
-		super(ID, position, sprites, shader);
+	public NPC(int ID, Position position, Sprites sprites, Renderer renderer) {
+		super(ID, position, sprites, renderer);
 		// TODO Auto-generated constructor stub
 	}
 

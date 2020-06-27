@@ -2,7 +2,7 @@ package Tiles;
 
 import java.awt.image.BufferedImage;
 
-import Rendering.Shader;
+import Rendering.RectRenderer;
 
 /**
  * Example class for type of tiles
@@ -11,8 +11,8 @@ import Rendering.Shader;
  */
 public abstract class LiquidTile extends Tile {
 
-	public LiquidTile(int ID, BufferedImage sprite, Shader shader) {
-		super(ID, sprite, shader);
+	public LiquidTile(int ID, BufferedImage sprite, RectRenderer renderer) {
+		super(ID, sprite, renderer);
 		// TODO Auto-generated constructor stub
 	}
 

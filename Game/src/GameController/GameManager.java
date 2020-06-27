@@ -37,6 +37,7 @@ import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.opengl.GL30.*;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -58,10 +59,13 @@ import org.lwjgl.system.MemoryStack;
 import Accessories.Accessory;
 import Entities.Entity;
 import Entities.Player;
+import Rendering.RectRenderer;
 import Rendering.Shader;
+import Rendering.SpriteRenderer;
 import Tiles.SquareTile;
 import Tiles.Tile;
 import Wrappers.Position;
+import Wrappers.Texture;
 
 
 public class GameManager {
@@ -70,11 +74,11 @@ public class GameManager {
 	/*
 	 * private JFrame frame; private RendererOld canvas;
 	 */
-	private long window;
+	public static long window;
 	private boolean[] keyStates;
 	//
-	private Drawer renderer;
-	private Shader shader;
+	private Drawer drawer;
+	private RectRenderer renderer;
 
 	// Storage for tiles
 	private ArrayList<Map> maps;
@@ -126,7 +130,7 @@ public class GameManager {
 		serializer = new Serializer();
 		keyStates = new boolean[GLFW_KEY_LAST];
 		initGraphics();
-		renderer = new Drawer();
+		drawer = new Drawer();
 
 		initTiles();
 		
@@ -248,6 +252,7 @@ public class GameManager {
 
 		// Creating the context to which all graphics operations will be executed upon
 		GL.createCapabilities();
+		glEnable(GL_TEXTURE_2D);
 	}
 
 	/*
@@ -257,11 +262,15 @@ public class GameManager {
 	private void initTiles() {
 		tileLookup = new HashMap<>();
 
-		shader = new Shader("shader");
+		Shader shader = new Shader("shader");
+		
+		SpriteRenderer sprRenderer = new SpriteRenderer(shader);
+		sprRenderer.spr = new Texture("tile1.png");
+		renderer = sprRenderer;
 
 
 		BufferedImage img = serializer.loadImage("tile1.png");
-		SquareTile t1 = new SquareTile(1, img, shader);
+		SquareTile t1 = new SquareTile(1, img, renderer);
 
 		tileLookup.put(1, t1);
 	}
@@ -296,7 +305,7 @@ public class GameManager {
 				BufferedImage sprite = ImageIO.read(new File(info[1]));
 				// TODO change type of til
 				if (Integer.parseInt(info[0]) == 0) { // squaretile: placeholder
-					tileLookup.put(i, new SquareTile(i, sprite, shader));
+					tileLookup.put(i, new SquareTile(i, sprite, renderer));
 				}
 				//TODO add more types of tiles
 			} catch (IOException e) {
@@ -366,7 +375,7 @@ public class GameManager {
 	}
 	
 	private void initPlayer() {
-		player = new Player(0, new Position(0, 0), null, shader, null);
+		player = new Player(0, new Position(0, 0), null, renderer, null);
 		
 		
 		entities.add(player);
@@ -394,7 +403,7 @@ public class GameManager {
 			 * -0.5f); glEnd();
 			 */
 			update();
-			renderer.draw(currmap, entities);
+			drawer.draw(currmap, entities);
 
 			// tldr: there are two buffers, one that is being displayed and one that we are
 			// writing to.

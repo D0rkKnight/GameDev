@@ -1,12 +1,11 @@
 package Tiles;
 
-import static org.lwjgl.opengl.GL11.*;
-
 import java.awt.image.BufferedImage;
 
 import GameController.Map;
-import Rendering.Shader;
+import Rendering.RectRenderer;
 import Wrappers.Position;
+import Wrappers.Rect;
 
 /**
  * Tile
@@ -17,29 +16,25 @@ public abstract class Tile implements Cloneable{
 	protected int ID;
 	protected BufferedImage sprite;
 	protected Map map;
-	protected Shader shader;
+	protected RectRenderer renderer;
 	protected int hammerState; //NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when loaded in maps)
 	
-	public Tile(int ID, BufferedImage sprite, Shader shader) {
+	public Tile(int ID, BufferedImage sprite, RectRenderer renderer) {
 		this.ID = ID;
 		this.sprite = sprite;
-		this.shader = shader;
+		this.renderer = renderer;
 	}
 	
-	//renders tile in 
-	/*
-	 * TODO: Remove jank and deprecated GL_QUADS drawing
+	/**
+	 * 
+	 * @param pos: position at which to render
+	 * @param dim: dimensions of tile
 	 */
 	public void render(Position pos, float dim) {
 		//shader.render(g, pos, sprite);
-		shader.bind();
-		
-		glBegin(GL_QUADS);
-			glVertex2f(pos.x, pos.y);
-			glVertex2f(pos.x + dim, pos.y);
-			glVertex2f(pos.x + dim, pos.y + dim);
-			glVertex2f(pos.x, pos.y + dim);
-		glEnd();
+		renderer.pos = pos;
+		renderer.rect = new Rect(dim, dim);
+		renderer.render();
 	}
 	public int getID() {
 		return ID;

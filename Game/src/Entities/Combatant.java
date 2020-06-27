@@ -1,14 +1,14 @@
 package Entities;
 import Collision.Collider;
-import Rendering.Shader;
+import Rendering.Renderer;
 import Wrappers.Position;
 import Wrappers.Sprites;
 import Wrappers.Stats;
 
 public abstract class Combatant extends Entity{
 	private Stats stats;
-	public Combatant(int ID, Position position, Sprites sprites, Shader shader, Stats stats) {
-		super(ID, position, sprites, shader);
+	public Combatant(int ID, Position position, Sprites sprites, Renderer renderer, Stats stats) {
+		super(ID, position, sprites, renderer);
 		this.stats = stats;
 	}
 	
