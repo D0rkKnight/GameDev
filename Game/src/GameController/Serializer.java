@@ -12,6 +12,7 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 import Accessories.*;
+import Entities.*;
 import Rendering.Shader;
 import Tiles.*;
 import Wrappers.Position;
@@ -70,8 +71,11 @@ public class Serializer {
 	}
 
 	/**
-	 * Returns a map in the form of 2d tile array. filename should be directed to
-	 * the correct map data file
+	 * Returns a Map object with an input filename and tile hashmap. filename should
+	 * be directed to the correct map data file 
+	 * 
+	 * 
+	 * FINISHED FOR NOW, completed entrances
 	 * 
 	 * @return
 	 * @throws IOException
@@ -98,29 +102,39 @@ public class Serializer {
 			String[] tileLine = mapFile.readLine().split(":");
 			for (int j = 0; j < xwidth; j++) {
 				String[] tileInfo = tileLine[i].split(".");
-				maptiles[i][j] = (tileLookup.get(Integer.parseInt(tileInfo[0]))).clone(); // want to clone the tile we load into array
+				maptiles[i][j] = (tileLookup.get(Integer.parseInt(tileInfo[0]))).clone(); // want to clone the tile we
+																							// load into array
 				maptiles[i][j].setHammerState(Integer.parseInt(tileInfo[1]));
 			}
 		}
 		int entrances = Integer.parseInt(mapFile.readLine());
 		Position[][] coords = new Position[entrances][4];
 		int[][] entranceInfo = new int[entrances][2];
-		for(int i = 0; i < entrances; i++) { //looping through entrances
+		for (int i = 0; i < entrances; i++) { // looping through entrances
 			String[] info = mapFile.readLine().split(":");
-			for(int j = 0; j < 4; j++) { //looping through coordinates
+			for (int j = 0; j < 4; j++) { // looping through coordinates
 				String[] coord = info[j].split(",");
 				coords[i][j] = new Position(Float.parseFloat(coord[0]), Float.parseFloat(coord[1]));
 			}
-			entranceInfo[i][0] = Integer.parseInt(info[4]); //taking care of ID and connection
+			entranceInfo[i][0] = Integer.parseInt(info[4]); // taking care of ID and connection
 			entranceInfo[i][1] = Integer.parseInt(info[5]);
-			
+
 		}
 		mapFile.close();
 		Map returnMap = new Map(maptiles, coords, entranceInfo);
 		return returnMap;
 	}
 
-	public void loadAccessoryHash(String filename) {
+	/**
+	 * TODO when accessory game mechanics created
+	 * @param filename
+	 * @return
+	 */
+	public HashMap<Integer, Accessory> loadAccessoryHash(String filename) {
+		
+		
+		
+		return null;
 
 	}
 
@@ -152,7 +166,7 @@ public class Serializer {
 			data.add(Integer.parseInt(charFile.readLine()));
 			data.add(Integer.parseInt(charFile.readLine()));
 			String[] accessoryIDs = charFile.readLine().split(":");
-			for(String ID: accessoryIDs) {
+			for (String ID : accessoryIDs) {
 				data.add(Integer.parseInt(ID));
 			}
 		} catch (NumberFormatException e) {
@@ -165,9 +179,13 @@ public class Serializer {
 		return data;
 
 	}
-
-	public void loadEntityData(String entityData) {
-
+	/**
+	 * 
+	 * @param entityData
+	 */
+	public ArrayList<Entity> loadEntityData(String entityData) {
+		ArrayList<Entity> entities = new ArrayList<Entity>();
+		return entities;
 	}
 
 	/*
