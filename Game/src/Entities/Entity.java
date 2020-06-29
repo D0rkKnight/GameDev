@@ -1,7 +1,8 @@
 package Entities;
 import Rendering.Renderer;
-import Wrappers.Position;
+import Wrappers.Rect;
 import Wrappers.Sprites;
+import Wrappers.Vector2;
 
 /**
  * superclass for all entities
@@ -10,11 +11,13 @@ import Wrappers.Sprites;
  */
 public abstract class Entity {
 	protected int ID;
-	protected Position position;
+	protected Vector2 position;
 	protected Sprites sprites;
 	protected Renderer renderer;
 	
-	public Entity(int ID, Position position, Sprites sprites, Renderer renderer) {
+	public Rect dim;
+	
+	public Entity(int ID, Vector2 position, Sprites sprites, Renderer renderer) {
 		this.ID = ID;
 		this.position = position;
 		this.sprites = sprites;
@@ -28,7 +31,9 @@ public abstract class Entity {
 	
 	public abstract void move();
 	
-	public abstract void getPosition();
+	public Vector2 getPosition() {
+		return position;
+	}
 	
 	public abstract void render();
 	

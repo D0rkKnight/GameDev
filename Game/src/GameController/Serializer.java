@@ -11,11 +11,12 @@ import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
-import Accessories.*;
-import Entities.*;
-import Rendering.Shader;
-import Tiles.*;
-import Wrappers.Position;
+import Accessories.Accessory;
+import Entities.Entity;
+import Rendering.RectRenderer;
+import Tiles.SquareTile;
+import Tiles.Tile;
+import Wrappers.Vector2;
 
 public class Serializer {
 	public void loadTileHash(String filename, HashMap<Integer, Tile> tileLookup, RectRenderer renderer) { // loads a hashmap
@@ -108,13 +109,13 @@ public class Serializer {
 			}
 		}
 		int entrances = Integer.parseInt(mapFile.readLine());
-		Position[][] coords = new Position[entrances][4];
+		Vector2[][] coords = new Vector2[entrances][4];
 		int[][] entranceInfo = new int[entrances][2];
 		for (int i = 0; i < entrances; i++) { // looping through entrances
 			String[] info = mapFile.readLine().split(":");
 			for (int j = 0; j < 4; j++) { // looping through coordinates
 				String[] coord = info[j].split(",");
-				coords[i][j] = new Position(Float.parseFloat(coord[0]), Float.parseFloat(coord[1]));
+				coords[i][j] = new Vector2(Float.parseFloat(coord[0]), Float.parseFloat(coord[1]));
 			}
 			entranceInfo[i][0] = Integer.parseInt(info[4]); // taking care of ID and connection
 			entranceInfo[i][1] = Integer.parseInt(info[5]);

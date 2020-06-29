@@ -64,7 +64,7 @@ import Rendering.Shader;
 import Rendering.SpriteRenderer;
 import Tiles.SquareTile;
 import Tiles.Tile;
-import Wrappers.Position;
+import Wrappers.Vector2;
 import Wrappers.Texture;
 
 
@@ -155,7 +155,7 @@ public class GameManager {
 		//Init player
 		initEntities();
 		initPlayer();
-		
+		new Camera(player);
 	}
 	
 	/*
@@ -375,7 +375,7 @@ public class GameManager {
 	}
 	
 	private void initPlayer() {
-		player = new Player(0, new Position(0, 0), null, renderer, null);
+		player = new Player(0, new Vector2(0, 0), null, renderer, null);
 		
 		
 		entities.add(player);
@@ -423,6 +423,8 @@ public class GameManager {
 		for (Entity ent : entities) {
 			ent.calculate();
 		}
+		
+		Camera.main.update();
 	}
 
 }

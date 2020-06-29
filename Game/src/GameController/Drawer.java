@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import Entities.Entity;
 import Tiles.Tile;
-import Wrappers.Position;
+import Wrappers.Vector2;
 
 /*
  * Calls shaders to render themselves.
@@ -25,7 +25,7 @@ public class Drawer {
   				Tile tile = grid[i][j];
   				if (tile == null) continue;
   				
-  				tile.render(new Position(i*tileWidth, j*tileWidth), tileWidth);
+  				tile.render(new Vector2(i*tileWidth, j*tileWidth), tileWidth);
   			}
   		}
   		
