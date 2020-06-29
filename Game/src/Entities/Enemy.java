@@ -16,4 +16,6 @@ public abstract class Enemy extends Combatant{
 		// TODO Auto-generated constructor stub
 	}
 
+	
+	
 }

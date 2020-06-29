@@ -11,12 +11,21 @@ import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
+<<<<<<< HEAD
 import Accessories.Accessory;
 import Entities.Entity;
 import Rendering.RectRenderer;
 import Tiles.SquareTile;
 import Tiles.Tile;
 import Wrappers.Vector2;
+=======
+import Accessories.*;
+import Entities.*;
+import Rendering.RectRenderer;
+import Rendering.Shader;
+import Tiles.*;
+import Wrappers.Position;
+>>>>>>> d556a053d3a6de733d2911ef2e14bd87cccb777f
 
 public class Serializer {
 	public void loadTileHash(String filename, HashMap<Integer, Tile> tileLookup, RectRenderer renderer) { // loads a hashmap
