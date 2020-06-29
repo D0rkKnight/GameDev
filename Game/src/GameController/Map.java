@@ -1,17 +1,17 @@
 package GameController;
 import Tiles.Tile;
-import Wrappers.Position;
+import Wrappers.Vector2;
 public class Map {
 	private Tile[][] grid; //[x][y]
 	/*
 	 * entrance coordinates, contains list of positions [topleft, topright, botleft, botright]
 	 */
-	private Position[][] entrances; 
+	private Vector2[][] entrances; 
 	/*
 	 * entrance info, contains list of entrance info [entranceID, entrancethatitlinkstoID]
 	 */
 	private int[][] entranceInfo;
-	public Map(Tile[][] mapData, Position[][] entrances, int[][] entranceInfo) {
+	public Map(Tile[][] mapData, Vector2[][] entrances, int[][] entranceInfo) {
 		grid = mapData;
 		this.entrances = entrances;
 		this.entranceInfo = entranceInfo;

@@ -4,18 +4,20 @@ import Collision.Collider;
 import GameController.Input;
 import Rendering.RectRenderer;
 import Rendering.Renderer;
-import Wrappers.Position;
 import Wrappers.Rect;
 import Wrappers.Sprites;
 import Wrappers.Stats;
+import Wrappers.Vector2;
 
 public class Player extends Combatant{
 	
 	public Input input;
 	
-	public Player(int ID, Position position, Sprites sprites, Renderer renderer, Stats stats) {
+	public Player(int ID, Vector2 position, Sprites sprites, Renderer renderer, Stats stats) {
 		super(ID, position, sprites, renderer, stats);
 		input = new Input();
+		
+		dim = new Rect(0.2f, 0.2f);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -77,19 +79,11 @@ public class Player extends Combatant{
 	}
 
 	@Override
-	public void getPosition() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void render() {
-		float dim = 0.2f;
-		
 		//Assume to be a rectRenderer
 		RectRenderer rectRender = (RectRenderer) renderer;
 		
-		rectRender.rect = new Rect(dim, dim);
+		rectRender.rect = dim;
 		rectRender.pos = position;
 		rectRender.render();
 	}

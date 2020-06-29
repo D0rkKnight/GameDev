@@ -4,8 +4,8 @@ import java.awt.image.BufferedImage;
 
 import GameController.Map;
 import Rendering.RectRenderer;
-import Wrappers.Position;
 import Wrappers.Rect;
+import Wrappers.Vector2;
 
 /**
  * Tile
@@ -30,7 +30,7 @@ public abstract class Tile implements Cloneable{
 	 * @param pos: position at which to render
 	 * @param dim: dimensions of tile
 	 */
-	public void render(Position pos, float dim) {
+	public void render(Vector2 pos, float dim) {
 		//shader.render(g, pos, sprite);
 		renderer.pos = pos;
 		renderer.rect = new Rect(dim, dim);
