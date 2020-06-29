@@ -2,13 +2,13 @@ package Entities;
 
 import Collision.Collider;
 import Rendering.Renderer;
-import Wrappers.Position;
 import Wrappers.Sprites;
 import Wrappers.Stats;
+import Wrappers.Vector2;
 
 public class BouncingEnemy extends Enemy{
 
-	public BouncingEnemy(int ID, Position position, Sprites sprites, Renderer renderer, Stats stats) {
+	public BouncingEnemy(int ID, Vector2 position, Sprites sprites, Renderer renderer, Stats stats) {
 		super(ID, position, sprites, renderer, stats);
 		// TODO Auto-generated constructor stub
 	}
@@ -45,12 +45,6 @@ public class BouncingEnemy extends Enemy{
 
 	@Override
 	public void move() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void getPosition() {
 		// TODO Auto-generated method stub
 		
 	}
