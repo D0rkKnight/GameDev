@@ -33,10 +33,14 @@ import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_QUADS;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.glBegin;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glVertex2f;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 import static org.lwjgl.opengl.GL30.*;
@@ -135,6 +139,18 @@ public class GameManager {
 		initGraphics();
 		drawer = new Drawer();
 
+		
+		
+		
+		//Init player
+		initEntities();
+		initPlayer();
+		new Camera(player);
+		
+		
+		
+		
+		
 		initTiles();
 		
 		/*
@@ -150,15 +166,15 @@ public class GameManager {
 		mapData[2][0] = tile.clone();
 		mapData[0][3] = tile.clone();
 		mapData[2][9] = tile.clone();
+		
+		//Tiles are currently raw and unitialized. Initialize them.
+		for (int i=0; i<mapData.length; i++) for (int j=0; j<mapData[0].length; j++) {
+			Tile t = mapData[i][j];
+			if (t != null) t.init(new Vector2(i*16, j*16), new Rect(16, 16));
+		}
+		
+		
 		currmap = new Map(mapData, null, null);//TODO
-		
-		
-		
-		
-		//Init player
-		initEntities();
-		initPlayer();
-		new Camera(player);
 	}
 	
 	/*
@@ -243,10 +259,10 @@ public class GameManager {
 		glEnable(GL_TEXTURE_2D);
 		
 		// select projection matrix (controls view on screen)
-	    glMatrixMode(GL_PROJECTION);
+	    /*glMatrixMode(GL_PROJECTION);
 	    glLoadIdentity();
 	    // set ortho to same size as viewport, positioned at 0,0
-	    glOrtho(0, r.w, 0, r.h, -1, 1);
+	    glOrtho(0, r.w, 0, r.h, -1, 1);*/
 	}
 	
 	public static Rect GetWindowSize() {
@@ -280,6 +296,7 @@ public class GameManager {
 
 		Shader shader = new Shader("shader");
 		
+		//TODO: We have to make a renderer factory in order for this to, like, work.
 		SpriteRenderer sprRenderer = new SpriteRenderer(shader);
 		sprRenderer.spr = new Texture("tile1.png");
 		renderer = sprRenderer;
@@ -401,9 +418,11 @@ public class GameManager {
 	 * Game loop that handles rendering and stuff
 	 */
 	private void loop() {
-
+		
+		Shader shader = new Shader("shader");
+		
 		// Set clear color
-		glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+		glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
 
 		// Into the rendering loop we go
 		// Remember the lambda callback we attached to key presses? This is where the
@@ -413,13 +432,9 @@ public class GameManager {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			// Drawing stuff
-			/*
-			 * map.getGrid()[0][0].shader.bind(); glBegin(GL_QUADS); glVertex2f(-0.5f,
-			 * 0.5f); glVertex2f(0.5f, 0.5f); glVertex2f(0.5f, -0.5f); glVertex2f(-0.5f,
-			 * -0.5f); glEnd();
-			 */
 			update();
 			drawer.draw(currmap, entities);
+
 
 			// tldr: there are two buffers, one that is being displayed and one that we are
 			// writing to.

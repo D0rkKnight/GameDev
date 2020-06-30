@@ -82,9 +82,11 @@ public class Player extends Combatant{
 		//Assume to be a rectRenderer
 		RectRenderer rectRender = (RectRenderer) renderer;
 		
-		rectRender.rect = dim;
+		//TODO: This is like, broken rn because the renderer can't handle movement.
+		
+		/*rectRender.rect = dim;
 		rectRender.pos = position;
-		rectRender.render();
+		rectRender.render();*/
 	}
 
 }
