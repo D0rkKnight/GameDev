@@ -17,7 +17,7 @@ public class Player extends Combatant{
 		super(ID, position, sprites, renderer, stats);
 		input = new Input();
 		
-		dim = new Rect(0.2f, 0.2f);
+		dim = new Rect(32f, 32f);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -54,28 +54,27 @@ public class Player extends Combatant{
 	@Override
 	public void move() {//TODO add collision
 		if(input.moveX < 0 && true) {//moving left, check collision left
-			xVelocity = -5;
-			position.x += input.moveX;
+			xVelocity = -2f;
 		}
 		else if(input.moveX > 0 && true) {//moving right, check collision right
-			xVelocity = 5;
-			position.x += input.moveX;
+			xVelocity = 2f;
 		}
 		else {
 			xVelocity = 0;
 		}
 		if(true && input.moveY != 0) { //if player is colliding with ground underneath and digital input detected (space pressed)
-			yVelocity = 10;
-			position.y += yVelocity;
+			yVelocity = 4f;
 		}
 		else if(false) { //player not colliding with ground
 			yVelocity -= yAcceleration;
-			position.y += yVelocity;
 		}
 		else {
 			//player colliding with ground without vertical input detected
 		}
 		
+		//Make velo modify pos
+		position.x += xVelocity;
+		position.y += yVelocity;
 	}
 
 	@Override

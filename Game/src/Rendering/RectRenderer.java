@@ -39,17 +39,29 @@ public class RectRenderer extends Renderer {
 	}
 	
 	protected void genVerts() {
-		ul = new Vector2(pos.x, pos.y + rect.h);
-		ul.subtract(Camera.main.pos);
+		//Now this also needs to be normalized...
 		
-		ur = new Vector2(pos.x + rect.w, pos.y + rect.h);
-		ur.subtract(Camera.main.pos);
+		ul = mapVert(pos.x, pos.y + rect.h);
 		
-		bl = new Vector2(pos.x, pos.y);
-		bl.subtract(Camera.main.pos);
+		ur = mapVert(pos.x + rect.w, pos.y + rect.h);
 		
-		br = new Vector2(pos.x + rect.w, pos.y);
-		br.subtract(Camera.main.pos);
+		bl = mapVert(pos.x, pos.y);
+		
+		br = mapVert(pos.x + rect.w, pos.y);
+	}
+	
+	protected Vector2 mapVert(float x, float y) {
+		Vector2 p = new Vector2(x, y);
+		
+		p.subtract(Camera.main.pos);
+		p.x += Camera.main.viewport.w/2;
+		p.y += Camera.main.viewport.h/2;
+		
+		//float ar = Camera.main.viewport.h / Camera.main.viewport.w;
+		//p.x *= ar;
+		//p.y /= Camera.main.viewport.h;
+		
+		return p;
 	}
 	
 	protected void setVert(Vector2 p) {
