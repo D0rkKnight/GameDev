@@ -15,6 +15,11 @@ below that line is a number of lines equal to amount of entrances
 each line is in the format:
 [topleftx,toplefty]:[toprightx,toprighty]:[botleftx,botlefty]:[botrightx,botrighty]:[ID]:[ID connected to]
 
+below that is a line with a number indicating amount of entities
+below that line is a number of lines equal to amount of entities
+each line is in the format:
+[entityTypeID]:[positiondata]:otherstuff TBD
+
 
 
 
@@ -28,7 +33,7 @@ each line is in format
 [classtype (in int format, class-int relationship will be hardcoded)]:[spritename]:[additionalinfoetc]:
 
 
-progressionFile:
+progressFile:
 first line chapter num
 second line level num within chapter
 third line room num within level

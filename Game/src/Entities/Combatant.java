@@ -1,5 +1,4 @@
 package Entities;
-import Collision.Collider;
 import Rendering.Renderer;
 import Wrappers.Vector2;
 import Wrappers.Sprites;
@@ -17,7 +16,7 @@ public abstract class Combatant extends Entity{
 	}
 	
 
-	public abstract void hit(Collider collider1, Collider collider2);
+	public abstract void hit();
 	
 	public abstract void attack();
 	
