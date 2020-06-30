@@ -33,8 +33,10 @@ import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 import static org.lwjgl.opengl.GL30.*;
@@ -64,8 +66,9 @@ import Rendering.Shader;
 import Rendering.SpriteRenderer;
 import Tiles.SquareTile;
 import Tiles.Tile;
-import Wrappers.Vector2;
+import Wrappers.Rect;
 import Wrappers.Texture;
+import Wrappers.Vector2;
 
 
 public class GameManager {
@@ -207,7 +210,7 @@ public class GameManager {
 		// Create the window!
 		// Note: NULL is a constant that denotes the null value in OpenGL. Not the same
 		// thing as Java null.
-		window = glfwCreateWindow(300, 300, "Hello World!", NULL, NULL);
+		window = glfwCreateWindow(1280, 720, "PLACEHOLDER TITLE", NULL, NULL);
 		if (window == NULL) {
 			throw new RuntimeException("Failed to create GLFW window");
 		}
@@ -218,28 +221,13 @@ public class GameManager {
 			inputListener(window, key, scancode, action, mods);
 		});
 
-		// A wack process required to move the window. Why this is necessary, I'm not
-		// entirely clear on.
-		// Oh I think it's because the wrapped OpenGL function has to return multiple
-		// values so
-		// this allocates the memory in a manner that C recognizes.
-		// Read more on MemoryStack as a solution to interfacing problems between the
-		// two languages.
-		try (MemoryStack stack = stackPush()) {
-			IntBuffer pWidth = stack.mallocInt(1);
-			IntBuffer pHeight = stack.mallocInt(1);
-
-			// Get window size
-			glfwGetWindowSize(window, pWidth, pHeight);
-
+		
+		Rect r = GetWindowSize();
 			// Get resolution of primary monitor
-			GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-			// Set pos
-			glfwSetWindowPos(window, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
-		}
-		// Another benefit: garbage collection bsery is avoided because the stack is
-		// popped and reclaimed immediately after the try block.
+		// Set pos
+		glfwSetWindowPos(window, (vidmode.width() - (int) r.w) / 2, (vidmode.height() - (int) r.h) / 2);
 
 		// Tells the GPU to write to this window.
 		glfwMakeContextCurrent(window);
@@ -253,6 +241,34 @@ public class GameManager {
 		// Creating the context to which all graphics operations will be executed upon
 		GL.createCapabilities();
 		glEnable(GL_TEXTURE_2D);
+		
+		// select projection matrix (controls view on screen)
+	    glMatrixMode(GL_PROJECTION);
+	    glLoadIdentity();
+	    // set ortho to same size as viewport, positioned at 0,0
+	    glOrtho(0, r.w, 0, r.h, -1, 1);
+	}
+	
+	public static Rect GetWindowSize() {
+		// A wack process required to move the window. Why this is necessary, I'm not
+		// entirely clear on.
+		// Oh I think it's because the wrapped OpenGL function has to return multiple
+		// values so
+		// this allocates the memory in a manner that C recognizes.
+		// Read more on MemoryStack as a solution to interfacing problems between the
+		// two languages.
+		
+		try (MemoryStack stack = stackPush()) {
+			IntBuffer pWidth = stack.mallocInt(1);
+			IntBuffer pHeight = stack.mallocInt(1);
+
+			// Get window size
+			glfwGetWindowSize(window, pWidth, pHeight);
+
+			return new Rect(pWidth.get(0), pHeight.get(0));
+		}
+		// Another benefit: garbage collection bsery is avoided because the stack is
+		// popped and reclaimed immediately after the try block.
 	}
 
 	/*

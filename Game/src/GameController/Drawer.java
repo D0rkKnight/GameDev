@@ -13,7 +13,7 @@ public class Drawer {
 	private float tileWidth;
 	
 	Drawer() {
-		tileWidth = 0.1f;
+		tileWidth = 16f;
 	}
 	
 	public void draw(Map map, ArrayList<Entity> entities) {
