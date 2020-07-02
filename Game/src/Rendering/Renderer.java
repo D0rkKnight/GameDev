@@ -1,6 +1,6 @@
 package Rendering;
 
-public abstract class Renderer {
+public abstract class Renderer implements Cloneable{
 	protected Shader shader;
 	
 	Renderer(Shader shader) {
@@ -8,4 +8,9 @@ public abstract class Renderer {
 	}
 	
 	public abstract void render();
+	
+	@Override
+	public Renderer clone() throws CloneNotSupportedException {
+		return (Renderer) super.clone();
+	}
 }

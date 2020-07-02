@@ -1,12 +1,12 @@
 package Entities;
 
-import Rendering.Renderer;
-import Wrappers.Vector2;
+import Rendering.RectRenderer;
 import Wrappers.Sprites;
+import Wrappers.Vector2;
 
 public class NPC extends Entity {
 
-	public NPC(int ID, Vector2 position, Sprites sprites, Renderer renderer) {
+	public NPC(int ID, Vector2 position, Sprites sprites, RectRenderer renderer) {
 		super(ID, position, sprites, renderer);
 		// TODO Auto-generated constructor stub
 	}

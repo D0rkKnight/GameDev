@@ -1,9 +1,8 @@
 package Entities;
-import Collision.Collider;
-import Rendering.Renderer;
-import Wrappers.Vector2;
+import Rendering.RectRenderer;
 import Wrappers.Sprites;
 import Wrappers.Stats;
+import Wrappers.Vector2;
 
 public abstract class Combatant extends Entity{
 	protected Stats stats;
@@ -11,13 +10,13 @@ public abstract class Combatant extends Entity{
 	protected float xVelocity;
 	protected float yAcceleration;
 	
-	public Combatant(int ID, Vector2 position, Sprites sprites, Renderer renderer, Stats stats) {
+	public Combatant(int ID, Vector2 position, Sprites sprites, RectRenderer renderer, Stats stats) {
 		super(ID, position, sprites, renderer);
 		this.stats = stats;
 	}
 	
 
-	public abstract void hit(Collider collider1, Collider collider2);
+	public abstract void hit();
 	
 	public abstract void attack();
 	

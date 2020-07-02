@@ -1,12 +1,12 @@
 package Entities;
 
-import Rendering.Renderer;
-import Wrappers.Vector2;
+import Rendering.RectRenderer;
 import Wrappers.Sprites;
+import Wrappers.Vector2;
 
 public class LockedEntity extends Entity{
 
-	public LockedEntity(int ID, Vector2 position, Renderer renderer, Sprites sprites) {
+	public LockedEntity(int ID, Vector2 position, RectRenderer renderer, Sprites sprites) {
 		super(ID, position, sprites, renderer);
 		// TODO Auto-generated constructor stub
 	}

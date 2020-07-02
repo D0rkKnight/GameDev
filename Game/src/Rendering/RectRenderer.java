@@ -13,18 +13,15 @@ import GameController.Camera;
 import Wrappers.Rect;
 import Wrappers.Vector2;
 
-public class RectRenderer extends Renderer implements Cloneable {
+public abstract class RectRenderer extends Renderer implements Cloneable {
 	
 	public Rect rect;
-	public Vector2 pos;
+	protected Vector2 pos;
 	
-	protected Vector2 ul;
-	protected Vector2 ur;
-	protected Vector2 bl;
-	protected Vector2 br;
+	protected Mesh mesh;
 	
 	protected int vaoId;
-	protected int vertexVboId;
+	protected int vboId;
 	protected int vertexCount;
 	
 	protected boolean hasInit;
@@ -38,8 +35,13 @@ public class RectRenderer extends Renderer implements Cloneable {
 		hasInit = false;
 	}
 	
+	/**
+	 * Run init in order to prepare the renderer for use.
+	 * @param pos
+	 * @param rect
+	 */
 	public void init(Vector2 pos, Rect rect) {
-		this.rect = rect;
+		/*this.rect = rect;
 		this.pos = pos;
 		hasInit = true;
 		
@@ -68,14 +70,16 @@ public class RectRenderer extends Renderer implements Cloneable {
 		//New vertex buffer (also bind it to the VAO) TODO: Make it not static
 		vertexVboId = glGenBuffers();
 		glBindBuffer(GL_ARRAY_BUFFER, vertexVboId);
-		glBufferData(GL_ARRAY_BUFFER, verticesBuffer, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, verticesBuffer, GL_STREAM_DRAW);
 		
 		//Format data in buffer (you'd need stride if the data represented multiple things)
 		glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 		
 		//Empty cache
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
+		glBindVertexArray(0);*/
+		
+		System.out.println("This needs to be reworked");
 	}
 
 	@Override
@@ -87,39 +91,57 @@ public class RectRenderer extends Renderer implements Cloneable {
 		
 		// TODO Auto-generated method stub
 		shader.bind();
-		
-		genVerts();
-//		glBegin(GL_QUADS);
-//			setVert(bl);
-//			setVert(br);
-//			setVert(ur);
-//			setVert(ul);
-//		glEnd();
+		System.out.println("Wrong renderer.");
 	}
 	
-	protected void genVerts() {
+	/**
+	 * Link the position of this renderer to another position.
+	 * @param pos
+	 */
+	public void linkPos(Vector2 pos) {
+		this.pos = pos;
+	}
+	
+	/**
+	 * Returns an array of vertices.
+	 * @return
+	 */
+	protected float[] genVerts() {
 		//Now this also needs to be normalized...
+		Vector2 ul = mapVert(pos.x, pos.y + rect.h);
+		Vector2 ur = mapVert(pos.x + rect.w, pos.y + rect.h);
+		Vector2 bl = mapVert(pos.x, pos.y);
+		Vector2 br = mapVert(pos.x + rect.w, pos.y);
 		
-		ul = mapVert(pos.x, pos.y + rect.h);
+		float[] verts = new float[] {
+				ul.x, ul.y, 0,
+				bl.x, bl.y, 0,
+				br.x, br.y, 0,
+				br.x, br.y, 0,
+				ur.x, ur.y, 0,
+				ul.x, ul.y, 0,
+		};
 		
-		ur = mapVert(pos.x + rect.w, pos.y + rect.h);
-		
-		bl = mapVert(pos.x, pos.y);
-		
-		br = mapVert(pos.x + rect.w, pos.y);
+		return verts;
 	}
 	
+	/**
+	 * Returns clipped vertex values
+	 * TODO: Do this with matrices instead
+	 * @param x
+	 * @param y
+	 * @return
+	 */
 	protected Vector2 mapVert(float x, float y) {
 		Vector2 p = new Vector2(x, y);
 		
+		//View step of rendering
 		p.subtract(Camera.main.pos);
 		
+		
+		//Clip step of rendering (simple, since we're in an orthographic mode.
 		p.x /= Camera.main.viewport.w;
 		p.y /= Camera.main.viewport.h;
-		
-		//float ar = Camera.main.viewport.h / Camera.main.viewport.w;
-		//p.x *= ar;
-		//p.y /= Camera.main.viewport.h;
 		
 		return p;
 	}

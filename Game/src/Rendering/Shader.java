@@ -51,6 +51,7 @@ public class Shader {
 		//The integer is the attribute id and identifies what data will be sent.
 		//The string is the semantic and identifies how the attribute will be referred to within the shader.
 		glBindAttribLocation(program, 0, "vertices");
+		glBindAttribLocation(program, 1, "texCords");
 		
 		
 		//Link and validate

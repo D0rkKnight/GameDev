@@ -1,9 +1,10 @@
 package Entities;
 
-import Collision.Collider;
+import Collision.Collidable;
+import GameController.Camera;
+import GameController.GameManager;
 import GameController.Input;
 import Rendering.RectRenderer;
-import Rendering.Renderer;
 import Wrappers.Rect;
 import Wrappers.Sprites;
 import Wrappers.Stats;
@@ -13,16 +14,19 @@ public class Player extends Combatant{
 	
 	public Input input;
 	
-	public Player(int ID, Vector2 position, Sprites sprites, Renderer renderer, Stats stats) {
+	public Player(int ID, Vector2 position, Sprites sprites, RectRenderer renderer, Stats stats) {
 		super(ID, position, sprites, renderer, stats);
 		input = new Input();
 		
 		dim = new Rect(32f, 32f);
+		this.renderer.init(position, dim);
+		this.renderer.linkPos(this.position);
+		
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public void hit(Collider collider1, Collider collider2) {
+	public void hit() {
 		// TODO Auto-generated method stub
 		
 	}
@@ -88,28 +92,26 @@ public class Player extends Combatant{
 		if(true && input.moveY != 0) { //if player is colliding with ground underneath and digital input detected (space pressed)
 			yVelocity = 4f;
 		}
-		else if(false) { //player not colliding with ground
+		else if(true) { //player not colliding with ground
+			//Set this to universal gravitational constant
+			yAcceleration = Entity.gravity;
+			
 			yVelocity -= yAcceleration;
+			yVelocity = Math.max(yVelocity, -3);
 		}
 		else {
 			//player colliding with ground without vertical input detected
 		}
 		
 		//Make velo modify pos
-		position.x += xVelocity;
-		position.y += yVelocity;
+		position.x += xVelocity * GameManager.deltaT();
+		position.y += yVelocity * GameManager.deltaT();
 	}
 
 	@Override
 	public void render() {
-		//Assume to be a rectRenderer
-		RectRenderer rectRender = (RectRenderer) renderer;
-		
 		//TODO: This is like, broken rn because the renderer can't handle movement.
-		
-		/*rectRender.rect = dim;
-		rectRender.pos = position;
-		rectRender.render();*/
+		renderer.render();
 	}
 
 }

@@ -10,23 +10,24 @@ public class Camera {
 	public Vector2 pos;
 	public Rect viewport;
 	
-	public Camera(Entity target) {
+	public Camera() {
 		if (main == null) main = this;
 		
-		this.target = target;
-		pos = target.getPosition();
+		pos = new Vector2(0f, 0f);
 		
 		viewport = GameManager.GetWindowSize();
+		viewport.w /= 2;
+		viewport.h /= 2;
+	}
+	
+	public void attach(Entity target) {
+		this.target = target;
+		pos = target.getPosition();
 	}
 	
 	public void update() {
-		try {
-			pos = target.getPosition().clone();
-			pos.x += target.dim.w/2;
-			pos.y += target.dim.h/2;
-			
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
+		//Change the viewport
+		
+		
 	}
 }

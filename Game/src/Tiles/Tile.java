@@ -43,7 +43,7 @@ public abstract class Tile implements Cloneable{
 	 */
 	public void render(Vector2 pos, float dim) {
 		//shader.render(g, pos, sprite);
-		renderer.pos = pos;
+		renderer.linkPos(pos);;
 		renderer.rect = new Rect(dim, dim);
 		renderer.render();
 	}

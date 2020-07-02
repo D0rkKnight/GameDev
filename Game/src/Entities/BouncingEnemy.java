@@ -1,20 +1,18 @@
 package Entities;
-
-import Collision.Collider;
-import Rendering.Renderer;
+import Rendering.RectRenderer;
 import Wrappers.Sprites;
 import Wrappers.Stats;
 import Wrappers.Vector2;
 
 public class BouncingEnemy extends Enemy{
 
-	public BouncingEnemy(int ID, Vector2 position, Sprites sprites, Renderer renderer, Stats stats) {
+	public BouncingEnemy(int ID, Vector2 position, Sprites sprites, RectRenderer renderer, Stats stats) {
 		super(ID, position, sprites, renderer, stats);
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public void hit(Collider collider1, Collider collider2) {
+	public void hit() {
 		// TODO Auto-generated method stub
 		
 	}

@@ -82,7 +82,11 @@ public class GameManager {
 	 * private JFrame frame; private RendererOld canvas;
 	 */
 	public static long window;
-	private boolean[] keyStates;
+	private static boolean[] keyStates;
+	private static long deltaTime = 0;
+	private static long currTime = 0;
+	private static long lastTime = 0;
+	
 	//
 	private Drawer drawer;
 	private RectRenderer renderer;
@@ -134,19 +138,28 @@ public class GameManager {
 	}
 
 	private void init() {
+		initTime();
+		
 		serializer = new Serializer();
 		keyStates = new boolean[GLFW_KEY_LAST];
 		initGraphics();
 		drawer = new Drawer();
 
+		//Init camera
+		new Camera();
 		
+		//Init renderer
+		//TODO: We have to make a renderer factory in order for this to, like, work.
+		Shader shader = new Shader("texShader");
+				SpriteRenderer sprRenderer = new SpriteRenderer(shader);
+				sprRenderer.spr = new Texture("tile1.png");
+				renderer = sprRenderer;
 		
 		
 		//Init player
 		initEntities();
 		initPlayer();
-		new Camera(player);
-		
+		Camera.main.attach(player);
 		
 		
 		
@@ -161,11 +174,15 @@ public class GameManager {
 		}*/
 		
 		//Just do this for now
-		Tile[][] mapData = new Tile[10][10];
+		Tile[][] mapData = new Tile[100][100];
 		Tile tile = tileLookup.get(1);
 		mapData[2][0] = tile.clone();
 		mapData[0][3] = tile.clone();
 		mapData[2][9] = tile.clone();
+		for (int i=0; i<mapData.length; i++) {
+			mapData[i][0] = tile.clone();
+		}
+		
 		
 		//Tiles are currently raw and unitialized. Initialize them.
 		for (int i=0; i<mapData.length; i++) for (int j=0; j<mapData[0].length; j++) {
@@ -259,10 +276,11 @@ public class GameManager {
 		glEnable(GL_TEXTURE_2D);
 		
 		// select projection matrix (controls view on screen)
-	    /*glMatrixMode(GL_PROJECTION);
+	    glMatrixMode(GL_PROJECTION);
 	    glLoadIdentity();
 	    // set ortho to same size as viewport, positioned at 0,0
-	    glOrtho(0, r.w, 0, r.h, -1, 1);*/
+	    // TODO: Figure out what this like, does.
+	    glOrtho(0, r.w, 0, r.h, -1, 1);
 	}
 	
 	public static Rect GetWindowSize() {
@@ -293,13 +311,6 @@ public class GameManager {
 	 */
 	private void initTiles() {
 		tileLookup = new HashMap<>();
-
-		Shader shader = new Shader("shader");
-		
-		//TODO: We have to make a renderer factory in order for this to, like, work.
-		SpriteRenderer sprRenderer = new SpriteRenderer(shader);
-		sprRenderer.spr = new Texture("tile1.png");
-		renderer = sprRenderer;
 
 
 		BufferedImage img = serializer.loadImage("tile1.png");
@@ -408,7 +419,7 @@ public class GameManager {
 	}
 	
 	private void initPlayer() {
-		player = new Player(0, new Vector2(0, 0), null, renderer, null);
+		player = new Player(0, new Vector2(100, 100), null, renderer, null);
 		
 		
 		entities.add(player);
@@ -428,6 +439,8 @@ public class GameManager {
 		// Remember the lambda callback we attached to key presses? This is where the
 		// function returns.
 		while (!glfwWindowShouldClose(window)) {
+			updateTime();
+			
 			// Clear frame buffer
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -448,6 +461,22 @@ public class GameManager {
 
 			// canvas.paint();
 		}
+	}
+	
+	private void initTime() {
+		currTime = System.nanoTime() / 1000000;
+		lastTime = currTime;
+	}
+	
+	private void updateTime() {
+		lastTime = currTime;
+		currTime = System.nanoTime() / 1000000;
+		
+		deltaTime = currTime - lastTime;
+	}
+	
+	public static long deltaT() {
+		return deltaTime;
 	}
 	
 	private void update() {
