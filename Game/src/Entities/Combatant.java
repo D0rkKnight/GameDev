@@ -16,7 +16,7 @@ public abstract class Combatant extends Entity{
 	}
 	
 
-	public abstract void hit();
+	public abstract void hit(int damage, float direction, float knockback);
 	
 	public abstract void attack();
 	
