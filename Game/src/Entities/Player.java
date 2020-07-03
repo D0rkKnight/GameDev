@@ -109,6 +109,7 @@ public class Player extends Combatant {
 	 * @param knockback force of knockback (in float, change of velocity)
 	 * 
 	 */
+	/*
 	@Override
 	public void hit(int damage, float direction, float knockback) {
 		stats.health -= damage;
@@ -132,5 +133,6 @@ public class Player extends Combatant {
 			yVelocity -= knockback * Math.cos(Math.toRadians(180 - direction));
 		}
 	}
+	*/
 
 }

@@ -14,14 +14,16 @@ public abstract class Entity {
 	protected Vector2 position;
 	protected Sprites sprites;
 	protected Renderer renderer;
+	protected String name;
 	
 	public Rect dim;
 	
-	public Entity(int ID, Vector2 position, Sprites sprites, Renderer renderer) {
+	public Entity(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name) {
 		this.ID = ID;
 		this.position = position;
 		this.sprites = sprites;
 		this.renderer = renderer;
+		this.name = name;
 	}
 	
 	//AI of the object, calls animation frame changes, moves, and attacks
