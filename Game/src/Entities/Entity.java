@@ -1,4 +1,5 @@
 package Entities;
+import Rendering.RectRenderer;
 import Rendering.Renderer;
 import Wrappers.Rect;
 import Wrappers.Sprites;
@@ -13,6 +14,9 @@ public abstract class Entity {
 	protected int ID;
 	protected Vector2 position;
 	protected Sprites sprites;
+  protected RectRenderer renderer;
+	static float gravity = 0.1f;
+	public Rect dim;
 	protected Renderer renderer;
 	protected String name;
 	
@@ -24,6 +28,12 @@ public abstract class Entity {
 		this.sprites = sprites;
 		this.renderer = renderer;
 		this.name = name;
+    try {
+			this.renderer = renderer.clone();
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	//AI of the object, calls animation frame changes, moves, and attacks

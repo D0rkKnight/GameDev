@@ -2,8 +2,10 @@ package Entities;
 
 import Rendering.Renderer;
 import Wrappers.Vector2;
+import Rendering.RectRenderer;
 import Wrappers.Sprites;
 import Wrappers.Stats;
+import Wrappers.Vector2;
 
 public abstract class Combatant extends Entity {
 	protected Stats stats;
@@ -47,6 +49,7 @@ public abstract class Combatant extends Entity {
 			yVelocity -= knockback * Math.cos(Math.toRadians(180 - direction));
 		}
 	}
+
 
 	public abstract void attack();
 

@@ -1,9 +1,9 @@
 package Entities;
 
-import Rendering.Renderer;
-import Wrappers.Vector2;
+import Rendering.RectRenderer;
 import Wrappers.Sprites;
 import Wrappers.Stats;
+import Wrappers.Vector2;
 /**
  * TODO frameworks
  * @author Benjamin

@@ -22,7 +22,18 @@ public abstract class Tile implements Cloneable{
 	public Tile(int ID, BufferedImage sprite, RectRenderer renderer) {
 		this.ID = ID;
 		this.sprite = sprite;
-		this.renderer = renderer;
+		
+		//Create shallow copy
+		try {
+			this.renderer = renderer.clone();
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void init(Vector2 pos, Rect rect) {
+		this.renderer.init(pos, rect);
 	}
 	
 	/**
@@ -32,7 +43,7 @@ public abstract class Tile implements Cloneable{
 	 */
 	public void render(Vector2 pos, float dim) {
 		//shader.render(g, pos, sprite);
-		renderer.pos = pos;
+		renderer.linkPos(pos);;
 		renderer.rect = new Rect(dim, dim);
 		renderer.render();
 	}
