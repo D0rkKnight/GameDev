@@ -89,7 +89,7 @@ public class GameManager {
 	
 	//
 	private Drawer drawer;
-	private RectRenderer renderer;
+	private SpriteRenderer renderer;
 
 	// Storage for tiles
 	private ArrayList<Map> maps;
@@ -176,11 +176,15 @@ public class GameManager {
 		//Just do this for now
 		Tile[][] mapData = new Tile[100][100];
 		Tile tile = tileLookup.get(1);
-		mapData[2][0] = tile.clone();
-		mapData[0][3] = tile.clone();
-		mapData[2][9] = tile.clone();
-		for (int i=0; i<mapData.length; i++) {
-			mapData[i][0] = tile.clone();
+		try {
+			mapData[2][0] = tile.clone();
+			mapData[0][3] = tile.clone();
+			mapData[2][9] = tile.clone();
+			for (int i=0; i<mapData.length; i++) {
+				mapData[i][0] = tile.clone();
+			}
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
 		}
 		
 		
@@ -191,7 +195,7 @@ public class GameManager {
 		}
 		
 		
-		currmap = new Map(mapData, null, null);//TODO
+		currmap = new Map(mapData, null, null, null);//TODO
 	}
 	
 	/*
@@ -386,10 +390,18 @@ public class GameManager {
 		for(int i = 0; i < yheight; i++) {
 			String[] tileLine = mapFile.readLine().split(":");
 			for(int j = 0; j < xwidth; j++) {
-				maptiles[i][j] = (Tile) (tileLookup.get(Integer.parseInt(tileLine[i]))).clone(); //want to clone the tile we load into array
+				try {
+					maptiles[i][j] = (Tile) (tileLookup.get(Integer.parseInt(tileLine[i]))).clone();
+				} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (CloneNotSupportedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} //want to clone the tile we load into array
 			}
 		}
-		maps.add(new Map(maptiles, null, null));//TODO
+		maps.add(new Map(maptiles, null, null, null));//TODO
 	}
 	private void loadCharData(String chardata) {
 		//TODO
@@ -419,7 +431,7 @@ public class GameManager {
 	}
 	
 	private void initPlayer() {
-		player = new Player(0, new Vector2(100, 100), null, renderer, null);
+		player = new Player(0, new Vector2(100, 100), null, renderer, "Player", null);
 		
 		
 		entities.add(player);

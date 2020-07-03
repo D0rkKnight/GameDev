@@ -3,7 +3,7 @@ package Tiles;
 import java.awt.image.BufferedImage;
 
 import GameController.Map;
-import Rendering.RectRenderer;
+import Rendering.SpriteRenderer;
 import Wrappers.Rect;
 import Wrappers.Vector2;
 
@@ -16,10 +16,10 @@ public abstract class Tile implements Cloneable{
 	protected int ID;
 	protected BufferedImage sprite;
 	protected Map map;
-	protected RectRenderer renderer;
+	protected SpriteRenderer renderer;
 	protected int hammerState; //NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when loaded in maps)
 	
-	public Tile(int ID, BufferedImage sprite, RectRenderer renderer) {
+	public Tile(int ID, BufferedImage sprite, SpriteRenderer renderer) {
 		this.ID = ID;
 		this.sprite = sprite;
 		
@@ -33,6 +33,7 @@ public abstract class Tile implements Cloneable{
 	}
 	
 	public void init(Vector2 pos, Rect rect) {
+		
 		this.renderer.init(pos, rect);
 	}
 	
@@ -59,5 +60,9 @@ public abstract class Tile implements Cloneable{
 	public int getHammerState() {
 		return hammerState;
 	}
-	public abstract Tile clone();
+	
+	@Override
+	public Tile clone() throws CloneNotSupportedException {
+		return (Tile) super.clone();
+	}
 }

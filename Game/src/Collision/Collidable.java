@@ -1,5 +1,7 @@
 package Collision;
 
+import Wrappers.Hitbox;
+
 public interface Collidable {
 
 

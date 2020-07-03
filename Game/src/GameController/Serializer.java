@@ -13,19 +13,13 @@ import javax.imageio.ImageIO;
 
 import Accessories.Accessory;
 import Entities.Entity;
-import Rendering.RectRenderer;
+import Rendering.SpriteRenderer;
 import Tiles.SquareTile;
 import Tiles.Tile;
 import Wrappers.Vector2;
-import Accessories.*;
-import Entities.*;
-import Rendering.RectRenderer;
-import Rendering.Shader;
-import Tiles.*;
-import Wrappers.Vector2;
 
 public class Serializer {
-	public void loadTileHash(String filename, HashMap<Integer, Tile> tileLookup, RectRenderer renderer) { // loads a hashmap
+	public void loadTileHash(String filename, HashMap<Integer, Tile> tileLookup, SpriteRenderer renderer) { // loads a hashmap
 																									// assigning tile ID
 																									// to Tile objects
 		BufferedReader tileHashFile = null;
@@ -98,7 +92,15 @@ public class Serializer {
 			String[] tileLine = mapFile.readLine().split(":");
 			for (int j = 0; j < xwidth; j++) {
 				String[] tileInfo = tileLine[i].split(".");
-				maptiles[i][j] = (tileLookup.get(Integer.parseInt(tileInfo[0]))).clone(); // want to clone the tile we
+				try {
+					maptiles[i][j] = (tileLookup.get(Integer.parseInt(tileInfo[0]))).clone();
+				} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (CloneNotSupportedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} // want to clone the tile we
 																							// load into array
 				maptiles[i][j].setHammerState(Integer.parseInt(tileInfo[1]));
 			}
