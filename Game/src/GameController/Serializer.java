@@ -63,18 +63,7 @@ public class Serializer {
 				e.printStackTrace();
 			}
 		}
-
-	}
-
-	/**
-	 * 
-	 * @return int[0] new chapter, int[1] new level
-	 */
-	public int[] finishArea() {
-
-		return null; // called when character finishes a major area, updates level and chapter of
-						// character
-
+		
 	}
 
 	/**
@@ -127,9 +116,42 @@ public class Serializer {
 			entranceInfo[i][1] = Integer.parseInt(info[5]);
 
 		}
+		
+		ArrayList<Entity> entities = new ArrayList<Entity>();//TODO
+		
+		
 		mapFile.close();
-		Map returnMap = new Map(maptiles, coords, entranceInfo);
+		Map returnMap = new Map(maptiles, coords, entranceInfo, entities);
 		return returnMap;
+	}
+	/**
+	 * Loads the progress (chapter number, level number, and room)
+	 * @param filename
+	 * @return {chapter num 0-3, level num, room number}
+	 */
+	public int[] loadProgress(String filename) {
+		BufferedReader progressFile = null;
+
+		try {
+			progressFile = new BufferedReader(new FileReader(filename));
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found");
+			e.printStackTrace();
+		}
+		int[] progress = new int[3];
+		try {
+			progress[0] = Integer.parseInt(progressFile.readLine());
+			progress[1] = Integer.parseInt(progressFile.readLine());
+			progress[2] = Integer.parseInt(progressFile.readLine());
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return progress;
+		
 	}
 
 	/**
@@ -192,6 +214,7 @@ public class Serializer {
 	 */
 	public ArrayList<Entity> loadEntityData(String entityData) {
 		ArrayList<Entity> entities = new ArrayList<Entity>();
+		
 		return entities;
 	}
 

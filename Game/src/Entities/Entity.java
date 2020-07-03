@@ -14,18 +14,21 @@ public abstract class Entity {
 	protected int ID;
 	protected Vector2 position;
 	protected Sprites sprites;
-	protected RectRenderer renderer;
-	
+  protected RectRenderer renderer;
 	static float gravity = 0.1f;
+	public Rect dim;
+	protected Renderer renderer;
+	protected String name;
 	
 	public Rect dim;
 	
-	public Entity(int ID, Vector2 position, Sprites sprites, RectRenderer renderer) {
+	public Entity(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name) {
 		this.ID = ID;
 		this.position = position;
 		this.sprites = sprites;
-		
-		try {
+		this.renderer = renderer;
+		this.name = name;
+    try {
 			this.renderer = renderer.clone();
 		} catch (CloneNotSupportedException e) {
 			// TODO Auto-generated catch block

@@ -1,6 +1,10 @@
 package GameController;
 import Tiles.Tile;
 import Wrappers.Vector2;
+
+import java.util.ArrayList;
+
+import Entities.*;
 public class Map {
 	private Tile[][] grid; //[x][y]
 	/*
@@ -11,10 +15,15 @@ public class Map {
 	 * entrance info, contains list of entrance info [entranceID, entrancethatitlinkstoID]
 	 */
 	private int[][] entranceInfo;
-	public Map(Tile[][] mapData, Vector2[][] entrances, int[][] entranceInfo) {
+	/*
+	 * list of entities in the room. does not include player, accessed by GameManager to determine collisions
+	 */
+	private ArrayList<Entity> entities;
+	public Map(Tile[][] mapData, Vector2[][] entrances, int[][] entranceInfo, ArrayList<Entity> entities) {
 		grid = mapData;
-		this.entrances = entrances;
-		this.entranceInfo = entranceInfo;
+		this.setEntrances(entrances);
+		this.setEntranceInfo(entranceInfo);
+		this.setEntities(entities);
 	}
 	public Tile[][] getGrid(){
 		return grid;
@@ -39,5 +48,23 @@ public class Map {
 			}
 		}
 		return subgrid;
+	}
+	public Vector2[][] getEntrances() {
+		return entrances;
+	}
+	private void setEntrances(Vector2[][] entrances) {
+		this.entrances = entrances;
+	}
+	public int[][] getEntranceInfo() {
+		return entranceInfo;
+	}
+	private void setEntranceInfo(int[][] entranceInfo) {
+		this.entranceInfo = entranceInfo;
+	}
+	public ArrayList<Entity> getEntities() {
+		return entities;
+	}
+	public void setEntities(ArrayList<Entity> entities) {
+		this.entities = entities;
 	}
 }
