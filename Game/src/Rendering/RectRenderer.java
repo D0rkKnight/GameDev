@@ -1,13 +1,8 @@
 package Rendering;
 
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
-import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL11.glVertex2f;
 
-import java.nio.FloatBuffer;
-
-import org.lwjgl.BufferUtils;
+import java.util.HashMap;
 
 import GameController.Camera;
 import Wrappers.Rect;
@@ -40,7 +35,7 @@ public abstract class RectRenderer extends Renderer implements Cloneable {
 	 * @param pos
 	 * @param rect
 	 */
-	public void init(Vector2 pos, Rect rect) {
+	public void init() {
 		/*this.rect = rect;
 		this.pos = pos;
 		hasInit = true;

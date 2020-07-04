@@ -2,7 +2,7 @@ package Tiles;
 
 import java.awt.image.BufferedImage;
 
-import Rendering.RectRenderer;
+import Rendering.SpriteRenderer;
 
 /**
  * Example class for possible types of tiles
@@ -11,7 +11,7 @@ import Rendering.RectRenderer;
  */
 public abstract class SolidTile extends Tile {
 
-	public SolidTile(int ID, BufferedImage sprite, RectRenderer renderer) {
+	public SolidTile(int ID, BufferedImage sprite, SpriteRenderer renderer) {
 		super(ID, sprite, renderer);
 		// TODO Auto-generated constructor stub
 	}

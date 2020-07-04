@@ -1,20 +1,22 @@
 package Entities;
 
+import Collision.Collidable;
 import Rendering.Renderer;
+import Wrappers.Hitbox;
 import Wrappers.Sprites;
 import Wrappers.Stats;
 import Wrappers.Vector2;
 
-public class WormHead extends Enemy{
+public class WormHead extends Enemy implements Collidable{
 	protected WormTail backSegment;
-	public WormHead(int ID, Vector2 position, Sprites sprites, Renderer renderer, Stats stats, WormTail backSegment) {
-		super(ID, position, sprites, renderer, stats);
+	public WormHead(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name, Stats stats, WormTail backSegment) {
+		super(ID, position, sprites, renderer, name, stats);
 		this.backSegment = backSegment;
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public void hit() {
+	public void onHit(Hitbox hb) {
 		// TODO Auto-generated method stub
 		
 	}

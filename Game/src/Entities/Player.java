@@ -1,33 +1,36 @@
 package Entities;
 
 import Collision.Collidable;
-import GameController.Camera;
 import GameController.GameManager;
 import GameController.Input;
-import Rendering.RectRenderer;
+import Rendering.SpriteRenderer;
+import Wrappers.Hitbox;
 import Wrappers.Rect;
 import Wrappers.Sprites;
 import Wrappers.Stats;
 import Wrappers.Vector2;
 
-public class Player extends Combatant {
+public class Player extends Combatant implements Collidable{
 
 	public Input input;
 	
-	public Player(int ID, Vector2 position, Sprites sprites, RectRenderer renderer, Stats stats) {
+	public Player(int ID, Vector2 position, Sprites sprites, SpriteRenderer renderer, String name, Stats stats) {
 
-		super(ID, position, sprites, renderer, stats);
+		super(ID, position, sprites, renderer, name, stats);
 		input = new Input();
 
 		dim = new Rect(32f, 32f);
-		this.renderer.init(position, dim);
+		
+		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer;
+		rendTemp.init(position, dim);
+		renderer = rendTemp;
+		
 		this.renderer.linkPos(this.position);
 		
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override
-	public void hit() {
+	public void onHit(Hitbox hb) {
 		// TODO Auto-generated method stub
 		
 	}

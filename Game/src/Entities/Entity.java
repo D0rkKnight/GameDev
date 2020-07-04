@@ -1,6 +1,5 @@
 package Entities;
 
-import Rendering.RectRenderer;
 import Rendering.Renderer;
 import Wrappers.Rect;
 import Wrappers.SpriteSheetSection;
