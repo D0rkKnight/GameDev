@@ -6,17 +6,10 @@ import Wrappers.Vector2;
 
 public class BouncingEnemy extends Enemy{
 
-	public BouncingEnemy(int ID, Vector2 position, Sprites sprites, RectRenderer renderer, Stats stats) {
-		super(ID, position, sprites, renderer, stats);
+	public BouncingEnemy(int ID, Vector2 position, Sprites sprites, RectRenderer renderer, String name, Stats stats) {
+		super(ID, position, sprites, renderer, name, stats);
 		// TODO Auto-generated constructor stub
 	}
-
-	@Override
-	public void hit() {
-		// TODO Auto-generated method stub
-		
-	}
-
 	@Override
 	public void attack() {
 		// TODO Auto-generated method stub

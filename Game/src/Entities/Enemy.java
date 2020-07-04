@@ -1,6 +1,7 @@
 package Entities;
 
 import Rendering.RectRenderer;
+import Rendering.Renderer;
 import Wrappers.Sprites;
 import Wrappers.Stats;
 import Wrappers.Vector2;
