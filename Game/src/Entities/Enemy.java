@@ -1,5 +1,6 @@
 package Entities;
 
+
 import Rendering.Renderer;
 import Wrappers.Sprites;
 import Wrappers.Stats;
