@@ -47,9 +47,10 @@ public abstract class Combatant extends Entity {
 			yVelocity -= knockback * Math.cos(Math.toRadians(180 - direction));
 		}
 	}
+	// AI of the object, calls animation frame changes, moves, and attacks
+	public abstract void calculate(Player p);
 
-
-	public abstract void attack();
+	public abstract void attack(Player p);
 
 	// just sets stats.isDying to true
 	public abstract void die();
