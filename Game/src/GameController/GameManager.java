@@ -515,54 +515,54 @@ public class GameManager {
 				if (rawPos.x > tileSpacePosX * tileSize) snap.x = 1;
 				if (rawPos.y > tileSpacePosY * tileSize) snap.y = 1;
 				
-				//Do the intended snap
-				snapTo(snap, moveAxis, velo, deltaMove, ePos, e);
+				
+				
+				
+				
+				//Do the intended snap-----------------------------------------------------------------------------
+				//Get distance to edge
+				Vector2 modSpacePos = new Vector2(ePos.x % tileSize, ePos.y % tileSize);
+				Vector2 modSpaceOppDist = new Vector2(tileSize - modSpacePos.x, tileSize - modSpacePos.y);
+				
+				if (moveAxis == MOVE_AXIS_Y) {
+					//Snap up
+					if (snap.y == 1) {
+						//Limit ymove
+						velo.y = Math.max(velo.y, 0);
+						deltaMove.y += modSpaceOppDist.y;
+						
+						//You are now also grounded
+						e.grounded = true;
+					}
+					
+					//Snap down
+					if (snap.y == 0) {
+						velo.y = Math.min(velo.y, 0);
+						deltaMove.y -= modSpacePos.y;
+						
+						//Note: moving down still leaves you within the tile, thanks to rounding. Nudge down to exit the tile.
+						deltaMove.y -= NUDGE_CONSTANT;
+					}
+				}
+				
+				if (moveAxis == MOVE_AXIS_X) {
+					//Snap right
+					if (snap.x == 1) {
+						//Limit xMove
+						velo.x = Math.max(velo.x, 0);
+						deltaMove.x += modSpaceOppDist.x;
+					}
+					
+					//Snap left
+					if (snap.x == 0) {
+						velo.x = Math.min(velo.x, 0);
+						deltaMove.x -= modSpacePos.x;
+					}
+				}
 			}
 		}
 		
 		return isSuccess;
-	}
-	
-	private void snapTo(Vector2 snap, int snapAxis, Vector2 velo, Vector2 deltaMove, Vector2 ePos, Entity e) {
-		//Get distance to edge
-		Vector2 modSpacePos = new Vector2(ePos.x % tileSize, ePos.y % tileSize);
-		Vector2 modSpaceOppDist = new Vector2(tileSize - modSpacePos.x, tileSize - modSpacePos.y);
-		
-		if (snapAxis == MOVE_AXIS_Y) {
-			//Snap up
-			if (snap.y == 1) {
-				//Limit ymove
-				velo.y = Math.max(velo.y, 0);
-				deltaMove.y += modSpaceOppDist.y;
-				
-				//You are now also grounded
-				e.grounded = true;
-			}
-			
-			//Snap down
-			if (snap.y == 0) {
-				velo.y = Math.min(velo.y, 0);
-				deltaMove.y -= modSpacePos.y;
-				
-				//Note: moving down still leaves you within the tile, thanks to rounding. Nudge down to exit the tile.
-				deltaMove.y -= NUDGE_CONSTANT;
-			}
-		}
-		
-		if (snapAxis == MOVE_AXIS_X) {
-			//Snap right
-			if (snap.x == 1) {
-				//Limit xMove
-				velo.x = Math.max(velo.x, 0);
-				deltaMove.x += modSpaceOppDist.x;
-			}
-			
-			//Snap left
-			if (snap.x == 0) {
-				velo.x = Math.min(velo.x, 0);
-				deltaMove.x -= modSpacePos.x;
-			}
-		}
 	}
 
 }
