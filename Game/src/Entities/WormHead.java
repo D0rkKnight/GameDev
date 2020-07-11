@@ -40,12 +40,6 @@ public class WormHead extends Enemy implements Collidable{
 	}
 
 	@Override
-	public void setFrame(int framenum) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void move() {
 		// TODO Auto-generated method stub
 		
@@ -53,6 +47,12 @@ public class WormHead extends Enemy implements Collidable{
 
 	@Override
 	public void render() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void calcFrame() {
 		// TODO Auto-generated method stub
 		
 	}

@@ -2,6 +2,7 @@ package Tiles;
 
 import java.awt.image.BufferedImage;
 
+import Collision.Collidable;
 import GameController.Map;
 import Rendering.SpriteRenderer;
 import Wrappers.Rect;

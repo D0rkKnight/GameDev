@@ -3,6 +3,7 @@ package Tiles;
 import java.awt.image.BufferedImage;
 
 import Rendering.SpriteRenderer;
+import Wrappers.Hitbox;
 
 public class SquareTile extends SolidTile{
 

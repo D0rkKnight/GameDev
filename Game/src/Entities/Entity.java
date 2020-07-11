@@ -1,6 +1,8 @@
 package Entities;
 
+import Collision.Collidable;
 import Rendering.Renderer;
+import Wrappers.Hitbox;
 import Wrappers.Rect;
 import Wrappers.SpriteSheetSection;
 import Wrappers.Sprites;
@@ -8,11 +10,12 @@ import Wrappers.Vector2;
 
 /**
  * superclass for all entities
+ * entities have to be initialized after construction
  * 
  * @author Benjamin
  *
  */
-public abstract class Entity {
+public abstract class Entity implements Collidable{
 	protected int ID;
 	protected Vector2 position;
 	protected Sprites sprites;
@@ -24,6 +27,9 @@ public abstract class Entity {
 	protected int currentGroup;
 	protected int currentFrame;
 	protected SpriteSheetSection[][] frames;
+	
+	protected Hitbox hitbox;
+	public boolean grounded;
 
 	public Entity(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name) {
 		this.ID = ID;
@@ -41,13 +47,25 @@ public abstract class Entity {
 
 
 	protected abstract void calcFrame();
-
+	
+	/**
+	 * Applies AI / controls
+	 */
 	public abstract void move();
+	
+	/**
+	 * Applies deltas
+	 */
+	public abstract void pushMovement();
 
 	public Vector2 getPosition() {
 		return position;
 	}
 
 	public abstract void render();
+	
+	public Hitbox getHitbox() {
+		return hitbox;
+	}
 
 }

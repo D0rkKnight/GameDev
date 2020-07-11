@@ -10,7 +10,7 @@ import Wrappers.Sprites;
 import Wrappers.Stats;
 import Wrappers.Vector2;
 
-public class Player extends Combatant implements Collidable{
+public class Player extends Combatant{
 
 	public Input input;
 	
@@ -18,16 +18,17 @@ public class Player extends Combatant implements Collidable{
 
 		super(ID, position, sprites, renderer, name, stats);
 		input = new Input();
-
-		dim = new Rect(32f, 32f);
 		
+		//Configure the renderer real quick
+		dim = new Rect(32f, 32f);
 		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer;
 		rendTemp.init(position, dim);
 		renderer = rendTemp;
 		
 		this.renderer.linkPos(this.position);
 		
-		// TODO Auto-generated constructor stub
+		//Configure hitbox
+		hitbox = new Hitbox(this, dim.w, dim.h);
 	}
 
 	public void onHit(Hitbox hb) {
@@ -47,36 +48,30 @@ public class Player extends Combatant implements Collidable{
 
 	}
 
-	@Override
 	public void calculate() {
-		// TODO Auto-generated method stub
+		super.calculate();
+
 		move();
 	}
 
 	@Override
-	public void setFrame(int framenum) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void move() {// TODO add collision
+		float xCap = 0.7f;
+		
 		if (input.moveX < 0 && true) {// moving left, check collision left
-			if (xVelocity > -1) {
+			if (xVelocity > -xCap) {
 				xVelocity -= 0.2;
-				if (xVelocity < -1) {
-					xVelocity = -1;
+				if (xVelocity < -xCap) {
+					xVelocity = -xCap;
 				}
 			}
-			position.x += xVelocity;
 		} else if (input.moveX > 0 && true) {// moving right, check collision right
-			if (xVelocity < 1) {
+			if (xVelocity < xCap) {
 				xVelocity += 0.2;
-				if (xVelocity > 1) {
-					xVelocity = 1;
+				if (xVelocity > xCap) {
+					xVelocity = xCap;
 				}
 			}
-			position.x += xVelocity;
 		} else {
 			if (xVelocity > 0) {
 				xVelocity -= 0.2; // Rate that the player deaccelerates when not moving
@@ -90,9 +85,9 @@ public class Player extends Combatant implements Collidable{
 				}
 			}
 		}
-		if (true && input.moveY != 0) { // if player is colliding with ground underneath and digital input detected
+		if (grounded && input.moveY != 0) { // if player is colliding with ground underneath and digital input detected
 										// (space pressed)
-			yVelocity = 4f;
+			yVelocity = 2f;
 		}
 		else if(true) { //player not colliding with ground
 			//Set this to universal gravitational constant
@@ -104,16 +99,18 @@ public class Player extends Combatant implements Collidable{
 		else {
 			//player colliding with ground without vertical input detected
 		}
-		
-		//Make velo modify pos
-		position.x += xVelocity * GameManager.deltaT();
-		position.y += yVelocity * GameManager.deltaT();
 	}
 
 	@Override
 	public void render() {
 		//TODO: This is like, broken rn because the renderer can't handle movement.
 		renderer.render();
+	}
+
+	@Override
+	protected void calcFrame() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	/**

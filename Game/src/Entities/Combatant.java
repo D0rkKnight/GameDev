@@ -1,5 +1,6 @@
 package Entities;
 
+import GameController.GameManager;
 import Rendering.Renderer;
 import Wrappers.Sprites;
 import Wrappers.Stats;
@@ -7,13 +8,16 @@ import Wrappers.Vector2;
 
 public abstract class Combatant extends Entity {
 	protected Stats stats;
-	protected float yVelocity;
-	protected float xVelocity;
+	public float yVelocity;
+	public float xVelocity;
 	protected float yAcceleration;
+	
+	protected Vector2 moveDelta;
 
 	public Combatant(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name, Stats stats) {
 		super(ID, position, sprites, renderer, name);
 		this.stats = stats;
+		moveDelta = new Vector2(0, 0);
 	}
 
 	/**
@@ -47,10 +51,27 @@ public abstract class Combatant extends Entity {
 			yVelocity -= knockback * Math.cos(Math.toRadians(180 - direction));
 		}
 	}
-	// AI of the object, calls animation frame changes, moves, and attacks
-	public abstract void calculate(Player p);
 
-	public abstract void attack(Player p);
+	@Override
+	public void calculate() {
+	}
+	
+	@Override
+	public void pushMovement() {
+		//Make velo modify pos
+		position.x += moveDelta.x;
+		position.y += moveDelta.y;
+		
+		//Do a reset
+		moveDelta.x = 0f;
+		moveDelta.y = 0f;
+	}
+
+	public void setMoveDelta(Vector2 d) {
+		moveDelta = d;
+	}
+	
+	public abstract void attack();
 
 	// just sets stats.isDying to true
 	public abstract void die();
