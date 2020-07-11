@@ -45,8 +45,6 @@ public abstract class Entity implements Collidable{
 		}
 	}
 
-	// AI of the object, calls animation frame changes, moves, and attacks
-	public abstract void calculate();
 
 	protected abstract void calcFrame();
 	

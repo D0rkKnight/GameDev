@@ -51,7 +51,7 @@ public abstract class Combatant extends Entity {
 			yVelocity -= knockback * Math.cos(Math.toRadians(180 - direction));
 		}
 	}
-	
+
 	@Override
 	public void calculate() {
 	}

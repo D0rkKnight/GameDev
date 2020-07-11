@@ -6,7 +6,7 @@ import Wrappers.Sprites;
 import Wrappers.Stats;
 import Wrappers.Vector2;
 
-public class ChargingEnemy extends Enemy {
+public class ChargingEnemy extends Enemy implements Gravity {
 	protected boolean charging;// currently charging or no. can be set to
 	protected boolean windup; // currently winding up for charge or no.
 	protected int windupCycles; // animation cycles it should go through before charging
@@ -26,7 +26,7 @@ public class ChargingEnemy extends Enemy {
 	// This enemy attacks only by charging towards the player. No attack function,
 	// damage is strictly form collider.
 	@Override
-	public void attack() {
+	public void attack(Player p) {
 		// empty
 
 	}
@@ -38,17 +38,44 @@ public class ChargingEnemy extends Enemy {
 	}
 
 	@Override
-	public void calculate() {
+	public void calculate(Player p) {
 		calcFrame();
+		if(currentGroup == 3) { //winddown
+			
+		}
+		else if(charging) { //currently charging
+			move();
+		}
+		else if(/*player nearby*/true) { //player nearby
+			windup = true; //start charge windup
+		}
 		// only charges at player if knocked back or moved. has a windup animation
 		// before and a post charge animation.
-
+		else {
+			move(); //idle move
+		}
 	}
 
 	@Override
-	public void move() {
-		// TODO Auto-generated method stub
+	public void move() { //move mostly while charging. Otherwise idle movement.
+		if(charging) {
+			if
+		}
 
+	}
+	@Override
+	public void gravity() {
+		if(true) { //player not colliding with ground
+			//Set this to universal gravitational constant
+			yAcceleration = Entity.gravity;
+			
+			yVelocity -= yAcceleration;
+			yVelocity = Math.max(yVelocity, -3);
+		}
+		else {
+			//player colliding with ground without vertical input detected
+		}
+		
 	}
 
 	@Override
@@ -83,7 +110,7 @@ public class ChargingEnemy extends Enemy {
 					windupNum++;
 					currentFrame = 0;
 				}
-				if (windupNum >= windupCycles) {
+				if (windupNum >= windupCycles) { //completed required amount of loops
 					charging = true;
 					windup = false;
 					currentGroup = 2; // start charging
@@ -94,13 +121,13 @@ public class ChargingEnemy extends Enemy {
 		} else {
 			if (currentGroup == 0) { // idle
 				currentFrame++;
-				if (currentFrame >= frames[currentGroup].length - 1) { // loop animation
+				if (currentFrame >= frames[currentGroup].length - 1) { // loop idle animation
 					currentFrame = 0;
 				}
-			} else if (currentGroup == 1) { // change from windup to idle
+			} else if (currentGroup == 1) { // change from windup to idle animation
 				currentGroup = 0;
 				currentFrame = 0;
-			} else if (currentGroup == 2) { // change from charge to post charge
+			} else if (currentGroup == 2) { // change from charge to post charge animation
 				currentGroup = 3;
 				currentFrame = 0;
 			} else if (currentGroup == 3) { // if in post charge animation, continue animation
@@ -125,5 +152,4 @@ public class ChargingEnemy extends Enemy {
 		// TODO Auto-generated method stub
 		
 	}
-
 }

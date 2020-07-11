@@ -16,7 +16,7 @@ public abstract class Enemy extends Combatant{
 		super(ID, position, sprites, renderer, name, stats);
 		// TODO Auto-generated constructor stub
 	}
-
+	
 	
 	
 }
