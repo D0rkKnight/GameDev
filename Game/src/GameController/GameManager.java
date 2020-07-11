@@ -175,8 +175,9 @@ public class GameManager {
 			mapData[2][15] = tile.clone();
 			for (int i=0; i<mapData.length; i++) {
 				mapData[i][0] = tile.clone();
-				mapData[i][10] = tile.clone();
+				mapData[i][30] = tile.clone();
 				mapData[0][i] = tile.clone();
+				mapData[50][i] = tile.clone();
 			}
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
@@ -399,6 +400,9 @@ public class GameManager {
 		return deltaTime;
 	}
 	
+	/**
+	 * Called once per frame, and is responsible for updating internal game logic.
+	 */
 	private void update() {
 		//Each entity makes decisions
 		for (Entity ent : entities) {
@@ -415,7 +419,6 @@ public class GameManager {
 			//Presume to be free falling, until able to prove otherwise
 			e.grounded = false;
 			
-			//Just take the corner and assume this to be a good position to move from.
 			//Grab projected movement
 			Vector2 deltaMove = new Vector2(e.xVelocity * GameManager.deltaT(), e.yVelocity * GameManager.deltaT());
 			Vector2 velo = new Vector2(e.xVelocity, e.yVelocity);
@@ -425,10 +428,10 @@ public class GameManager {
 			
 
 			
-			//Holds data to be pushed later, when reasonable movement is achieved
+			//Holds data to be pushed later, when reasonable movement is found
 			Vector2 deltaTemp = new Vector2(deltaMove.x, deltaMove.y);
 			
-			//Split into cycles to check physics
+			//Split into cycles (each approximately one tile long) to check physics
 			//yCycle
 			int tilesTraversed = (int) Math.ceil(Math.abs(deltaMove.y/tileSize));
 			int cycles = Math.max(tilesTraversed, 1);
@@ -436,11 +439,10 @@ public class GameManager {
 				//Now inch forwards with increasingly larger deltas
 				Vector2 deltaInch = new Vector2(0, deltaMove.y * (i+1)/cycles);
 				
+				//Move (this modifies deltaInch)
 				boolean isSuccess = moveTo(rawPos, deltaInch, velo, e, grid, MOVE_AXIS_Y);
 				if (!isSuccess) {
-					//The inch is more legitimate than deltaMove now
-					//I think I'll have to split it into a horizontal move and a vertical move
-					//Push the vertical change only.
+					//Push results to buffer
 					deltaTemp.y = deltaInch.y;
 					
 					break;
@@ -456,17 +458,17 @@ public class GameManager {
 				//Now inch forwards with increasingly larger deltas
 				Vector2 deltaInch = new Vector2(deltaMove.x * (i+1)/cycles, 0);
 				
+				//Move (this modifies deltaInch)
 				boolean isSuccess = moveTo(rawPos, deltaInch, velo, e, grid, MOVE_AXIS_X);
 				if (!isSuccess) {
-					//The inch is more legitimate than deltaMove now
-					//I think I'll have to split it into a horizontal move and a vertical move
-					//Push the vertical change only.
+					//Push results to buffer
 					deltaTemp.x = deltaInch.x;
 					
 					break;
 				}
 			}
 			
+			//Push buffer to delta
 			deltaMove = deltaTemp;
 			
 			//Push changes
@@ -483,7 +485,8 @@ public class GameManager {
 		Camera.main.update();
 	}
 	
-	/**
+	/**A utility function to be used by update. Given information, it configures deltaMove and velocity as to resolve collisions on the given axis.
+	 * These values need to be later pushed to the entity in order for changes to appear.
 	 * 
 	 * @param pos
 	 * @param delta
@@ -491,73 +494,116 @@ public class GameManager {
 	 * @return Whether or not the entity collided when attempting to move
 	 */
 	private boolean moveTo(Vector2 rawPos, Vector2 deltaMove, Vector2 velo, Entity e, Tile[][] grid, int moveAxis) {
-		Vector2 ePos = new Vector2(rawPos.x + deltaMove.x, rawPos.y + deltaMove.y);
-		int tileSpacePosX = (int) ePos.x/tileSize;
-		int tileSpacePosY = (int) ePos.y/tileSize;
+		Vector2 bl = new Vector2(rawPos.x + deltaMove.x, rawPos.y + deltaMove.y);
+		Vector2 ur = new Vector2(bl.x + e.dim.w, bl.y + e.dim.h);
+		
+		int tileSpaceBoundL = (int) bl.x/tileSize;
+		int tileSpaceBoundR = (int) ur.x/tileSize;
+		int tileSpaceBoundT = (int) ur.y/tileSize;
+		int tileSpaceBoundB = (int) bl.y/tileSize;
 		
 		//return var
 		boolean isSuccess = true;
+	
+		boolean isOccupied = false;
 		
-		//Only calculate within acceptable dims
-		if (tileSpacePosX >= 0 && tileSpacePosY >= 0 && tileSpacePosX < grid.length && tileSpacePosY < grid[0].length) {
+		/*
+		 * Depending on the axis of movement, check the entire edge of tiles rather than a single tile.
+		 */
+		if (moveAxis == MOVE_AXIS_Y) {
+			for (int i=tileSpaceBoundL; i<=tileSpaceBoundR; i++) {
+				//Make sure everything is within bounds
+				if (i < 0 || tileSpaceBoundT < 0 || tileSpaceBoundB < 0
+						|| i >= grid.length || tileSpaceBoundT >= grid[0].length
+						|| tileSpaceBoundB >= grid[0].length) continue;
+				
+				//Check the top and bottom rows
+				if (grid[i][tileSpaceBoundT] != null || grid[i][tileSpaceBoundB] != null) {
+					isOccupied = true;
+					break;
+				}
+			}
+		}
+		
+		if (moveAxis == MOVE_AXIS_X) {
+			for (int i=tileSpaceBoundB; i<=tileSpaceBoundT; i++) {
+				//Make sure everything is within bounds
+				if (i < 0 || tileSpaceBoundL < 0 || tileSpaceBoundR < 0
+						|| i >= grid[0].length || tileSpaceBoundR >= grid.length
+						|| tileSpaceBoundL >= grid.length) continue;
+				
+				//Check the left and right columns
+				if (grid[tileSpaceBoundL][i] != null || grid[tileSpaceBoundR][i] != null) {
+					isOccupied = true;
+					break;
+				}
+			}
+		}
+		
+		/*
+		 * If collision detected, proceed.
+		 */
+		if (isOccupied) {
+			isSuccess = false;
 			
-			boolean isOccupied = false;
-			if (grid[tileSpacePosX][tileSpacePosY] != null) isOccupied = true;
-			if (isOccupied) {
-				isSuccess = false;
-				
-				//Figure out the direction of approach
-				//This is done by figuring out where the entity is, relative to the tile.
-				//Assume to be coming from the bottom left
-				Vector2 snap = new Vector2(0, 0);
-				
-				//If the current, unmodified position is to the right of the tile, snap to the right side.
-				if (rawPos.x > tileSpacePosX * tileSize) snap.x = 1;
-				if (rawPos.y > tileSpacePosY * tileSize) snap.y = 1;
-				
-				
-				
-				
-				
-				//Do the intended snap-----------------------------------------------------------------------------
-				//Get distance to edge
-				Vector2 modSpacePos = new Vector2(ePos.x % tileSize, ePos.y % tileSize);
-				Vector2 modSpaceOppDist = new Vector2(tileSize - modSpacePos.x, tileSize - modSpacePos.y);
-				
-				if (moveAxis == MOVE_AXIS_Y) {
-					//Snap up
-					if (snap.y == 1) {
-						//Limit ymove
-						velo.y = Math.max(velo.y, 0);
-						deltaMove.y += modSpaceOppDist.y;
-						
-						//You are now also grounded
-						e.grounded = true;
-					}
+			//Figure out which way to push the entity out
+			Vector2 snap = new Vector2(0, 0);
+			if (deltaMove.x < 0) snap.x = 1;
+			if (deltaMove.y < 0) snap.y = 1;
+			
+			
+			
+			
+			
+			//Snap to the intended edge -----------------------------------------------------------------------------
+			if (moveAxis == MOVE_AXIS_Y) {
+				//Snap up
+				/*
+				 * I'll comment the first one for reference
+				 */
+				if (snap.y == 1) {
+					//Dist is the amount to move the delta by in order to avoid entering the tile.
+					float dist = tileSize - (bl.y % tileSize);
 					
-					//Snap down
-					if (snap.y == 0) {
-						velo.y = Math.min(velo.y, 0);
-						deltaMove.y -= modSpacePos.y;
-						
-						//Note: moving down still leaves you within the tile, thanks to rounding. Nudge down to exit the tile.
-						deltaMove.y -= NUDGE_CONSTANT;
-					}
+					//Limit ymove
+					velo.y = Math.max(velo.y, 0);
+					deltaMove.y += dist;
+					
+					//Entity is now also grounded
+					e.grounded = true;
 				}
 				
-				if (moveAxis == MOVE_AXIS_X) {
-					//Snap right
-					if (snap.x == 1) {
-						//Limit xMove
-						velo.x = Math.max(velo.x, 0);
-						deltaMove.x += modSpaceOppDist.x;
-					}
+				//Snap down
+				if (snap.y == 0) {
+					float dist = ur.y % tileSize;
 					
-					//Snap left
-					if (snap.x == 0) {
-						velo.x = Math.min(velo.x, 0);
-						deltaMove.x -= modSpacePos.x;
-					}
+					velo.y = Math.min(velo.y, 0);
+					deltaMove.y -= dist;
+					
+					//Note: moving down still leaves you within the tile, thanks to rounding. Nudge down to exit the tile.
+					deltaMove.y -= NUDGE_CONSTANT;
+				}
+			}
+			
+			if (moveAxis == MOVE_AXIS_X) {
+				//Snap right
+				if (snap.x == 1) {
+					float dist = tileSize - (bl.x % tileSize);
+					
+					//Limit xMove
+					velo.x = Math.max(velo.x, 0);
+					deltaMove.x += dist;
+				}
+				
+				//Snap left
+				if (snap.x == 0) {
+					float dist = ur.x % tileSize;
+					
+					velo.x = Math.min(velo.x, 0);
+					deltaMove.x -= dist;
+					
+					//Note: moving left still leaves you within the tile, thanks to rounding. Nudge left to exit the tile.
+					deltaMove.x -= NUDGE_CONSTANT;
 				}
 			}
 		}
