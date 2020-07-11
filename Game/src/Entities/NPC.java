@@ -1,6 +1,7 @@
 package Entities;
 
 import Rendering.Renderer;
+import Wrappers.Hitbox;
 import Wrappers.Sprites;
 import Wrappers.Vector2;
 
@@ -18,12 +19,6 @@ public class NPC extends Entity {
 	}
 
 	@Override
-	public void setFrame(int framenum) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void move() {
 		// TODO Auto-generated method stub
 		
@@ -33,6 +28,24 @@ public class NPC extends Entity {
 	public void render() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	protected void calcFrame() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onHit(Hitbox otherHb) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void pushMovement() {
+		// TODO Auto-generated method stub
+		System.err.println("what");
 	}
 
 }

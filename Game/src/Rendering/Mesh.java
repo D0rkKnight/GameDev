@@ -22,7 +22,5 @@ public class Mesh {
 			
 			data[index] = d[i];
 		}
-		
-		System.out.println("written");
 	}
 }

@@ -33,29 +33,21 @@ import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_QUADS;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.glBegin;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glVertex2f;
+import static org.lwjgl.opengl.GL11.glLoadIdentity;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glOrtho;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
-import static org.lwjgl.opengl.GL30.*;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import javax.imageio.ImageIO;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -63,13 +55,14 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
 import Accessories.Accessory;
+import Entities.Combatant;
 import Entities.Entity;
 import Entities.Player;
-import Rendering.RectRenderer;
 import Rendering.Shader;
 import Rendering.SpriteRenderer;
 import Tiles.SquareTile;
 import Tiles.Tile;
+import Wrappers.Hitbox;
 import Wrappers.Rect;
 import Wrappers.Texture;
 import Wrappers.Vector2;
@@ -108,9 +101,17 @@ public class GameManager {
 
 	// Entity positions in current room
 	private ArrayList<Entity> entities;
+	
+	private ArrayList<Hitbox> coll;
+	
 	private Serializer serializer;
 	private Player player;
+	
+	private final int tileSize = 16;
 
+	public static final int MOVE_AXIS_X = 0;
+	public static final int MOVE_AXIS_Y = 1;
+	public static final float NUDGE_CONSTANT = 0.1f;
 
 	/*
 	 * Creates components before entering loop
@@ -118,15 +119,6 @@ public class GameManager {
 	GameManager() {
 		// Initialization
 		init();
-
-		// Setting up renderer
-		/*
-		 * frame = new JFrame();
-		 * 
-		 * canvas = new RendererOld(map); canvas.setSize(1280, 720); frame.add(canvas);
-		 * frame.pack(); frame.setVisible(true);
-		 */
-
 		loop();
 
 		glfwFreeCallbacks(window);
@@ -158,6 +150,7 @@ public class GameManager {
 		
 		//Init player
 		initEntities();
+		initCollision();
 		initPlayer();
 		Camera.main.attach(player);
 		
@@ -179,9 +172,11 @@ public class GameManager {
 		try {
 			mapData[2][0] = tile.clone();
 			mapData[0][3] = tile.clone();
-			mapData[2][9] = tile.clone();
+			mapData[2][15] = tile.clone();
 			for (int i=0; i<mapData.length; i++) {
 				mapData[i][0] = tile.clone();
+				mapData[i][10] = tile.clone();
+				mapData[0][i] = tile.clone();
 			}
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
@@ -191,7 +186,7 @@ public class GameManager {
 		//Tiles are currently raw and unitialized. Initialize them.
 		for (int i=0; i<mapData.length; i++) for (int j=0; j<mapData[0].length; j++) {
 			Tile t = mapData[i][j];
-			if (t != null) t.init(new Vector2(i*16, j*16), new Rect(16, 16));
+			if (t != null) t.init(new Vector2(i*tileSize, j*tileSize), new Rect(tileSize, tileSize));
 		}
 		
 		
@@ -323,118 +318,31 @@ public class GameManager {
 		tileLookup.put(1, t1);
 	}
 
-	
-	private void loadTileHash(String filename) { // loads a hashmap assigning tile ID to Tile objects
-		BufferedReader tileHashFile = null;
-
-		try {
-			tileHashFile = new BufferedReader(new FileReader(filename));
-		} catch (FileNotFoundException e) {
-			System.out.println("File not found");
-			e.printStackTrace();
-		}
-		int num = 0;
-		try {
-			num = Integer.parseInt(tileHashFile.readLine());
-		} catch (NumberFormatException e) {
-			System.out.println("First line of file should be int");
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		for (int i = 0; i < num; i++) {
-			try {
-				/*
-				 * info[0] is tyr type of tile object we will put in .
-				 * info[1] is the name of the sprite image
-				 */
-				String info[] = tileHashFile.readLine().split(":");
-				BufferedImage sprite = ImageIO.read(new File(info[1]));
-				// TODO change type of til
-				if (Integer.parseInt(info[0]) == 0) { // squaretile: placeholder
-					tileLookup.put(i, new SquareTile(i, sprite, renderer));
-				}
-				//TODO add more types of tiles
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-	}
-
 	private void finishArea() { // called when character finishes a major area, updates level and chapter of
 								// character
 
-	}
-
-	/**
-	 * Adds a map object to maps variable. File should be directed to the correct map.
-	 * @return 
-	 * @throws IOException 
-	 */
-	private void loadMap(String filename) throws IOException {
-		BufferedReader mapFile = null;
-
-		try {
-			mapFile = new BufferedReader(new FileReader(filename));
-		} catch (FileNotFoundException e) {
-			System.out.println("File not found");
-			e.printStackTrace();
-		}
-		//first line is in format [xwidth]:[yheight]
-		String[] mapsize = mapFile.readLine().split(":");
-		int xwidth = Integer.parseInt(mapsize[0]);
-		int yheight = Integer.parseInt(mapsize[1]);
-		Tile[][] maptiles = new Tile[Integer.parseInt(mapsize[0])][Integer.parseInt(mapsize[1])];
-		for(int i = 0; i < yheight; i++) {
-			String[] tileLine = mapFile.readLine().split(":");
-			for(int j = 0; j < xwidth; j++) {
-				try {
-					maptiles[i][j] = (Tile) (tileLookup.get(Integer.parseInt(tileLine[i]))).clone();
-				} catch (NumberFormatException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (CloneNotSupportedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} //want to clone the tile we load into array
-			}
-		}
-		maps.add(new Map(maptiles, null, null, null));//TODO
-	}
-	private void loadCharData(String chardata) {
-		//TODO
-		
-	}
-	private void loadEntityData(String entityData) {
-		
-	}
-
-	/*
-	 * Wrapper function for loading an image
-	 */
-	private BufferedImage loadImage(String path) {
-		BufferedImage img = null;
-		try {
-			img = ImageIO.read(new File(path));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return img;
 	}
 	
 	private void initEntities() {
 		entities = new ArrayList();
 	}
 	
+	private void initCollision() {
+		coll = new ArrayList();
+	}
+	
+	private void subscribeEntity(Entity e) {
+		entities.add(e);
+		
+		Hitbox hb = e.getHitbox();
+		if (hb != null) coll.add(hb);
+	}
+	
 	private void initPlayer() {
 		player = new Player(0, new Vector2(100, 100), null, renderer, "Player", null);
 		
 		
-		entities.add(player);
+		subscribeEntity(player);
 	}
 
 	/*
@@ -492,11 +400,169 @@ public class GameManager {
 	}
 	
 	private void update() {
+		//Each entity makes decisions
 		for (Entity ent : entities) {
 			ent.calculate();
 		}
 		
+		//Physics simulation step begin from here ________________________________________________________
+		
+		//Push in collision deltas
+		Tile[][] grid = currmap.getGrid();
+		for (Hitbox c : coll) {
+			Combatant e = c.owner;
+			
+			//Presume to be free falling, until able to prove otherwise
+			e.grounded = false;
+			
+			//Just take the corner and assume this to be a good position to move from.
+			//Grab projected movement
+			Vector2 deltaMove = new Vector2(e.xVelocity * GameManager.deltaT(), e.yVelocity * GameManager.deltaT());
+			Vector2 velo = new Vector2(e.xVelocity, e.yVelocity);
+			
+			//Calculate projected position
+			Vector2 rawPos = e.getPosition();
+			
+
+			
+			//Holds data to be pushed later, when reasonable movement is achieved
+			Vector2 deltaTemp = new Vector2(deltaMove.x, deltaMove.y);
+			
+			//Split into cycles to check physics
+			//yCycle
+			int tilesTraversed = (int) Math.ceil(Math.abs(deltaMove.y/tileSize));
+			int cycles = Math.max(tilesTraversed, 1);
+			for (int i=0; i<cycles; i++) {
+				//Now inch forwards with increasingly larger deltas
+				Vector2 deltaInch = new Vector2(0, deltaMove.y * (i+1)/cycles);
+				
+				boolean isSuccess = moveTo(rawPos, deltaInch, velo, e, grid, MOVE_AXIS_Y);
+				if (!isSuccess) {
+					//The inch is more legitimate than deltaMove now
+					//I think I'll have to split it into a horizontal move and a vertical move
+					//Push the vertical change only.
+					deltaTemp.y = deltaInch.y;
+					
+					break;
+				}
+			}
+			
+			
+			//xCycle
+			tilesTraversed = (int) Math.ceil(Math.abs(deltaMove.x/tileSize));
+			cycles = Math.max(tilesTraversed, 1);
+
+			for (int i=0; i<cycles; i++) {
+				//Now inch forwards with increasingly larger deltas
+				Vector2 deltaInch = new Vector2(deltaMove.x * (i+1)/cycles, 0);
+				
+				boolean isSuccess = moveTo(rawPos, deltaInch, velo, e, grid, MOVE_AXIS_X);
+				if (!isSuccess) {
+					//The inch is more legitimate than deltaMove now
+					//I think I'll have to split it into a horizontal move and a vertical move
+					//Push the vertical change only.
+					deltaTemp.x = deltaInch.x;
+					
+					break;
+				}
+			}
+			
+			deltaMove = deltaTemp;
+			
+			//Push changes
+			e.setMoveDelta(deltaMove);
+			e.yVelocity = velo.y;
+			e.xVelocity = velo.x;
+		}
+		
+		//Push physics outcomes
+		for (Entity e : entities) {
+			e.pushMovement();
+		}
+		
 		Camera.main.update();
+	}
+	
+	/**
+	 * 
+	 * @param pos
+	 * @param delta
+	 * @param e
+	 * @return Whether or not the entity collided when attempting to move
+	 */
+	private boolean moveTo(Vector2 rawPos, Vector2 deltaMove, Vector2 velo, Entity e, Tile[][] grid, int moveAxis) {
+		Vector2 ePos = new Vector2(rawPos.x + deltaMove.x, rawPos.y + deltaMove.y);
+		int tileSpacePosX = (int) ePos.x/tileSize;
+		int tileSpacePosY = (int) ePos.y/tileSize;
+		
+		//return var
+		boolean isSuccess = true;
+		
+		//Only calculate within acceptable dims
+		if (tileSpacePosX >= 0 && tileSpacePosY >= 0 && tileSpacePosX < grid.length && tileSpacePosY < grid[0].length) {
+			
+			boolean isOccupied = false;
+			if (grid[tileSpacePosX][tileSpacePosY] != null) isOccupied = true;
+			if (isOccupied) {
+				isSuccess = false;
+				
+				//Figure out the direction of approach
+				//This is done by figuring out where the entity is, relative to the tile.
+				//Assume to be coming from the bottom left
+				Vector2 snap = new Vector2(0, 0);
+				
+				//If the current, unmodified position is to the right of the tile, snap to the right side.
+				if (rawPos.x > tileSpacePosX * tileSize) snap.x = 1;
+				if (rawPos.y > tileSpacePosY * tileSize) snap.y = 1;
+				
+				//Do the intended snap
+				snapTo(snap, moveAxis, velo, deltaMove, ePos, e);
+			}
+		}
+		
+		return isSuccess;
+	}
+	
+	private void snapTo(Vector2 snap, int snapAxis, Vector2 velo, Vector2 deltaMove, Vector2 ePos, Entity e) {
+		//Get distance to edge
+		Vector2 modSpacePos = new Vector2(ePos.x % tileSize, ePos.y % tileSize);
+		Vector2 modSpaceOppDist = new Vector2(tileSize - modSpacePos.x, tileSize - modSpacePos.y);
+		
+		if (snapAxis == MOVE_AXIS_Y) {
+			//Snap up
+			if (snap.y == 1) {
+				//Limit ymove
+				velo.y = Math.max(velo.y, 0);
+				deltaMove.y += modSpaceOppDist.y;
+				
+				//You are now also grounded
+				e.grounded = true;
+			}
+			
+			//Snap down
+			if (snap.y == 0) {
+				velo.y = Math.min(velo.y, 0);
+				deltaMove.y -= modSpacePos.y;
+				
+				//Note: moving down still leaves you within the tile, thanks to rounding. Nudge down to exit the tile.
+				deltaMove.y -= NUDGE_CONSTANT;
+			}
+		}
+		
+		if (snapAxis == MOVE_AXIS_X) {
+			//Snap right
+			if (snap.x == 1) {
+				//Limit xMove
+				velo.x = Math.max(velo.x, 0);
+				deltaMove.x += modSpaceOppDist.x;
+			}
+			
+			//Snap left
+			if (snap.x == 0) {
+				velo.x = Math.min(velo.x, 0);
+				deltaMove.x -= modSpacePos.x;
+			}
+		}
 	}
 
 }

@@ -1,6 +1,7 @@
 package Entities;
 
 import Rendering.Renderer;
+import Wrappers.Hitbox;
 import Wrappers.Sprites;
 import Wrappers.Stats;
 import Wrappers.Vector2;
@@ -117,6 +118,12 @@ public class ChargingEnemy extends Enemy {
 			}
 		}
 
+	}
+
+	@Override
+	public void onHit(Hitbox otherHb) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
