@@ -2,8 +2,7 @@ package Rendering;
 
 import static org.lwjgl.opengl.GL11.glVertex2f;
 
-import java.util.HashMap;
-
+import Collision.HammerShape;
 import GameController.Camera;
 import Wrappers.Rect;
 import Wrappers.Vector2;
@@ -20,6 +19,7 @@ public abstract class RectRenderer extends Renderer implements Cloneable {
 	protected int vertexCount;
 	
 	protected boolean hasInit;
+	protected int shape;
 	
 	public RectRenderer(Shader shader) {
 		super(shader);
@@ -28,53 +28,6 @@ public abstract class RectRenderer extends Renderer implements Cloneable {
 		this.pos = null;
 		
 		hasInit = false;
-	}
-	
-	/**
-	 * Run init in order to prepare the renderer for use.
-	 * @param pos
-	 * @param rect
-	 */
-	public void init() {
-		/*this.rect = rect;
-		this.pos = pos;
-		hasInit = true;
-		
-		//Renderer stuff
-		genVerts();
-		
-		float[] vertices = {
-				ul.x, ul.y, 0,
-				bl.x, bl.y, 0,
-				br.x, br.y, 0,
-				br.x, br.y, 0,
-				ur.x, ur.y, 0,
-				ul.x, ul.y, 0
-		};
-		
-		FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(vertices.length);
-		verticesBuffer.put(vertices);
-		verticesBuffer.flip();
-		
-		vertexCount = 6;
-
-		//Creating vertex array
-		vaoId = glGenVertexArrays();
-		glBindVertexArray(vaoId);
-		
-		//New vertex buffer (also bind it to the VAO) TODO: Make it not static
-		vertexVboId = glGenBuffers();
-		glBindBuffer(GL_ARRAY_BUFFER, vertexVboId);
-		glBufferData(GL_ARRAY_BUFFER, verticesBuffer, GL_STREAM_DRAW);
-		
-		//Format data in buffer (you'd need stride if the data represented multiple things)
-		glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-		
-		//Empty cache
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);*/
-		
-		System.out.println("This needs to be reworked");
 	}
 
 	@Override
@@ -108,13 +61,49 @@ public abstract class RectRenderer extends Renderer implements Cloneable {
 		Vector2 bl = mapVert(pos.x, pos.y);
 		Vector2 br = mapVert(pos.x + rect.w, pos.y);
 		
-		float[] verts = new float[] {
+		float[] verts = null;
+		
+		switch (shape) {
+		case HammerShape.HAMMER_SHAPE_SQUARE:
+			verts = new float[] {
 				ul.x, ul.y, 0,
 				bl.x, bl.y, 0,
 				br.x, br.y, 0,
 				br.x, br.y, 0,
 				ur.x, ur.y, 0,
 				ul.x, ul.y, 0,
+			};
+			break;
+		case HammerShape.HAMMER_SHAPE_TRIANGLE_BL:
+			verts = new float[] {
+				ul.x, ul.y, 0,
+				bl.x, bl.y, 0,
+				br.x, br.y, 0,
+			};
+			break;
+		case HammerShape.HAMMER_SHAPE_TRIANGLE_BR:
+			verts = new float[] {
+				br.x, br.y, 0,
+				ur.x, ur.y, 0,
+				bl.x, bl.y, 0
+			};
+			break;
+		case HammerShape.HAMMER_SHAPE_TRIANGLE_UL:
+			verts = new float[] {
+				ul.x, ul.y, 0,
+				bl.x, bl.y, 0,
+				ur.x, ur.y, 0
+			};
+			break;
+		case HammerShape.HAMMER_SHAPE_TRIANGLE_UR:
+			verts = new float[] {
+				ur.x, ur.y, 0,
+				ul.x, ul.y, 0,
+				br.x, br.y, 0
+			};
+			break;
+		default:
+			System.err.println("Shape not recognized.");
 		};
 		
 		return verts;

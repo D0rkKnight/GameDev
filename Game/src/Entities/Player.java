@@ -1,7 +1,6 @@
 package Entities;
 
-import Collision.Collidable;
-import GameController.GameManager;
+import Collision.HammerShape;
 import GameController.Input;
 import Rendering.SpriteRenderer;
 import Wrappers.Hitbox;
@@ -22,7 +21,7 @@ public class Player extends Combatant{
 		//Configure the renderer real quick
 		dim = new Rect(32f, 32f);
 		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer;
-		rendTemp.init(position, dim);
+		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE);
 		renderer = rendTemp;
 		
 		this.renderer.linkPos(this.position);

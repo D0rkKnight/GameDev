@@ -2,7 +2,8 @@ package Tiles;
 
 import java.awt.image.BufferedImage;
 
-import Collision.Collidable;
+import Collision.HammerShape;
+import GameController.GameManager;
 import GameController.Map;
 import Rendering.SpriteRenderer;
 import Wrappers.Rect;
@@ -18,7 +19,13 @@ public abstract class Tile implements Cloneable{
 	protected BufferedImage sprite;
 	protected Map map;
 	protected SpriteRenderer renderer;
-	protected int hammerState; //NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when loaded in maps)
+	protected HammerShape hammerState; //NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when loaded in maps)
+	
+	public static final int CORNER_NULL = -1;
+	public static final int CORNER_UL = 0;
+	public static final int CORNER_UR = 1;
+	public static final int CORNER_BL = 2;
+	public static final int CORNER_BR = 3;
 	
 	public Tile(int ID, BufferedImage sprite, SpriteRenderer renderer) {
 		this.ID = ID;
@@ -34,8 +41,12 @@ public abstract class Tile implements Cloneable{
 	}
 	
 	public void init(Vector2 pos, Rect rect) {
+		if (hammerState == null) {
+			System.out.println("Hammer state not specified, capitulating to default.");
+			hammerState = GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE);
+		}
 		
-		this.renderer.init(pos, rect);
+		this.renderer.init(pos, rect, hammerState.shapeId);
 	}
 	
 	/**
@@ -55,15 +66,19 @@ public abstract class Tile implements Cloneable{
 	public BufferedImage getImage() {
 		return sprite;
 	}
-	public void setHammerState(int hammerState) {
+	public void setHammerState(HammerShape hammerState) {
 		this.hammerState = hammerState;
 	}
-	public int getHammerState() {
+	public HammerShape getHammerState() {
 		return hammerState;
 	}
 	
 	@Override
 	public Tile clone() throws CloneNotSupportedException {
-		return (Tile) super.clone();
+		Tile t =  (Tile) super.clone();
+		//New renderer please
+		t.renderer = this.renderer.clone();
+		
+		return t;
 	}
 }

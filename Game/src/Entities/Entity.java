@@ -19,7 +19,8 @@ public abstract class Entity implements Collidable{
 	protected int ID;
 	protected Vector2 position;
 	protected Sprites sprites;
-	static float gravity = 0.1f;
+	static float gravity = 0.1f; //TODO: Don't forget to fix this
+	
 	protected Renderer renderer;
 	protected String name;
 	public Rect dim;
@@ -29,7 +30,8 @@ public abstract class Entity implements Collidable{
 	protected SpriteSheetSection[][] frames;
 	
 	protected Hitbox hitbox;
-	public boolean grounded;
+	
+	//TODO: Move these within a physics affected class.
 
 	public Entity(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name) {
 		this.ID = ID;
@@ -45,6 +47,7 @@ public abstract class Entity implements Collidable{
 		}
 	}
 
+	public abstract void calculate();
 
 	protected abstract void calcFrame();
 	

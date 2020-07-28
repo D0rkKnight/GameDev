@@ -24,9 +24,9 @@ public class ChargingEnemy extends Enemy implements Gravity {
 	}
 
 	// This enemy attacks only by charging towards the player. No attack function,
-	// damage is strictly form collider.
+	// damage is strictly from collider.
 	@Override
-	public void attack(Player p) {
+	public void attack() {
 		// empty
 
 	}
@@ -38,7 +38,7 @@ public class ChargingEnemy extends Enemy implements Gravity {
 	}
 
 	@Override
-	public void calculate(Player p) {
+	public void calculate() {
 		calcFrame();
 		if(currentGroup == 3) { //winddown
 			
@@ -59,7 +59,6 @@ public class ChargingEnemy extends Enemy implements Gravity {
 	@Override
 	public void move() { //move mostly while charging. Otherwise idle movement.
 		if(charging) {
-			if
 		}
 
 	}

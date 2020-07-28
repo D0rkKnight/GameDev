@@ -102,7 +102,7 @@ public class Serializer {
 					e.printStackTrace();
 				} // want to clone the tile we
 																							// load into array
-				maptiles[i][j].setHammerState(Integer.parseInt(tileInfo[1]));
+				maptiles[i][j].setHammerState(GameManager.hammerLookup.get(Integer.parseInt(tileInfo[1])));
 			}
 		}
 		int entrances = Integer.parseInt(mapFile.readLine());
