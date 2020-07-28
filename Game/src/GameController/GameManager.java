@@ -7,8 +7,8 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_LAST;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
@@ -56,6 +56,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
 import Accessories.Accessory;
+import Collision.Physics;
 import Collision.HammerRightTriangle;
 import Collision.HammerShape;
 import Collision.HammerSquare;
@@ -66,7 +67,6 @@ import Rendering.Shader;
 import Rendering.SpriteRenderer;
 import Tiles.SquareTile;
 import Tiles.Tile;
-import Wrappers.Arithmetic;
 import Wrappers.Hitbox;
 import Wrappers.Rect;
 import Wrappers.Texture;
@@ -124,7 +124,7 @@ public class GameManager {
 	private Serializer serializer;
 	public static Player player;
 	
-	private static final int tileSize = 16;
+	public static final int tileSize = 16;
 
 	public static final int MOVE_AXIS_X = 0;
 	public static final int MOVE_AXIS_Y = 1;
@@ -486,367 +486,15 @@ public class GameManager {
 		//Push in collision deltas
 		Tile[][] grid = currmap.getGrid();
 		for (Hitbox c : coll) {
-			Combatant e = c.owner;
-			
-			//Presume to be free falling, until able to prove otherwise
-			e.grounded = false;
-			
-			//Grab projected movement
-			Vector2 velo = new Vector2(e.xVelocity, e.yVelocity);
-			
-			//Calculate projected position
-			Vector2 rawPos = e.getPosition();
-			
-			//Axises of movement, in order of movement done.
-			//Components are stacked onto deltaTemp before being pushed fully to moveDelta.
-			Vector2[] axises = new Vector2[2];
-			axises[0] = e.yDir;
-			
-			//This is now definitely pointed in the right direction, 
-			//	but I have no clue why it's pointed opposite to the velo deflection tangent.
-			axises[1] = e.xDir;
-			
-			//This is pointed in the right direction now, now split deltaMove and cache it.
-			Vector2[] deltaComponents = new Vector2[axises.length];
-			float dt = deltaT();
-			deltaComponents[0] = new Vector2(axises[0].x * velo.y, axises[0].y * velo.y);
-			deltaComponents[1] = new Vector2(axises[1].x * velo.x, axises[1].y * velo.x);
-			
-			//Scale against time
-			for (Vector2 v : deltaComponents) {
-				v.x *= dt;
-				v.y *= dt;
-			}
-			
-			//Holds data to be pushed later, when reasonable movement is found
-			Vector2 deltaTemp = new Vector2(0, 0);
-			
-			//And push the different deltas
-			for (int i=0; i<axises.length; i++) {
-				
-				
-				//Generate the vector along the axis of movement
-				Vector2 dir = axises[i];
-				Vector2 deltaAligned = deltaComponents[i];
-				
-				//TODO: Calculate steps properly
-				int tilesTraversed = (int) Math.ceil(Math.abs(deltaAligned.y/tileSize));
-				int cycles = Math.max(tilesTraversed, 1) * 2;
-				
-				Vector2 deltaInch = null;
-				for (int j=0; j<cycles; j++) {
-					//Now inch forwards with increasingly larger deltas
-					float cycleCoef = ((float)j+1)/cycles;
-					deltaInch = new Vector2(deltaAligned.x * cycleCoef, deltaAligned.y * cycleCoef);
-					
-					//Get the right position that takes into account past movements
-					Vector2 newPos = new Vector2(rawPos.x + deltaTemp.x, rawPos.y + deltaTemp.y);
-					
-					//Move (this modifies deltaInch)
-					boolean isSuccess = moveTo(newPos, deltaInch, velo, e, grid, dir, axises);
-					if (!isSuccess) break;
-				}
-				
-				//Push results to buffer
-				deltaTemp.x += deltaInch.x;
-				deltaTemp.y += deltaInch.y;
-			}
-			
-			//Push buffer to delta
-			
-			//Push changes
-			e.setMoveDelta(deltaTemp);
-			e.yVelocity = velo.y;
-			e.xVelocity = velo.x;
-			
-			//Set grounded outcome
-			if (!e.grounded && e.wasGrounded) {
-				Vector2 newXDir = new Vector2(1, 0);
-				e.recordVeloChange(newXDir, e.yDir);
-			}
-			
-			e.wasGrounded = e.grounded;
-			
-			if (e.veloChangePushed) {
-				e.resolveVeloChange();
-			}
+			Physics.calculateDeltas(c, grid);
 		}
 		
 		//Push physics outcomes
 		for (Entity e : entities) {
-			
 			e.pushMovement();
 		}
 		
 		Camera.main.update();
 	}
-	
-	/**A utility function to be used by update. Given information, it configures deltaMove and velocity as to resolve collisions on the given axis.
-	 * These values need to be later pushed to the entity in order for changes to appear.
-	 * 
-	 * @param pos
-	 * @param delta
-	 * @param e
-	 * @return Whether or not the entity collided when attempting to move
-	 */
-	private boolean moveTo(Vector2 rawPos, Vector2 deltaMove, Vector2 velo, Combatant e, Tile[][] grid, Vector2 moveAxis, Vector2[] axises) {
-		Vector2 bl = new Vector2(rawPos.x + deltaMove.x, rawPos.y + deltaMove.y);
-		Vector2 ur = new Vector2(bl.x + e.dim.w, bl.y + e.dim.h);
-		
-		float dirSign = Arithmetic.sign(moveAxis.dot(deltaMove));
-		Vector2 moveDir = new Vector2(moveAxis.x * dirSign, moveAxis.y * dirSign);
-		//If movedir is 0, then there is no movement to be done.
-		if (moveDir.x == 0 && moveDir.y == 0) return true;
-		
-		//return var
-		boolean isSuccess = true;
 
-		ArrayList<int[]> tilesHit = new ArrayList<>();
-		boolean roughPass = isColliding(bl, ur, grid, tilesHit);
-		
-		//Rough pass
-		float dist = 0;
-		Vector2 normal = null;
-		if (roughPass) {
-			float maxMoveDist = 0;
-			
-			for (int[] p : tilesHit) {
-				int x = p[0];
-				int y = p[1];
-				
-				Tile t = grid[x][y];
-				
-				Vector2 tempNormal = new Vector2(0, 0);
-				
-				Float d = getIntersection(t.getHammerState(), bl, ur, x, y, moveDir, tempNormal);
-				if (d!=null) {
-					if (Math.abs(d) > Math.abs(maxMoveDist)) {
-						maxMoveDist = d;
-						normal = tempNormal;
-					}
-					isSuccess = false;
-				}
-			}
-			dist = maxMoveDist;
-		}
-		
-		if (!isSuccess) {
-			//Snap to the intended edge -----------------------------------------------------------------------------
-			
-			//Move in the right direction
-			deltaMove.x -= moveDir.x * dist;
-			deltaMove.y -= moveDir.y * dist;
-			
-			//Nudging should only move you as far as you can move.
-			float nudge = Math.min(NUDGE_CONSTANT, deltaMove.magnitude());
-			deltaMove.y -= moveDir.y * nudge;
-			deltaMove.x -= moveDir.x * nudge;
-			
-			//Rotate normal such that it is running along edge
-			Vector2 tangent = new Vector2(-normal.y, normal.x);
-			
-			//Project velocity onto tangent axis (Tangent points left)
-			float tanSpeed = velo.dot(tangent);
-			
-			//This returns the relevant velocity in world space, but we must change it to use an angled coordinate system.
-			Vector2 tangentVector = new Vector2(tangent.x * tanSpeed, tangent.y * tanSpeed);
-			
-			//Presume that the first axis is the y axis and the second is the x axis.
-			Vector2 axisA = axises[0];
-			Vector2 axisB = axises[1];
-			
-			//Somehow the two implementations are different.
-			Vector2 compA = new Vector2(0, 0);
-			Vector2 compB = new Vector2(0, 0);
-			float[] magBuff = new float[2];
-			tangentVector.breakIntoComponents(axisA, axisB, compA, compB, magBuff);
-			
-			velo.x = magBuff[0];
-			velo.y = magBuff[1];
-			
-			//If grounded:
-			if (Math.abs(tangent.unit().y) < 0.8 && tangent.unit().x < 0) {
-				//Dunno why this needs to be flipped but it does
-				Vector2 newXDir = new Vector2(-tangent.x, -tangent.y);
-				
-				if (newXDir.x != e.xDir.x || newXDir.y != e.xDir.y) {
-					//Time to recalculate velocity
-					e.recordVeloChange(newXDir, e.yDir);
-				}
-				
-				e.grounded = true;
-			}
-			
-			return false;
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * Gets tiles that being collided with. Note that it presumes every tile is a unique entity.
-	 * Remember that entities should never be inside the terrain.
-	 * If an entity falls into terrain, it will eject depending on axisDelta. Even if immobile, axisDelta will default to ejecting to the bottom and left.
-	 * @param bl
-	 * @param ur
-	 * @param moveAxis
-	 * @param moveDir
-	 * @param grid
-	 * @param e
-	 * @return
-	 */
-	public boolean isColliding(Vector2 bl, Vector2 ur, Tile[][] grid, ArrayList<int[]> hits) {
-		boolean tileHit = false;
-		
-		int boundL = (int) bl.x/tileSize;
-		int boundR = (int) ur.x/tileSize;
-		int boundT = (int) ur.y/tileSize;
-		int boundB = (int) bl.y/tileSize;
-		
-		int gw = grid.length;
-		int gh = grid[0].length;
-		
-		//Honestly should just be doing a complete sweep for all tiles it's in, no need to optimize yet.
-		for (int y=boundB; y<=boundT; y++) {
-			for (int x=boundL; x<=boundR; x++) {
-				if (x < 0 || x >= gw) break;
-				if (y < 0 || y >= gh) continue;
-				
-				Tile t = grid[x][y];
-				if (t != null) {
-					int[] o = new int[] {x, y};
-					hits.add(o);
-					
-					tileHit = true;
-				}
-			}
-		}
-		return tileHit;
-	}
-	
-	/**
-	 * Given some information, figure out if there is a collision and how far back to move the entity.
-	 * @param modPos
-	 * @param shape
-	 * @param corner
-	 * @param sideEnteringFrom
-	 * @return
-	 */
-	public static Float getIntersection(HammerShape shape, Vector2 bl, Vector2 ur, int tileX, int tileY, Vector2 moveDir, Vector2 extNormal) {
-		//----------------              Uses the Separating Axis Theorem             ----------------
-		
-		//					STEP 1: PREP DATA
-		//Begin by generating a point set for the rectangle.
-		Vector2[] rectPoints = new Vector2[] {
-				new Vector2(bl.x, bl.y),
-				new Vector2(ur.x, bl.y),
-				new Vector2(ur.x, ur.y),
-				new Vector2(bl.x, ur.y)
-		};
-		
-		//This needs to use world space, not normalized tile space.
-		Vector2[] shapePoints = new Vector2[shape.points.length];
-		for (int i=0; i<shapePoints.length; i++) {
-			//Translate and push in points
-			Vector2 v = shape.points[i];
-			float x = v.x;
-			float y = v.y;
-			
-			x *= tileSize;
-			y *= tileSize;
-			
-			x += tileX * tileSize;
-			y += tileY * tileSize;
-			
-			shapePoints[i] = new Vector2(x, y);
-		}
-		
-		//		STEP 2: ANALYZE
-		int edgeCountRect = rectPoints.length;
-		int edgeCountShape = shapePoints.length;
-		
-		float shortestDist = Float.POSITIVE_INFINITY;
-		Vector2 shortestNormal = null;
-		
-		//Get normals
-		//TODO: Potential error since I'm only counting the shape's normals, and not the rect's normals.
-		for (int i=0; i<edgeCountShape; i++) {
-			Vector2 p1, p2;
-			
-			p1 = shapePoints[i];
-			p2 = null;
-			//If it's the last one, loop to the first
-			if (i == shapePoints.length-1) {
-				p2 = shapePoints[0];
-			} else {
-				p2 = shapePoints[i + 1];
-			}
-			
-			//Now get the edge
-			Vector2 vec = new Vector2(p2.x - p1.x, p2.y - p1.y);
-			
-			//And get the normal
-			//Note that the border must be going counterclockwise for the normals to be right.
-			//The normal is clockwise of the edge vector.
-			Vector2 normal = new Vector2(vec.y, -vec.x);
-			
-			//Project vectors and compare overlaps
-			//Start with shape vectors
-			
-			//Grab unit vector of the normal for calculation purposes.
-			Vector2 unitNormal = normal.unit();
-			
-//			//Don't calculate if we're not even heading into the edge
-			
-			float[] shapeBounds = new float[2];
-			float[] rectBounds = new float[2];
-			
-			Vector2.projectPointSet(shapePoints, unitNormal, shapeBounds);
-			Vector2.projectPointSet(rectPoints, unitNormal, rectBounds);
-			
-			float[] distBuffer = new float[1];
-			if (Arithmetic.isIntersecting(shapeBounds[0], shapeBounds[1], rectBounds[0], rectBounds[1], distBuffer)) {
-				
-				//Project along moveAxis
-				float dist = distBuffer[0];
-				float moveDist = 0;
-				if (dist != 0) {
-					Vector2 perpVec = new Vector2(unitNormal.x * dist, unitNormal.y * dist);
-
-					Vector2 projAxis = moveDir.unit();
-					
-					moveDist = (float) (Math.pow(dist, 2) / perpVec.dot(projAxis));
-				} 
-				
-				else {
-					System.err.println("ERROR: distance is zero");
-					
-					//This is like the same thing as not colliding
-					return null;
-				}
-				
-				float absDist = Math.abs(moveDist);
-				if (absDist < shortestDist) {
-					shortestDist = absDist;
-					shortestNormal = unitNormal;
-				} 
-				
-				//If the distance is the same, this stands to reason that there may be an interfereing parallel surface
-				//Thus, if this new edge is more reasonable, use it instead.
-				if (absDist == shortestDist && absDist != Float.POSITIVE_INFINITY) {
-					if (unitNormal.dot(moveDir) < shortestNormal.dot(moveDir)) {
-						shortestNormal = unitNormal;
-					}
-				}
-			} else {
-				return null;
-			}
-		}
-		
-		//Return shortest distance out.
-		extNormal.x = shortestNormal.x;
-		extNormal.y = shortestNormal.y;
-		
-		return shortestDist;
-	}
 }

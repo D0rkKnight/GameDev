@@ -16,7 +16,7 @@ public abstract class Combatant extends Entity {
 	public Vector2 xDir;
 	private Vector2 newXDir;
 	private Vector2 newYDir;
-	public boolean veloChangePushed;
+	public boolean veloChangeQueued;
 	protected float yAcceleration;
 	
 	protected Vector2 moveDelta;
@@ -97,17 +97,19 @@ public abstract class Combatant extends Entity {
 	public void recordVeloChange(Vector2 newXDir, Vector2 newYDir) {
 		this.newXDir = new Vector2(newXDir.x, newXDir.y);
 		this.newYDir = new Vector2(newYDir.x, newYDir.y);
-		veloChangePushed = true;
+		veloChangeQueued = true;
 		
 		System.out.println("Velocity change queued");
 	}
 	
 	//Recalculate velocity
 	public void resolveVeloChange() {
-		if (!veloChangePushed) {
+		if (!veloChangeQueued) {
 			System.err.println("Velocity change pushed illegally!");
 		}
 		
+		//Aerial collisions are resolved through retaining velocity
+			
 		//Begin by summing velocity components into world space.
 		float worldX = xDir.x * xVelocity + yDir.x * yVelocity;
 		float worldY = xDir.y * xVelocity + yDir.y * yVelocity;
@@ -123,18 +125,16 @@ public abstract class Combatant extends Entity {
 		
 		xVelocity = magBuff[1];
 		yVelocity = magBuff[0];
-		
-		//TODO: figure out what is wrong
+			
+//		System.out.println("World Velocity: "+worldVelo.toString());
+//		System.out.println("New X Direction: "+newXDir.toString());
+//		System.out.println("New Y Direction: "+newYDir.toString());
+//		System.out.println("New magnitudes (X, Y): "+xVelocity+", "+yVelocity);
 		
 		xDir = new Vector2(newXDir.x, newXDir.y);
 		yDir = new Vector2(newYDir.x, newYDir.y);
 		
-		System.out.println("World Velocity: "+worldVelo.toString());
-		System.out.println("New X Direction: "+newXDir.toString());
-		System.out.println("New Y Direction: "+newYDir.toString());
-		System.out.println("New magnitudes (X, Y): "+xVelocity+", "+yVelocity);
-		
-		veloChangePushed = false;
+		veloChangeQueued = false;
 		
 		System.out.println("Velocity change resolved");
 	}

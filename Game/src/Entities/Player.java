@@ -1,6 +1,7 @@
 package Entities;
 
 import Collision.HammerShape;
+import GameController.GameManager;
 import GameController.Input;
 import Rendering.SpriteRenderer;
 import Wrappers.Hitbox;
@@ -86,7 +87,7 @@ public class Player extends Combatant{
 		}
 		if (grounded && input.moveY != 0) { // if player is colliding with ground underneath and digital input detected
 										// (space pressed)
-			yVelocity = 2f;
+			yVelocity = 30f / GameManager.deltaT();
 		}
 		else if(true) { //player not colliding with ground
 			//Set this to universal gravitational constant
