@@ -34,6 +34,7 @@ public abstract class Combatant extends Entity {
 		moveDelta = new Vector2(0, 0);
 		yDir = new Vector2(0, 1);
 		xDir = new Vector2(1, 0);
+		
 		p = GameManager.player;
 		
 

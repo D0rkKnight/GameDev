@@ -22,7 +22,7 @@ public abstract class Physics {
 		if (e.isJumping) {
 			//Pass in new directional axises (x axis perpendicular to the y axis)
 			Vector2 yAxis = e.yDir;
-			Vector2 xAxis = new Vector2(yAxis.y, -yAxis.x); //This is 90 degrees clockwise
+			Vector2 xAxis = yAxis.rightVector(); //This is 90 degrees clockwise
 			float yVelo = e.yVelocity;
 			System.out.println("SETTING Y VELO: "+yVelo);
 			
@@ -112,7 +112,7 @@ public abstract class Physics {
 		
 		//Set grounded outcome
 		if (!e.grounded && e.wasGrounded) {
-			Vector2 newXDir = new Vector2(1, 0);
+			Vector2 newXDir = e.yDir.rightVector();
 			e.recordVeloChange(newXDir, e.yDir);
 		}
 		

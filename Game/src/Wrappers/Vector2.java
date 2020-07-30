@@ -108,4 +108,9 @@ public class Vector2 implements Cloneable {
 		Vector2 out = new Vector2(x, y);
 	}
 	
+	//Returns the vector to the right of this vector.
+	public Vector2 rightVector() {
+		Vector2 right = new Vector2(y, -x); //This is 90 degrees clockwise
+		return right;
+	}
 }

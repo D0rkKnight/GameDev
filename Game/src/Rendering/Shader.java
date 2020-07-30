@@ -10,8 +10,8 @@ import java.io.IOException;
  * Only one copy of these should exist for every distinct shader.
  * TODO: Write vertex shader, write fragment shader, figure out how to pass in attributes and render.
  */
-public class Shader {
-	private int program;
+public abstract class Shader {
+	protected int program;
 	private int vs;
 	private int fs;
 	
@@ -50,8 +50,8 @@ public class Shader {
 		//Attributes
 		//The integer is the attribute id and identifies what data will be sent.
 		//The string is the semantic and identifies how the attribute will be referred to within the shader.
-		glBindAttribLocation(program, 0, "vertices");
-		glBindAttribLocation(program, 1, "texCords");
+		//i.e: glBindAttribLocation(program, 0, "vertices");
+		bindAttributes();
 		
 		
 		//Link and validate
@@ -71,6 +71,8 @@ public class Shader {
 	public void bind() {
 		glUseProgram(program);
 	}
+	
+	protected abstract void bindAttributes();
 	
 	/*
 	 * Shader interpreter

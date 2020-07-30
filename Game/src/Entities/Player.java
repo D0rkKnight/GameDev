@@ -22,7 +22,7 @@ public class Player extends Combatant{
 		input = new Input();
 		
 		//Configure the renderer real quick
-		dim = new Rect(32f, 32f);
+		dim = new Rect(16f, 64f);
 		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer;
 		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE);
 		renderer = rendTemp;

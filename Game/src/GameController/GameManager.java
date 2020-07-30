@@ -56,15 +56,15 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
 import Accessories.Accessory;
-import Collision.Physics;
 import Collision.HammerRightTriangle;
 import Collision.HammerShape;
 import Collision.HammerSquare;
-import Entities.Combatant;
+import Collision.Physics;
 import Entities.Entity;
 import Entities.Player;
 import Rendering.Shader;
 import Rendering.SpriteRenderer;
+import Rendering.SpriteShader;
 import Tiles.SquareTile;
 import Tiles.Tile;
 import Wrappers.Hitbox;
@@ -172,7 +172,7 @@ public class GameManager {
 		
 		//Init renderer
 		//TODO: We have to make a renderer factory in order for this to, like, work.
-		Shader shader = new Shader("texShader");
+		Shader shader = new SpriteShader("texShader");
 				SpriteRenderer sprRenderer = new SpriteRenderer(shader);
 				sprRenderer.spr = new Texture("tile1.png");
 				renderer = sprRenderer;
@@ -410,9 +410,6 @@ public class GameManager {
 	 * Game loop that handles rendering and stuff
 	 */
 	private void loop() {
-		
-		Shader shader = new Shader("shader");
-		
 		// Set clear color
 		glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
 
