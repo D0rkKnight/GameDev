@@ -17,7 +17,10 @@ public abstract class Combatant extends Entity {
 	private Vector2 newXDir;
 	private Vector2 newYDir;
 	public boolean veloChangeQueued;
+	public Vector2 queuedTangent;
+	
 	protected float yAcceleration;
+	public boolean isJumping;
 	
 	protected Vector2 moveDelta;
 	protected Player p;
@@ -32,6 +35,9 @@ public abstract class Combatant extends Entity {
 		yDir = new Vector2(0, 1);
 		xDir = new Vector2(1, 0);
 		p = GameManager.player;
+		
+
+		isJumping = false;
 	}
 
 	/**
@@ -98,11 +104,9 @@ public abstract class Combatant extends Entity {
 		this.newXDir = new Vector2(newXDir.x, newXDir.y);
 		this.newYDir = new Vector2(newYDir.x, newYDir.y);
 		veloChangeQueued = true;
-		
-		System.out.println("Velocity change queued");
 	}
 	
-	//Recalculate velocity
+	//Recalculate velocity, retaining velocity.
 	public void resolveVeloChange() {
 		if (!veloChangeQueued) {
 			System.err.println("Velocity change pushed illegally!");
@@ -125,17 +129,16 @@ public abstract class Combatant extends Entity {
 		
 		xVelocity = magBuff[1];
 		yVelocity = magBuff[0];
-			
-//		System.out.println("World Velocity: "+worldVelo.toString());
-//		System.out.println("New X Direction: "+newXDir.toString());
-//		System.out.println("New Y Direction: "+newYDir.toString());
-//		System.out.println("New magnitudes (X, Y): "+xVelocity+", "+yVelocity);
 		
 		xDir = new Vector2(newXDir.x, newXDir.y);
 		yDir = new Vector2(newYDir.x, newYDir.y);
 		
 		veloChangeQueued = false;
-		
-		System.out.println("Velocity change resolved");
+	}
+	
+	//Force a directional change, without changing velocity coordinates.
+	public void forceDirectionalChange(Vector2 newX, Vector2 newY) {
+		xDir = new Vector2(newX);
+		yDir = new Vector2(newY);
 	}
 }

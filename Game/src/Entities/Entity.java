@@ -19,7 +19,7 @@ public abstract class Entity implements Collidable{
 	protected int ID;
 	protected Vector2 position;
 	protected Sprites sprites;
-	static float gravity = 0.1f; //TODO: Don't forget to fix this
+	static float gravity = 5f; //TODO: Don't forget to fix this
 	
 	protected Renderer renderer;
 	protected String name;

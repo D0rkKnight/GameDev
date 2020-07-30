@@ -17,4 +17,11 @@ public abstract class Arithmetic {
 		else if (val > 0) return 1;
 		else return -1;
 	}
+	
+	//Interpolates between the two values. Ratio of 0 is v1, Ratio of 1.0 is v2
+	public static float lerp(float v1, float v2, float ratio) {
+		float comp1 = (float) (v1 * (1.0-ratio));
+		float comp2 = v2 * ratio;
+		return comp1 + comp2;
+	}
 }

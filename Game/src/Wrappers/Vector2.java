@@ -9,6 +9,11 @@ public class Vector2 implements Cloneable {
 		this.y = y;
 	}
 	
+	public Vector2(Vector2 v) {
+		x = v.x;
+		y = v.y;
+	}
+	
 	public void subtract(Vector2 pos) {
 		this.x -= pos.x;
 		this.y -= pos.y;
@@ -96,4 +101,11 @@ public class Vector2 implements Cloneable {
 			magBuff[1] = 0;
 		}
 	}
+	
+	public static void lerp(Vector2 v1, Vector2 v2, float ratio) {
+		float x = Arithmetic.lerp(v1.x, v2.x, ratio);
+		float y = Arithmetic.lerp(v1.y, v2.y, ratio);
+		Vector2 out = new Vector2(x, y);
+	}
+	
 }

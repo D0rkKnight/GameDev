@@ -12,10 +12,30 @@ import Wrappers.Vector2;
 public abstract class Physics {
 	
 	public static void calculateDeltas(Hitbox c, Tile[][] grid) {
+		
 		Combatant e = c.owner;
 		
 		//Presume to be free falling, until able to prove otherwise
 		e.grounded = false;
+		
+		//If jumping, force a velocity change.
+		if (e.isJumping) {
+			//Pass in new directional axises (x axis perpendicular to the y axis)
+			Vector2 yAxis = e.yDir;
+			Vector2 xAxis = new Vector2(yAxis.y, -yAxis.x); //This is 90 degrees clockwise
+			float yVelo = e.yVelocity;
+			System.out.println("SETTING Y VELO: "+yVelo);
+			
+			//This will modify both x and y velocities.
+			e.recordVeloChange(xAxis, yAxis);
+			e.resolveVeloChange();
+			
+			//The point is to retain the y velocity.
+			e.yVelocity = yVelo;
+			
+			System.out.println(yVelo);
+			e.isJumping = false;
+		}
 		
 		//Grab projected movement
 		Vector2 velo = new Vector2(e.xVelocity, e.yVelocity);
@@ -37,6 +57,11 @@ public abstract class Physics {
 		float dt = GameManager.deltaT();
 		deltaComponents[0] = new Vector2(axises[0].x * velo.y, axises[0].y * velo.y);
 		deltaComponents[1] = new Vector2(axises[1].x * velo.x, axises[1].y * velo.x);
+		
+		System.out.println("\nyDir: "+e.yDir.toString());
+		System.out.println("xDir: "+e.xDir.toString());
+		System.out.println("yVelo: "+velo.y);
+		System.out.println("yDelta: "+deltaComponents[0].toString());
 		
 		//Scale against time
 		for (Vector2 v : deltaComponents) {
@@ -159,6 +184,9 @@ public abstract class Physics {
 			deltaMove.y -= moveDir.y * nudge;
 			deltaMove.x -= moveDir.x * nudge;
 			
+			/**
+			 * Cache this stuff so it's resolved later. Break it off into its own problem.
+			 */
 			//Rotate normal such that it is running along edge
 			Vector2 tangent = new Vector2(-normal.y, normal.x);
 			
@@ -186,10 +214,14 @@ public abstract class Physics {
 				//Dunno why this needs to be flipped but it does
 				Vector2 newXDir = new Vector2(-tangent.x, -tangent.y);
 				
-				if (newXDir.x != e.xDir.x || newXDir.y != e.xDir.y) {
-					//Time to recalculate velocity
-					e.recordVeloChange(newXDir, e.yDir);
-				}
+				//No need to queue whatever, just force the change.
+				velo.y = 0;
+				e.forceDirectionalChange(newXDir, e.yDir);
+				
+//				if (newXDir.x != e.xDir.x || newXDir.y != e.xDir.y) {
+//					//Time to recalculate velocity
+//					e.recordVeloChange(newXDir, e.yDir);
+//				}
 				
 				e.grounded = true;
 			}

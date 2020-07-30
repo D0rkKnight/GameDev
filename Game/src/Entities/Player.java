@@ -14,6 +14,8 @@ public class Player extends Combatant{
 
 	public Input input;
 	
+	private float jumpSpeed;
+	
 	public Player(int ID, Vector2 position, Sprites sprites, SpriteRenderer renderer, String name, Stats stats) {
 
 		super(ID, position, sprites, renderer, name, stats);
@@ -29,6 +31,8 @@ public class Player extends Combatant{
 		
 		//Configure hitbox
 		hitbox = new Hitbox(this, dim.w, dim.h);
+		
+		jumpSpeed = 1.5f;
 	}
 
 	public void onHit(Hitbox hb) {
@@ -56,7 +60,7 @@ public class Player extends Combatant{
 
 	@Override
 	public void move() {// TODO add collision
-		float xCap = 0.7f;
+		float xCap = 0.5f;
 		
 		if (input.moveX < 0 && true) {// moving left, check collision left
 			if (xVelocity > -xCap) {
@@ -87,13 +91,14 @@ public class Player extends Combatant{
 		}
 		if (grounded && input.moveY != 0) { // if player is colliding with ground underneath and digital input detected
 										// (space pressed)
-			yVelocity = 30f / GameManager.deltaT();
+			yVelocity = jumpSpeed;
+			isJumping = true; //Signals to the physics system that some operations ought to be done
 		}
 		else if(true) { //player not colliding with ground
 			//Set this to universal gravitational constant
 			yAcceleration = Entity.gravity;
 			
-			yVelocity -= yAcceleration;
+			yVelocity -= yAcceleration * GameManager.deltaT() / 1000;
 			yVelocity = Math.max(yVelocity, -3);
 		}
 		else {
