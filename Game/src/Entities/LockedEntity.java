@@ -19,7 +19,7 @@ public class LockedEntity extends Entity{
 	}
 
 	@Override
-	public void move() {
+	public void controlledMovement() {
 		// TODO Auto-generated method stub
 		
 	}
@@ -36,7 +36,6 @@ public class LockedEntity extends Entity{
 		
 	}
 
-	@Override
 	public void onHit(Hitbox otherHb) {
 		// TODO Auto-generated method stub
 		

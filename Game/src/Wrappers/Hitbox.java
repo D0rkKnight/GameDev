@@ -1,14 +1,13 @@
 package Wrappers;
 
-import Entities.Combatant;
-import Entities.Entity;
+import Entities.PhysicsEntity;
 
 public class Hitbox {
 	public float height;
 	public float width;
-	public Combatant owner;
+	public PhysicsEntity owner;
 	
-	public Hitbox(Combatant owner, float height, float width) {
+	public Hitbox(PhysicsEntity owner, float height, float width) {
 		this.height = height;
 		this.width = width;
 		this.owner = owner;

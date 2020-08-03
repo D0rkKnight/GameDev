@@ -13,5 +13,6 @@ public class SpriteShader extends Shader {
 	protected void bindAttributes() {
 		glBindAttribLocation(program, 0, "vertices");
 		glBindAttribLocation(program, 1, "texCords");
+		glBindAttribLocation(program, 2, "color");
 	}
 }

@@ -4,27 +4,39 @@ import Collision.HammerShape;
 import GameController.GameManager;
 import GameController.Input;
 import Rendering.SpriteRenderer;
+import Wrappers.Arithmetic;
+import Wrappers.Color;
 import Wrappers.Hitbox;
 import Wrappers.Rect;
 import Wrappers.Sprites;
 import Wrappers.Stats;
+import Wrappers.Timer;
+import Wrappers.TimerCallback;
 import Wrappers.Vector2;
 
 public class Player extends Combatant{
-
-	public Input input;
 	
 	private float jumpSpeed;
+	private Timer gunTimer;
+	
+	private float dashSpeed;
+	private long dashDuration;
+	private Timer dashTimer;
+	private Vector2 dashDir;
+	
+	private int movementMode;
+	private boolean hasGravity;
+	
+	private static final int MOVEMENT_MODE_CONTROLLED = 1;
+	private static final int MOVEMENT_MODE_IS_DASHING = 2;
 	
 	public Player(int ID, Vector2 position, Sprites sprites, SpriteRenderer renderer, String name, Stats stats) {
-
 		super(ID, position, sprites, renderer, name, stats);
-		input = new Input();
 		
 		//Configure the renderer real quick
 		dim = new Rect(16f, 64f);
 		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer;
-		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE);
+		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0));
 		renderer = rendTemp;
 		
 		this.renderer.linkPos(this.position);
@@ -33,6 +45,20 @@ public class Player extends Combatant{
 		hitbox = new Hitbox(this, dim.w, dim.h);
 		
 		jumpSpeed = 1.5f;
+		
+		dashSpeed = 3f;
+		dashDuration = 100;
+		movementMode = MOVEMENT_MODE_CONTROLLED;
+		
+		//Configure firing
+		gunTimer = new Timer(100, new TimerCallback() {
+
+			@Override
+			public void invoke() {
+				fireGun(Input.mouseWorldPos);
+			}
+			
+		});
 	}
 
 	public void onHit(Hitbox hb) {
@@ -51,69 +77,128 @@ public class Player extends Combatant{
 		// TODO Auto-generated method stub
 
 	}
-
+	
 	public void calculate() {
-		super.calculate();
-
-		move();
-	}
-
-	@Override
-	public void move() {// TODO add collision
-		float xCap = 0.5f;
+		determineMovementMode();
 		
-		if (input.moveX < 0 && true) {// moving left, check collision left
-			if (xVelocity > -xCap) {
-				xVelocity -= 0.2;
-				if (xVelocity < -xCap) {
-					xVelocity = -xCap;
-				}
-			}
-		} else if (input.moveX > 0 && true) {// moving right, check collision right
-			if (xVelocity < xCap) {
-				xVelocity += 0.2;
-				if (xVelocity > xCap) {
-					xVelocity = xCap;
-				}
-			}
-		} else {
-			if (xVelocity > 0) {
-				xVelocity -= 0.2; // Rate that the player deaccelerates when not moving
-				if (xVelocity < 0) {
-					xVelocity = 0;
-				}
-			} else if (xVelocity < 0) {
-				xVelocity += 0.2; // Rate that the player deaccelerates when not moving
-				if (xVelocity > 0) {
-					xVelocity = 0;
-				}
-			}
+		SpriteRenderer sprRend = (SpriteRenderer) renderer;
+		switch (movementMode) {
+		case MOVEMENT_MODE_CONTROLLED:
+			sprRend.col = new Color(1, 0, 0);
+			controlledMovement();
+			break;
+		case MOVEMENT_MODE_IS_DASHING:
+			sprRend.col = new Color(1, 1, 1);
+			dashingMovement();
+			break;
+		default:
+			System.err.println("Movement mode not set.");
 		}
-		if (grounded && input.moveY != 0) { // if player is colliding with ground underneath and digital input detected
-										// (space pressed)
-			yVelocity = jumpSpeed;
-			isJumping = true; //Signals to the physics system that some operations ought to be done
-		}
-		else if(true) { //player not colliding with ground
-			//Set this to universal gravitational constant
-			yAcceleration = Entity.gravity;
-			
-			yVelocity -= yAcceleration * GameManager.deltaT() / 1000;
+		
+		if (hasGravity) {
+			//Gravity
+			yVelocity -= Entity.gravity * GameManager.deltaT() / 1000;
 			yVelocity = Math.max(yVelocity, -3);
 		}
-		else {
-			//player colliding with ground without vertical input detected
+		
+		//Shoot a gun
+		if (Input.primaryButtonDown) {
+			gunTimer.update();
+		}
+		
+		//Update dash timer
+		if (dashTimer != null) {
+			dashTimer.update();
+		}
+	}
+	
+	private void determineMovementMode() {
+		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && movementMode != MOVEMENT_MODE_IS_DASHING) {
+			movementMode = MOVEMENT_MODE_IS_DASHING;
+			dashDir = new Vector2(Input.moveX, Input.moveY).unit();
+			
+			//Begin a timer
+			dashTimer = new Timer(dashDuration, new TimerCallback() {
+
+				@Override
+				public void invoke() {
+					//First, dump this timer
+					dashTimer = null;
+					
+					//Now stop dashing
+					movementMode = MOVEMENT_MODE_CONTROLLED;
+				}
+				
+			});
 		}
 	}
 
 	@Override
-	public void render() {
-		//TODO: This is like, broken rn because the renderer can't handle movement.
-		renderer.render();
+	public void controlledMovement() {// TODO add collision
+		float xCap = 0.5f;
+		float accelConst = 2f / 300f;
+		
+		float xAccel = 0;
+		
+		//Deceleration
+		if (Input.moveX != 0) {
+			xAccel = accelConst * Input.moveX;
+		} else {
+			//Reduce jitter (divide by deltaT to balance out equation)
+			float decelConst = Math.min(accelConst, Math.abs(xVelocity) / GameManager.deltaT());
+			
+			xAccel = -decelConst * Arithmetic.sign(xVelocity);
+		}
+		xAccel *= GameManager.deltaT();
+		
+		xVelocity += xAccel;
+		
+		//cap velo
+		if (Input.moveX > 0) xVelocity = Math.min(xVelocity, xCap);
+		if (Input.moveX < 0) xVelocity = Math.max(xVelocity, -xCap);
+		
+		if (grounded && Input.moveY == 1) { // if player is colliding with ground underneath and digital input detected
+										// (space pressed)
+			yVelocity = jumpSpeed;
+			
+			//TODO: Rename this so its purpose is less vague.
+			isJumping = true; //Signals to the physics system that some operations ought to be done
+		}
+
+		hasGravity = true;
+	}
+	
+	private void dashingMovement()
+	{
+		xVelocity = dashDir.x * dashSpeed;
+		yVelocity = dashDir.y * dashSpeed;
+	}
+	
+	private void fireGun(Vector2 firePos) {
+		System.out.println(firePos.toString());
+		
+		Vector2 pos = position.add(new Vector2(8, 32));
+		
+		Projectile proj = new Projectile(0, pos, null, GameManager.renderer, "Bullet");
+		Vector2 dir = firePos.sub(position).unit();
+		
+		System.out.println(Input.mouseWorldPos.toString());
+		
+		Vector2 velo = dir.mult(3);
+		
+		proj.xVelocity = velo.x;
+		proj.yVelocity = velo.y;
+		
+		GameManager.subscribeEntity(proj);
 	}
 
 	@Override
 	protected void calcFrame() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void onTileCollision() {
 		// TODO Auto-generated method stub
 		
 	}

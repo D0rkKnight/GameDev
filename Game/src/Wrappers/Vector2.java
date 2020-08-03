@@ -14,17 +14,29 @@ public class Vector2 implements Cloneable {
 		y = v.y;
 	}
 	
-	public void subtract(Vector2 pos) {
+	public Vector2 add(Vector2 v) {
+		return new Vector2(x + v.x, y+v.y);
+	}
+	
+	public Vector2 sub(Vector2 v) {
+		return new Vector2(x - v.x, y-v.y);
+	}
+	
+	public Vector2 mult(float f) {
+		return new Vector2(x * f, y * f);
+	}
+	
+	public void subtractFromThis(Vector2 pos) {
 		this.x -= pos.x;
 		this.y -= pos.y;
 	}
 	
-	public void add(Vector2 pos) {
+	public void addToThis(Vector2 pos) {
 		this.x += pos.x;
 		this.y += pos.y;
 	}
 	
-	public void add(Rect r) {
+	public void addToThis(Rect r) {
 		this.x += r.w;
 		this.y += r.h;
 	}

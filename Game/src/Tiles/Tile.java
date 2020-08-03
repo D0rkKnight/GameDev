@@ -6,6 +6,7 @@ import Collision.HammerShape;
 import GameController.GameManager;
 import GameController.Map;
 import Rendering.SpriteRenderer;
+import Wrappers.Color;
 import Wrappers.Rect;
 import Wrappers.Vector2;
 
@@ -46,7 +47,7 @@ public abstract class Tile implements Cloneable{
 			hammerState = GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE);
 		}
 		
-		this.renderer.init(pos, rect, hammerState.shapeId);
+		this.renderer.init(pos, rect, hammerState.shapeId, new Color(1, 1, 1));
 	}
 	
 	/**

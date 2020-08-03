@@ -3,6 +3,7 @@ package Collision;
 import java.util.ArrayList;
 
 import Entities.Combatant;
+import Entities.PhysicsEntity;
 import GameController.GameManager;
 import Tiles.Tile;
 import Wrappers.Arithmetic;
@@ -13,7 +14,7 @@ public abstract class Physics {
 	
 	public static void calculateDeltas(Hitbox c, Tile[][] grid) {
 		
-		Combatant e = c.owner;
+		PhysicsEntity e = c.owner;
 		
 		//Presume to be free falling, until able to prove otherwise
 		e.grounded = false;
@@ -24,7 +25,7 @@ public abstract class Physics {
 			Vector2 yAxis = e.yDir;
 			Vector2 xAxis = yAxis.rightVector(); //This is 90 degrees clockwise
 			float yVelo = e.yVelocity;
-			System.out.println("SETTING Y VELO: "+yVelo);
+//			System.out.println("SETTING Y VELO: "+yVelo);
 			
 			//This will modify both x and y velocities.
 			e.recordVeloChange(xAxis, yAxis);
@@ -58,10 +59,10 @@ public abstract class Physics {
 		deltaComponents[0] = new Vector2(axises[0].x * velo.y, axises[0].y * velo.y);
 		deltaComponents[1] = new Vector2(axises[1].x * velo.x, axises[1].y * velo.x);
 		
-		System.out.println("\nyDir: "+e.yDir.toString());
-		System.out.println("xDir: "+e.xDir.toString());
-		System.out.println("yVelo: "+velo.y);
-		System.out.println("yDelta: "+deltaComponents[0].toString());
+//		System.out.println("\nyDir: "+e.yDir.toString());
+//		System.out.println("xDir: "+e.xDir.toString());
+//		System.out.println("yVelo: "+velo.y);
+//		System.out.println("yDelta: "+deltaComponents[0].toString());
 		
 		//Scale against time
 		for (Vector2 v : deltaComponents) {
@@ -131,7 +132,7 @@ public abstract class Physics {
 	 * @param e
 	 * @return Whether or not the entity collided when attempting to move
 	 */
-	public static boolean moveTo(Vector2 rawPos, Vector2 deltaMove, Vector2 velo, Combatant e, Tile[][] grid, Vector2 moveAxis, Vector2[] axises) {
+	public static boolean moveTo(Vector2 rawPos, Vector2 deltaMove, Vector2 velo, PhysicsEntity e, Tile[][] grid, Vector2 moveAxis, Vector2[] axises) {
 		Vector2 bl = new Vector2(rawPos.x + deltaMove.x, rawPos.y + deltaMove.y);
 		Vector2 ur = new Vector2(bl.x + e.dim.w, bl.y + e.dim.h);
 		
@@ -218,13 +219,11 @@ public abstract class Physics {
 				velo.y = 0;
 				e.forceDirectionalChange(newXDir, e.yDir);
 				
-//				if (newXDir.x != e.xDir.x || newXDir.y != e.xDir.y) {
-//					//Time to recalculate velocity
-//					e.recordVeloChange(newXDir, e.yDir);
-//				}
-				
 				e.grounded = true;
 			}
+			
+			//Enqueue collision response (but store this for later since I want it batched)
+			e.collidedWithTile = true;
 			
 			return false;
 		}

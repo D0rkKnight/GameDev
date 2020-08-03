@@ -38,7 +38,7 @@ public class BouncingEnemy extends Enemy{
 	}
 
 	@Override
-	public void move() {
+	public void controlledMovement() {
 		// TODO Auto-generated method stub
 		
 	}

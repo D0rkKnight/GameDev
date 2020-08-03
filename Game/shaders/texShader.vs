@@ -2,10 +2,13 @@
 
 attribute vec3 vertices;
 attribute vec2 texCords;
+attribute vec3 color;
 
 out vec2 TexCord;
+out vec3 vertexColor;
 
 void main() {
 	gl_Position = vec4(vertices, 1.0);
 	TexCord = texCords;
+	vertexColor = color;
 }

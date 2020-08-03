@@ -2,15 +2,6 @@ package GameController;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LAST;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
 import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
 import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
@@ -22,10 +13,12 @@ import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
 import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.glfwSetCursorPosCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetMouseButtonCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
 import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
@@ -50,8 +43,11 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
@@ -61,8 +57,8 @@ import Collision.HammerShape;
 import Collision.HammerSquare;
 import Collision.Physics;
 import Entities.Entity;
+import Entities.PhysicsEntity;
 import Entities.Player;
-import Rendering.Shader;
 import Rendering.SpriteRenderer;
 import Rendering.SpriteShader;
 import Tiles.SquareTile;
@@ -80,24 +76,24 @@ public class GameManager {
 	 * private JFrame frame; private RendererOld canvas;
 	 */
 	public static long window;
-	private static boolean[] keyStates;
 	private static long deltaTime = 0;
 	private static long currTime = 0;
 	private static long lastTime = 0;
 	
 	//Helper variable for frame walking
-	private static boolean waitingForFrameWalk = true;
+	public static boolean waitingForFrameWalk = true;
 	
 	/**
 	 * Configuration and debug
 	 */
 	private static float timeScale = 1;
-	private static boolean frameWalk = false;
-	private static float frameDelta = 10f;
+	public static boolean frameWalk = false;
+	public static float frameDelta = 10f;
 	
 	//
 	private Drawer drawer;
-	private SpriteRenderer renderer;
+	public static SpriteRenderer renderer;
+	public static SpriteShader shader;
 
 	// Storage for tiles
 	private ArrayList<Map> maps;
@@ -117,9 +113,10 @@ public class GameManager {
 	private int room; // specific room within each level
 
 	// Entity positions in current room
-	private ArrayList<Entity> entities;
-	
-	private ArrayList<Hitbox> coll;
+	static private ArrayList<Entity> entities;
+	static private ArrayList<Entity> entityWaitingList;
+	static private ArrayList<Entity> entityClearList;
+	static private ArrayList<Hitbox> coll;
 	
 	private Serializer serializer;
 	public static Player player;
@@ -154,7 +151,7 @@ public class GameManager {
 
 	private void config() {
 		timeScale = 1f;
-		frameWalk = false;
+		frameWalk = true;
 		frameDelta = 20f;
 	}
 	
@@ -163,8 +160,8 @@ public class GameManager {
 		initTime();
 		
 		serializer = new Serializer();
-		keyStates = new boolean[GLFW_KEY_LAST];
 		initGraphics();
+		initInput();
 		drawer = new Drawer();
 
 		//Init camera
@@ -172,7 +169,7 @@ public class GameManager {
 		
 		//Init renderer
 		//TODO: We have to make a renderer factory in order for this to, like, work.
-		Shader shader = new SpriteShader("texShader");
+		shader = new SpriteShader("texShader");
 				SpriteRenderer sprRenderer = new SpriteRenderer(shader);
 				sprRenderer.spr = new Texture("tile1.png");
 				renderer = sprRenderer;
@@ -240,35 +237,6 @@ public class GameManager {
 		
 		currmap = new Map(mapData, null, null, null);//TODO
 	}
-	
-	/*
-	 * This is the LWJGL backed input solution.
-	 */
-	public void inputListener(long window, int key, int scancode, int action, int mods) {
-		//Record key states here
-		if (action == GLFW_PRESS) keyStates[key] = true;
-		if (action == GLFW_RELEASE) keyStates[key] = false;
-		
-		//Individual press and release stuff
-		if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-			glfwSetWindowShouldClose(window, true); // Later detected in rendering loop
-		}
-		//Frame walking
-		if (frameWalk && keyStates[GLFW_KEY_SPACE] && action == GLFW_PRESS) {
-			waitingForFrameWalk = false;
-		}
-		
-		//Player movement!
-		float moveX = 0;
-		if (keyStates[GLFW_KEY_D]) moveX ++;
-		if (keyStates[GLFW_KEY_A]) moveX --;
-		player.input.moveX = moveX;
-		
-		float moveY = 0;
-		if (keyStates[GLFW_KEY_W]) moveY ++;
-		if (keyStates[GLFW_KEY_S]) moveY --;
-		player.input.moveY = moveY;
-	}
 
 	private void loadProgression() {
 
@@ -294,16 +262,13 @@ public class GameManager {
 		// Create the window!
 		// Note: NULL is a constant that denotes the null value in OpenGL. Not the same
 		// thing as Java null.
-		window = glfwCreateWindow(1280, 720, "PLACEHOLDER TITLE", NULL, NULL);
+		int windowW = 1280;
+		int windowH = 720;
+		Input.windowDims = new Vector2(windowW, windowH);
+		window = glfwCreateWindow(windowW, windowH, "PLACEHOLDER TITLE", NULL, NULL);
 		if (window == NULL) {
 			throw new RuntimeException("Failed to create GLFW window");
 		}
-
-		// Setup key callbacks (includes a lambda, fun.)
-		// We can pass in a delegate to handle controls.
-		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-			inputListener(window, key, scancode, action, mods);
-		});
 
 		
 		Rect r = GetWindowSize();
@@ -332,6 +297,40 @@ public class GameManager {
 	    // set ortho to same size as viewport, positioned at 0,0
 	    // TODO: Figure out what this like, does.
 	    glOrtho(0, r.w, 0, r.h, -1, 1);
+	}
+	
+	private void initInput() {
+		// Setup key callbacks (includes a lambda, fun.)
+		// We can pass in a delegate to handle controls.
+		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+			Input.updateKeys(window, key, scancode, action, mods);
+		});
+		
+		//I dunno why this has to be different for mouse inputs...
+		glfwSetMouseButtonCallback(window, new GLFWMouseButtonCallback() {
+		    @Override
+		    public void invoke(final long window, final int button, final int action, final int mods) {
+		    	Input.updateMouse(window, button, action, mods);
+		    }
+	    });
+		
+		glfwSetCursorPosCallback(window, new GLFWCursorPosCallback() {
+
+			@Override
+			public void invoke(long window, double xPos, double yPos) {
+				Input.updateCursor(xPos, yPos);
+			}
+			
+		});
+		
+		glfwSetWindowSizeCallback(window, new GLFWWindowSizeCallback() {
+
+			@Override
+			public void invoke(long window, int width, int height) {
+				Input.updateWindowSize(width, height);
+			}
+			
+		});
 	}
 	
 	public static Rect GetWindowSize() {
@@ -377,6 +376,8 @@ public class GameManager {
 	
 	private void initEntities() {
 		entities = new ArrayList();
+		entityWaitingList = new ArrayList();
+		entityClearList = new ArrayList();
 	}
 	
 	private void initCollision() {
@@ -392,11 +393,20 @@ public class GameManager {
 		for (HammerShape h : cache) hammerLookup.put(h.shapeId, h);
 	}
 	
-	private void subscribeEntity(Entity e) {
-		entities.add(e);
+	public static void subscribeEntity(Entity e) {
+		entityWaitingList.add(e);
 		
 		Hitbox hb = e.getHitbox();
 		if (hb != null) coll.add(hb);
+		else System.err.println("Collider not defined!");
+	}
+	
+	public static void unsubscribeEntity(Entity e) {
+		entityClearList.add(e);
+		
+		Hitbox hb = e.getHitbox();
+		if (hb != null) coll.remove(hb);
+		else System.err.println("Collider not defined!");
 	}
 	
 	private void initPlayer() {
@@ -435,11 +445,14 @@ public class GameManager {
 			glfwSwapBuffers(window);
 
 			// Event listening stuff. Key callback is invoked here.
+			// Do wipe input before going in
+			Input.update();
 			glfwPollEvents();
 			
 			//Frame walking debug tools
 			if (frameWalk) {
 				while(waitingForFrameWalk) {
+					Input.update();
 					glfwPollEvents();
 					
 					if (glfwWindowShouldClose(window)) break;
@@ -469,10 +482,25 @@ public class GameManager {
 		return (long) (deltaTime * timeScale);
 	}
 	
+	public static long getFrameTime() {
+		return currTime;
+	}
+	
 	/**
 	 * Called once per frame, and is responsible for updating internal game logic.
 	 */
 	private void update() {
+		//Dump entity waiting list into entity list
+		for (Entity e : entityWaitingList) {
+			entities.add(e);
+		}
+		entityWaitingList.clear();
+		
+		//Filter deleted entities out
+		for (Entity e : entityClearList) {
+			entities.remove(e);
+		}
+		
 		//Each entity makes decisions
 		for (Entity ent : entities) {
 			ent.calculate();
@@ -488,6 +516,12 @@ public class GameManager {
 		
 		//Push physics outcomes
 		for (Entity e : entities) {
+			//Somehow need to avoid pushing the movement of entities that don't move.
+			PhysicsEntity pe = (PhysicsEntity) e;
+			if (pe.collidedWithTile) {
+				pe.onTileCollision();
+				pe.collidedWithTile = false;
+			}
 			e.pushMovement();
 		}
 		

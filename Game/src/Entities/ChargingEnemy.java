@@ -44,7 +44,7 @@ public class ChargingEnemy extends Enemy implements Gravity {
 			
 		}
 		else if(charging) { //currently charging
-			move();
+			controlledMovement();
 		}
 		else if(/*player nearby*/true) { //player nearby
 			windup = true; //start charge windup
@@ -52,12 +52,12 @@ public class ChargingEnemy extends Enemy implements Gravity {
 		// only charges at player if knocked back or moved. has a windup animation
 		// before and a post charge animation.
 		else {
-			move(); //idle move
+			controlledMovement(); //idle move
 		}
 	}
 
 	@Override
-	public void move() { //move mostly while charging. Otherwise idle movement.
+	public void controlledMovement() { //move mostly while charging. Otherwise idle movement.
 		if(charging) {
 		}
 

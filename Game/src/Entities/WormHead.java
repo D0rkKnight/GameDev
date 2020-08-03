@@ -40,7 +40,7 @@ public class WormHead extends Enemy implements Collidable{
 	}
 
 	@Override
-	public void move() {
+	public void controlledMovement() {
 		// TODO Auto-generated method stub
 		
 	}

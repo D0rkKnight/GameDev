@@ -1,6 +1,7 @@
 package Entities;
 
 import Collision.Collidable;
+import GameController.GameManager;
 import Rendering.Renderer;
 import Wrappers.Hitbox;
 import Wrappers.Rect;
@@ -15,7 +16,7 @@ import Wrappers.Vector2;
  * @author Benjamin
  *
  */
-public abstract class Entity implements Collidable{
+public abstract class Entity {
 	protected int ID;
 	protected Vector2 position;
 	protected Sprites sprites;
@@ -54,7 +55,7 @@ public abstract class Entity implements Collidable{
 	/**
 	 * Applies AI / controls
 	 */
-	public abstract void move();
+	public abstract void controlledMovement();
 	
 	/**
 	 * Applies deltas
@@ -64,11 +65,19 @@ public abstract class Entity implements Collidable{
 	public Vector2 getPosition() {
 		return position;
 	}
-
-	public abstract void render();
+	
+	/**
+	 * You can override this with something spicy I guess
+	 */
+	public void render() {
+		renderer.render();
+	}
 	
 	public Hitbox getHitbox() {
 		return hitbox;
 	}
-
+	
+	public void Destroy() {
+		GameManager.unsubscribeEntity(this);
+	}
 }
