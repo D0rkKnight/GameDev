@@ -61,7 +61,7 @@ public class Input {
 			glfwSetWindowShouldClose(window, true); // Later detected in rendering loop
 		}
 		//Frame walking
-		if (GameManager.frameWalk && key == GLFW_KEY_J && action == GLFW_PRESS) {
+		if (GameManager.frameWalk && key == frameWalkKey && action == GLFW_PRESS) {
 			GameManager.waitingForFrameWalk = false;
 		}
 		

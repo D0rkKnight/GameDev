@@ -19,7 +19,7 @@ public abstract class Tile implements Cloneable{
 	protected int ID;
 	protected BufferedImage sprite;
 	protected Map map;
-	protected SpriteRenderer renderer;
+	public SpriteRenderer renderer;
 	protected HammerShape hammerState; //NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when loaded in maps)
 	
 	public static final int CORNER_NULL = -1;

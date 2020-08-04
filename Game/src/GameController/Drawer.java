@@ -2,6 +2,7 @@ package GameController;
 
 import java.util.ArrayList;
 
+import Debug.Debug;
 import Entities.Entity;
 import Tiles.Tile;
 import Wrappers.Vector2;
@@ -32,5 +33,8 @@ public class Drawer {
   		for (Entity ent : entities) {
   			ent.render();
   		}
+  		
+  		//Overlay debug elements
+  		Debug.renderDebug();
 	}
 }

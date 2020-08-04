@@ -194,11 +194,13 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	 * @return
 	 */
 	protected float[] genVerts() {
+		Camera cam = Camera.main;
+		
 		//Now this also needs to be normalized...
-		Vector2 ul = mapVert(pos.x, pos.y + rect.h);
-		Vector2 ur = mapVert(pos.x + rect.w, pos.y + rect.h);
-		Vector2 bl = mapVert(pos.x, pos.y);
-		Vector2 br = mapVert(pos.x + rect.w, pos.y);
+		Vector2 ul = cam.mapVert(pos.x, pos.y + rect.h);
+		Vector2 ur = cam.mapVert(pos.x + rect.w, pos.y + rect.h);
+		Vector2 bl = cam.mapVert(pos.x, pos.y);
+		Vector2 br = cam.mapVert(pos.x + rect.w, pos.y);
 		
 		float[] verts = null;
 		
@@ -257,27 +259,6 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		}
 		
 		return out;
-	}
-	
-	/**
-	 * Returns clipped vertex values
-	 * TODO: Do this with matrices instead
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	protected Vector2 mapVert(float x, float y) {
-		Vector2 p = new Vector2(x, y);
-		
-		//View step of rendering
-		p.subtractFromThis(Camera.main.pos);
-		
-		
-		//Clip step of rendering (simple, since we're in an orthographic mode.
-		p.x /= Camera.main.viewport.w;
-		p.y /= Camera.main.viewport.h;
-		
-		return p;
 	}
 	
 	protected void setVert(Vector2 p) {

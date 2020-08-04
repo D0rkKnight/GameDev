@@ -114,10 +114,11 @@ public class Vector2 implements Cloneable {
 		}
 	}
 	
-	public static void lerp(Vector2 v1, Vector2 v2, float ratio) {
+	public static Vector2 lerp(Vector2 v1, Vector2 v2, float ratio) {
 		float x = Arithmetic.lerp(v1.x, v2.x, ratio);
 		float y = Arithmetic.lerp(v1.y, v2.y, ratio);
 		Vector2 out = new Vector2(x, y);
+		return out;
 	}
 	
 	//Returns the vector to the right of this vector.

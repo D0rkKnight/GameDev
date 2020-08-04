@@ -2,11 +2,13 @@ package Collision;
 
 import java.util.ArrayList;
 
-import Entities.Combatant;
+import Debug.Debug;
+import Debug.DebugBox;
 import Entities.PhysicsEntity;
 import GameController.GameManager;
 import Tiles.Tile;
 import Wrappers.Arithmetic;
+import Wrappers.Color;
 import Wrappers.Hitbox;
 import Wrappers.Vector2;
 
@@ -25,7 +27,6 @@ public abstract class Physics {
 			Vector2 yAxis = e.yDir;
 			Vector2 xAxis = yAxis.rightVector(); //This is 90 degrees clockwise
 			float yVelo = e.yVelocity;
-//			System.out.println("SETTING Y VELO: "+yVelo);
 			
 			//This will modify both x and y velocities.
 			e.recordVeloChange(xAxis, yAxis);
@@ -33,8 +34,6 @@ public abstract class Physics {
 			
 			//The point is to retain the y velocity.
 			e.yVelocity = yVelo;
-			
-			System.out.println(yVelo);
 			e.isJumping = false;
 		}
 		
@@ -59,16 +58,15 @@ public abstract class Physics {
 		deltaComponents[0] = new Vector2(axises[0].x * velo.y, axises[0].y * velo.y);
 		deltaComponents[1] = new Vector2(axises[1].x * velo.x, axises[1].y * velo.x);
 		
-//		System.out.println("\nyDir: "+e.yDir.toString());
-//		System.out.println("xDir: "+e.xDir.toString());
-//		System.out.println("yVelo: "+velo.y);
-//		System.out.println("yDelta: "+deltaComponents[0].toString());
-		
 		//Scale against time
 		for (Vector2 v : deltaComponents) {
 			v.x *= dt;
 			v.y *= dt;
 		}
+		
+		//Debug elements
+		for (Vector2 comp : deltaComponents) Debug.trackMovementVector(e.getPosition(), comp, 10f);
+		Debug.enqueueElement(new DebugBox(new Vector2(rawPos), new Vector2(e.dim.w, e.dim.h), 5));
 		
 		//Holds data to be pushed later, when reasonable movement is found
 		Vector2 deltaTemp = new Vector2(0, 0);
@@ -103,6 +101,8 @@ public abstract class Physics {
 			deltaTemp.x += deltaInch.x;
 			deltaTemp.y += deltaInch.y;
 		}
+		
+		Debug.trackMovementVector(e.getPosition().add(new Vector2(0, 20)), deltaTemp, 20f);
 		
 		//Push buffer to delta
 		
@@ -167,6 +167,8 @@ public abstract class Physics {
 						maxMoveDist = d;
 						normal = tempNormal;
 					}
+					if (GameManager.showCollisions) t.renderer.col = new Color(1, 0, 1);
+					
 					isSuccess = false;
 				}
 			}
@@ -224,11 +226,9 @@ public abstract class Physics {
 			
 			//Enqueue collision response (but store this for later since I want it batched)
 			e.collidedWithTile = true;
-			
-			return false;
 		}
 		
-		return true;
+		return isSuccess;
 	}
 	
 	/**

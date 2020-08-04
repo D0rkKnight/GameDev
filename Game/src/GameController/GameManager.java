@@ -56,6 +56,7 @@ import Collision.HammerRightTriangle;
 import Collision.HammerShape;
 import Collision.HammerSquare;
 import Collision.Physics;
+import Debug.Debug;
 import Entities.Entity;
 import Entities.PhysicsEntity;
 import Entities.Player;
@@ -63,6 +64,7 @@ import Rendering.SpriteRenderer;
 import Rendering.SpriteShader;
 import Tiles.SquareTile;
 import Tiles.Tile;
+import Wrappers.Color;
 import Wrappers.Hitbox;
 import Wrappers.Rect;
 import Wrappers.Texture;
@@ -86,9 +88,10 @@ public class GameManager {
 	/**
 	 * Configuration and debug
 	 */
-	private static float timeScale = 1;
+	public static float timeScale = 1;
 	public static boolean frameWalk = false;
 	public static float frameDelta = 10f;
+	public static boolean showCollisions = false;
 	
 	//
 	private Drawer drawer;
@@ -149,19 +152,15 @@ public class GameManager {
 		glfwSetErrorCallback(null).free();
 	}
 
-	private void config() {
-		timeScale = 1f;
-		frameWalk = true;
-		frameDelta = 20f;
-	}
+
 	
 	private void init() {
-		config();
 		initTime();
 		
 		serializer = new Serializer();
 		initGraphics();
 		initInput();
+		Debug.init();
 		drawer = new Drawer();
 
 		//Init camera
@@ -173,7 +172,6 @@ public class GameManager {
 				SpriteRenderer sprRenderer = new SpriteRenderer(shader);
 				sprRenderer.spr = new Texture("tile1.png");
 				renderer = sprRenderer;
-		
 		
 		//Init player
 		initEntities();
@@ -452,7 +450,7 @@ public class GameManager {
 			//Frame walking debug tools
 			if (frameWalk) {
 				while(waitingForFrameWalk) {
-					Input.update();
+					//Input.update(); //No need to wipe stuff
 					glfwPollEvents();
 					
 					if (glfwWindowShouldClose(window)) break;
@@ -490,6 +488,14 @@ public class GameManager {
 	 * Called once per frame, and is responsible for updating internal game logic.
 	 */
 	private void update() {
+		//Clear tile collision colorings (debug purposes)
+		if (GameManager.showCollisions) {
+			System.out.println("Clearing tile colors!");
+			for (Tile[] tArr : currmap.getGrid()) {
+				for (Tile t : tArr) if (t != null) t.renderer.col = new Color(0.5f, 0.5f, 0.5f);
+			}
+		}
+		
 		//Dump entity waiting list into entity list
 		for (Entity e : entityWaitingList) {
 			entities.add(e);

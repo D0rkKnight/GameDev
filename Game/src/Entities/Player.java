@@ -95,8 +95,8 @@ public class Player extends Combatant{
 			System.err.println("Movement mode not set.");
 		}
 		
+		//Gravity
 		if (hasGravity) {
-			//Gravity
 			yVelocity -= Entity.gravity * GameManager.deltaT() / 1000;
 			yVelocity = Math.max(yVelocity, -3);
 		}
@@ -172,6 +172,8 @@ public class Player extends Combatant{
 	{
 		xVelocity = dashDir.x * dashSpeed;
 		yVelocity = dashDir.y * dashSpeed;
+		
+		hasGravity = false;
 	}
 	
 	private void fireGun(Vector2 firePos) {
