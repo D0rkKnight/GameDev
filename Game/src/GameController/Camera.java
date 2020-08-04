@@ -20,7 +20,7 @@ public class Camera {
 		moveSpeed = 1f;
 		
 		//TODO: Resolve this with input's stuff
-		viewport = GameManager.GetWindowSize();
+		viewport = Drawer.GetWindowSize();
 		viewport.w /= 2;
 		viewport.h /= 2;
 	}

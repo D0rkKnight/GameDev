@@ -37,15 +37,15 @@ public abstract class Combatant extends PhysicsEntity {
 		}
 		// this if else accounts for the angle being to the right/left
 		if (direction <= 180) {
-			xVelocity += knockback * Math.cos(Math.toRadians((90 - direction)));
+			velo.x += knockback * Math.cos(Math.toRadians((90 - direction)));
 		} else {
-			xVelocity -= knockback * Math.cos(Math.toRadians((270 - direction)));
+			velo.x -= knockback * Math.cos(Math.toRadians((270 - direction)));
 		}
 		// and top/bot
 		if (direction < 90 || direction > 270) {
-			yVelocity += knockback * Math.cos(Math.toRadians(direction));
+			velo.x += knockback * Math.cos(Math.toRadians(direction));
 		} else {
-			yVelocity -= knockback * Math.cos(Math.toRadians(180 - direction));
+			velo.x -= knockback * Math.cos(Math.toRadians(180 - direction));
 		}
 	}
 	

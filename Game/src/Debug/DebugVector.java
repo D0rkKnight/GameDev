@@ -14,13 +14,13 @@ public class DebugVector extends DebugElement {
 	Vector2 v;
 	float mult;
 	
-	DebugVector(Vector2 p, Vector2 v, float mult, int lifespan) {
+	public DebugVector(Vector2 p, Vector2 v, float mult, int lifespan) {
 		this(p, v, mult);
 		
 		this.lifespan = lifespan;
 	}
 	
-	DebugVector(Vector2 p, Vector2 v, float mult) {
+	public DebugVector(Vector2 p, Vector2 v, float mult) {
 		this.p = p;
 		this.v = v;
 		this.mult = mult;
@@ -35,8 +35,6 @@ public class DebugVector extends DebugElement {
 		
 		Vector2 start = cam.mapVert(p);
 		Vector2 end = cam.mapVert(p.add(fullVec));
-		
-		System.out.println(end.toString());
 		
 		//Bind shader
 		shader.bind();

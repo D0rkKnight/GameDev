@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import Debug.Debug;
 import Debug.DebugBox;
+import Debug.DebugVector;
 import Entities.PhysicsEntity;
 import GameController.GameManager;
 import Tiles.Tile;
@@ -26,19 +27,19 @@ public abstract class Physics {
 			//Pass in new directional axises (x axis perpendicular to the y axis)
 			Vector2 yAxis = e.yDir;
 			Vector2 xAxis = yAxis.rightVector(); //This is 90 degrees clockwise
-			float yVelo = e.yVelocity;
+			float yVelo = e.velo.y;
 			
 			//This will modify both x and y velocities.
 			e.recordVeloChange(xAxis, yAxis);
 			e.resolveVeloChange();
 			
 			//The point is to retain the y velocity.
-			e.yVelocity = yVelo;
+			e.velo.y = yVelo;
 			e.isJumping = false;
 		}
 		
 		//Grab projected movement
-		Vector2 velo = new Vector2(e.xVelocity, e.yVelocity);
+		Vector2 velo = new Vector2(e.velo);
 		
 		//Calculate projected position
 		Vector2 rawPos = e.getPosition();
@@ -46,17 +47,17 @@ public abstract class Physics {
 		//Axises of movement, in order of movement done.
 		//Components are stacked onto deltaTemp before being pushed fully to moveDelta.
 		Vector2[] axises = new Vector2[2];
-		axises[0] = e.yDir;
+		axises[0] = e.xDir;
 		
 		//This is now definitely pointed in the right direction, 
 		//	but I have no clue why it's pointed opposite to the velo deflection tangent.
-		axises[1] = e.xDir;
+		axises[1] = e.yDir;
 		
 		//This is pointed in the right direction now, now split deltaMove and cache it.
 		Vector2[] deltaComponents = new Vector2[axises.length];
 		float dt = GameManager.deltaT();
-		deltaComponents[0] = new Vector2(axises[0].x * velo.y, axises[0].y * velo.y);
-		deltaComponents[1] = new Vector2(axises[1].x * velo.x, axises[1].y * velo.x);
+		deltaComponents[0] = new Vector2(axises[0].x * velo.x, axises[0].y * velo.x);
+		deltaComponents[1] = new Vector2(axises[1].x * velo.y, axises[1].y * velo.y);
 		
 		//Scale against time
 		for (Vector2 v : deltaComponents) {
@@ -66,7 +67,7 @@ public abstract class Physics {
 		
 		//Debug elements
 		for (Vector2 comp : deltaComponents) Debug.trackMovementVector(e.getPosition(), comp, 10f);
-		Debug.enqueueElement(new DebugBox(new Vector2(rawPos), new Vector2(e.dim.w, e.dim.h), 5));
+		
 		
 		//Holds data to be pushed later, when reasonable movement is found
 		Vector2 deltaTemp = new Vector2(0, 0);
@@ -80,7 +81,7 @@ public abstract class Physics {
 			Vector2 deltaAligned = deltaComponents[i];
 			
 			//TODO: Calculate steps properly
-			int tilesTraversed = (int) Math.ceil(Math.abs(deltaAligned.y/GameManager.tileSize));
+			int tilesTraversed = (int) Math.ceil(deltaAligned.magnitude()/GameManager.tileSize);
 			int cycles = Math.max(tilesTraversed, 1) * 2;
 			
 			Vector2 deltaInch = null;
@@ -92,6 +93,8 @@ public abstract class Physics {
 				//Get the right position that takes into account past movements
 				Vector2 newPos = new Vector2(rawPos.x + deltaTemp.x, rawPos.y + deltaTemp.y);
 				
+				Debug.enqueueElement(new DebugBox(newPos.add(deltaInch), new Vector2(e.dim.w, e.dim.h), 1));
+				
 				//Move (this modifies deltaInch)
 				boolean isSuccess = Physics.moveTo(newPos, deltaInch, velo, e, grid, dir, axises);
 				if (!isSuccess) break;
@@ -102,14 +105,14 @@ public abstract class Physics {
 			deltaTemp.y += deltaInch.y;
 		}
 		
+		//Debug
 		Debug.trackMovementVector(e.getPosition().add(new Vector2(0, 20)), deltaTemp, 20f);
 		
 		//Push buffer to delta
 		
 		//Push changes
 		e.setMoveDelta(deltaTemp);
-		e.yVelocity = velo.y;
-		e.xVelocity = velo.x;
+		e.velo = velo;
 		
 		//Set grounded outcome
 		if (!e.grounded && e.wasGrounded) {
@@ -188,41 +191,74 @@ public abstract class Physics {
 			deltaMove.x -= moveDir.x * nudge;
 			
 			/**
-			 * Cache this stuff so it's resolved later. Break it off into its own problem.
+			 * Surface deflection
 			 */
+			
 			//Rotate normal such that it is running along edge
 			Vector2 tangent = new Vector2(-normal.y, normal.x);
 			
-			//Project velocity onto tangent axis (Tangent points left)
-			float tanSpeed = velo.dot(tangent);
-			
-			//This returns the relevant velocity in world space, but we must change it to use an angled coordinate system.
-			Vector2 tangentVector = new Vector2(tangent.x * tanSpeed, tangent.y * tanSpeed);
-			
-			//Presume that the first axis is the y axis and the second is the x axis.
-			Vector2 axisA = axises[0];
-			Vector2 axisB = axises[1];
-			
-			//Somehow the two implementations are different.
-			Vector2 compA = new Vector2(0, 0);
-			Vector2 compB = new Vector2(0, 0);
-			float[] magBuff = new float[2];
-			tangentVector.breakIntoComponents(axisA, axisB, compA, compB, magBuff);
-			
-			velo.x = magBuff[0];
-			velo.y = magBuff[1];
-			
+			//No need to deflect if on the ground, just zero out y velo and x velo will naturally be aligned properly
 			//If grounded:
 			if (Math.abs(tangent.unit().y) < 0.8 && tangent.unit().x < 0) {
 				//Dunno why this needs to be flipped but it does
 				Vector2 newXDir = new Vector2(-tangent.x, -tangent.y);
 				
-				//No need to queue whatever, just force the change.
-				velo.y = 0;
-				e.forceDirectionalChange(newXDir, e.yDir);
+				if (e.wasGrounded) {
+					//Ground-ground transition
+					//No need to queue whatever, just force the change.
+					/**
+					 * Redefining the x axis should only occur when moving along the x axis.
+					 */
+					if (moveAxis == e.xDir) {
+						System.out.println("Grounded transition");
+						e.forceDirectionalChange(newXDir, e.yDir);
+					}
+				} else {
+					//Aerial landing
+					/**
+					 * Doesn't matter which axis of approach, any ground tangent is preferential to the aerial axises.
+					 */
+					System.out.println("Aerial landing");
+					e.forceDirectionalChange(newXDir, e.yDir);
+				}
 				
+				//Make sure you don't continue falling
+				velo.y = 0;
 				e.grounded = true;
+				
+				System.out.println("\nVelo: "+velo.toString());
+				System.out.println("XDir: "+e.xDir.toString());
+			} 
+			
+			/**
+			 * We don't want to deflect if attached to the ground: the player should not slide.
+			 */
+			else {
+				
+				//Project velocity onto tangent axis (Tangent points left)
+				float tanSpeed = velo.dot(tangent);
+				
+				//This returns the relevant velocity in world space, but we must change it to use an angled coordinate system.
+				Vector2 tangentVector = new Vector2(tangent.x * tanSpeed, tangent.y * tanSpeed);
+				
+				Debug.enqueueElement(new DebugVector(rawPos.add(new Vector2(0, 100)), tangentVector, 20));
+				
+				//Presume that the first axis is the y axis and the second is the x axis.
+				//TODO: Fix this arbitrary design
+				Vector2 axisA = axises[1];
+				Vector2 axisB = axises[0];
+				
+				//Somehow the two implementations are different.
+				Vector2 compA = new Vector2(0, 0);
+				Vector2 compB = new Vector2(0, 0);
+				float[] magBuff = new float[2];
+				tangentVector.breakIntoComponents(axisA, axisB, compA, compB, magBuff);
+				
+				velo.x = magBuff[0];
+				velo.y = magBuff[1];
 			}
+			
+			System.out.println(e.xDir.toString());
 			
 			//Enqueue collision response (but store this for later since I want it batched)
 			e.collidedWithTile = true;

@@ -68,8 +68,8 @@ public class ChargingEnemy extends Enemy implements Gravity {
 			//Set this to universal gravitational constant
 			yAcceleration = Entity.gravity;
 			
-			yVelocity -= yAcceleration;
-			yVelocity = Math.max(yVelocity, -3);
+			velo.y -= yAcceleration;
+			velo.y = Math.max(velo.y, -3);
 		}
 		else {
 			//player colliding with ground without vertical input detected

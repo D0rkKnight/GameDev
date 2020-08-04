@@ -97,8 +97,8 @@ public class Player extends Combatant{
 		
 		//Gravity
 		if (hasGravity) {
-			yVelocity -= Entity.gravity * GameManager.deltaT() / 1000;
-			yVelocity = Math.max(yVelocity, -3);
+			velo.y -= Entity.gravity * GameManager.deltaT() / 1000;
+			velo.y = Math.max(velo.y, -3);
 		}
 		
 		//Shoot a gun
@@ -135,6 +135,7 @@ public class Player extends Combatant{
 
 	@Override
 	public void controlledMovement() {// TODO add collision
+		
 		float xCap = 0.5f;
 		float accelConst = 2f / 300f;
 		
@@ -145,33 +146,32 @@ public class Player extends Combatant{
 			xAccel = accelConst * Input.moveX;
 		} else {
 			//Reduce jitter (divide by deltaT to balance out equation)
-			float decelConst = Math.min(accelConst, Math.abs(xVelocity) / GameManager.deltaT());
+			float decelConst = Math.min(accelConst, Math.abs(velo.x) / GameManager.deltaT());
 			
-			xAccel = -decelConst * Arithmetic.sign(xVelocity);
+			xAccel = -decelConst * Arithmetic.sign(velo.x);
 		}
 		xAccel *= GameManager.deltaT();
 		
-		xVelocity += xAccel;
+		velo.x += xAccel;
 		
 		//cap velo
-		if (Input.moveX > 0) xVelocity = Math.min(xVelocity, xCap);
-		if (Input.moveX < 0) xVelocity = Math.max(xVelocity, -xCap);
+		if (Input.moveX > 0) velo.x = Math.min(velo.x, xCap);
+		if (Input.moveX < 0) velo.x = Math.max(velo.x, -xCap);
 		
 		if (grounded && Input.moveY == 1) { // if player is colliding with ground underneath and digital input detected
 										// (space pressed)
-			yVelocity = jumpSpeed;
+			velo.y = jumpSpeed;
 			
 			//TODO: Rename this so its purpose is less vague.
 			isJumping = true; //Signals to the physics system that some operations ought to be done
 		}
-
+		
 		hasGravity = true;
 	}
 	
 	private void dashingMovement()
 	{
-		xVelocity = dashDir.x * dashSpeed;
-		yVelocity = dashDir.y * dashSpeed;
+		velo = dashDir.mult(dashSpeed);
 		
 		hasGravity = false;
 	}
@@ -188,8 +188,7 @@ public class Player extends Combatant{
 		
 		Vector2 velo = dir.mult(3);
 		
-		proj.xVelocity = velo.x;
-		proj.yVelocity = velo.y;
+		proj.velo = new Vector2(velo);
 		
 		GameManager.subscribeEntity(proj);
 	}
@@ -204,40 +203,4 @@ public class Player extends Combatant{
 		// TODO Auto-generated method stub
 		
 	}
-
-	/**
-	 * knockback in 360 degree dirction starting from top, 90 right, 180 bot hit ta
-	 * 
-	 * @param damage    damage dealth to player
-	 * @param direction direction of knockback force (0 to 360, clockwise, starting
-	 *                  from top)
-	 * @param knockback force of knockback (in float, change of velocity)
-	 * 
-	 */
-	/*
-	@Override
-	public void hit(int damage, float direction, float knockback) {
-		stats.health -= damage;
-		// These two ifs make sure degrees is within 0-360
-		if (direction > 360) {
-			direction -= 360;
-		}
-		if (direction < 0) {
-			direction += 360;
-		}
-		// this if else accounts for the angle being to the right/left
-		if (direction <= 180) {
-			xVelocity += knockback * Math.cos(Math.toRadians((90 - direction)));
-		} else {
-			xVelocity -= knockback * Math.cos(Math.toRadians((270 - direction)));
-		}
-		// and top/bot
-		if (direction < 90 || direction > 270) {
-			yVelocity += knockback * Math.cos(Math.toRadians(direction));
-		} else {
-			yVelocity -= knockback * Math.cos(Math.toRadians(180 - direction));
-		}
-	}
-	*/
-
 }

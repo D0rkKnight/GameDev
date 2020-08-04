@@ -14,10 +14,11 @@ public class Debug {
 	
 	private static void config() {
 		GameManager.timeScale = 1f;
-		GameManager.frameWalk = false;
+		GameManager.frameWalk = false;;
 		GameManager.frameDelta = 20f;
 		
-		GameManager.showCollisions = true;
+		GameManager.showCollisions = false;
+		GameManager.debugElementsEnabled = false;
 	}
 	
 	public static void init() {
@@ -31,7 +32,7 @@ public class Debug {
 		//Render vectors
 		ArrayList<DebugElement> clearList = new ArrayList<DebugElement>();
 		for (DebugElement e : debugElements) {
-			e.render(debugShader);
+			if (GameManager.debugElementsEnabled) e.render(debugShader);
 			e.lifespan --;
 			
 			if (e.lifespan <= 0) clearList.add(e);

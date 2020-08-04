@@ -14,7 +14,15 @@ import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import static org.lwjgl.glfw.GLFW.glfwSetCursorPosCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetMouseButtonCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
+
+import org.lwjgl.glfw.GLFWCursorPosCallback;
+import org.lwjgl.glfw.GLFWMouseButtonCallback;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 
 import Wrappers.Rect;
 import Wrappers.Vector2;
@@ -44,6 +52,40 @@ public class Input {
 		keyStates = new boolean[GLFW_KEY_LAST];
 		mouseStates = new boolean[GLFW_MOUSE_BUTTON_LAST];
 		mouseScreenPos = new Vector2(0, 0);
+	}
+	
+	public static void initInput() {
+		// Setup key callbacks (includes a lambda, fun.)
+		// We can pass in a delegate to handle controls.
+		glfwSetKeyCallback(Drawer.window, (window, key, scancode, action, mods) -> {
+			Input.updateKeys(window, key, scancode, action, mods);
+		});
+		
+		//I dunno why this has to be different for mouse inputs...
+		glfwSetMouseButtonCallback(Drawer.window, new GLFWMouseButtonCallback() {
+		    @Override
+		    public void invoke(final long window, final int button, final int action, final int mods) {
+		    	Input.updateMouse(window, button, action, mods);
+		    }
+	    });
+		
+		glfwSetCursorPosCallback(Drawer.window, new GLFWCursorPosCallback() {
+
+			@Override
+			public void invoke(long window, double xPos, double yPos) {
+				Input.updateCursor(xPos, yPos);
+			}
+			
+		});
+		
+		glfwSetWindowSizeCallback(Drawer.window, new GLFWWindowSizeCallback() {
+
+			@Override
+			public void invoke(long window, int width, int height) {
+				Input.updateWindowSize(width, height);
+			}
+			
+		});
 	}
 	
 	//Called once per frame

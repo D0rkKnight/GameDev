@@ -74,10 +74,6 @@ import Wrappers.Vector2;
 public class GameManager {
 
 	// The frame and canvas
-	/*
-	 * private JFrame frame; private RendererOld canvas;
-	 */
-	public static long window;
 	private static long deltaTime = 0;
 	private static long currTime = 0;
 	private static long lastTime = 0;
@@ -92,6 +88,7 @@ public class GameManager {
 	public static boolean frameWalk = false;
 	public static float frameDelta = 10f;
 	public static boolean showCollisions = false;
+	public static boolean debugElementsEnabled = false;
 	
 	//
 	private Drawer drawer;
@@ -144,8 +141,8 @@ public class GameManager {
 		init();
 		loop();
 
-		glfwFreeCallbacks(window);
-		glfwDestroyWindow(window);
+		glfwFreeCallbacks(Drawer.window);
+		glfwDestroyWindow(Drawer.window);
 
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
@@ -158,10 +155,10 @@ public class GameManager {
 		initTime();
 		
 		serializer = new Serializer();
-		initGraphics();
-		initInput();
+		Drawer.initGraphics();
+		Input.initInput();
 		Debug.init();
-		drawer = new Drawer();
+		
 
 		//Init camera
 		new Camera();
@@ -205,7 +202,7 @@ public class GameManager {
 				mapData[50][i] = tile.clone();
 				
 				if (i>20) mapData[i][i-20] = tile.clone();
-				if (i>20) mapData[i][i-15] = tile.clone();
+				if (i>20) mapData[i][i-14] = tile.clone();
 				if (i<=10) mapData[i][10-i] = tile.clone();
 			}
 		} catch (CloneNotSupportedException e) {
@@ -221,7 +218,7 @@ public class GameManager {
 				if (i == j+20) {
 					t.setHammerState(hammerLookup.get(HammerShape.HAMMER_SHAPE_TRIANGLE_BR));
 				}
-				if (i > 20 && i == j+15) {
+				if (i > 20 && i == j+14) {
 					t.setHammerState(hammerLookup.get(HammerShape.HAMMER_SHAPE_TRIANGLE_UL));
 				}
 				else if (i + j == 10) {
@@ -243,115 +240,8 @@ public class GameManager {
 	private void loadState() {
 
 	}
-
-	private void initGraphics() {
-		// Error callback
-		GLFWErrorCallback.createPrint(System.err).set();
-
-		// Initialize glfw, pretty important. Anything glfw stuff that happens before
-		// this will break.
-		if (!glfwInit())
-			throw new IllegalStateException("Unable to initialize GLFW");
-
-		// Configure GLFW
-		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Hidden after creation
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);// Window will be resizeable
-
-		// Create the window!
-		// Note: NULL is a constant that denotes the null value in OpenGL. Not the same
-		// thing as Java null.
-		int windowW = 1280;
-		int windowH = 720;
-		Input.windowDims = new Vector2(windowW, windowH);
-		window = glfwCreateWindow(windowW, windowH, "PLACEHOLDER TITLE", NULL, NULL);
-		if (window == NULL) {
-			throw new RuntimeException("Failed to create GLFW window");
-		}
-
-		
-		Rect r = GetWindowSize();
-			// Get resolution of primary monitor
-		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-		// Set pos
-		glfwSetWindowPos(window, (vidmode.width() - (int) r.w) / 2, (vidmode.height() - (int) r.h) / 2);
-
-		// Tells the GPU to write to this window.
-		glfwMakeContextCurrent(window);
-
-		// V-SYNC!!!
-		glfwSwapInterval(1);
-
-		// Make the window visible
-		glfwShowWindow(window);
-
-		// Creating the context to which all graphics operations will be executed upon
-		GL.createCapabilities();
-		glEnable(GL_TEXTURE_2D);
-		
-		// select projection matrix (controls view on screen)
-	    glMatrixMode(GL_PROJECTION);
-	    glLoadIdentity();
-	    // set ortho to same size as viewport, positioned at 0,0
-	    // TODO: Figure out what this like, does.
-	    glOrtho(0, r.w, 0, r.h, -1, 1);
-	}
 	
-	private void initInput() {
-		// Setup key callbacks (includes a lambda, fun.)
-		// We can pass in a delegate to handle controls.
-		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-			Input.updateKeys(window, key, scancode, action, mods);
-		});
-		
-		//I dunno why this has to be different for mouse inputs...
-		glfwSetMouseButtonCallback(window, new GLFWMouseButtonCallback() {
-		    @Override
-		    public void invoke(final long window, final int button, final int action, final int mods) {
-		    	Input.updateMouse(window, button, action, mods);
-		    }
-	    });
-		
-		glfwSetCursorPosCallback(window, new GLFWCursorPosCallback() {
-
-			@Override
-			public void invoke(long window, double xPos, double yPos) {
-				Input.updateCursor(xPos, yPos);
-			}
-			
-		});
-		
-		glfwSetWindowSizeCallback(window, new GLFWWindowSizeCallback() {
-
-			@Override
-			public void invoke(long window, int width, int height) {
-				Input.updateWindowSize(width, height);
-			}
-			
-		});
-	}
 	
-	public static Rect GetWindowSize() {
-		// A wack process required to move the window. Why this is necessary, I'm not
-		// entirely clear on.
-		// Oh I think it's because the wrapped OpenGL function has to return multiple
-		// values so
-		// this allocates the memory in a manner that C recognizes.
-		// Read more on MemoryStack as a solution to interfacing problems between the
-		// two languages.
-		
-		try (MemoryStack stack = stackPush()) {
-			IntBuffer pWidth = stack.mallocInt(1);
-			IntBuffer pHeight = stack.mallocInt(1);
-
-			// Get window size
-			glfwGetWindowSize(window, pWidth, pHeight);
-
-			return new Rect(pWidth.get(0), pHeight.get(0));
-		}
-		// Another benefit: garbage collection bsery is avoided because the stack is
-		// popped and reclaimed immediately after the try block.
-	}
 
 	/*
 	 * Loads and constructs tiles based off of external file, then logs in
@@ -424,7 +314,7 @@ public class GameManager {
 		// Into the rendering loop we go
 		// Remember the lambda callback we attached to key presses? This is where the
 		// function returns.
-		while (!glfwWindowShouldClose(window)) {
+		while (!glfwWindowShouldClose(Drawer.window)) {
 			updateTime();
 			
 			// Clear frame buffer
@@ -440,7 +330,7 @@ public class GameManager {
 			// This function waits until one buffer is written to before writing the next
 			// one.
 			// This is because of v-sync.
-			glfwSwapBuffers(window);
+			glfwSwapBuffers(Drawer.window);
 
 			// Event listening stuff. Key callback is invoked here.
 			// Do wipe input before going in
@@ -453,7 +343,7 @@ public class GameManager {
 					//Input.update(); //No need to wipe stuff
 					glfwPollEvents();
 					
-					if (glfwWindowShouldClose(window)) break;
+					if (glfwWindowShouldClose(Drawer.window)) break;
 				}
 				waitingForFrameWalk = true;
 			}
@@ -490,7 +380,6 @@ public class GameManager {
 	private void update() {
 		//Clear tile collision colorings (debug purposes)
 		if (GameManager.showCollisions) {
-			System.out.println("Clearing tile colors!");
 			for (Tile[] tArr : currmap.getGrid()) {
 				for (Tile t : tArr) if (t != null) t.renderer.col = new Color(0.5f, 0.5f, 0.5f);
 			}

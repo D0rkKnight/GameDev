@@ -9,8 +9,7 @@ import Wrappers.Vector2;
 public abstract class PhysicsEntity extends Entity implements Collidable{
 	
 	//Velocity is handled as always relative to two axises. This is nice for its flexibility.
-	public float yVelocity;
-	public float xVelocity;
+	public Vector2 velo;
 	public Vector2 yDir;
 	public Vector2 xDir;
 	protected Vector2 newXDir;
@@ -31,6 +30,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 		super(ID, position, sprites, renderer, name);
 		
 		moveDelta = new Vector2(0, 0);
+		velo = new Vector2(0, 0);
 		yDir = new Vector2(0, 1);
 		xDir = new Vector2(1, 0);
 		isJumping = false;
@@ -71,8 +71,8 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 		//Aerial collisions are resolved through retaining velocity
 			
 		//Begin by summing velocity components into world space.
-		float worldX = xDir.x * xVelocity + yDir.x * yVelocity;
-		float worldY = xDir.y * xVelocity + yDir.y * yVelocity;
+		float worldX = xDir.x * velo.x + yDir.x * velo.y;
+		float worldY = xDir.y * velo.x + yDir.y * velo.y;
 		
 		Vector2 worldVelo = new Vector2(worldX, worldY);
 		
@@ -83,8 +83,8 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 		float[] magBuff = new float[2];
 		worldVelo.breakIntoComponents(newXDir, newYDir, newXVelo, newYVelo, magBuff);
 		
-		xVelocity = magBuff[1];
-		yVelocity = magBuff[0];
+		velo.x = magBuff[1];
+		velo.y = magBuff[0];
 		
 		xDir = new Vector2(newXDir.x, newXDir.y);
 		yDir = new Vector2(newYDir.x, newYDir.y);
