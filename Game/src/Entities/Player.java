@@ -117,6 +117,9 @@ public class Player extends Combatant{
 			movementMode = MOVEMENT_MODE_IS_DASHING;
 			dashDir = new Vector2(Input.moveX, Input.moveY).unit();
 			
+			//Set velocity here
+			velo = dashDir.mult(dashSpeed);
+			
 			//Begin a timer
 			dashTimer = new Timer(dashDuration, new TimerCallback() {
 
@@ -171,8 +174,6 @@ public class Player extends Combatant{
 	
 	private void dashingMovement()
 	{
-		velo = dashDir.mult(dashSpeed);
-		
 		hasGravity = false;
 	}
 	

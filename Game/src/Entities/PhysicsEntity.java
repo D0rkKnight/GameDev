@@ -57,8 +57,8 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	
 	//Notifies that axises of movement have changed, and that velocities need recalculating.
 	public void recordVeloChange(Vector2 newXDir, Vector2 newYDir) {
-		this.newXDir = new Vector2(newXDir.x, newXDir.y);
-		this.newYDir = new Vector2(newYDir.x, newYDir.y);
+		this.newXDir = new Vector2(newXDir);
+		this.newYDir = new Vector2(newYDir);
 		veloChangeQueued = true;
 	}
 	
@@ -76,6 +76,8 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 		
 		Vector2 worldVelo = new Vector2(worldX, worldY);
 		
+		System.out.println("World velo: "+worldVelo.toString());
+		
 		
 		//Now break this vector into new components
 		Vector2 newXVelo = new Vector2(0, 0);
@@ -83,8 +85,8 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 		float[] magBuff = new float[2];
 		worldVelo.breakIntoComponents(newXDir, newYDir, newXVelo, newYVelo, magBuff);
 		
-		velo.x = magBuff[1];
-		velo.y = magBuff[0];
+		velo.x = magBuff[0];
+		velo.y = magBuff[1];
 		
 		xDir = new Vector2(newXDir.x, newXDir.y);
 		yDir = new Vector2(newYDir.x, newYDir.y);

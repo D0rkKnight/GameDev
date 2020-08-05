@@ -114,12 +114,6 @@ public abstract class Physics {
 		e.setMoveDelta(deltaTemp);
 		e.velo = velo;
 		
-		//Set grounded outcome
-		if (!e.grounded && e.wasGrounded) {
-			Vector2 newXDir = e.yDir.rightVector();
-			e.recordVeloChange(newXDir, e.yDir);
-		}
-		
 		e.wasGrounded = e.grounded;
 		
 		if (e.veloChangeQueued) {
@@ -228,13 +222,13 @@ public abstract class Physics {
 				
 				System.out.println("\nVelo: "+velo.toString());
 				System.out.println("XDir: "+e.xDir.toString());
+				System.out.println("YDir: "+e.yDir.toString());
 			} 
 			
 			/**
 			 * We don't want to deflect if attached to the ground: the player should not slide.
 			 */
 			else {
-				
 				//Project velocity onto tangent axis (Tangent points left)
 				float tanSpeed = velo.dot(tangent);
 				
@@ -243,10 +237,9 @@ public abstract class Physics {
 				
 				Debug.enqueueElement(new DebugVector(rawPos.add(new Vector2(0, 100)), tangentVector, 20));
 				
-				//Presume that the first axis is the y axis and the second is the x axis.
-				//TODO: Fix this arbitrary design
-				Vector2 axisA = axises[1];
-				Vector2 axisB = axises[0];
+				//First x, then y
+				Vector2 axisA = axises[0];
+				Vector2 axisB = axises[1];
 				
 				//Somehow the two implementations are different.
 				Vector2 compA = new Vector2(0, 0);

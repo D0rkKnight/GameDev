@@ -96,22 +96,15 @@ public class Vector2 implements Cloneable {
 		return "(X: "+x+", Y: "+y+")";
 	}
 	
-	public void breakIntoComponents(Vector2 a1, Vector2 a2, Vector2 c1, Vector2 c2, float[] magBuff) {
-		float cMag = ((a1.y * x) - (a1.x * y)) / ((a1.y * a2.x) - (a1.x * a2.y));
-		c2.x = a2.x * cMag;
-		c2.y = a2.y * cMag;
+	public void breakIntoComponents(Vector2 a, Vector2 b, Vector2 ca, Vector2 cb, float[] magBuff) {
+		float cbMag = ((a.y * x) - (a.x * y)) / ((a.y * b.x) - (a.x * b.y));
+		cb = b.mult(cbMag);
 		
-		c1.x = x - c2.x;
-		c1.y = y - c2.y;
+		float caMag = ((b.y * x) - (b.x * y)) / ((b.y + a.x) - (b.x * a.y));
+		ca = a.mult(caMag);
 		
-		//Hack time
-		magBuff[0] = cMag;
-		if (c1.x != 0) magBuff[1] = c1.x / a1.x;
-		if (c1.y != 0) magBuff[1] = c1.y / a1.y;
-		else {
-			//Otherwise, there is no second component. Thus it stands to reason that its magnitude is 0.
-			magBuff[1] = 0;
-		}
+		magBuff[0] = caMag;
+		magBuff[1] = cbMag;
 	}
 	
 	public static Vector2 lerp(Vector2 v1, Vector2 v2, float ratio) {

@@ -14,11 +14,11 @@ public class Debug {
 	
 	private static void config() {
 		GameManager.timeScale = 1f;
-		GameManager.frameWalk = false;;
+		GameManager.frameWalk = false;
 		GameManager.frameDelta = 20f;
 		
-		GameManager.showCollisions = false;
-		GameManager.debugElementsEnabled = false;
+		GameManager.showCollisions = true;
+		GameManager.debugElementsEnabled = true;
 	}
 	
 	public static void init() {
