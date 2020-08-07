@@ -3,6 +3,7 @@ package Entities;
 import org.joml.Vector2f;
 
 import Rendering.Renderer;
+import Wrappers.Hitbox;
 import Wrappers.Sprites;
 import Wrappers.Stats;
 
@@ -22,7 +23,7 @@ public class ChargingEnemy extends Enemy implements Gravity {
 	protected int windupNum = 0; // counter
 	protected int cooldownNum = 0; // counter
 	protected float speed;
-	public ChargingEnemy(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name, Stats stats,
+	public ChargingEnemy(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name, Stats stats,
 			boolean charging, int windupCycles, int cooldownCycles, float speed, float topspeed) {
 		super(ID, position, sprites, renderer, name, stats);
 		this.charging = charging;
@@ -35,7 +36,7 @@ public class ChargingEnemy extends Enemy implements Gravity {
 	// This enemy attacks only by charging towards the player. No attack function,
 	// damage is strictly from collider.
 	@Override
-	public void attack(Player p) {
+	public void attack() {
 		//nothing for now
 
 	}
@@ -65,8 +66,9 @@ public class ChargingEnemy extends Enemy implements Gravity {
 		}
 	}
 
-	@Override
-	public void move() { // idle movement
+	public void move() {
+		
+	} // idle movement
     
     
 	public void controlledMovement() { //move mostly while charging. Otherwise idle movement.
@@ -156,6 +158,12 @@ public class ChargingEnemy extends Enemy implements Gravity {
 			}
 		}
 
+	}
+
+	@Override
+	public void onHit(Hitbox otherHb) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

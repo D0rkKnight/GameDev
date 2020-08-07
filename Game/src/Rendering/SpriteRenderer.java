@@ -197,15 +197,15 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		Camera cam = Camera.main;
 		
 		//Now this also needs to be normalized...
-//		Vector2f ul = cam.mapVert(pos.x, pos.y + rect.y);
-//		Vector2f ur = cam.mapVert(pos.x + rect.x, pos.y + rect.y);
-//		Vector2f bl = cam.mapVert(pos.x, pos.y);
-//		Vector2f br = cam.mapVert(pos.x + rect.x, pos.y);
+		Vector2f ul = cam.mapVert(pos.x, pos.y + rect.y);
+		Vector2f ur = cam.mapVert(pos.x + rect.x, pos.y + rect.y);
+		Vector2f bl = cam.mapVert(pos.x, pos.y);
+		Vector2f br = cam.mapVert(pos.x + rect.x, pos.y);
 		
-		Vector2f ul = cam.mapVert(0, rect.y);
-		Vector2f ur = cam.mapVert(rect.x, rect.y);
-		Vector2f bl = cam.mapVert(0, 0);
-		Vector2f br = cam.mapVert(rect.x, 0);
+//		Vector2f ul = cam.mapVert(0, rect.y);
+//		Vector2f ur = cam.mapVert(rect.x, rect.y);
+//		Vector2f bl = cam.mapVert(0, 0);
+//		Vector2f br = cam.mapVert(rect.x, 0);
 		
 		//TODO: Implement camera transformations with the model matrix
 		
