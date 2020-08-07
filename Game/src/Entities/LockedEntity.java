@@ -1,13 +1,14 @@
 package Entities;
 
+import org.joml.Vector2f;
+
 import Rendering.Renderer;
 import Wrappers.Hitbox;
 import Wrappers.Sprites;
-import Wrappers.Vector2;
 
 public class LockedEntity extends Entity{
 
-	public LockedEntity(int ID, Vector2 position, Renderer renderer, String name, Sprites sprites) {
+	public LockedEntity(int ID, Vector2f position, Renderer renderer, String name, Sprites sprites) {
 		super(ID, position, sprites, renderer, name);
 		// TODO Auto-generated constructor stub
 	}

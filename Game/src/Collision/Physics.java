@@ -2,6 +2,8 @@ package Collision;
 
 import java.util.ArrayList;
 
+import org.joml.Vector2f;
+
 import Debug.Debug;
 import Debug.DebugBox;
 import Debug.DebugVector;
@@ -11,7 +13,7 @@ import Tiles.Tile;
 import Wrappers.Arithmetic;
 import Wrappers.Color;
 import Wrappers.Hitbox;
-import Wrappers.Vector2;
+import Wrappers.Vector;
 
 public abstract class Physics {
 	
@@ -24,9 +26,9 @@ public abstract class Physics {
 		
 		//If jumping, force a velocity change.
 		if (e.isJumping) {
-			//Pass in new directional axises (x axis perpendicular to the y axis)
-			Vector2 yAxis = e.yDir;
-			Vector2 xAxis = yAxis.rightVector(); //This is 90 degrees clockwise
+			//Pass in new diVector2fional axises (x axis perpendicular to the y axis)
+			Vector2f yAxis = e.yDir;
+			Vector2f xAxis = Vector.rightVector(yAxis); //This is 90 degrees clockwise
 			float yVelo = e.velo.y;
 			
 			//This will modify both x and y velocities.
@@ -39,61 +41,61 @@ public abstract class Physics {
 		}
 		
 		//Grab projected movement
-		Vector2 velo = new Vector2(e.velo);
+		Vector2f velo = new Vector2f(e.velo);
 		
 		//Calculate projected position
-		Vector2 rawPos = e.getPosition();
+		Vector2f rawPos = e.getPosition();
 		
 		//Axises of movement, in order of movement done.
 		//Components are stacked onto deltaTemp before being pushed fully to moveDelta.
-		Vector2[] axises = new Vector2[2];
+		Vector2f[] axises = new Vector2f[2];
 		axises[0] = e.xDir;
 		
-		//This is now definitely pointed in the right direction, 
+		//This is now definitely pointed in the right diVector2fion, 
 		//	but I have no clue why it's pointed opposite to the velo deflection tangent.
 		axises[1] = e.yDir;
 		
-		//This is pointed in the right direction now, now split deltaMove and cache it.
-		Vector2[] deltaComponents = new Vector2[axises.length];
+		//This is pointed in the right diVector2fion now, now split deltaMove and cache it.
+		Vector2f[] deltaComponents = new Vector2f[axises.length];
 		float dt = GameManager.deltaT();
-		deltaComponents[0] = new Vector2(axises[0].x * velo.x, axises[0].y * velo.x);
-		deltaComponents[1] = new Vector2(axises[1].x * velo.y, axises[1].y * velo.y);
+		deltaComponents[0] = new Vector2f(axises[0].x * velo.x, axises[0].y * velo.x);
+		deltaComponents[1] = new Vector2f(axises[1].x * velo.y, axises[1].y * velo.y);
 		
 		//Scale against time
-		for (Vector2 v : deltaComponents) {
+		for (Vector2f v : deltaComponents) {
 			v.x *= dt;
 			v.y *= dt;
 		}
 		
 		//Debug elements
-		for (Vector2 comp : deltaComponents) Debug.trackMovementVector(e.getPosition(), comp, 10f);
+		for (Vector2f comp : deltaComponents) Debug.trackMovementVector(e.getPosition(), comp, 10f);
 		
 		
 		//Holds data to be pushed later, when reasonable movement is found
-		Vector2 deltaTemp = new Vector2(0, 0);
+		Vector2f deltaTemp = new Vector2f(0, 0);
 		
 		//And push the different deltas
 		for (int i=0; i<axises.length; i++) {
 			
 			
 			//Generate the vector along the axis of movement
-			Vector2 dir = axises[i];
-			Vector2 deltaAligned = deltaComponents[i];
+			Vector2f dir = axises[i];
+			Vector2f deltaAligned = deltaComponents[i];
 			
 			//TODO: Calculate steps properly
-			int tilesTraversed = (int) Math.ceil(deltaAligned.magnitude()/GameManager.tileSize);
+			int tilesTraversed = (int) Math.ceil(deltaAligned.length()/GameManager.tileSize);
 			int cycles = Math.max(tilesTraversed, 1) * 2;
 			
-			Vector2 deltaInch = null;
+			Vector2f deltaInch = null;
 			for (int j=0; j<cycles; j++) {
 				//Now inch forwards with increasingly larger deltas
 				float cycleCoef = ((float)j+1)/cycles;
-				deltaInch = new Vector2(deltaAligned.x * cycleCoef, deltaAligned.y * cycleCoef);
+				deltaInch = new Vector2f(deltaAligned.x * cycleCoef, deltaAligned.y * cycleCoef);
 				
 				//Get the right position that takes into account past movements
-				Vector2 newPos = new Vector2(rawPos.x + deltaTemp.x, rawPos.y + deltaTemp.y);
+				Vector2f newPos = new Vector2f(rawPos.x + deltaTemp.x, rawPos.y + deltaTemp.y);
 				
-				Debug.enqueueElement(new DebugBox(newPos.add(deltaInch), new Vector2(e.dim.w, e.dim.h), 1));
+				Debug.enqueueElement(new DebugBox(new Vector2f(newPos).add(deltaInch), new Vector2f(e.dim.x, e.dim.y), 1));
 				
 				//Move (this modifies deltaInch)
 				boolean isSuccess = Physics.moveTo(newPos, deltaInch, velo, e, grid, dir, axises);
@@ -106,7 +108,7 @@ public abstract class Physics {
 		}
 		
 		//Debug
-		Debug.trackMovementVector(e.getPosition().add(new Vector2(0, 20)), deltaTemp, 20f);
+		Debug.trackMovementVector(new Vector2f(e.getPosition()).add(new Vector2f(0, 20)), deltaTemp, 20f);
 		
 		//Push buffer to delta
 		
@@ -129,12 +131,12 @@ public abstract class Physics {
 	 * @param e
 	 * @return Whether or not the entity collided when attempting to move
 	 */
-	public static boolean moveTo(Vector2 rawPos, Vector2 deltaMove, Vector2 velo, PhysicsEntity e, Tile[][] grid, Vector2 moveAxis, Vector2[] axises) {
-		Vector2 bl = new Vector2(rawPos.x + deltaMove.x, rawPos.y + deltaMove.y);
-		Vector2 ur = new Vector2(bl.x + e.dim.w, bl.y + e.dim.h);
+	public static boolean moveTo(Vector2f rawPos, Vector2f deltaMove, Vector2f velo, PhysicsEntity e, Tile[][] grid, Vector2f moveAxis, Vector2f[] axises) {
+		Vector2f bl = new Vector2f(rawPos.x + deltaMove.x, rawPos.y + deltaMove.y);
+		Vector2f ur = new Vector2f(bl.x + e.dim.x, bl.y + e.dim.y);
 		
 		float dirSign = Arithmetic.sign(moveAxis.dot(deltaMove));
-		Vector2 moveDir = new Vector2(moveAxis.x * dirSign, moveAxis.y * dirSign);
+		Vector2f moveDir = new Vector2f(moveAxis.x * dirSign, moveAxis.y * dirSign);
 		//If movedir is 0, then there is no movement to be done.
 		if (moveDir.x == 0 && moveDir.y == 0) return true;
 		
@@ -146,7 +148,7 @@ public abstract class Physics {
 		
 		//Rough pass
 		float dist = 0;
-		Vector2 normal = null;
+		Vector2f normal = null;
 		if (roughPass) {
 			float maxMoveDist = 0;
 			
@@ -156,7 +158,7 @@ public abstract class Physics {
 				
 				Tile t = grid[x][y];
 				
-				Vector2 tempNormal = new Vector2(0, 0);
+				Vector2f tempNormal = new Vector2f(0, 0);
 				
 				Float d = getIntersection(t.getHammerState(), bl, ur, x, y, moveDir, tempNormal);
 				if (d!=null) {
@@ -175,12 +177,12 @@ public abstract class Physics {
 		if (!isSuccess) {
 			//Snap to the intended edge -----------------------------------------------------------------------------
 			
-			//Move in the right direction
+			//Move in the right diVector2fion
 			deltaMove.x -= moveDir.x * dist;
 			deltaMove.y -= moveDir.y * dist;
 			
 			//Nudging should only move you as far as you can move.
-			float nudge = Math.min(GameManager.NUDGE_CONSTANT, deltaMove.magnitude());
+			float nudge = Math.min(GameManager.NUDGE_CONSTANT, deltaMove.length());
 			deltaMove.y -= moveDir.y * nudge;
 			deltaMove.x -= moveDir.x * nudge;
 			
@@ -189,13 +191,14 @@ public abstract class Physics {
 			 */
 			
 			//Rotate normal such that it is running along edge
-			Vector2 tangent = new Vector2(-normal.y, normal.x);
+			Vector2f tangent = new Vector2f(-normal.y, normal.x);
 			
 			//No need to deflect if on the ground, just zero out y velo and x velo will naturally be aligned properly
 			//If grounded:
-			if (Math.abs(tangent.unit().y) < 0.8 && tangent.unit().x < 0) {
+			Vector2f tangentDir = new Vector2f(tangent).normalize();
+			if (Math.abs(tangentDir.y) < 0.8 && tangentDir.x < 0) {
 				//Dunno why this needs to be flipped but it does
-				Vector2 newXDir = new Vector2(-tangent.x, -tangent.y);
+				Vector2f newXDir = new Vector2f(-tangent.x, -tangent.y);
 				
 				if (e.wasGrounded) {
 					//Ground-ground transition
@@ -233,19 +236,19 @@ public abstract class Physics {
 				float tanSpeed = velo.dot(tangent);
 				
 				//This returns the relevant velocity in world space, but we must change it to use an angled coordinate system.
-				Vector2 tangentVector = new Vector2(tangent.x * tanSpeed, tangent.y * tanSpeed);
+				Vector2f tangentVector = new Vector2f(tangent.x * tanSpeed, tangent.y * tanSpeed);
 				
-				Debug.enqueueElement(new DebugVector(rawPos.add(new Vector2(0, 100)), tangentVector, 20));
+				Debug.enqueueElement(new DebugVector(new Vector2f(rawPos).add(new Vector2f(0, 100)), tangentVector, 20));
 				
 				//First x, then y
-				Vector2 axisA = axises[0];
-				Vector2 axisB = axises[1];
+				Vector2f axisA = axises[0];
+				Vector2f axisB = axises[1];
 				
 				//Somehow the two implementations are different.
-				Vector2 compA = new Vector2(0, 0);
-				Vector2 compB = new Vector2(0, 0);
+				Vector2f compA = new Vector2f(0, 0);
+				Vector2f compB = new Vector2f(0, 0);
 				float[] magBuff = new float[2];
-				tangentVector.breakIntoComponents(axisA, axisB, compA, compB, magBuff);
+				Vector.breakIntoComponents(tangentVector, axisA, axisB, compA, compB, magBuff);
 				
 				velo.x = magBuff[0];
 				velo.y = magBuff[1];
@@ -272,7 +275,7 @@ public abstract class Physics {
 	 * @param e
 	 * @return
 	 */
-	private static boolean isColliding(Vector2 bl, Vector2 ur, Tile[][] grid, ArrayList<int[]> hits) {
+	private static boolean isColliding(Vector2f bl, Vector2f ur, Tile[][] grid, ArrayList<int[]> hits) {
 		boolean tileHit = false;
 		
 		int boundL = (int) bl.x/GameManager.tileSize;
@@ -310,23 +313,23 @@ public abstract class Physics {
 	 * @param sideEnteringFrom
 	 * @return
 	 */
-	public static Float getIntersection(HammerShape shape, Vector2 bl, Vector2 ur, int tileX, int tileY, Vector2 moveDir, Vector2 extNormal) {
+	public static Float getIntersection(HammerShape shape, Vector2f bl, Vector2f ur, int tileX, int tileY, Vector2f moveDir, Vector2f extNormal) {
 		//----------------              Uses the Separating Axis Theorem             ----------------
 		
 		//					STEP 1: PREP DATA
-		//Begin by generating a point set for the rectangle.
-		Vector2[] rectPoints = new Vector2[] {
-				new Vector2(bl.x, bl.y),
-				new Vector2(ur.x, bl.y),
-				new Vector2(ur.x, ur.y),
-				new Vector2(bl.x, ur.y)
+		//Begin by generating a point set for the Vector2fangle.
+		Vector2f[] Vector2fPoints = new Vector2f[] {
+				new Vector2f(bl.x, bl.y),
+				new Vector2f(ur.x, bl.y),
+				new Vector2f(ur.x, ur.y),
+				new Vector2f(bl.x, ur.y)
 		};
 		
 		//This needs to use world space, not normalized tile space.
-		Vector2[] shapePoints = new Vector2[shape.points.length];
+		Vector2f[] shapePoints = new Vector2f[shape.points.length];
 		for (int i=0; i<shapePoints.length; i++) {
 			//Translate and push in points
-			Vector2 v = shape.points[i];
+			Vector2f v = shape.points[i];
 			float x = v.x;
 			float y = v.y;
 			
@@ -336,20 +339,20 @@ public abstract class Physics {
 			x += tileX * GameManager.tileSize;
 			y += tileY * GameManager.tileSize;
 			
-			shapePoints[i] = new Vector2(x, y);
+			shapePoints[i] = new Vector2f(x, y);
 		}
 		
 		//		STEP 2: ANALYZE
-		int edgeCountRect = rectPoints.length;
+		int edgeCountVector2f = Vector2fPoints.length;
 		int edgeCountShape = shapePoints.length;
 		
 		float shortestDist = Float.POSITIVE_INFINITY;
-		Vector2 shortestNormal = null;
+		Vector2f shortestNormal = null;
 		
 		//Get normals
-		//TODO: Potential error since I'm only counting the shape's normals, and not the rect's normals.
+		//TODO: Potential error since I'm only counting the shape's normals, and not the Vector2f's normals.
 		for (int i=0; i<edgeCountShape; i++) {
-			Vector2 p1, p2;
+			Vector2f p1, p2;
 			
 			p1 = shapePoints[i];
 			p2 = null;
@@ -361,36 +364,36 @@ public abstract class Physics {
 			}
 			
 			//Now get the edge
-			Vector2 vec = new Vector2(p2.x - p1.x, p2.y - p1.y);
+			Vector2f vec = new Vector2f(p2.x - p1.x, p2.y - p1.y);
 			
 			//And get the normal
 			//Note that the border must be going counterclockwise for the normals to be right.
 			//The normal is clockwise of the edge vector.
-			Vector2 normal = new Vector2(vec.y, -vec.x);
+			Vector2f normal = new Vector2f(vec.y, -vec.x);
 			
 			//Project vectors and compare overlaps
 			//Start with shape vectors
 			
 			//Grab unit vector of the normal for calculation purposes.
-			Vector2 unitNormal = normal.unit();
+			Vector2f unitNormal = new Vector2f(normal).normalize();
 			
 			
 			float[] shapeBounds = new float[2];
-			float[] rectBounds = new float[2];
+			float[] Vector2fBounds = new float[2];
 			
-			Vector2.projectPointSet(shapePoints, unitNormal, shapeBounds);
-			Vector2.projectPointSet(rectPoints, unitNormal, rectBounds);
+			Vector.projectPointSet(shapePoints, unitNormal, shapeBounds);
+			Vector.projectPointSet(Vector2fPoints, unitNormal, Vector2fBounds);
 			
 			float[] distBuffer = new float[1];
-			if (Arithmetic.isIntersecting(shapeBounds[0], shapeBounds[1], rectBounds[0], rectBounds[1], distBuffer)) {
+			if (Arithmetic.isIntersecting(shapeBounds[0], shapeBounds[1], Vector2fBounds[0], Vector2fBounds[1], distBuffer)) {
 				
 				//Project along moveAxis
 				float dist = distBuffer[0];
 				float moveDist = 0;
 				if (dist != 0) {
-					Vector2 perpVec = new Vector2(unitNormal.x * dist, unitNormal.y * dist);
+					Vector2f perpVec = new Vector2f(unitNormal.x * dist, unitNormal.y * dist);
 
-					Vector2 projAxis = moveDir.unit();
+					Vector2f projAxis = new Vector2f(moveDir).normalize();
 					
 					moveDist = (float) (Math.pow(dist, 2) / perpVec.dot(projAxis));
 				} 

@@ -3,12 +3,11 @@ package GameController;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LAST;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_J;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_LAST;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LAST;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
@@ -20,12 +19,10 @@ import static org.lwjgl.glfw.GLFW.glfwSetMouseButtonCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
 
+import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
-
-import Wrappers.Rect;
-import Wrappers.Vector2;
 
 /*
  * Input is a helper class to player and serves as a buffer for GM to write to and Player to read from.
@@ -42,16 +39,16 @@ public class Input {
 	public static boolean secondaryButtonDown;
 	public static boolean dashAction; //Only active for one frame
 	
-	public static Vector2 mouseScreenPos;
-	public static Vector2 mouseWorldPos;
-	public static Vector2 windowDims;
+	public static Vector2f mouseScreenPos;
+	public static Vector2f mouseWorldPos;
+	public static Vector2f windowDims;
 
 	public static int frameWalkKey = GLFW_KEY_J;
 	
 	static {
 		keyStates = new boolean[GLFW_KEY_LAST];
 		mouseStates = new boolean[GLFW_MOUSE_BUTTON_LAST];
-		mouseScreenPos = new Vector2(0, 0);
+		mouseScreenPos = new Vector2f(0, 0);
 	}
 	
 	public static void initInput() {
@@ -137,17 +134,17 @@ public class Input {
 	
 	//TODO: I'm fairly certain the input on these isn't x and y. Look into it tommorow.
 	public static void updateCursor(double xPos, double yPos) {
-		mouseScreenPos = new Vector2((float) xPos, (float) yPos);
+		mouseScreenPos = new Vector2f((float) xPos, (float) yPos);
 		
 		//Flip to the right corner
-		Vector2 quad1ScreenPos = new Vector2(mouseScreenPos.x, windowDims.y - mouseScreenPos.y);
+		Vector2f quad1ScreenPos = new Vector2f(mouseScreenPos.x, windowDims.y - mouseScreenPos.y);
 		
 		//Shift so that it is anchored properly
-		Vector2 offset = windowDims.mult(0.5f);
-		mouseWorldPos = Camera.main.pos.add(quad1ScreenPos).sub(offset);
+		Vector2f offset = new Vector2f(windowDims).mul(0.5f);
+		mouseWorldPos = new Vector2f(Camera.main.pos).add(quad1ScreenPos).sub(offset);
 	}
 	
 	public static void updateWindowSize(int width, int height) {
-		windowDims = new Vector2(width, height);
+		windowDims = new Vector2f(width, height);
 	}
 }

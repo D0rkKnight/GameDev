@@ -2,13 +2,13 @@ package Tiles;
 
 import java.awt.image.BufferedImage;
 
+import org.joml.Vector2f;
+
 import Collision.HammerShape;
 import GameController.GameManager;
 import GameController.Map;
 import Rendering.SpriteRenderer;
 import Wrappers.Color;
-import Wrappers.Rect;
-import Wrappers.Vector2;
 
 /**
  * Tile
@@ -41,7 +41,7 @@ public abstract class Tile implements Cloneable{
 		}
 	}
 	
-	public void init(Vector2 pos, Rect rect) {
+	public void init(Vector2f pos, Vector2f rect) {
 		if (hammerState == null) {
 			System.out.println("Hammer state not specified, capitulating to default.");
 			hammerState = GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE);
@@ -55,10 +55,10 @@ public abstract class Tile implements Cloneable{
 	 * @param pos: position at which to render
 	 * @param dim: dimensions of tile
 	 */
-	public void render(Vector2 pos, float dim) {
+	public void render(Vector2f pos, float dim) {
 		//shader.render(g, pos, sprite);
 		renderer.linkPos(pos);;
-		renderer.rect = new Rect(dim, dim);
+		renderer.rect = new Vector2f(dim, dim);
 		renderer.render();
 	}
 	public int getID() {

@@ -1,38 +1,39 @@
 package Entities;
 
+import org.joml.Vector2f;
+
 import Collision.Collidable;
 import Rendering.Renderer;
-import Wrappers.Hitbox;
 import Wrappers.Sprites;
-import Wrappers.Vector2;
+import Wrappers.Vector;
 
 public abstract class PhysicsEntity extends Entity implements Collidable{
 	
 	//Velocity is handled as always relative to two axises. This is nice for its flexibility.
-	public Vector2 velo;
-	public Vector2 yDir;
-	public Vector2 xDir;
-	protected Vector2 newXDir;
-	protected Vector2 newYDir;
+	public Vector2f velo;
+	public Vector2f yDir;
+	public Vector2f xDir;
+	protected Vector2f newXDir;
+	protected Vector2f newYDir;
 	public boolean veloChangeQueued;
-	public Vector2 queuedTangent;
+	public Vector2f queuedTangent;
 	
 	protected float yAcceleration;
 	public boolean isJumping;
 	
-	protected Vector2 moveDelta;
+	protected Vector2f moveDelta;
 	
 	public boolean grounded;
 	public boolean wasGrounded; //Used exclusively to update physics events, DO NOT TAMPER WITH
 	public boolean collidedWithTile;
 	
-	public PhysicsEntity(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name) {
+	public PhysicsEntity(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name) {
 		super(ID, position, sprites, renderer, name);
 		
-		moveDelta = new Vector2(0, 0);
-		velo = new Vector2(0, 0);
-		yDir = new Vector2(0, 1);
-		xDir = new Vector2(1, 0);
+		moveDelta = new Vector2f(0, 0);
+		velo = new Vector2f(0, 0);
+		yDir = new Vector2f(0, 1);
+		xDir = new Vector2f(1, 0);
 		isJumping = false;
 		collidedWithTile = false;
 	}
@@ -51,14 +52,14 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 		moveDelta.y = 0f;
 	}
 
-	public void setMoveDelta(Vector2 d) {
+	public void setMoveDelta(Vector2f d) {
 		moveDelta = d;
 	}
 	
 	//Notifies that axises of movement have changed, and that velocities need recalculating.
-	public void recordVeloChange(Vector2 newXDir, Vector2 newYDir) {
-		this.newXDir = new Vector2(newXDir);
-		this.newYDir = new Vector2(newYDir);
+	public void recordVeloChange(Vector2f newXDir, Vector2f newYDir) {
+		this.newXDir = new Vector2f(newXDir);
+		this.newYDir = new Vector2f(newYDir);
 		veloChangeQueued = true;
 	}
 	
@@ -74,30 +75,30 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 		float worldX = xDir.x * velo.x + yDir.x * velo.y;
 		float worldY = xDir.y * velo.x + yDir.y * velo.y;
 		
-		Vector2 worldVelo = new Vector2(worldX, worldY);
+		Vector2f worldVelo = new Vector2f(worldX, worldY);
 		
 		System.out.println("World velo: "+worldVelo.toString());
 		
 		
 		//Now break this vector into new components
-		Vector2 newXVelo = new Vector2(0, 0);
-		Vector2 newYVelo = new Vector2(0, 0);
+		Vector2f newXVelo = new Vector2f(0, 0);
+		Vector2f newYVelo = new Vector2f(0, 0);
 		float[] magBuff = new float[2];
-		worldVelo.breakIntoComponents(newXDir, newYDir, newXVelo, newYVelo, magBuff);
+		Vector.breakIntoComponents(worldVelo, newXDir, newYDir, newXVelo, newYVelo, magBuff);
 		
 		velo.x = magBuff[0];
 		velo.y = magBuff[1];
 		
-		xDir = new Vector2(newXDir.x, newXDir.y);
-		yDir = new Vector2(newYDir.x, newYDir.y);
+		xDir = new Vector2f(newXDir.x, newXDir.y);
+		yDir = new Vector2f(newYDir.x, newYDir.y);
 		
 		veloChangeQueued = false;
 	}
 	
 	//Force a directional change, without changing velocity coordinates.
-	public void forceDirectionalChange(Vector2 newX, Vector2 newY) {
-		xDir = new Vector2(newX);
-		yDir = new Vector2(newY);
+	public void forceDirectionalChange(Vector2f newX, Vector2f newY) {
+		xDir = new Vector2f(newX);
+		yDir = new Vector2f(newY);
 	}
 	
 	//Collision events

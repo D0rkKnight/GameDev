@@ -6,24 +6,24 @@ import static org.lwjgl.opengl.GL11.glVertex2f;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferSubData;
+import static org.joml.Vector2f.*;
 
 import java.nio.FloatBuffer;
 
+import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 
 import Collision.HammerShape;
 import GameController.Camera;
 import Wrappers.Color;
-import Wrappers.Rect;
 import Wrappers.Texture;
-import Wrappers.Vector2;
 
 public class SpriteRenderer extends Renderer implements Cloneable {
 	
 	public Texture spr;
 	
-	public Rect rect; //Bounding box? idk
-	protected Vector2 pos;
+	public Vector2f rect; //Bounding box? idk
+	protected Vector2f pos;
 	
 	protected Mesh mesh;
 	
@@ -76,7 +76,7 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	/**
 	 * Initialize
 	 */
-	public void init(Vector2 pos, Rect rect, int shape, Color col) {
+	public void init(Vector2f pos, Vector2f rect, int shape, Color col) {
 		this.rect = rect;
 		this.pos = pos;
 		this.shape = shape;
@@ -127,10 +127,10 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	
 	protected float[] genUV() {
 		//
-		Vector2 ul = new Vector2(0, 0);
-		Vector2 ur = new Vector2(1, 0);
-		Vector2 bl = new Vector2(0, 1);
-		Vector2 br = new Vector2(1, 1);
+		Vector2f ul = new Vector2f(0, 0);
+		Vector2f ur = new Vector2f(1, 0);
+		Vector2f bl = new Vector2f(0, 1);
+		Vector2f br = new Vector2f(1, 1);
 		
 		float[] uv = null;
 		
@@ -185,7 +185,7 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	 * Link the position of this renderer to another position.
 	 * @param pos
 	 */
-	public void linkPos(Vector2 pos) {
+	public void linkPos(Vector2f pos) {
 		this.pos = pos;
 	}
 	
@@ -197,10 +197,17 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		Camera cam = Camera.main;
 		
 		//Now this also needs to be normalized...
-		Vector2 ul = cam.mapVert(pos.x, pos.y + rect.h);
-		Vector2 ur = cam.mapVert(pos.x + rect.w, pos.y + rect.h);
-		Vector2 bl = cam.mapVert(pos.x, pos.y);
-		Vector2 br = cam.mapVert(pos.x + rect.w, pos.y);
+//		Vector2f ul = cam.mapVert(pos.x, pos.y + rect.y);
+//		Vector2f ur = cam.mapVert(pos.x + rect.x, pos.y + rect.y);
+//		Vector2f bl = cam.mapVert(pos.x, pos.y);
+//		Vector2f br = cam.mapVert(pos.x + rect.x, pos.y);
+		
+		Vector2f ul = cam.mapVert(0, rect.y);
+		Vector2f ur = cam.mapVert(rect.x, rect.y);
+		Vector2f bl = cam.mapVert(0, 0);
+		Vector2f br = cam.mapVert(rect.x, 0);
+		
+		//TODO: Implement camera transformations with the model matrix
 		
 		float[] verts = null;
 		
@@ -261,7 +268,7 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		return out;
 	}
 	
-	protected void setVert(Vector2 p) {
+	protected void setVert(Vector2f p) {
 		glVertex2f(p.x, p.y);
 	}
 }

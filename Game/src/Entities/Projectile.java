@@ -1,28 +1,28 @@
 package Entities;
 
+import org.joml.Vector2f;
+
 import Collision.HammerShape;
 import Rendering.Renderer;
 import Rendering.SpriteRenderer;
 import Wrappers.Color;
 import Wrappers.Hitbox;
-import Wrappers.Rect;
 import Wrappers.Sprites;
-import Wrappers.Vector2;
 
 public class Projectile extends PhysicsEntity{
 
-	public Projectile(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name) {
+	public Projectile(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name) {
 		super(ID, position, sprites, renderer, name);
 		// TODO Auto-generated constructor stub
 		
 		//Configure renderer
-		dim = new Rect(8f, 8f);
+		dim = new Vector2f(8f, 8f);
 		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer;
 		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 1, 0));
 		renderer = rendTemp;
 		
 		//Configure hitbox
-		hitbox = new Hitbox(this, dim.w, dim.h);
+		hitbox = new Hitbox(this, dim.x, dim.y);
 		
 		this.renderer.linkPos(this.position);
 	}

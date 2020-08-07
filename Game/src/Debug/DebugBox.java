@@ -5,22 +5,22 @@ import static org.lwjgl.opengl.GL11.glBegin;
 import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glVertex2f;
 
+import org.joml.Vector2f;
+
 import GameController.Camera;
 import Rendering.Shader;
-import Wrappers.Rect;
-import Wrappers.Vector2;
 
 public class DebugBox extends DebugElement {
-	Vector2 p;
-	Vector2 dims;
+	Vector2f p;
+	Vector2f dims;
 	
-	public DebugBox(Vector2 p, Vector2 dims, int lifespan) {
+	public DebugBox(Vector2f p, Vector2f dims, int lifespan) {
 		this(p, dims);
 		
 		this.lifespan = lifespan;
 	}
 	
-	public DebugBox(Vector2 p, Vector2 dims) {
+	public DebugBox(Vector2f p, Vector2f dims) {
 		this.p = p;
 		this.dims = dims;
 		
@@ -34,11 +34,11 @@ public class DebugBox extends DebugElement {
 		
 		Camera cam = Camera.main;
 		
-		Vector2[] points = new Vector2[4];
-		points[0] = p;
-		points[1] = p.add(new Vector2(0, dims.y));
-		points[2] = p.add(dims);
-		points[3] = p.add(new Vector2(dims.x, 0));
+		Vector2f[] points = new Vector2f[4];
+		points[0] = new Vector2f(p);
+		points[1] = new Vector2f(p).add(new Vector2f(0, dims.y));
+		points[2] = new Vector2f(p).add(dims);
+		points[3] = new Vector2f(p).add(new Vector2f(dims.x, 0));
 		
 		//Map
 		for (int i=0; i<points.length; i++) {
@@ -48,8 +48,8 @@ public class DebugBox extends DebugElement {
 		//TODO: Update this deprecated code
 		glBegin(GL_LINES);
 		    for (int i=0; i<points.length; i++) {
-		    	Vector2 p1 = points[i];
-		    	Vector2 p2 = null;
+		    	Vector2f p1 = points[i];
+		    	Vector2f p2 = null;
 		    	if (i == points.length - 1) p2 = points[0];
 		    	else p2 = points[i+1];
 		    	

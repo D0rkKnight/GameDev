@@ -2,10 +2,11 @@ package Debug;
 
 import java.util.ArrayList;
 
+import org.joml.Vector2f;
+
 import GameController.GameManager;
 import Rendering.ColorShader;
 import Rendering.Shader;
-import Wrappers.Vector2;
 
 public class Debug {
 	
@@ -45,8 +46,8 @@ public class Debug {
 	}
 	
 	//Some unique behavior here so I'll insulate the process a bit
-	public static void trackMovementVector(Vector2 p, Vector2 v, float mult) {
-		enqueueElement(new DebugVector(p, new Vector2(v), mult));
+	public static void trackMovementVector(Vector2f p, Vector2f v, float mult) {
+		enqueueElement(new DebugVector(p, new Vector2f(v), mult));
 	}
 	
 	public static void enqueueElement(DebugElement e) {

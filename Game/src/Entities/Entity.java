@@ -1,13 +1,12 @@
 package Entities;
 
-import Collision.Collidable;
+import org.joml.Vector2f;
+
 import GameController.GameManager;
 import Rendering.Renderer;
 import Wrappers.Hitbox;
-import Wrappers.Rect;
 import Wrappers.SpriteSheetSection;
 import Wrappers.Sprites;
-import Wrappers.Vector2;
 
 /**
  * superclass for all entities
@@ -18,13 +17,13 @@ import Wrappers.Vector2;
  */
 public abstract class Entity {
 	protected int ID;
-	protected Vector2 position;
+	protected Vector2f position;
 	protected Sprites sprites;
 	static float gravity = 5f; //TODO: Don't forget to fix this
 	
 	protected Renderer renderer;
 	protected String name;
-	public Rect dim;
+	public Vector2f dim;
 	protected int animationGroups;
 	protected int currentGroup;
 	protected int currentFrame;
@@ -34,7 +33,7 @@ public abstract class Entity {
 	
 	//TODO: Move these within a physics affected class.
 
-	public Entity(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name) {
+	public Entity(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name) {
 		this.ID = ID;
 		this.position = position;
 		this.sprites = sprites;
@@ -62,7 +61,7 @@ public abstract class Entity {
 	 */
 	public abstract void pushMovement();
 
-	public Vector2 getPosition() {
+	public Vector2f getPosition() {
 		return position;
 	}
 	

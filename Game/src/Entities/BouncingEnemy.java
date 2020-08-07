@@ -1,15 +1,15 @@
 package Entities;
-import Collision.Collidable;
+import org.joml.Vector2f;
+
 import Rendering.Renderer;
 import Wrappers.Hitbox;
 import Wrappers.Sprites;
 import Wrappers.Stats;
-import Wrappers.Vector2;
 
 public class BouncingEnemy extends Enemy{
 
 
-	public BouncingEnemy(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name, Stats stats) {
+	public BouncingEnemy(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name, Stats stats) {
 		super(ID, position, sprites, renderer, name, stats);
 		// TODO Auto-generated constructor stub
 	}

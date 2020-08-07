@@ -5,22 +5,23 @@ import static org.lwjgl.opengl.GL11.glBegin;
 import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glVertex2f;
 
+import org.joml.Vector2f;
+
 import GameController.Camera;
 import Rendering.Shader;
-import Wrappers.Vector2;
 
 public class DebugVector extends DebugElement {
-	Vector2 p;
-	Vector2 v;
+	Vector2f p;
+	Vector2f v;
 	float mult;
 	
-	public DebugVector(Vector2 p, Vector2 v, float mult, int lifespan) {
+	public DebugVector(Vector2f p, Vector2f v, float mult, int lifespan) {
 		this(p, v, mult);
 		
 		this.lifespan = lifespan;
 	}
 	
-	public DebugVector(Vector2 p, Vector2 v, float mult) {
+	public DebugVector(Vector2f p, Vector2f v, float mult) {
 		this.p = p;
 		this.v = v;
 		this.mult = mult;
@@ -31,10 +32,10 @@ public class DebugVector extends DebugElement {
 	@Override
 	public void render(Shader shader) {
 		Camera cam = Camera.main;
-		Vector2 fullVec = v.mult(mult);
+		Vector2f fullVec = new Vector2f(v).mul(mult);
 		
-		Vector2 start = cam.mapVert(p);
-		Vector2 end = cam.mapVert(p.add(fullVec));
+		Vector2f start = cam.mapVert(p);
+		Vector2f end = cam.mapVert(new Vector2f(p).add(fullVec));
 		
 		//Bind shader
 		shader.bind();

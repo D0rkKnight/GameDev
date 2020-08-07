@@ -1,6 +1,6 @@
 package Collision;
 
-import Wrappers.Vector2;
+import org.joml.Vector2f;
 
 public class HammerRightTriangle extends HammerShape{
 	
@@ -26,10 +26,10 @@ public class HammerRightTriangle extends HammerShape{
 		}
 		
 		//Archetypal no rotation triangle
-		points = new Vector2[] {
-				new Vector2(0f, 1f),
-				new Vector2(0f, 0f),
-				new Vector2(1f, 0f)
+		points = new Vector2f[] {
+				new Vector2f(0f, 1f),
+				new Vector2f(0f, 0f),
+				new Vector2f(1f, 0f)
 		};
 		pushRotations(rotations);
 	}

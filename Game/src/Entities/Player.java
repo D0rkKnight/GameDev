@@ -1,5 +1,7 @@
 package Entities;
 
+import org.joml.Vector2f;
+
 import Collision.HammerShape;
 import GameController.GameManager;
 import GameController.Input;
@@ -7,12 +9,10 @@ import Rendering.SpriteRenderer;
 import Wrappers.Arithmetic;
 import Wrappers.Color;
 import Wrappers.Hitbox;
-import Wrappers.Rect;
 import Wrappers.Sprites;
 import Wrappers.Stats;
 import Wrappers.Timer;
 import Wrappers.TimerCallback;
-import Wrappers.Vector2;
 
 public class Player extends Combatant{
 	
@@ -22,7 +22,7 @@ public class Player extends Combatant{
 	private float dashSpeed;
 	private long dashDuration;
 	private Timer dashTimer;
-	private Vector2 dashDir;
+	private Vector2f dashDir;
 	
 	private int movementMode;
 	private boolean hasGravity;
@@ -30,11 +30,11 @@ public class Player extends Combatant{
 	private static final int MOVEMENT_MODE_CONTROLLED = 1;
 	private static final int MOVEMENT_MODE_IS_DASHING = 2;
 	
-	public Player(int ID, Vector2 position, Sprites sprites, SpriteRenderer renderer, String name, Stats stats) {
+	public Player(int ID, Vector2f position, Sprites sprites, SpriteRenderer renderer, String name, Stats stats) {
 		super(ID, position, sprites, renderer, name, stats);
 		
 		//Configure the renderer real quick
-		dim = new Rect(16f, 64f);
+		dim = new Vector2f(16f, 64f);
 		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer;
 		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0));
 		renderer = rendTemp;
@@ -42,7 +42,7 @@ public class Player extends Combatant{
 		this.renderer.linkPos(this.position);
 		
 		//Configure hitbox
-		hitbox = new Hitbox(this, dim.w, dim.h);
+		hitbox = new Hitbox(this, dim.x, dim.y);
 		
 		jumpSpeed = 1.5f;
 		
@@ -115,10 +115,10 @@ public class Player extends Combatant{
 	private void determineMovementMode() {
 		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && movementMode != MOVEMENT_MODE_IS_DASHING) {
 			movementMode = MOVEMENT_MODE_IS_DASHING;
-			dashDir = new Vector2(Input.moveX, Input.moveY).unit();
+			dashDir = new Vector2f(Input.moveX, Input.moveY).normalize();
 			
 			//Set velocity here
-			velo = dashDir.mult(dashSpeed);
+			velo = new Vector2f(dashDir).mul(dashSpeed);
 			
 			//Begin a timer
 			dashTimer = new Timer(dashDuration, new TimerCallback() {
@@ -177,19 +177,19 @@ public class Player extends Combatant{
 		hasGravity = false;
 	}
 	
-	private void fireGun(Vector2 firePos) {
+	private void fireGun(Vector2f firePos) {
 		System.out.println(firePos.toString());
 		
-		Vector2 pos = position.add(new Vector2(8, 32));
+		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32));
 		
 		Projectile proj = new Projectile(0, pos, null, GameManager.renderer, "Bullet");
-		Vector2 dir = firePos.sub(position).unit();
+		Vector2f dir = new Vector2f(firePos).sub(position).normalize();
 		
 		System.out.println(Input.mouseWorldPos.toString());
 		
-		Vector2 velo = dir.mult(3);
+		Vector2f velo = new Vector2f(dir).mul(3);
 		
-		proj.velo = new Vector2(velo);
+		proj.velo = new Vector2f(velo);
 		
 		GameManager.subscribeEntity(proj);
 	}

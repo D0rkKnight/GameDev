@@ -1,6 +1,6 @@
 package Collision;
 
-import Wrappers.Vector2;
+import org.joml.Vector2f;
 
 /**
  * Container class for collision and mesh data
@@ -21,7 +21,7 @@ public abstract class HammerShape {
 	public final static int BORDER_B = 3;
 	
 	public int shapeId;
-	public Vector2[] points;
+	public Vector2f[] points;
 	
 	public HammerShape(int shapeId) {
 		points = null;
@@ -31,7 +31,7 @@ public abstract class HammerShape {
 	protected void pushRotations(int rotations) {
 		for (int i=0; i<rotations; i++) {
 			for (int j=0; j<points.length; j++) {
-				Vector2 v = points[j];
+				Vector2f v = points[j];
 				float x = v.x;
 				float y = v.y;
 				
@@ -43,8 +43,5 @@ public abstract class HammerShape {
 				v.y = y;
 			}
 		}
-		
-		System.out.println("\n"+rotations+"\n");
-		for (Vector2 f : points) System.out.println(f.x + ", " + f.y);
 	}
 }

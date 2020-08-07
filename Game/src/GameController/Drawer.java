@@ -20,12 +20,14 @@ import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glLoadIdentity;
 import static org.lwjgl.opengl.GL11.glMatrixMode;
 import static org.lwjgl.opengl.GL11.glOrtho;
+import static org.lwjgl.opengl.GL11.glPushMatrix;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 
+import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -34,8 +36,6 @@ import org.lwjgl.system.MemoryStack;
 import Debug.Debug;
 import Entities.Entity;
 import Tiles.Tile;
-import Wrappers.Rect;
-import Wrappers.Vector2;
 
 /*
  * Calls shaders to render themselves.
@@ -52,7 +52,7 @@ public class Drawer {
   				Tile tile = grid[i][j];
   				if (tile == null) continue;
   				
-  				tile.render(new Vector2(i*GameManager.tileSize, j*GameManager.tileSize), GameManager.tileSize);
+  				tile.render(new Vector2f(i*GameManager.tileSize, j*GameManager.tileSize), GameManager.tileSize);
   			}
   		}
   		
@@ -82,19 +82,19 @@ public class Drawer {
 		// thing as Java null.
 		int windowW = 1280;
 		int windowH = 720;
-		Input.windowDims = new Vector2(windowW, windowH);
+		Input.windowDims = new Vector2f(windowW, windowH);
 		window = glfwCreateWindow(windowW, windowH, "PLACEHOLDER TITLE", NULL, NULL);
 		if (window == NULL) {
 			throw new RuntimeException("Failed to create GLFW window");
 		}
 
 		
-		Rect r = GetWindowSize();
+		Vector2f r = GetWindowSize();
 			// Get resolution of primary monitor
 		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
 		// Set pos
-		glfwSetWindowPos(window, (vidmode.width() - (int) r.w) / 2, (vidmode.height() - (int) r.h) / 2);
+		glfwSetWindowPos(window, (vidmode.width() - (int) r.x) / 2, (vidmode.height() - (int) r.y) / 2);
 
 		// Tells the GPU to write to this window.
 		glfwMakeContextCurrent(window);
@@ -114,10 +114,11 @@ public class Drawer {
 	    glLoadIdentity();
 	    // set ortho to same size as viewport, positioned at 0,0
 	    // TODO: Figure out what this like, does.
-	    glOrtho(0, r.w, 0, r.h, -1, 1);
+	    glOrtho(0f, r.x, 0f, r.y, -1f, 1f);
+	    glPushMatrix();
 	}
 	
-	public static Rect GetWindowSize() {
+	public static Vector2f GetWindowSize() {
 		// A wack process required to move the window. Why this is necessary, I'm not
 		// entirely clear on.
 		// Oh I think it's because the wrapped OpenGL function has to return multiple
@@ -133,7 +134,7 @@ public class Drawer {
 			// Get window size
 			glfwGetWindowSize(window, pWidth, pHeight);
 
-			return new Rect(pWidth.get(0), pHeight.get(0));
+			return new Vector2f(pWidth.get(0), pHeight.get(0));
 		}
 		// Another benefit: garbage collection bsery is avoided because the stack is
 		// popped and reclaimed immediately after the try block.

@@ -1,33 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-glfw.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-glfw-javadoc.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-glfw-natives-linux.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-glfw-natives-linux-arm32.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-glfw-natives-linux-arm64.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-glfw-natives-macos.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-glfw-natives-windows.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-glfw-natives-windows-x86.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-glfw-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-javadoc.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-natives-linux.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-natives-linux-arm32.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-natives-linux-arm64.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-natives-macos.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-natives-windows.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-natives-windows-x86.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-opengl.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-opengl-javadoc.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-opengl-natives-linux.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-opengl-natives-linux-arm32.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-opengl-natives-linux-arm64.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-opengl-natives-macos.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-opengl-natives-windows.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-opengl-natives-windows-x86.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-opengl-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/lwjgl-sources.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" output="target/classes" path="src">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-glfw.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-glfw-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-glfw-natives-linux.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-glfw-natives-linux-arm32.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-glfw-natives-linux-arm64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-glfw-natives-macos.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-glfw-natives-windows.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-glfw-natives-windows-x86.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-glfw-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-natives-linux.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-natives-linux-arm32.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-natives-linux-arm64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-natives-macos.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-natives-windows.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-natives-windows-x86.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-opengl.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-opengl-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-opengl-natives-linux.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-opengl-natives-linux-arm32.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-opengl-natives-linux-arm64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-opengl-natives-macos.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-opengl-natives-windows.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-opengl-natives-windows-x86.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-opengl-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Hanzen Shou/Documents/GitBash/GameDev/usedlibraries/jwjgl/lwjgl-sources.jar"/>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>

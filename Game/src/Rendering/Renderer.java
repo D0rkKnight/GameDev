@@ -14,7 +14,7 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 import java.nio.FloatBuffer;
 
-import Wrappers.Vector2;
+import org.joml.Vector2f;
 
 public abstract class Renderer implements Cloneable{
 	protected Shader shader;
@@ -31,7 +31,7 @@ public abstract class Renderer implements Cloneable{
 	}
 	
 	public abstract void render();
-	public abstract void linkPos(Vector2 pos);
+	public abstract void linkPos(Vector2f pos);
 	
 	@Override
 	public Renderer clone() throws CloneNotSupportedException {

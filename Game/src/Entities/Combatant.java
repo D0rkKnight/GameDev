@@ -1,16 +1,17 @@
 package Entities;
 
+import org.joml.Vector2f;
+
 import GameController.GameManager;
 import Rendering.Renderer;
 import Wrappers.Sprites;
 import Wrappers.Stats;
-import Wrappers.Vector2;
 
 public abstract class Combatant extends PhysicsEntity {
 	protected Stats stats;
 	protected Player p;
 
-	public Combatant(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name, Stats stats) {
+	public Combatant(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name, Stats stats) {
 		super(ID, position, sprites, renderer, name);
 		this.stats = stats;
 		
