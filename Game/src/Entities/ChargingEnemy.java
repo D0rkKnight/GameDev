@@ -3,10 +3,17 @@ package Entities;
 import org.joml.Vector2f;
 
 import Rendering.Renderer;
-import Wrappers.Hitbox;
 import Wrappers.Sprites;
 import Wrappers.Stats;
 
+/**
+ * Charging enemies have 4 states: idle (wanders around), windup (preparing to
+ * charge at player when they draw close), charging (at player), and winddown
+ * (post charge animation)
+ * 
+ * @author Benjamin
+ *
+ */
 public class ChargingEnemy extends Enemy implements Gravity {
 	protected boolean charging;// currently charging or no. can be set to
 	protected boolean windup; // currently winding up for charge or no.
@@ -14,21 +21,22 @@ public class ChargingEnemy extends Enemy implements Gravity {
 	protected int cooldownCycles; // animation cycles it should go through after charging
 	protected int windupNum = 0; // counter
 	protected int cooldownNum = 0; // counter
-
-	public ChargingEnemy(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name, Stats stats,
-			boolean charging, int windupCycles, int cooldownCycles) {
+	protected float speed;
+	public ChargingEnemy(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name, Stats stats,
+			boolean charging, int windupCycles, int cooldownCycles, float speed, float topspeed) {
 		super(ID, position, sprites, renderer, name, stats);
 		this.charging = charging;
 		windup = false; // enemies either charge upon entering room or are idle
 		this.windupCycles = windupCycles;
 		this.cooldownCycles = cooldownCycles;
+		this.speed = speed;
 	}
 
 	// This enemy attacks only by charging towards the player. No attack function,
 	// damage is strictly from collider.
 	@Override
-	public void attack() {
-		// empty
+	public void attack(Player p) {
+		//nothing for now
 
 	}
 
@@ -41,9 +49,9 @@ public class ChargingEnemy extends Enemy implements Gravity {
 	@Override
 	public void calculate() {
 		calcFrame();
-		if(currentGroup == 3) { //winddown
-			
-		}
+		if (currentGroup == 3) { // winddown
+
+		} 
 		else if(charging) { //currently charging
 			controlledMovement();
 		}
@@ -53,29 +61,32 @@ public class ChargingEnemy extends Enemy implements Gravity {
 		// only charges at player if knocked back or moved. has a windup animation
 		// before and a post charge animation.
 		else {
-			controlledMovement(); //idle move
+			move(); // idle move
 		}
 	}
 
 	@Override
+	public void move() { // idle movement
+    
+    
 	public void controlledMovement() { //move mostly while charging. Otherwise idle movement.
 		if(charging) {
 		}
 
 	}
+
 	@Override
 	public void gravity() {
-		if(true) { //player not colliding with ground
-			//Set this to universal gravitational constant
+		if (true) { // entity not colliding with ground
+			// Set this to universal gravitational constant
 			yAcceleration = Entity.gravity;
-			
 			velo.y -= yAcceleration;
 			velo.y = Math.max(velo.y, -3);
 		}
-		else {
-			//player colliding with ground without vertical input detected
-		}
-		
+    else{
+      velo.y = 0;
+    }
+
 	}
 
 	@Override
@@ -110,7 +121,7 @@ public class ChargingEnemy extends Enemy implements Gravity {
 					windupNum++;
 					currentFrame = 0;
 				}
-				if (windupNum >= windupCycles) { //completed required amount of loops
+				if (windupNum >= windupCycles) { // completed required amount of loops
 					charging = true;
 					windup = false;
 					currentGroup = 2; // start charging
@@ -147,9 +158,4 @@ public class ChargingEnemy extends Enemy implements Gravity {
 
 	}
 
-	@Override
-	public void onHit(Hitbox otherHb) {
-		// TODO Auto-generated method stub
-		
-	}
 }
