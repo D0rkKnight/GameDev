@@ -1,88 +1,64 @@
 package GameController;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
-import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LAST;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
-import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
-import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
-import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
-import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
-import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
-import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
-import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
-import static org.lwjgl.glfw.GLFW.glfwInit;
-import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
-import static org.lwjgl.glfw.GLFW.glfwShowWindow;
 import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
-import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
-import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_PROJECTION;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glLoadIdentity;
-import static org.lwjgl.opengl.GL11.glMatrixMode;
-import static org.lwjgl.opengl.GL11.glOrtho;
-import static org.lwjgl.system.MemoryStack.stackPush;
-import static org.lwjgl.system.MemoryUtil.NULL;
 
 import java.awt.image.BufferedImage;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryStack;
+import org.joml.Vector2f;
 
 import Accessories.Accessory;
-import Entities.Combatant;
+import Collision.HammerRightTriangle;
+import Collision.HammerShape;
+import Collision.HammerSquare;
+import Collision.Physics;
+import Debug.Debug;
 import Entities.Entity;
+import Entities.PhysicsEntity;
 import Entities.Player;
-import Rendering.Shader;
 import Rendering.SpriteRenderer;
+import Rendering.SpriteShader;
 import Tiles.SquareTile;
 import Tiles.Tile;
+import Wrappers.Color;
 import Wrappers.Hitbox;
-import Wrappers.Rect;
 import Wrappers.Texture;
-import Wrappers.Vector2;
 
 
 public class GameManager {
 
 	// The frame and canvas
-	/*
-	 * private JFrame frame; private RendererOld canvas;
-	 */
-	public static long window;
-	private static boolean[] keyStates;
 	private static long deltaTime = 0;
 	private static long currTime = 0;
 	private static long lastTime = 0;
 	
+	//Helper variable for frame walking
+	public static boolean waitingForFrameWalk = true;
+	
+	/**
+	 * Configuration and debug
+	 */
+	public static float timeScale = 1;
+	public static boolean frameWalk = false;
+	public static float frameDelta = 10f;
+	public static boolean showCollisions = false;
+	public static boolean debugElementsEnabled = false;
+	
 	//
 	private Drawer drawer;
-	private SpriteRenderer renderer;
+	public static SpriteRenderer renderer;
+	public static SpriteShader shader;
 
 	// Storage for tiles
 	private ArrayList<Map> maps;
@@ -92,6 +68,8 @@ public class GameManager {
 	private HashMap<Integer, Tile> tileLookup;
 	// Lookup table for different kinds of accessories
 	private HashMap<Integer, Accessory> accessoryLookup;
+	// Lookup table for hammershapes
+	public static HashMap<Integer, HammerShape> hammerLookup;
 
 	// current progression of player ingame
 	private int chapter; // chapter, determines plot events
@@ -100,18 +78,25 @@ public class GameManager {
 	private int room; // specific room within each level
 
 	// Entity positions in current room
-	private ArrayList<Entity> entities;
-	
-	private ArrayList<Hitbox> coll;
+	static private ArrayList<Entity> entities;
+	static private ArrayList<Entity> entityWaitingList;
+	static private ArrayList<Entity> entityClearList;
+	static private ArrayList<Hitbox> coll;
 	
 	private Serializer serializer;
-	private Player player;
+	public static Player player;
 	
-	private final int tileSize = 16;
+	public static final int tileSize = 16;
 
 	public static final int MOVE_AXIS_X = 0;
 	public static final int MOVE_AXIS_Y = 1;
 	public static final float NUDGE_CONSTANT = 0.1f;
+	
+	public static final int CORNER_NONE = 1;
+	public static final int CORNER_UL = 1;
+	public static final int CORNER_BL = 2;
+	public static final int CORNER_UR = 3;
+	public static final int CORNER_BR = 4;
 
 	/*
 	 * Creates components before entering loop
@@ -121,32 +106,34 @@ public class GameManager {
 		init();
 		loop();
 
-		glfwFreeCallbacks(window);
-		glfwDestroyWindow(window);
+		glfwFreeCallbacks(Drawer.window);
+		glfwDestroyWindow(Drawer.window);
 
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();
 	}
 
+
+	
 	private void init() {
 		initTime();
 		
 		serializer = new Serializer();
-		keyStates = new boolean[GLFW_KEY_LAST];
-		initGraphics();
-		drawer = new Drawer();
+		Drawer.initGraphics();
+		Input.initInput();
+		Debug.init();
+		
 
 		//Init camera
 		new Camera();
 		
 		//Init renderer
 		//TODO: We have to make a renderer factory in order for this to, like, work.
-		Shader shader = new Shader("texShader");
+		shader = new SpriteShader("texShader");
 				SpriteRenderer sprRenderer = new SpriteRenderer(shader);
 				sprRenderer.spr = new Texture("tile1.png");
 				renderer = sprRenderer;
-		
 		
 		//Init player
 		initEntities();
@@ -178,6 +165,10 @@ public class GameManager {
 				mapData[i][30] = tile.clone();
 				mapData[0][i] = tile.clone();
 				mapData[50][i] = tile.clone();
+				
+				if (i>20) mapData[i][i-20] = tile.clone();
+				if (i>20) mapData[i][i-14] = tile.clone();
+				if (i<=10) mapData[i][10-i] = tile.clone();
 			}
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
@@ -187,36 +178,24 @@ public class GameManager {
 		//Tiles are currently raw and unitialized. Initialize them.
 		for (int i=0; i<mapData.length; i++) for (int j=0; j<mapData[0].length; j++) {
 			Tile t = mapData[i][j];
-			if (t != null) t.init(new Vector2(i*tileSize, j*tileSize), new Rect(tileSize, tileSize));
+			if (t != null) {
+				//Do this before the renderer is initialized
+				if (i == j+20) {
+					t.setHammerState(hammerLookup.get(HammerShape.HAMMER_SHAPE_TRIANGLE_BR));
+				}
+				if (i > 20 && i == j+14) {
+					t.setHammerState(hammerLookup.get(HammerShape.HAMMER_SHAPE_TRIANGLE_UL));
+				}
+				else if (i + j == 10) {
+					t.setHammerState(hammerLookup.get(HammerShape.HAMMER_SHAPE_TRIANGLE_BL));
+				}
+				
+				t.init(new Vector2f(i*tileSize, j*tileSize), new Vector2f(tileSize, tileSize));
+			}
 		}
 		
 		
 		currmap = new Map(mapData, null, null, null);//TODO
-	}
-	
-	/*
-	 * This is the LWJGL backed input solution.
-	 */
-	public void inputListener(long window, int key, int scancode, int action, int mods) {
-		//Record key states here
-		if (action == GLFW_PRESS) keyStates[key] = true;
-		if (action == GLFW_RELEASE) keyStates[key] = false;
-		
-		//Individual press and release stuff
-		if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-			glfwSetWindowShouldClose(window, true); // Later detected in rendering loop
-		}
-		
-		//Player movement!
-		float moveX = 0;
-		if (keyStates[GLFW_KEY_D]) moveX ++;
-		if (keyStates[GLFW_KEY_A]) moveX --;
-		player.input.moveX = moveX;
-		
-		float moveY = 0;
-		if (keyStates[GLFW_KEY_W]) moveY ++;
-		if (keyStates[GLFW_KEY_S]) moveY --;
-		player.input.moveY = moveY;
 	}
 
 	private void loadProgression() {
@@ -226,84 +205,8 @@ public class GameManager {
 	private void loadState() {
 
 	}
-
-	private void initGraphics() {
-		// Error callback
-		GLFWErrorCallback.createPrint(System.err).set();
-
-		// Initialize glfw, pretty important. Anything glfw stuff that happens before
-		// this will break.
-		if (!glfwInit())
-			throw new IllegalStateException("Unable to initialize GLFW");
-
-		// Configure GLFW
-		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Hidden after creation
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);// Window will be resizeable
-
-		// Create the window!
-		// Note: NULL is a constant that denotes the null value in OpenGL. Not the same
-		// thing as Java null.
-		window = glfwCreateWindow(1280, 720, "PLACEHOLDER TITLE", NULL, NULL);
-		if (window == NULL) {
-			throw new RuntimeException("Failed to create GLFW window");
-		}
-
-		// Setup key callbacks (includes a lambda, fun.)
-		// We can pass in a delegate to handle controls.
-		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-			inputListener(window, key, scancode, action, mods);
-		});
-
-		
-		Rect r = GetWindowSize();
-			// Get resolution of primary monitor
-		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-		// Set pos
-		glfwSetWindowPos(window, (vidmode.width() - (int) r.w) / 2, (vidmode.height() - (int) r.h) / 2);
-
-		// Tells the GPU to write to this window.
-		glfwMakeContextCurrent(window);
-
-		// V-SYNC!!!
-		glfwSwapInterval(1);
-
-		// Make the window visible
-		glfwShowWindow(window);
-
-		// Creating the context to which all graphics operations will be executed upon
-		GL.createCapabilities();
-		glEnable(GL_TEXTURE_2D);
-		
-		// select projection matrix (controls view on screen)
-	    glMatrixMode(GL_PROJECTION);
-	    glLoadIdentity();
-	    // set ortho to same size as viewport, positioned at 0,0
-	    // TODO: Figure out what this like, does.
-	    glOrtho(0, r.w, 0, r.h, -1, 1);
-	}
 	
-	public static Rect GetWindowSize() {
-		// A wack process required to move the window. Why this is necessary, I'm not
-		// entirely clear on.
-		// Oh I think it's because the wrapped OpenGL function has to return multiple
-		// values so
-		// this allocates the memory in a manner that C recognizes.
-		// Read more on MemoryStack as a solution to interfacing problems between the
-		// two languages.
-		
-		try (MemoryStack stack = stackPush()) {
-			IntBuffer pWidth = stack.mallocInt(1);
-			IntBuffer pHeight = stack.mallocInt(1);
-
-			// Get window size
-			glfwGetWindowSize(window, pWidth, pHeight);
-
-			return new Rect(pWidth.get(0), pHeight.get(0));
-		}
-		// Another benefit: garbage collection bsery is avoided because the stack is
-		// popped and reclaimed immediately after the try block.
-	}
+	
 
 	/*
 	 * Loads and constructs tiles based off of external file, then logs in
@@ -326,21 +229,41 @@ public class GameManager {
 	
 	private void initEntities() {
 		entities = new ArrayList();
+		entityWaitingList = new ArrayList();
+		entityClearList = new ArrayList();
 	}
 	
 	private void initCollision() {
 		coll = new ArrayList();
+		
+		//Generate hammer shapes
+		hammerLookup = new HashMap<>();
+		ArrayList<HammerShape> cache = new ArrayList<>();
+		cache.add(new HammerSquare());
+		
+		for (int i=HammerShape.HAMMER_SHAPE_TRIANGLE_BL; i<=HammerShape.HAMMER_SHAPE_TRIANGLE_UR; i++) cache.add(new HammerRightTriangle(i));
+			
+		for (HammerShape h : cache) hammerLookup.put(h.shapeId, h);
 	}
 	
-	private void subscribeEntity(Entity e) {
-		entities.add(e);
+	public static void subscribeEntity(Entity e) {
+		entityWaitingList.add(e);
 		
 		Hitbox hb = e.getHitbox();
 		if (hb != null) coll.add(hb);
+		else System.err.println("Collider not defined!");
+	}
+	
+	public static void unsubscribeEntity(Entity e) {
+		entityClearList.add(e);
+		
+		Hitbox hb = e.getHitbox();
+		if (hb != null) coll.remove(hb);
+		else System.err.println("Collider not defined!");
 	}
 	
 	private void initPlayer() {
-		player = new Player(0, new Vector2(100, 100), null, renderer, "Player", null);
+		player = new Player(0, new Vector2f(100, 100), null, renderer, "Player", null);
 		
 		
 		subscribeEntity(player);
@@ -350,16 +273,13 @@ public class GameManager {
 	 * Game loop that handles rendering and stuff
 	 */
 	private void loop() {
-		
-		Shader shader = new Shader("shader");
-		
 		// Set clear color
 		glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
 
 		// Into the rendering loop we go
 		// Remember the lambda callback we attached to key presses? This is where the
 		// function returns.
-		while (!glfwWindowShouldClose(window)) {
+		while (!glfwWindowShouldClose(Drawer.window)) {
 			updateTime();
 			
 			// Clear frame buffer
@@ -375,12 +295,23 @@ public class GameManager {
 			// This function waits until one buffer is written to before writing the next
 			// one.
 			// This is because of v-sync.
-			glfwSwapBuffers(window);
+			glfwSwapBuffers(Drawer.window);
 
 			// Event listening stuff. Key callback is invoked here.
+			// Do wipe input before going in
+			Input.update();
 			glfwPollEvents();
-
-			// canvas.paint();
+			
+			//Frame walking debug tools
+			if (frameWalk) {
+				while(waitingForFrameWalk) {
+					//Input.update(); //No need to wipe stuff
+					glfwPollEvents();
+					
+					if (glfwWindowShouldClose(Drawer.window)) break;
+				}
+				waitingForFrameWalk = true;
+			}
 		}
 	}
 	
@@ -397,13 +328,39 @@ public class GameManager {
 	}
 	
 	public static long deltaT() {
-		return deltaTime;
+		if (frameWalk) {
+			return (long) frameDelta;
+		}
+		
+		return (long) (deltaTime * timeScale);
+	}
+	
+	public static long getFrameTime() {
+		return currTime;
 	}
 	
 	/**
 	 * Called once per frame, and is responsible for updating internal game logic.
 	 */
 	private void update() {
+		//Clear tile collision colorings (debug purposes)
+		if (GameManager.showCollisions) {
+			for (Tile[] tArr : currmap.getGrid()) {
+				for (Tile t : tArr) if (t != null) t.renderer.col = new Color(0.5f, 0.5f, 0.5f);
+			}
+		}
+		
+		//Dump entity waiting list into entity list
+		for (Entity e : entityWaitingList) {
+			entities.add(e);
+		}
+		entityWaitingList.clear();
+		
+		//Filter deleted entities out
+		for (Entity e : entityClearList) {
+			entities.remove(e);
+		}
+		
 		//Each entity makes decisions
 		for (Entity ent : entities) {
 			ent.calculate();
@@ -414,201 +371,21 @@ public class GameManager {
 		//Push in collision deltas
 		Tile[][] grid = currmap.getGrid();
 		for (Hitbox c : coll) {
-			Combatant e = c.owner;
-			
-			//Presume to be free falling, until able to prove otherwise
-			e.grounded = false;
-			
-			//Grab projected movement
-			Vector2 deltaMove = new Vector2(e.xVelocity * GameManager.deltaT(), e.yVelocity * GameManager.deltaT());
-			Vector2 velo = new Vector2(e.xVelocity, e.yVelocity);
-			
-			//Calculate projected position
-			Vector2 rawPos = e.getPosition();
-			
-
-			
-			//Holds data to be pushed later, when reasonable movement is found
-			Vector2 deltaTemp = new Vector2(deltaMove.x, deltaMove.y);
-			
-			//Split into cycles (each approximately one tile long) to check physics
-			//yCycle
-			int tilesTraversed = (int) Math.ceil(Math.abs(deltaMove.y/tileSize));
-			int cycles = Math.max(tilesTraversed, 1);
-			for (int i=0; i<cycles; i++) {
-				//Now inch forwards with increasingly larger deltas
-				Vector2 deltaInch = new Vector2(0, deltaMove.y * (i+1)/cycles);
-				
-				//Move (this modifies deltaInch)
-				boolean isSuccess = moveTo(rawPos, deltaInch, velo, e, grid, MOVE_AXIS_Y);
-				if (!isSuccess) {
-					//Push results to buffer
-					deltaTemp.y = deltaInch.y;
-					
-					break;
-				}
-			}
-			
-			
-			//xCycle
-			tilesTraversed = (int) Math.ceil(Math.abs(deltaMove.x/tileSize));
-			cycles = Math.max(tilesTraversed, 1);
-
-			for (int i=0; i<cycles; i++) {
-				//Now inch forwards with increasingly larger deltas
-				Vector2 deltaInch = new Vector2(deltaMove.x * (i+1)/cycles, 0);
-				
-				//Move (this modifies deltaInch)
-				boolean isSuccess = moveTo(rawPos, deltaInch, velo, e, grid, MOVE_AXIS_X);
-				if (!isSuccess) {
-					//Push results to buffer
-					deltaTemp.x = deltaInch.x;
-					
-					break;
-				}
-			}
-			
-			//Push buffer to delta
-			deltaMove = deltaTemp;
-			
-			//Push changes
-			e.setMoveDelta(deltaMove);
-			e.yVelocity = velo.y;
-			e.xVelocity = velo.x;
+			Physics.calculateDeltas(c, grid);
 		}
 		
 		//Push physics outcomes
 		for (Entity e : entities) {
+			//Somehow need to avoid pushing the movement of entities that don't move.
+			PhysicsEntity pe = (PhysicsEntity) e;
+			if (pe.collidedWithTile) {
+				pe.onTileCollision();
+				pe.collidedWithTile = false;
+			}
 			e.pushMovement();
 		}
 		
 		Camera.main.update();
-	}
-	
-	/**A utility function to be used by update. Given information, it configures deltaMove and velocity as to resolve collisions on the given axis.
-	 * These values need to be later pushed to the entity in order for changes to appear.
-	 * 
-	 * @param pos
-	 * @param delta
-	 * @param e
-	 * @return Whether or not the entity collided when attempting to move
-	 */
-	private boolean moveTo(Vector2 rawPos, Vector2 deltaMove, Vector2 velo, Entity e, Tile[][] grid, int moveAxis) {
-		Vector2 bl = new Vector2(rawPos.x + deltaMove.x, rawPos.y + deltaMove.y);
-		Vector2 ur = new Vector2(bl.x + e.dim.w, bl.y + e.dim.h);
-		
-		int tileSpaceBoundL = (int) bl.x/tileSize;
-		int tileSpaceBoundR = (int) ur.x/tileSize;
-		int tileSpaceBoundT = (int) ur.y/tileSize;
-		int tileSpaceBoundB = (int) bl.y/tileSize;
-		
-		//return var
-		boolean isSuccess = true;
-	
-		boolean isOccupied = false;
-		
-		/*
-		 * Depending on the axis of movement, check the entire edge of tiles rather than a single tile.
-		 */
-		if (moveAxis == MOVE_AXIS_Y) {
-			for (int i=tileSpaceBoundL; i<=tileSpaceBoundR; i++) {
-				//Make sure everything is within bounds
-				if (i < 0 || tileSpaceBoundT < 0 || tileSpaceBoundB < 0
-						|| i >= grid.length || tileSpaceBoundT >= grid[0].length
-						|| tileSpaceBoundB >= grid[0].length) continue;
-				
-				//Check the top and bottom rows
-				if (grid[i][tileSpaceBoundT] != null || grid[i][tileSpaceBoundB] != null) {
-					isOccupied = true;
-					break;
-				}
-			}
-		}
-		
-		if (moveAxis == MOVE_AXIS_X) {
-			for (int i=tileSpaceBoundB; i<=tileSpaceBoundT; i++) {
-				//Make sure everything is within bounds
-				if (i < 0 || tileSpaceBoundL < 0 || tileSpaceBoundR < 0
-						|| i >= grid[0].length || tileSpaceBoundR >= grid.length
-						|| tileSpaceBoundL >= grid.length) continue;
-				
-				//Check the left and right columns
-				if (grid[tileSpaceBoundL][i] != null || grid[tileSpaceBoundR][i] != null) {
-					isOccupied = true;
-					break;
-				}
-			}
-		}
-		
-		/*
-		 * If collision detected, proceed.
-		 */
-		if (isOccupied) {
-			isSuccess = false;
-			
-			//Figure out which way to push the entity out
-			Vector2 snap = new Vector2(0, 0);
-			if (deltaMove.x < 0) snap.x = 1;
-			if (deltaMove.y < 0) snap.y = 1;
-			
-			
-			
-			
-			
-			//Snap to the intended edge -----------------------------------------------------------------------------
-			if (moveAxis == MOVE_AXIS_Y) {
-				//Snap up
-				/*
-				 * I'll comment the first one for reference
-				 */
-				if (snap.y == 1) {
-					//Dist is the amount to move the delta by in order to avoid entering the tile.
-					float dist = tileSize - (bl.y % tileSize);
-					
-					//Limit ymove
-					velo.y = Math.max(velo.y, 0);
-					deltaMove.y += dist;
-					
-					//Entity is now also grounded
-					e.grounded = true;
-				}
-				
-				//Snap down
-				if (snap.y == 0) {
-					float dist = ur.y % tileSize;
-					
-					velo.y = Math.min(velo.y, 0);
-					deltaMove.y -= dist;
-					
-					//Note: moving down still leaves you within the tile, thanks to rounding. Nudge down to exit the tile.
-					deltaMove.y -= NUDGE_CONSTANT;
-				}
-			}
-			
-			if (moveAxis == MOVE_AXIS_X) {
-				//Snap right
-				if (snap.x == 1) {
-					float dist = tileSize - (bl.x % tileSize);
-					
-					//Limit xMove
-					velo.x = Math.max(velo.x, 0);
-					deltaMove.x += dist;
-				}
-				
-				//Snap left
-				if (snap.x == 0) {
-					float dist = ur.x % tileSize;
-					
-					velo.x = Math.min(velo.x, 0);
-					deltaMove.x -= dist;
-					
-					//Note: moving left still leaves you within the tile, thanks to rounding. Nudge left to exit the tile.
-					deltaMove.x -= NUDGE_CONSTANT;
-				}
-			}
-		}
-		
-		return isSuccess;
 	}
 
 }

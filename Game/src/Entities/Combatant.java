@@ -1,23 +1,21 @@
 package Entities;
 
+import org.joml.Vector2f;
+
 import GameController.GameManager;
 import Rendering.Renderer;
 import Wrappers.Sprites;
 import Wrappers.Stats;
-import Wrappers.Vector2;
 
-public abstract class Combatant extends Entity {
+public abstract class Combatant extends PhysicsEntity {
 	protected Stats stats;
-	public float yVelocity;
-	public float xVelocity;
-	protected float yAcceleration;
-	
-	protected Vector2 moveDelta;
+	protected Player p;
 
-	public Combatant(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name, Stats stats) {
+	public Combatant(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name, Stats stats) {
 		super(ID, position, sprites, renderer, name);
 		this.stats = stats;
-		moveDelta = new Vector2(0, 0);
+		
+		p = GameManager.player;
 	}
 
 	/**
@@ -31,49 +29,29 @@ public abstract class Combatant extends Entity {
 	 */
 	public void hit(int damage, float direction, float knockback) {
 		stats.health -= damage;
-		// These two ifs make sure degrees is within 0-360
-		if (direction > 360) {
+		// These two whiles make sure degrees is within 0-360
+		while (direction > 360) {
 			direction -= 360;
 		}
-		if (direction < 0) {
+		while (direction < 0) {
 			direction += 360;
 		}
 		// this if else accounts for the angle being to the right/left
 		if (direction <= 180) {
-			xVelocity += knockback * Math.cos(Math.toRadians((90 - direction)));
+			velo.x += knockback * Math.cos(Math.toRadians((90 - direction)));
 		} else {
-			xVelocity -= knockback * Math.cos(Math.toRadians((270 - direction)));
+			velo.x -= knockback * Math.cos(Math.toRadians((270 - direction)));
 		}
 		// and top/bot
 		if (direction < 90 || direction > 270) {
-			yVelocity += knockback * Math.cos(Math.toRadians(direction));
+			velo.x += knockback * Math.cos(Math.toRadians(direction));
 		} else {
-			yVelocity -= knockback * Math.cos(Math.toRadians(180 - direction));
+			velo.x -= knockback * Math.cos(Math.toRadians(180 - direction));
 		}
-	}
-
-	@Override
-	public void calculate() {
-	}
-	
-	@Override
-	public void pushMovement() {
-		//Make velo modify pos
-		position.x += moveDelta.x;
-		position.y += moveDelta.y;
-		
-		//Do a reset
-		moveDelta.x = 0f;
-		moveDelta.y = 0f;
-	}
-
-	public void setMoveDelta(Vector2 d) {
-		moveDelta = d;
 	}
 	
 	public abstract void attack();
 
 	// just sets stats.isDying to true
 	public abstract void die();
-
 }

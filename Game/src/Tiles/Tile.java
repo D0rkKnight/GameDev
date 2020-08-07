@@ -2,11 +2,13 @@ package Tiles;
 
 import java.awt.image.BufferedImage;
 
-import Collision.Collidable;
+import org.joml.Vector2f;
+
+import Collision.HammerShape;
+import GameController.GameManager;
 import GameController.Map;
 import Rendering.SpriteRenderer;
-import Wrappers.Rect;
-import Wrappers.Vector2;
+import Wrappers.Color;
 
 /**
  * Tile
@@ -17,8 +19,14 @@ public abstract class Tile implements Cloneable{
 	protected int ID;
 	protected BufferedImage sprite;
 	protected Map map;
-	protected SpriteRenderer renderer;
-	protected int hammerState; //NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when loaded in maps)
+	public SpriteRenderer renderer;
+	protected HammerShape hammerState; //NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when loaded in maps)
+	
+	public static final int CORNER_NULL = -1;
+	public static final int CORNER_UL = 0;
+	public static final int CORNER_UR = 1;
+	public static final int CORNER_BL = 2;
+	public static final int CORNER_BR = 3;
 	
 	public Tile(int ID, BufferedImage sprite, SpriteRenderer renderer) {
 		this.ID = ID;
@@ -33,9 +41,13 @@ public abstract class Tile implements Cloneable{
 		}
 	}
 	
-	public void init(Vector2 pos, Rect rect) {
+	public void init(Vector2f pos, Vector2f rect) {
+		if (hammerState == null) {
+			System.out.println("Hammer state not specified, capitulating to default.");
+			hammerState = GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE);
+		}
 		
-		this.renderer.init(pos, rect);
+		this.renderer.init(pos, rect, hammerState.shapeId, new Color(1, 1, 1));
 	}
 	
 	/**
@@ -43,10 +55,10 @@ public abstract class Tile implements Cloneable{
 	 * @param pos: position at which to render
 	 * @param dim: dimensions of tile
 	 */
-	public void render(Vector2 pos, float dim) {
+	public void render(Vector2f pos, float dim) {
 		//shader.render(g, pos, sprite);
 		renderer.linkPos(pos);;
-		renderer.rect = new Rect(dim, dim);
+		renderer.rect = new Vector2f(dim, dim);
 		renderer.render();
 	}
 	public int getID() {
@@ -55,15 +67,19 @@ public abstract class Tile implements Cloneable{
 	public BufferedImage getImage() {
 		return sprite;
 	}
-	public void setHammerState(int hammerState) {
+	public void setHammerState(HammerShape hammerState) {
 		this.hammerState = hammerState;
 	}
-	public int getHammerState() {
+	public HammerShape getHammerState() {
 		return hammerState;
 	}
 	
 	@Override
 	public Tile clone() throws CloneNotSupportedException {
-		return (Tile) super.clone();
+		Tile t =  (Tile) super.clone();
+		//New renderer please
+		t.renderer = this.renderer.clone();
+		
+		return t;
 	}
 }

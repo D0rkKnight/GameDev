@@ -1,16 +1,16 @@
 package GameController;
-import Tiles.Tile;
-import Wrappers.Vector2;
-
 import java.util.ArrayList;
 
-import Entities.*;
+import org.joml.Vector2f;
+
+import Entities.Entity;
+import Tiles.Tile;
 public class Map {
 	private Tile[][] grid; //[x][y]
 	/*
 	 * entrance coordinates, contains list of positions [topleft, topright, botleft, botright]
 	 */
-	private Vector2[][] entrances; 
+	private Vector2f[][] entrances; 
 	/*
 	 * entrance info, contains list of entrance info [entranceID, entrancethatitlinkstoID]
 	 */
@@ -19,7 +19,7 @@ public class Map {
 	 * list of entities in the room. does not include player, accessed by GameManager to determine collisions
 	 */
 	private ArrayList<Entity> entities;
-	public Map(Tile[][] mapData, Vector2[][] entrances, int[][] entranceInfo, ArrayList<Entity> entities) {
+	public Map(Tile[][] mapData, Vector2f[][] entrances, int[][] entranceInfo, ArrayList<Entity> entities) {
 		grid = mapData;
 		this.setEntrances(entrances);
 		this.setEntranceInfo(entranceInfo);
@@ -49,10 +49,10 @@ public class Map {
 		}
 		return subgrid;
 	}
-	public Vector2[][] getEntrances() {
+	public Vector2f[][] getEntrances() {
 		return entrances;
 	}
-	private void setEntrances(Vector2[][] entrances) {
+	private void setEntrances(Vector2f[][] entrances) {
 		this.entrances = entrances;
 	}
 	public int[][] getEntranceInfo() {

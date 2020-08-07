@@ -11,12 +11,13 @@ import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
+import org.joml.Vector2f;
+
 import Accessories.Accessory;
 import Entities.Entity;
 import Rendering.SpriteRenderer;
 import Tiles.SquareTile;
 import Tiles.Tile;
-import Wrappers.Vector2;
 
 public class Serializer {
 	public void loadTileHash(String filename, HashMap<Integer, Tile> tileLookup, SpriteRenderer renderer) { // loads a hashmap
@@ -57,7 +58,6 @@ public class Serializer {
 				e.printStackTrace();
 			}
 		}
-		
 	}
 
 	/**
@@ -102,17 +102,17 @@ public class Serializer {
 					e.printStackTrace();
 				} // want to clone the tile we
 																							// load into array
-				maptiles[i][j].setHammerState(Integer.parseInt(tileInfo[1]));
+				maptiles[i][j].setHammerState(GameManager.hammerLookup.get(Integer.parseInt(tileInfo[1])));
 			}
 		}
 		int entrances = Integer.parseInt(mapFile.readLine());
-		Vector2[][] coords = new Vector2[entrances][4];
+		Vector2f[][] coords = new Vector2f[entrances][4];
 		int[][] entranceInfo = new int[entrances][2];
 		for (int i = 0; i < entrances; i++) { // looping through entrances
 			String[] info = mapFile.readLine().split(":");
 			for (int j = 0; j < 4; j++) { // looping through coordinates
 				String[] coord = info[j].split(",");
-				coords[i][j] = new Vector2(Float.parseFloat(coord[0]), Float.parseFloat(coord[1]));
+				coords[i][j] = new Vector2f(Float.parseFloat(coord[0]), Float.parseFloat(coord[1]));
 			}
 			entranceInfo[i][0] = Integer.parseInt(info[4]); // taking care of ID and connection
 			entranceInfo[i][1] = Integer.parseInt(info[5]);

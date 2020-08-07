@@ -1,13 +1,14 @@
 package Entities;
 
+import org.joml.Vector2f;
+
 import Rendering.Renderer;
 import Wrappers.Hitbox;
 import Wrappers.Sprites;
-import Wrappers.Vector2;
 
 public class NPC extends Entity {
 
-	public NPC(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name) {
+	public NPC(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name) {
 		super(ID, position, sprites, renderer, name);
 		// TODO Auto-generated constructor stub
 	}
@@ -19,7 +20,7 @@ public class NPC extends Entity {
 	}
 
 	@Override
-	public void move() {
+	public void controlledMovement() {
 		// TODO Auto-generated method stub
 		
 	}
@@ -36,7 +37,6 @@ public class NPC extends Entity {
 		
 	}
 
-	@Override
 	public void onHit(Hitbox otherHb) {
 		// TODO Auto-generated method stub
 		

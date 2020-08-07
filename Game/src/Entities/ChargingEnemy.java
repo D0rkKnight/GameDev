@@ -1,9 +1,10 @@
 package Entities;
 
+import org.joml.Vector2f;
+
 import Rendering.Renderer;
 import Wrappers.Sprites;
 import Wrappers.Stats;
-import Wrappers.Vector2;
 
 /**
  * Charging enemies have 4 states: idle (wanders around), windup (preparing to
@@ -32,15 +33,10 @@ public class ChargingEnemy extends Enemy implements Gravity {
 	}
 
 	// This enemy attacks only by charging towards the player. No attack function,
-	// damage is strictly form collider.
+	// damage is strictly from collider.
 	@Override
 	public void attack(Player p) {
-		if(p.getPosition().x > position.x) {
-			xVelocity += 
-		}
-		else {
-			
-		}
+		//nothing for now
 
 	}
 
@@ -51,14 +47,16 @@ public class ChargingEnemy extends Enemy implements Gravity {
 	}
 
 	@Override
-	public void calculate(Player p) {
+	public void calculate() {
 		calcFrame();
 		if (currentGroup == 3) { // winddown
 
-		} else if (charging) { // currently charging
-			attack(p);
-		} else if (/* player nearby */true) { // player nearby
-			windup = true; // start charge windup
+		} 
+		else if(charging) { //currently charging
+			controlledMovement();
+		}
+		else if(/*player nearby*/true) { //player nearby
+			windup = true; //start charge windup
 		}
 		// only charges at player if knocked back or moved. has a windup animation
 		// before and a post charge animation.
@@ -69,6 +67,11 @@ public class ChargingEnemy extends Enemy implements Gravity {
 
 	@Override
 	public void move() { // idle movement
+    
+    
+	public void controlledMovement() { //move mostly while charging. Otherwise idle movement.
+		if(charging) {
+		}
 
 	}
 
@@ -77,12 +80,12 @@ public class ChargingEnemy extends Enemy implements Gravity {
 		if (true) { // entity not colliding with ground
 			// Set this to universal gravitational constant
 			yAcceleration = Entity.gravity;
-
-			yVelocity -= yAcceleration;
-			yVelocity = Math.max(yVelocity, -3);
-		} else {
-			// player colliding with ground without vertical input detected
+			velo.y -= yAcceleration;
+			velo.y = Math.max(velo.y, -3);
 		}
+    else{
+      velo.y = 0;
+    }
 
 	}
 

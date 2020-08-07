@@ -1,15 +1,16 @@
 package Entities;
 
+import org.joml.Vector2f;
+
 import Collision.Collidable;
 import Rendering.Renderer;
 import Wrappers.Hitbox;
 import Wrappers.Sprites;
 import Wrappers.Stats;
-import Wrappers.Vector2;
 
 public class WormHead extends Enemy implements Collidable{
 	protected WormTail backSegment;
-	public WormHead(int ID, Vector2 position, Sprites sprites, Renderer renderer, String name, Stats stats, WormTail backSegment) {
+	public WormHead(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name, Stats stats, WormTail backSegment) {
 		super(ID, position, sprites, renderer, name, stats);
 		this.backSegment = backSegment;
 		// TODO Auto-generated constructor stub
@@ -40,7 +41,7 @@ public class WormHead extends Enemy implements Collidable{
 	}
 
 	@Override
-	public void move() {
+	public void controlledMovement() {
 		// TODO Auto-generated method stub
 		
 	}
