@@ -1,6 +1,6 @@
 package Rendering;
 
-import static org.lwjgl.opengl.GL20.glBindAttribLocation;
+import static org.lwjgl.opengl.GL21.*;
 
 /**
  * This class isn't used for anything.
