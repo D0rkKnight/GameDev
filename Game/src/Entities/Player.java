@@ -1,5 +1,6 @@
 package Entities;
 
+import org.joml.Math;
 import org.joml.Vector2f;
 
 import Collision.HammerShape;
@@ -18,17 +19,26 @@ public class Player extends Combatant{
 	
 	private float jumpSpeed;
 	private Timer gunTimer;
+	float xCap = 0.5f; //todo add to contructor (and break everything)
+	float accelConst = 2f / 300f;
 	
 	private float dashSpeed;
 	private long dashDuration;
 	private Timer dashTimer;
 	private Vector2f dashDir;
+	private Vector2f knockbackDir; //for debug purposes, only shows initial knockback 
+	
+	//knockback only dependent on velocity: reduces effect of movement keys (not completely disabling), reduced velocity every frame, changes to normal movement when at normal velocities
+	private float movementMulti; //multiplier for movement when knocked back (suggest 0.5)
+	private float decelMulti; //multiplier for decel when knocked back (suggest 1)
+	private boolean knockback = true;
 	
 	private int movementMode;
 	private boolean hasGravity;
 	
 	private static final int MOVEMENT_MODE_CONTROLLED = 1;
 	private static final int MOVEMENT_MODE_IS_DASHING = 2;
+	private static final int MOVEMENT_MODE_KNOCKBACK = 3;
 	
 	public Player(int ID, Vector2f position, Sprites sprites, SpriteRenderer renderer, String name, Stats stats) {
 		super(ID, position, sprites, renderer, name, stats);
@@ -65,7 +75,39 @@ public class Player extends Combatant{
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	/**
+	 * applies knockback values. if currently in knockback state, chooses larger values.
+	 * @param knockbackDir
+	 * @param movementMulti
+	 * @param decelMulti
+	 */
+	public void knockback(Vector2f knockbackDir, float movementMulti, float decelMulti) {
+		if(movementMode == MOVEMENT_MODE_KNOCKBACK) {
+			if(Math.abs(velo.x) < Math.abs(knockbackDir.x)) {
+				velo.x = knockbackDir.x;
+				this.knockbackDir.x = knockbackDir.x;
+			}
+			if(Math.abs(velo.y) < Math.abs(knockbackDir.y)) {
+				velo.y = knockbackDir.y;
+				this.knockbackDir.y = knockbackDir.y;
+			}
+			if(this.movementMulti < movementMulti) this.movementMulti = movementMulti;
+			if(this.decelMulti < decelMulti) this.decelMulti = decelMulti;
+		}
+		else {
+			System.out.println("elsed, not in knockback");
+			velo.x = knockbackDir.x;
+			velo.y = knockbackDir.y;
+			this.knockbackDir = new Vector2f(knockbackDir);
+			this.movementMulti = movementMulti;
+			this.decelMulti = decelMulti;
+			knockback = true;
+		}
+		
+		
+	}
+	
 	@Override
 	public void attack() {
 		// TODO Auto-generated method stub
@@ -79,17 +121,21 @@ public class Player extends Combatant{
 	}
 	
 	public void calculate() {
-		determineMovementMode();
+		determineMovementMode(); //determine what movement mode and execute it
 		
 		SpriteRenderer sprRend = (SpriteRenderer) renderer;
 		switch (movementMode) {
-		case MOVEMENT_MODE_CONTROLLED:
+		case MOVEMENT_MODE_CONTROLLED: //walking
 			sprRend.col = new Color(1, 0, 0);
 			controlledMovement();
 			break;
-		case MOVEMENT_MODE_IS_DASHING:
+		case MOVEMENT_MODE_IS_DASHING: //dashing
 			sprRend.col = new Color(1, 1, 1);
 			dashingMovement();
+			break;
+		case MOVEMENT_MODE_KNOCKBACK:
+			sprRend.col = new Color(0, 0, 1);
+			knockbackMovement();
 			break;
 		default:
 			System.err.println("Movement mode not set.");
@@ -113,6 +159,17 @@ public class Player extends Combatant{
 	}
 	
 	private void determineMovementMode() {
+		if(Input.knockbackTest && movementMode == MOVEMENT_MODE_CONTROLLED ) {//TODO
+			knockback(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
+		}
+		if(knockback) { 
+			movementMode = MOVEMENT_MODE_KNOCKBACK;
+			knockback = false;
+		}
+		if(movementMode == MOVEMENT_MODE_KNOCKBACK && Math.abs(velo.x) < xCap) {
+			movementMode = MOVEMENT_MODE_CONTROLLED;
+			knockbackDir = null;
+		}
 		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && movementMode != MOVEMENT_MODE_IS_DASHING) {
 			movementMode = MOVEMENT_MODE_IS_DASHING;
 			dashDir = new Vector2f(Input.moveX, Input.moveY).normalize();
@@ -134,12 +191,13 @@ public class Player extends Combatant{
 				
 			});
 		}
+		
 	}
 
 	@Override
-	public void controlledMovement() {// TODO add collision
+	public void controlledMovement() {
 		
-		float xCap = 0.5f;
+		
 		float accelConst = 2f / 300f;
 		
 		float xAccel = 0;
@@ -176,15 +234,28 @@ public class Player extends Combatant{
 	{
 		hasGravity = false;
 	}
+	/**
+	 * I'm assuming that knockbackSpeed was set to not 0 upon being hit
+	 * also assuming that hit function added velo already, this function just does deacceleration
+	 */
+	private void knockbackMovement() {
+		//automatic deacceleration
+		float decelConst = Math.min(accelConst * decelMulti, Math.abs(velo.x) - xCap) * -Arithmetic.sign(velo.x);
+		//effect of movement
+		decelConst += accelConst * movementMulti * Input.moveX;
+		decelConst *= GameManager.deltaT();
+		
+		velo.x += decelConst;
+		hasGravity = true;
+	}
 	
 	private void fireGun(Vector2f firePos) {
-		System.out.println(firePos.toString());
+		System.out.println(firePos.toString()); //testing, remove later TODO
 		
-		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32));
+		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32)); //position of bullet 
 		
-		Projectile proj = new Projectile(0, pos, null, GameManager.renderer, "Bullet");
+		Projectile proj = new Projectile(0, pos, null, GameManager.renderer, "Bullet"); //initializes bullet entity
 		Vector2f dir = new Vector2f(firePos).sub(position).normalize();
-		
 		System.out.println(Input.mouseWorldPos.toString());
 		
 		Vector2f velo = new Vector2f(dir).mul(3);

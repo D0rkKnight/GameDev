@@ -6,6 +6,8 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_J;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_LAST;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_K;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_L;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LAST;
@@ -38,6 +40,8 @@ public class Input {
 	public static boolean primaryButtonDown;
 	public static boolean secondaryButtonDown;
 	public static boolean dashAction; //Only active for one frame
+	public static boolean knockbackTest;
+	public static Vector2f knockbackVectorTest = new Vector2f(-2f, 0.5f);
 	
 	public static Vector2f mouseScreenPos;
 	public static Vector2f mouseWorldPos;
@@ -88,6 +92,7 @@ public class Input {
 	//Called once per frame
 	public static void update() {
 		dashAction = false;
+		knockbackTest = false;
 	}
 	
 	public static void updateKeys(long window, int key, int scancode, int action, int mods) {
@@ -110,7 +115,19 @@ public class Input {
 			switch (key) {
 			case GLFW_KEY_LEFT_SHIFT:
 				dashAction = true;
+				break;
+		    case GLFW_KEY_K:
+		    	knockbackVectorTest = new Vector2f(-2f, 0.5f);
+		    	knockbackTest = true;
+		    	break;
+		    case GLFW_KEY_L:
+		    	knockbackVectorTest = new Vector2f(2f, 0.5f);
+		    	knockbackTest = true;
+		    	break;
 			}
+			
+				
+				
 		}
 		
 		//Player movement!

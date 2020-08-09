@@ -27,8 +27,7 @@ public class Projectile extends PhysicsEntity{
 		this.renderer.linkPos(this.position);
 	}
 
-	public void onHit(Hitbox otherHb) {
-		// TODO Auto-generated method stub
+	public void onHit(Hitbox otherHb) { //upon colliding with another hitbox
 		
 	}
 

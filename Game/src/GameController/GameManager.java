@@ -292,6 +292,7 @@ public class GameManager {
 			// This function waits until one buffer is written to before writing the next
 			// one.
 			// This is because of v-sync.
+			// TLDR Don't want half the screen to be updated at parts
 			glfwSwapBuffers(Drawer.window);
 
 			// Event listening stuff. Key callback is invoked here.
