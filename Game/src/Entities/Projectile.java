@@ -23,8 +23,6 @@ public class Projectile extends PhysicsEntity{
 		
 		//Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
-		
-		this.renderer.linkPos(this.position);
 	}
 
 	public void onHit(Hitbox otherHb) {

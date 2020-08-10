@@ -26,11 +26,11 @@ import Entities.PhysicsEntity;
 import Entities.Player;
 import Rendering.SpriteRenderer;
 import Rendering.SpriteShader;
+import Rendering.Texture;
 import Tiles.SquareTile;
 import Tiles.Tile;
 import Wrappers.Color;
 import Wrappers.Hitbox;
-import Wrappers.Texture;
 
 
 public class GameManager {
@@ -52,10 +52,11 @@ public class GameManager {
 	public static boolean showCollisions = false;
 	public static boolean debugElementsEnabled = false;
 	
-	//
+	//Rendering stuff
 	private Drawer drawer;
 	public static SpriteRenderer renderer;
 	public static SpriteShader shader;
+	public static Texture[] tileSpritesheet;
 
 	// Storage for tiles
 	private ArrayList<Map> maps;
@@ -127,10 +128,18 @@ public class GameManager {
 		
 		//Init renderer
 		//TODO: We have to make a renderer factory in order for this to, like, work.
+		
+		//Dunno if this should go here
+		//TODO
+		tileSpritesheet = Texture.unpackSpritesheet("assets/tset1.png", 128, 128, 8, 8);
+		
 		shader = new SpriteShader("texShader");
-				SpriteRenderer sprRenderer = new SpriteRenderer(shader);
-				sprRenderer.spr = new Texture("tile1.png");
-				renderer = sprRenderer;
+		
+		SpriteRenderer sprRenderer = new SpriteRenderer(shader);
+		//sprRenderer.spr = new Texture("tile1.png");
+		sprRenderer.spr = tileSpritesheet[0];
+		
+		renderer = sprRenderer;
 		
 		//Init player
 		initEntities();
@@ -278,21 +287,10 @@ public class GameManager {
 		// function returns.
 		while (!glfwWindowShouldClose(Drawer.window)) {
 			updateTime();
-			
-			// Clear frame buffer
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			// Drawing stuff
 			update();
 			drawer.draw(currmap, entities);
-
-
-			// tldr: there are two buffers, one that is being displayed and one that we are
-			// writing to.
-			// This function waits until one buffer is written to before writing the next
-			// one.
-			// This is because of v-sync.
-			glfwSwapBuffers(Drawer.window);
 
 			// Event listening stuff. Key callback is invoked here.
 			// Do wipe input before going in

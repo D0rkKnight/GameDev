@@ -28,14 +28,14 @@ public class Serializer {
 		try {
 			tileHashFile = new BufferedReader(new FileReader(filename));
 		} catch (FileNotFoundException e) {
-			System.out.println("File not found");
+			System.err.println("File not found");
 			e.printStackTrace();
 		}
 		int num = 0;
 		try {
 			num = Integer.parseInt(tileHashFile.readLine());
 		} catch (NumberFormatException e) {
-			System.out.println("First line of file should be int");
+			System.err.println("First line of file should be int");
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

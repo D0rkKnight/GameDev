@@ -38,35 +38,4 @@ public class Camera {
 		//Update, since the mouse's world space has changed
 		Input.updateCursor(Input.mouseScreenPos.x, Input.mouseScreenPos.y);
 	}
-	
-	/**
-	 * Returns clipped vertex values
-	 * TODO: Do this with matrices instead
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	public Vector2f mapVert(float x, float y) {
-		return mapVert(new Vector2f(x, y));
-	}
-	
-	/**
-	 * Todo: use view matrix instead
-	 * @param p
-	 * @return
-	 */
-	
-	public Vector2f mapVert(Vector2f p) {
-		//View step of rendering
-		Vector2f out = new Vector2f(p).sub(Camera.main.pos);
-		//Vector2f out = new Vector2f(p);
-		
-		
-		//Clip step of rendering (simple, since we're in an orthographic mode.
-		out.x /= Camera.main.viewport.x;
-		out.y /= Camera.main.viewport.y;
-		
-		return out;
-		//return new Vector2f(p);
-	}
 }

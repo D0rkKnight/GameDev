@@ -207,7 +207,6 @@ public abstract class Physics {
 					 * Redefining the x axis should only occur when moving along the x axis.
 					 */
 					if (moveAxis == e.xDir) {
-						System.out.println("Grounded transition");
 						e.forceDirectionalChange(newXDir, e.yDir);
 					}
 				} else {
@@ -215,17 +214,12 @@ public abstract class Physics {
 					/**
 					 * Doesn't matter which axis of approach, any ground tangent is preferential to the aerial axises.
 					 */
-					System.out.println("Aerial landing");
 					e.forceDirectionalChange(newXDir, e.yDir);
 				}
 				
 				//Make sure you don't continue falling
 				velo.y = 0;
 				e.grounded = true;
-				
-				System.out.println("\nVelo: "+velo.toString());
-				System.out.println("XDir: "+e.xDir.toString());
-				System.out.println("YDir: "+e.yDir.toString());
 			} 
 			
 			/**
@@ -253,8 +247,6 @@ public abstract class Physics {
 				velo.x = magBuff[0];
 				velo.y = magBuff[1];
 			}
-			
-			System.out.println(e.xDir.toString());
 			
 			//Enqueue collision response (but store this for later since I want it batched)
 			e.collidedWithTile = true;

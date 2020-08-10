@@ -26,12 +26,13 @@ public abstract class Renderer implements Cloneable{
 	protected int rowSize;
 	protected Attribute[] attribs;
 	
+	public Transformation transform;
+	
 	Renderer(Shader shader) {
 		this.shader = shader;
 	}
 	
 	public abstract void render();
-	public abstract void linkPos(Vector2f pos);
 	
 	@Override
 	public Renderer clone() throws CloneNotSupportedException {

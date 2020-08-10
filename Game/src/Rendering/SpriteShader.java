@@ -15,4 +15,14 @@ public class SpriteShader extends Shader {
 		glBindAttribLocation(program, 1, "texCords");
 		glBindAttribLocation(program, 2, "color");
 	}
+	
+	@Override
+	protected void initUniforms() {
+		try {
+			createUniform("MVP");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

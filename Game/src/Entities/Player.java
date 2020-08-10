@@ -39,8 +39,6 @@ public class Player extends Combatant{
 		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0));
 		renderer = rendTemp;
 		
-		this.renderer.linkPos(this.position);
-		
 		//Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
 		
@@ -178,14 +176,10 @@ public class Player extends Combatant{
 	}
 	
 	private void fireGun(Vector2f firePos) {
-		System.out.println(firePos.toString());
-		
 		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32));
 		
 		Projectile proj = new Projectile(0, pos, null, GameManager.renderer, "Bullet");
 		Vector2f dir = new Vector2f(firePos).sub(position).normalize();
-		
-		System.out.println(Input.mouseWorldPos.toString());
 		
 		Vector2f velo = new Vector2f(dir).mul(3);
 		

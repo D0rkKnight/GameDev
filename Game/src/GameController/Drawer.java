@@ -12,8 +12,12 @@ import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
+import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL21.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -38,6 +42,9 @@ public class Drawer {
 	public static long window;
 	
 	public static void draw(Map map, ArrayList<Entity> entities) {
+		// Clear frame buffer
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
 		//calls render function of every tile of map within distance of player, and entities within certain distance
   		Tile[][] grid = map.getGrid();
   		
@@ -56,6 +63,14 @@ public class Drawer {
   		
   		//Overlay debug elements
   		Debug.renderDebug();
+  		
+  		
+  		// tldr: there are two buffers, one that is being displayed and one that we are
+		// writing to.
+		// This function waits until one buffer is written to before writing the next
+		// one.
+		// This is because of v-sync.
+		glfwSwapBuffers(Drawer.window);
 	}
 	
 	public static void initGraphics() {

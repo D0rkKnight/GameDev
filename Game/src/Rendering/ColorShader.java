@@ -20,4 +20,10 @@ public class ColorShader extends Shader{
 		glBindAttribLocation(program, 1, "color");
 	}
 
+	@Override
+	protected void initUniforms() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

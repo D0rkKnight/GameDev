@@ -1,29 +1,19 @@
 package Rendering;
 
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
-import static org.lwjgl.opengl.GL11.glVertex2f;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferSubData;
-import static org.joml.Vector2f.*;
+import static org.lwjgl.opengl.GL30.*;
 
-import java.nio.FloatBuffer;
-
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
-import org.lwjgl.BufferUtils;
 
 import Collision.HammerShape;
 import GameController.Camera;
 import Wrappers.Color;
-import Wrappers.Texture;
 
 public class SpriteRenderer extends Renderer implements Cloneable {
 	
 	public Texture spr;
 	
 	public Vector2f rect; //Bounding box? idk
-	protected Vector2f pos;
 	
 	protected Mesh mesh;
 	
@@ -51,18 +41,17 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		//TODO: implement camera with view matrix, not vertex updates.
 		
 		//Move mesh
-		mesh.write(genVerts(), attribs[0]);
-		mesh.write(genColors(col), attribs[2]);
-		
-		FloatBuffer fBuff = BufferUtils.createFloatBuffer(mesh.data.length);
-		fBuff.put(mesh.data);
-		fBuff.flip();
-		
-		glBindBuffer(GL_ARRAY_BUFFER, vboId);
-	    glBufferSubData(GL_ARRAY_BUFFER, 0, fBuff);
+//		mesh.write(genVerts(), attribs[0]);
+//		mesh.write(genColors(col), attribs[2]);
+//		
+//		FloatBuffer fBuff = BufferUtils.createFloatBuffer(mesh.data.length);
+//		fBuff.put(mesh.data);
+//		fBuff.flip();
+//		
+//		glBindBuffer(GL_ARRAY_BUFFER, vboId);
+//	    glBufferSubData(GL_ARRAY_BUFFER, 0, fBuff);
 	    
-	    
-	    
+	    setTransformMatrix();
 		
 		shader.bind();
 		spr.bind();
@@ -73,12 +62,22 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		disableVAOs();
 	}
 	
+	public void setTransformMatrix() {
+		//Setting model space transformations
+		Matrix4f mvp = transform.genMVP();
+		
+		//Set matrix uniform
+		shader.bind();
+		shader.setUniform("MVP", mvp);
+	}
+	
 	/**
 	 * Initialize
 	 */
 	public void init(Vector2f pos, Vector2f rect, int shape, Color col) {
+		//Link objects (these objects cannot be destroyed)
 		this.rect = rect;
-		this.pos = pos;
+		this.transform = new Transformation(pos);
 		this.shape = shape;
 		this.col = col;
 		hasInit = true;
@@ -180,32 +179,15 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		return uv;
 	}
 	
-	
-	/**
-	 * Link the position of this renderer to another position.
-	 * @param pos
-	 */
-	public void linkPos(Vector2f pos) {
-		this.pos = pos;
-	}
-	
 	/**
 	 * Returns an array of vertices.
 	 * @return
 	 */
 	protected float[] genVerts() {
-		Camera cam = Camera.main;
-		
-		//Now this also needs to be normalized...
-		Vector2f ul = cam.mapVert(pos.x, pos.y + rect.y);
-		Vector2f ur = cam.mapVert(pos.x + rect.x, pos.y + rect.y);
-		Vector2f bl = cam.mapVert(pos.x, pos.y);
-		Vector2f br = cam.mapVert(pos.x + rect.x, pos.y);
-		
-//		Vector2f ul = cam.mapVert(0, rect.y);
-//		Vector2f ur = cam.mapVert(rect.x, rect.y);
-//		Vector2f bl = cam.mapVert(0, 0);
-//		Vector2f br = cam.mapVert(rect.x, 0);
+		Vector2f ul = new Vector2f(0, rect.y);
+		Vector2f ur = new Vector2f(rect.x, rect.y);
+		Vector2f bl = new Vector2f(0, 0);
+		Vector2f br = new Vector2f(rect.x, 0);
 		
 		//TODO: Implement camera transformations with the model matrix
 		

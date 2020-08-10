@@ -69,6 +69,7 @@ public abstract class Entity {
 	 * You can override this with something spicy I guess
 	 */
 	public void render() {
+		renderer.transform.setPos(position);
 		renderer.render();
 	}
 	

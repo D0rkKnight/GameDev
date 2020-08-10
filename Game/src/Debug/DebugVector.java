@@ -28,19 +28,21 @@ public class DebugVector extends DebugElement {
 
 	@Override
 	public void render(Shader shader) {
-		Camera cam = Camera.main;
-		Vector2f fullVec = new Vector2f(v).mul(mult);
+		//Make this stuff work too
 		
-		Vector2f start = cam.mapVert(p);
-		Vector2f end = cam.mapVert(new Vector2f(p).add(fullVec));
-		
-		//Bind shader
-		shader.bind();
-		
-		//TODO: Update this deprecated code
-		glBegin(GL_LINES);
-		    glVertex2f(start.x, start.y);
-		    glVertex2f(end.x, end.y);
-		glEnd();
+//		Camera cam = Camera.main;
+//		Vector2f fullVec = new Vector2f(v).mul(mult);
+//		
+//		Vector2f start = cam.mapVert(p);
+//		Vector2f end = cam.mapVert(new Vector2f(p).add(fullVec));
+//		
+//		//Bind shader
+//		shader.bind();
+//		
+//		//TODO: Update this deprecated code
+//		glBegin(GL_LINES);
+//		    glVertex2f(start.x, start.y);
+//		    glVertex2f(end.x, end.y);
+//		glEnd();
 	}
 }

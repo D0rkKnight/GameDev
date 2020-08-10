@@ -39,7 +39,8 @@ public class DebugBox extends DebugElement {
 		
 		//Map
 		for (int i=0; i<points.length; i++) {
-			points[i] = cam.mapVert(points[i]);
+			//points[i] = cam.mapVert(points[i]);
+			//TODO: Make this stuff work too
 		}
 		
 		//TODO: Update this deprecated code

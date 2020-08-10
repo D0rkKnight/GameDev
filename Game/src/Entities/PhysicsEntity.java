@@ -77,8 +77,6 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 		
 		Vector2f worldVelo = new Vector2f(worldX, worldY);
 		
-		System.out.println("World velo: "+worldVelo.toString());
-		
 		
 		//Now break this vector into new components
 		Vector2f newXVelo = new Vector2f(0, 0);

@@ -1,10 +1,34 @@
 package Rendering;
-import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
+import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
+import static org.lwjgl.opengl.GL20.GL_LINK_STATUS;
+import static org.lwjgl.opengl.GL20.GL_VALIDATE_STATUS;
+import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
+import static org.lwjgl.opengl.GL20.glAttachShader;
+import static org.lwjgl.opengl.GL20.glCompileShader;
+import static org.lwjgl.opengl.GL20.glCreateProgram;
+import static org.lwjgl.opengl.GL20.glCreateShader;
+import static org.lwjgl.opengl.GL20.glGetProgramInfoLog;
+import static org.lwjgl.opengl.GL20.glGetProgrami;
+import static org.lwjgl.opengl.GL20.glGetShaderInfoLog;
+import static org.lwjgl.opengl.GL20.glGetShaderi;
+import static org.lwjgl.opengl.GL20.glGetUniformLocation;
+import static org.lwjgl.opengl.GL20.glLinkProgram;
+import static org.lwjgl.opengl.GL20.glShaderSource;
+import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
+import static org.lwjgl.opengl.GL20.glUseProgram;
+import static org.lwjgl.opengl.GL20.glValidateProgram;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.FloatBuffer;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.joml.Matrix4f;
+import org.lwjgl.system.MemoryStack;
 
 /*
  * Only one copy of these should exist for every distinct shader.
@@ -14,6 +38,7 @@ public abstract class Shader {
 	protected int program;
 	private int vs;
 	private int fs;
+	protected Map<String, Integer> uniforms;
 	
 	public Shader(String filename) {
 		program = glCreateProgram();
@@ -66,6 +91,9 @@ public abstract class Shader {
 			System.err.println(glGetProgramInfoLog(program));
 			System.exit(1);
 		}
+		
+		uniforms = new HashMap<String, Integer>();
+		initUniforms();
 	}
 	
 	public void bind() {
@@ -73,6 +101,7 @@ public abstract class Shader {
 	}
 	
 	protected abstract void bindAttributes();
+	protected abstract void initUniforms();
 	
 	/*
 	 * Shader interpreter
@@ -93,5 +122,26 @@ public abstract class Shader {
 		}
 		
 		return string.toString();
+	}
+	
+	public int getId() {
+		return program;
+	}
+	
+	public void createUniform(String name) throws Exception {
+		int loc = glGetUniformLocation(program, name);
+		if (loc < 0) {
+			throw new Exception ("Could not find uniform: "+name);
+		}
+		
+		uniforms.put(name, loc);
+	}
+	
+	public void setUniform(String name, Matrix4f val) {
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			FloatBuffer fb = stack.mallocFloat(16);
+			val.get(fb);
+			glUniformMatrix4fv(uniforms.get(name), false, fb);
+		}
 	}
 }
