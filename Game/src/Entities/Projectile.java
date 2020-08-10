@@ -25,8 +25,7 @@ public class Projectile extends PhysicsEntity{
 		hitbox = new Hitbox(this, dim.x, dim.y);
 	}
 
-	public void onHit(Hitbox otherHb) {
-		// TODO Auto-generated method stub
+	public void onHit(Hitbox otherHb) { //upon colliding with another hitbox
 		
 	}
 
