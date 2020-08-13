@@ -108,17 +108,20 @@ public class Texture {
 	 * @param th: height of 1 tile
 	 * @return
 	 */
-	public static Texture[] unpackSpritesheet(String url, int w, int h, int tw, int th) {
-		int tilesWide = w/tw; //Note: this presumes the spritesheet's dimensions divides evenly.
-		int tilesTall = h/th;
-		Texture[] out = new Texture[tilesWide * tilesTall];
-		
+	public static Texture[] unpackSpritesheet(String url, int tw, int th) {
 		BufferedImage bi = null;
 		try {
 			bi = ImageIO.read(new File(url));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		int w = bi.getWidth();
+		int h = bi.getHeight();
+		
+		int tilesWide = w/tw; //Note: this presumes the spritesheet's dimensions divides evenly.
+		int tilesTall = h/th;
+		Texture[] out = new Texture[tilesWide * tilesTall];
 		
 		for (int i=0; i<tilesTall; i++) {
 			for (int j=0; j<tilesWide; j++) {

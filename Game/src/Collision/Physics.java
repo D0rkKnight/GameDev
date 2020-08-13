@@ -73,7 +73,6 @@ public abstract class Physics {
 		
 		//Holds data to be pushed later, when reasonable movement is found
 		Vector2f deltaTemp = new Vector2f(0, 0);
-		
 		//And push the different deltas
 		for (int i=0; i<axises.length; i++) {
 			
@@ -126,65 +125,38 @@ public abstract class Physics {
 	/**A utility function to be used by update. Given information, it configures deltaMove and velocity as to resolve collisions on the given axis.
 	 * These values need to be later pushed to the entity in order for changes to appear.
 	 * 
+	 * IMPORTANT: Returned deltas may not be aligned with move axis.
+	 * 
 	 * @param pos
 	 * @param delta
 	 * @param e
 	 * @return Whether or not the entity collided when attempting to move
 	 */
 	public static boolean moveTo(Vector2f rawPos, Vector2f deltaMove, Vector2f velo, PhysicsEntity e, Tile[][] grid, Vector2f moveAxis, Vector2f[] axises) {
-		Vector2f bl = new Vector2f(rawPos.x + deltaMove.x, rawPos.y + deltaMove.y);
-		Vector2f ur = new Vector2f(bl.x + e.dim.x, bl.y + e.dim.y);
 		
 		float dirSign = Arithmetic.sign(moveAxis.dot(deltaMove));
 		Vector2f moveDir = new Vector2f(moveAxis.x * dirSign, moveAxis.y * dirSign);
 		//If movedir is 0, then there is no movement to be done.
 		if (moveDir.x == 0 && moveDir.y == 0) return true;
 		
-		//return var
-		boolean isSuccess = true;
-
-		ArrayList<int[]> tilesHit = new ArrayList<>();
-		boolean roughPass = isColliding(bl, ur, grid, tilesHit);
-		
-		//Rough pass
-		float dist = 0;
-		Vector2f normal = null;
-		if (roughPass) {
-			float maxMoveDist = 0;
-			
-			for (int[] p : tilesHit) {
-				int x = p[0];
-				int y = p[1];
-				
-				Tile t = grid[x][y];
-				
-				Vector2f tempNormal = new Vector2f(0, 0);
-				
-				Float d = getIntersection(t.getHammerState(), bl, ur, x, y, moveDir, tempNormal);
-				if (d!=null) {
-					if (Math.abs(d) > Math.abs(maxMoveDist)) {
-						maxMoveDist = d;
-						normal = tempNormal;
-					}
-					if (GameManager.showCollisions) t.renderer.col = new Color(1, 0, 1);
-					
-					isSuccess = false;
-				}
-			}
-			dist = maxMoveDist;
-		}
+		float[] dBuff = new float[1];
+		Vector2f normal = new Vector2f();
+		boolean isSuccess = !isColliding(rawPos, deltaMove, e, grid, moveDir, dBuff, normal);
+		float dist = dBuff[0];
 		
 		if (!isSuccess) {
-			//Snap to the intended edge -----------------------------------------------------------------------------
+			/**
+			 * TODO: Fix this horrible spaghetti
+			 */
 			
-			//Move in the right diVector2fion
-			deltaMove.x -= moveDir.x * dist;
-			deltaMove.y -= moveDir.y * dist;
+			Vector2f delta = new Vector2f();
+			
+			//Move out of tile
+			delta.sub(new Vector2f (moveDir).mul(dist));
 			
 			//Nudging should only move you as far as you can move.
 			float nudge = Math.min(GameManager.NUDGE_CONSTANT, deltaMove.length());
-			deltaMove.y -= moveDir.y * nudge;
-			deltaMove.x -= moveDir.x * nudge;
+			delta.sub(new Vector2f (moveDir).mul(nudge));
 			
 			/**
 			 * Surface deflection
@@ -196,7 +168,7 @@ public abstract class Physics {
 			//No need to deflect if on the ground, just zero out y velo and x velo will naturally be aligned properly
 			//If grounded:
 			Vector2f tangentDir = new Vector2f(tangent).normalize();
-			if (Math.abs(tangentDir.y) < 0.8 && tangentDir.x < 0) {
+			if (Math.abs(tangentDir.y) < 0.8 && tangentDir.x < 0) { //TODO: Make this work along any gravitational pull
 				//Dunno why this needs to be flipped but it does
 				Vector2f newXDir = new Vector2f(-tangent.x, -tangent.y);
 				
@@ -226,33 +198,116 @@ public abstract class Physics {
 			 * We don't want to deflect if attached to the ground: the player should not slide.
 			 */
 			else {
-				//Project velocity onto tangent axis (Tangent points left)
-				float tanSpeed = velo.dot(tangent);
+				/**
+				 * Moving up 1 tile tall steps
+				 */
+				boolean tileBumpSuccess = false;
+				if (e.wasGrounded && moveAxis == e.xDir) {
+					Vector2f rightAxis = Vector.rightVector(axises[1]);
+					float dot = rightAxis.dot(tangent);
+					
+					if (Math.abs(dot) == 0) {
+						//System.out.println("perpcoll");
+						
+						float dy = GameManager.tileSize;
+						
+						//Simultaneously move in the x dir and up
+						Vector2f deltaSnap = new Vector2f(0, dy);
+						Vector2f moveSnapSum = new Vector2f(deltaSnap).add(deltaMove);
+						tileBumpSuccess = !isColliding(rawPos, moveSnapSum, e, grid, moveDir, null, null);
+						
+						if (tileBumpSuccess) {
+							delta = deltaSnap;
+							
+							//Slow you down
+							velo.x *= 0.3;
+						}
+					}
+				}
 				
-				//This returns the relevant velocity in world space, but we must change it to use an angled coordinate system.
-				Vector2f tangentVector = new Vector2f(tangent.x * tanSpeed, tangent.y * tanSpeed);
-				
-				Debug.enqueueElement(new DebugVector(new Vector2f(rawPos).add(new Vector2f(0, 100)), tangentVector, 20));
-				
-				//First x, then y
-				Vector2f axisA = axises[0];
-				Vector2f axisB = axises[1];
-				
-				//Somehow the two implementations are different.
-				Vector2f compA = new Vector2f(0, 0);
-				Vector2f compB = new Vector2f(0, 0);
-				float[] magBuff = new float[2];
-				Vector.breakIntoComponents(tangentVector, axisA, axisB, compA, compB, magBuff);
-				
-				velo.x = magBuff[0];
-				velo.y = magBuff[1];
+				if (!tileBumpSuccess) {
+					//TODO: Maybe this should just force perpendicular axises?
+					//Project velocity onto tangent axis (Tangent points left)
+					float tanSpeed = velo.dot(tangent);
+					
+					//This returns the relevant velocity in world space, but we must change it to use an angled coordinate system.
+					Vector2f tangentVector = new Vector2f(tangent.x * tanSpeed, tangent.y * tanSpeed);
+					
+					Debug.enqueueElement(new DebugVector(new Vector2f(rawPos).add(new Vector2f(0, 100)), tangentVector, 20));
+					
+					//First x, then y
+					Vector2f axisA = axises[0];
+					Vector2f axisB = axises[1];
+					
+					//Somehow the two implementations are different.
+					Vector2f compA = new Vector2f(0, 0);
+					Vector2f compB = new Vector2f(0, 0);
+					float[] magBuff = new float[2];
+					Vector.breakIntoComponents(tangentVector, axisA, axisB, compA, compB, magBuff);
+					
+					velo.x = magBuff[0];
+					velo.y = magBuff[1];
+				}
 			}
+			
+			/**
+			 * Pushing movement
+			 */
+			deltaMove.add(delta);
 			
 			//Enqueue collision response (but store this for later since I want it batched)
 			e.collidedWithTile = true;
 		}
 		
 		return isSuccess;
+	}
+	
+	private static boolean isColliding(Vector2f rawPos, Vector2f deltaMove, PhysicsEntity e, Tile[][] grid, Vector2f moveDir, float[] dBuff, Vector2f nBuff) {
+		Vector2f bl = new Vector2f(rawPos.x + deltaMove.x, rawPos.y + deltaMove.y);
+		Vector2f ur = new Vector2f(bl.x + e.dim.x, bl.y + e.dim.y);
+		
+		//return var
+		boolean isColl = false;
+
+		ArrayList<int[]> tilesHit = new ArrayList<>();
+		boolean roughPass = roughPass(bl, ur, grid, tilesHit);
+		
+		//Rough pass
+		float dist = 0;
+		Vector2f normal = null;
+		if (roughPass) {
+			float maxMoveDist = 0;
+			
+			for (int[] p : tilesHit) {
+				int x = p[0];
+				int y = p[1];
+				
+				Tile t = grid[x][y];
+				
+				Vector2f tempNormal = new Vector2f(0, 0);
+				
+				Float d = getIntersection(t.getHammerState(), bl, ur, x, y, moveDir, tempNormal);
+				if (d!=null) {
+					if (Math.abs(d) > Math.abs(maxMoveDist)) {
+						maxMoveDist = d;
+						normal = tempNormal;
+					}
+					if (GameManager.showCollisions) t.renderer.col = new Color(1, 0, 1);
+					
+					isColl = true;
+				}
+			}
+			dist = maxMoveDist;
+		}
+		
+		if (dBuff != null) dBuff[0] = dist;
+		
+		if (normal != null && nBuff != null) {
+			nBuff.x = normal.x;
+			nBuff.y = normal.y;
+		}
+		
+		return isColl;
 	}
 	
 	/**
@@ -267,7 +322,7 @@ public abstract class Physics {
 	 * @param e
 	 * @return
 	 */
-	private static boolean isColliding(Vector2f bl, Vector2f ur, Tile[][] grid, ArrayList<int[]> hits) {
+	private static boolean roughPass(Vector2f bl, Vector2f ur, Tile[][] grid, ArrayList<int[]> hits) {
 		boolean tileHit = false;
 		
 		int boundL = (int) bl.x/GameManager.tileSize;

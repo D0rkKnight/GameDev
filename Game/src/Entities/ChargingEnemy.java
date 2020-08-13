@@ -23,6 +23,7 @@ public class ChargingEnemy extends Enemy implements Gravity {
 	protected int windupNum = 0; // counter
 	protected int cooldownNum = 0; // counter
 	protected float speed;
+	
 	public ChargingEnemy(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name, Stats stats,
 			boolean charging, int windupCycles, int cooldownCycles, float speed, float topspeed) {
 		super(ID, position, sprites, renderer, name, stats);

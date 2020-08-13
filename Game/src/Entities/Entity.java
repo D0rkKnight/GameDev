@@ -37,7 +37,6 @@ public abstract class Entity {
 		this.ID = ID;
 		this.position = position;
 		this.sprites = sprites;
-		this.renderer = renderer;
 		this.name = name;
 		try {
 			this.renderer = renderer.clone();
