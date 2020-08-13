@@ -1,4 +1,4 @@
-/bin/
-/usedlibraries/
-/.classpath/
-/target/
+bin/
+usedlibraries/
+.classpath
+target/

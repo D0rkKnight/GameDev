@@ -6,7 +6,10 @@ import org.joml.Vector2f;
 import Collision.HammerShape;
 import GameController.GameManager;
 import GameController.Input;
+import Rendering.Animation;
+import Rendering.Animator;
 import Rendering.SpriteRenderer;
+import Rendering.Texture;
 import Wrappers.Arithmetic;
 import Wrappers.Color;
 import Wrappers.Hitbox;
@@ -40,12 +43,14 @@ public class Player extends Combatant{
 	private static final int MOVEMENT_MODE_IS_DASHING = 2;
 	private static final int MOVEMENT_MODE_KNOCKBACK = 3;
 	
+	private Animator anim;
+	
 	public Player(int ID, Vector2f position, Sprites sprites, SpriteRenderer renderer, String name, Stats stats) {
 		super(ID, position, sprites, renderer, name, stats);
 		
 		//Configure the renderer real quick
-		dim = new Vector2f(16f, 64f);
-		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer;
+		dim = new Vector2f(15f, 60f);
+		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer; //Renderer has been duplicated by now
 		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0));
 		renderer = rendTemp;
 		
@@ -67,6 +72,13 @@ public class Player extends Combatant{
 			}
 			
 		});
+		
+		
+		//Configure animation stuff
+		Animation[] anims = new Animation[1];
+		Texture[] animSheet = Texture.unpackSpritesheet("Assets/ChargingSlime.png", 32, 32);
+		anims[0] = new Animation(animSheet);
+		anim = new Animator(anims, 24, renderer);
 	}
 
 	public void onHit(Hitbox hb) {
@@ -154,6 +166,8 @@ public class Player extends Combatant{
 		if (dashTimer != null) {
 			dashTimer.update();
 		}
+		
+		calcFrame();
 	}
 	
 	private void determineMovementMode() {
@@ -264,6 +278,9 @@ public class Player extends Combatant{
 	protected void calcFrame() {
 		// TODO Auto-generated method stub
 		
+		//Just a simple animation update, nothing spicy.
+		anim.update();
+		System.out.println("Calculating frame");
 	}
 
 	public void onTileCollision() {

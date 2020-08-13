@@ -131,7 +131,7 @@ public class GameManager {
 		
 		//Dunno if this should go here
 		//TODO
-		tileSpritesheet = Texture.unpackSpritesheet("assets/tset1.png", 128, 128, 8, 8);
+		tileSpritesheet = Texture.unpackSpritesheet("assets/tset1.png", 8, 8);
 		
 		shader = new SpriteShader("texShader");
 		

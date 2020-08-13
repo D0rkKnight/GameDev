@@ -17,7 +17,7 @@ public class Camera {
 		if (main == null) main = this;
 		
 		pos = new Vector2f(0f, 0f);
-		moveSpeed = 1f;
+		moveSpeed = 0.5f;
 		
 		//TODO: Resolve this with input's stuff
 		viewport = Drawer.GetWindowSize();
