@@ -178,7 +178,10 @@ public class Serializer {
 				int y = h-i-1;
 				
 				if (id == -1) grid[x][y] = null;
-				else grid[x][y] = tileMap.get(id).clone();
+				else {
+					Tile t = tileMap.get(id);
+					grid[x][y] = t.clone();
+				}
 			}
 		}
 		

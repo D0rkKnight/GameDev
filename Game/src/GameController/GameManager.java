@@ -140,14 +140,16 @@ public class GameManager {
 		
 		renderer = sprRenderer;
 		
-		//Init player
 		initEntities();
 		initCollision();
-		initPlayer();
-		Camera.main.attach(player);
 
-		initTiles();
-		initMap("TestMap64.tmx");
+		initTiles("tset1.tsx");
+		initMap("TestMap64.tmx");//also should initialize entities
+		//Init player
+		//initEntities();
+		//initCollision();
+		//initPlayer();
+		//Camera.main.attach(player);
 	}
 
 	private void loadProgression() {
@@ -164,10 +166,12 @@ public class GameManager {
 	 * Loads and constructs tiles based off of external file, then logs in
 	 * tileLookup
 	 */
-	private void initTiles() {
+	private void initTiles(String tileFile) {
 		tileLookup = new HashMap<>();
 		try {
-			Serializer.loadTileHash("assets/TestTiles.tsx", tileLookup, hammerLookup, renderer);
+			//assets/TestTiles.tsx
+			//TODO add the tileset that works
+			Serializer.loadTileHash("assets/" + tileFile, tileLookup, hammerLookup, renderer);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -177,10 +181,10 @@ public class GameManager {
 		Tile[][] mapData = null;
 		try {
 			//assets/TestMap64.tmx
-			mapData = Serializer.loadTileGrid("assets/TestMap64.tmx", tileLookup);
+			mapData = Serializer.loadTileGrid("assets/" + mapFile, tileLookup);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			System.out.println("couldn't find map file");
+			System.out.println("map error");
 			e.printStackTrace();
 		}
 		
@@ -193,6 +197,8 @@ public class GameManager {
 			}
 		}
 		currmap = new Map(mapData, null, null, null);//TODO
+		initPlayer(40f, 70f);//hardcode for now
+		Camera.main.attach(player);
 	}
 
 	private void finishArea() { // called when character finishes a major area, updates level and chapter of
@@ -235,7 +241,7 @@ public class GameManager {
 		else System.err.println("Collider not defined!");
 	}
 	
-	private void initPlayer() {
+	private void initPlayer(float xpos, float ypos) {
 		player = new Player(0, new Vector2f(100, 100), null, renderer, "Player", null);
 		
 		
