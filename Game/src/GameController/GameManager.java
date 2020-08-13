@@ -147,7 +147,7 @@ public class GameManager {
 		Camera.main.attach(player);
 
 		initTiles();
-		initMap();
+		initMap("TestMap64.tmx");
 	}
 
 	private void loadProgression() {
@@ -167,38 +167,20 @@ public class GameManager {
 	private void initTiles() {
 		tileLookup = new HashMap<>();
 		try {
-			Serializer.loadTileHash("assets/tset1.tsx", tileLookup, hammerLookup, renderer);
+			Serializer.loadTileHash("assets/TestTiles.tsx", tileLookup, hammerLookup, renderer);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private void initMap() {
-//		Tile[][] mapData = new Tile[100][100];
-//		Tile tile = tileLookup.get(0);
-//		try {
-//			mapData[2][0] = tile.clone();
-//			mapData[0][3] = tile.clone();
-//			mapData[2][15] = tile.clone();
-//			for (int i=0; i<mapData.length; i++) {
-//				mapData[i][0] = tile.clone();
-//				mapData[i][30] = tile.clone();
-//				mapData[0][i] = tile.clone();
-//				mapData[50][i] = tile.clone();
-//				
-//				if (i>20) mapData[i][i-20] = tile.clone();
-//				if (i>20) mapData[i][i-14] = tile.clone();
-//				if (i<=10) mapData[i][10-i] = tile.clone();
-//			}
-//		} catch (CloneNotSupportedException e) {
-//			e.printStackTrace();
-//		}
-		
+	private void initMap(String mapFile) {
 		Tile[][] mapData = null;
 		try {
-			mapData = Serializer.loadTileGrid("assets/tmap1.tmx", tileLookup);
+			//assets/TestMap64.tmx
+			mapData = Serializer.loadTileGrid("assets/TestMap64.tmx", tileLookup);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
+			System.out.println("couldn't find map file");
 			e.printStackTrace();
 		}
 		
