@@ -15,11 +15,6 @@ public abstract class HammerShape {
 	public static final int HAMMER_SHAPE_TRIANGLE_UR = 4;
 	public static final int HAMMER_SHAPE_FINAL = 5;
 	
-	public final static int BORDER_L = 0;
-	public final static int BORDER_R = 1;
-	public final static int BORDER_T = 2;
-	public final static int BORDER_B = 3;
-	
 	public int shapeId;
 	public Vector2f[] points;
 	

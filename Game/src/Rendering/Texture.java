@@ -43,10 +43,6 @@ public class Texture {
 		int[] pixels_raw = new int[w*h*4];
 		pixels_raw = bi.getRGB(0, 0, w, h, null, 0, w);
 		
-		//Debug time
-		for (int i : pixels_raw) System.out.print(" "+i);
-		System.out.println();
-		
 		ByteBuffer pixels = BufferUtils.createByteBuffer(w * h * 4);
 		
 		for (int i=0; i<w*h; i++) {
@@ -125,8 +121,6 @@ public class Texture {
 		
 		for (int i=0; i<tilesTall; i++) {
 			for (int j=0; j<tilesWide; j++) {
-				System.out.println("Reading tile #"+(i*tilesWide + j + 1));
-				
 				BufferedImage subImage = bi.getSubimage(j * tw, i * th, tw, th);
 				ByteBuffer subBuff = imageToBuffer(subImage, tw, th);
 				

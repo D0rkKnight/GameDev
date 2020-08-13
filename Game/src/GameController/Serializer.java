@@ -6,126 +6,269 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 import javax.imageio.ImageIO;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
-import org.joml.Vector2f;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import Accessories.Accessory;
+import Collision.HammerShape;
 import Entities.Entity;
 import Rendering.SpriteRenderer;
-import Tiles.SquareTile;
+import Rendering.Texture;
 import Tiles.Tile;
 
 public class Serializer {
-	public void loadTileHash(String filename, HashMap<Integer, Tile> tileLookup, SpriteRenderer renderer) { // loads a hashmap
-																									// assigning tile ID
-																									// to Tile objects
-		BufferedReader tileHashFile = null;
-
+//	public void loadTileHash(String filename, HashMap<Integer, Tile> tileLookup, SpriteRenderer renderer) { // loads a hashmap
+//																									// assigning tile ID
+//																									// to Tile objects
+//		BufferedReader tileHashFile = null;
+//
+//		try {
+//			tileHashFile = new BufferedReader(new FileReader(filename));
+//		} catch (FileNotFoundException e) {
+//			System.err.println("File not found");
+//			e.printStackTrace();
+//		}
+//		int num = 0;
+//		try {
+//			num = Integer.parseInt(tileHashFile.readLine());
+//		} catch (NumberFormatException e) {
+//			System.err.println("First line of file should be int");
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		for (int i = 0; i < num; i++) {
+//			try {
+//				/*
+//				 * info[0] is tyr type of tile object we will put in . info[1] is the name of
+//				 * the sprite image
+//				 */
+//				String info[] = tileHashFile.readLine().split(":");
+//				BufferedImage sprite = ImageIO.read(new File(info[1]));
+//				// TODO change type of til
+//				if (Integer.parseInt(info[0]) == 0) { // squaretile: placeholder
+//					tileLookup.put(i, new SquareTile(i, sprite, renderer));
+//				}
+//				// TODO add more types of tiles
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//	}
+	
+	private static Document readDoc(String f) throws Exception {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		Document doc = null;
 		try {
-			tileHashFile = new BufferedReader(new FileReader(filename));
-		} catch (FileNotFoundException e) {
-			System.err.println("File not found");
-			e.printStackTrace();
-		}
-		int num = 0;
-		try {
-			num = Integer.parseInt(tileHashFile.readLine());
-		} catch (NumberFormatException e) {
-			System.err.println("First line of file should be int");
-			e.printStackTrace();
-		} catch (IOException e) {
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			doc = builder.parse(new File(f));
+		} catch (ParserConfigurationException | SAXException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		for (int i = 0; i < num; i++) {
-			try {
-				/*
-				 * info[0] is tyr type of tile object we will put in . info[1] is the name of
-				 * the sprite image
-				 */
-				String info[] = tileHashFile.readLine().split(":");
-				BufferedImage sprite = ImageIO.read(new File(info[1]));
-				// TODO change type of til
-				if (Integer.parseInt(info[0]) == 0) { // squaretile: placeholder
-					tileLookup.put(i, new SquareTile(i, sprite, renderer));
+		
+		doc.getDocumentElement().normalize();
+		
+		return doc;
+	}
+	
+	private static Element retrieveElement(Element e, String name) {
+		return (Element) e.getElementsByTagName(name).item(0);
+	}
+	
+	public static void loadTileHash(String f, HashMap<Integer, Tile> tileMap, HashMap<Integer, HammerShape> hsMap, SpriteRenderer rend) throws Exception {
+		Document doc = readDoc(f);
+		NodeList nList = doc.getElementsByTagName("tile");
+		
+		//Grab textures
+		Element tilesetE = (Element) doc.getElementsByTagName("tileset").item(0);
+		Element srcE = (Element) doc.getElementsByTagName("image").item(0);
+		int tw = Integer.parseInt(tilesetE.getAttribute("tilewidth"));
+		int th = Integer.parseInt(tilesetE.getAttribute("tileheight"));
+		
+		String src = srcE.getAttribute("source");
+		Texture[] tileSheet = Texture.unpackSpritesheet("assets/"+src, tw, th);
+		
+		for (int i=0; i<nList.getLength(); i++) {
+			Element e = (Element) nList.item(i);
+			Element props = (Element) e.getElementsByTagName("properties").item(0);
+			NodeList propList = props.getElementsByTagName("property");
+			
+			//Grab properties
+			HammerShape hs = null;
+			for (int j=0; j<propList.getLength(); j++) {
+				Element propE = (Element) propList.item(j);
+				
+				String type = propE.getAttribute("type");
+				String name = propE.getAttribute("name");
+				String val = propE.getAttribute("value");
+				
+				if (name.equals("HammerShape") && type.equals("int")) {
+					int valInt = Integer.parseInt(val);
+					
+					hs = hsMap.get(valInt);
 				}
-				// TODO add more types of tiles
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
+			
+			//Check that properties were retrieved properly
+			if (hs == null) throw new Exception("Hammershape not found!");
+			
+			//Create and submit tile
+			int id = Integer.parseInt(e.getAttribute("id"));
+			Texture tex = tileSheet[id];
+			
+			Tile t = new Tile(rend, tex, hs);
+			tileMap.put(id, t);
 		}
 	}
-
-	/**
-	 * Returns a Map object with an input filename and tile hashmap. filename should
-	 * be directed to the correct map data file 
-	 * 
-	 * 
-	 * FINISHED FOR NOW, completed entrances
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	public Map loadMap(String filename, HashMap<Integer, Tile> tileLookup) throws IOException {
-		BufferedReader mapFile = null;
-
+	
+	public static Tile[][] loadTileGrid(String f, HashMap<Integer, Tile> tileMap) throws Exception {
+		Document doc = readDoc(f);
+		
+		//Just pull one layer for now
+		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
+		int w = Integer.parseInt(layerE.getAttribute("width"));
+		int h = Integer.parseInt(layerE.getAttribute("height"));
+		
+		//Decode data
+		Element dataE = retrieveElement(layerE, "data");
+		String encoding = dataE.getAttribute("encoding");
+		String compression = dataE.getAttribute("compression");
+		String d = trim(dataE.getTextContent());
+		
+		Element tilesetE = (Element) doc.getElementsByTagName("tileset").item(0);
+		int firstgid = Integer.parseInt(tilesetE.getAttribute("firstgid")); //This is an offset value
+		
+		//Base 64 decode
+		byte[] bytes = Base64.getDecoder().decode(d);
+		
+		IntBuffer intBuff = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
+		int[] intArr = new int[intBuff.remaining()];
+		intBuff.get(intArr);
+		
+		//Now put in the tiles
+		Tile[][] grid = new Tile[w][h];
+		
+		for (int i=0; i<h; i++) {
+			for (int j=0; j<w; j++) {
+				int index = i*w + j;
+				int id = intArr[index]-firstgid;
+				System.out.println(id);
+				
+				//Invert y only
+				int x = j;
+				int y = h-i-1;
+				
+				if (id == -1) grid[x][y] = null;
+				else grid[x][y] = tileMap.get(id).clone();
+			}
+		}
+		
+		return grid;
+	}
+	
+	private static String trim(String str) {
+		BufferedReader br = new BufferedReader(new StringReader(str));
+		StringBuffer out = new StringBuffer();
+		
 		try {
-			mapFile = new BufferedReader(new FileReader(filename));
-		} catch (FileNotFoundException e) {
-			System.out.println("File not found");
+			String l;
+			while ((l = br.readLine()) != null) {
+				out.append(l.trim());
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		/*
-		 * Map data file is in format first line [xwidth]:[yheight], onwards is
-		 * [tileID]:[tileID]:[tileID]:[tileID] [tileID]:[tileID]:[tileID]:[tileID]
-		 * [tileID]:[tileID]:[tileID]:[tileID]
-		 */
-		String[] mapsize = mapFile.readLine().split(":");
-		int xwidth = Integer.parseInt(mapsize[0]);
-		int yheight = Integer.parseInt(mapsize[1]);
-		Tile[][] maptiles = new Tile[xwidth][yheight];
-		for (int i = 0; i < yheight; i++) {
-			String[] tileLine = mapFile.readLine().split(":");
-			for (int j = 0; j < xwidth; j++) {
-				String[] tileInfo = tileLine[i].split(".");
-				try {
-					maptiles[i][j] = (tileLookup.get(Integer.parseInt(tileInfo[0]))).clone();
-				} catch (NumberFormatException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (CloneNotSupportedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} // want to clone the tile we
-																							// load into array
-				maptiles[i][j].setHammerState(GameManager.hammerLookup.get(Integer.parseInt(tileInfo[1])));
-			}
-		}
-		int entrances = Integer.parseInt(mapFile.readLine());
-		Vector2f[][] coords = new Vector2f[entrances][4];
-		int[][] entranceInfo = new int[entrances][2];
-		for (int i = 0; i < entrances; i++) { // looping through entrances
-			String[] info = mapFile.readLine().split(":");
-			for (int j = 0; j < 4; j++) { // looping through coordinates
-				String[] coord = info[j].split(",");
-				coords[i][j] = new Vector2f(Float.parseFloat(coord[0]), Float.parseFloat(coord[1]));
-			}
-			entranceInfo[i][0] = Integer.parseInt(info[4]); // taking care of ID and connection
-			entranceInfo[i][1] = Integer.parseInt(info[5]);
-
-		}
 		
-		ArrayList<Entity> entities = new ArrayList<Entity>();//TODO
-		
-		
-		mapFile.close();
-		Map returnMap = new Map(maptiles, coords, entranceInfo, entities);
-		return returnMap;
+		return out.toString();
 	}
+
+//	/**
+//	 * Returns a Map object with an input filename and tile hashmap. filename should
+//	 * be directed to the correct map data file 
+//	 * 
+//	 * 
+//	 * FINISHED FOR NOW, completed entrances
+//	 * 
+//	 * @return
+//	 * @throws IOException
+//	 */
+//	public Map loadMap(String filename, HashMap<Integer, Tile> tileLookup) throws IOException {
+//		BufferedReader mapFile = null;
+//
+//		try {
+//			mapFile = new BufferedReader(new FileReader(filename));
+//		} catch (FileNotFoundException e) {
+//			System.out.println("File not found");
+//			e.printStackTrace();
+//		}
+//		/*
+//		 * Map data file is in format first line [xwidth]:[yheight], onwards is
+//		 * [tileID]:[tileID]:[tileID]:[tileID] [tileID]:[tileID]:[tileID]:[tileID]
+//		 * [tileID]:[tileID]:[tileID]:[tileID]
+//		 */
+//		String[] mapsize = mapFile.readLine().split(":");
+//		int xwidth = Integer.parseInt(mapsize[0]);
+//		int yheight = Integer.parseInt(mapsize[1]);
+//		Tile[][] maptiles = new Tile[xwidth][yheight];
+//		for (int i = 0; i < yheight; i++) {
+//			String[] tileLine = mapFile.readLine().split(":");
+//			for (int j = 0; j < xwidth; j++) {
+//				String[] tileInfo = tileLine[i].split(".");
+//				try {
+//					maptiles[i][j] = (tileLookup.get(Integer.parseInt(tileInfo[0]))).clone();
+//				} catch (NumberFormatException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (CloneNotSupportedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} // want to clone the tile we
+//																							// load into array
+//				maptiles[i][j].setHammerState(GameManager.hammerLookup.get(Integer.parseInt(tileInfo[1])));
+//			}
+//		}
+//		int entrances = Integer.parseInt(mapFile.readLine());
+//		Vector2f[][] coords = new Vector2f[entrances][4];
+//		int[][] entranceInfo = new int[entrances][2];
+//		for (int i = 0; i < entrances; i++) { // looping through entrances
+//			String[] info = mapFile.readLine().split(":");
+//			for (int j = 0; j < 4; j++) { // looping through coordinates
+//				String[] coord = info[j].split(",");
+//				coords[i][j] = new Vector2f(Float.parseFloat(coord[0]), Float.parseFloat(coord[1]));
+//			}
+//			entranceInfo[i][0] = Integer.parseInt(info[4]); // taking care of ID and connection
+//			entranceInfo[i][1] = Integer.parseInt(info[5]);
+//
+//		}
+//		
+//		ArrayList<Entity> entities = new ArrayList<Entity>();//TODO
+//		
+//		
+//		mapFile.close();
+//		Map returnMap = new Map(maptiles, coords, entranceInfo, entities);
+//		return returnMap;
+//	}
+
+	
 	/**
 	 * Loads the progress (chapter number, level number, and room)
 	 * @param filename

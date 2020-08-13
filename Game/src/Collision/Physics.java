@@ -207,8 +207,6 @@ public abstract class Physics {
 					float dot = rightAxis.dot(tangent);
 					
 					if (Math.abs(dot) == 0) {
-						//System.out.println("perpcoll");
-						
 						float dy = GameManager.tileSize;
 						
 						//Simultaneously move in the x dir and up

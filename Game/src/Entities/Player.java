@@ -280,7 +280,6 @@ public class Player extends Combatant{
 		
 		//Just a simple animation update, nothing spicy.
 		anim.update();
-		System.out.println("Calculating frame");
 	}
 
 	public void onTileCollision() {

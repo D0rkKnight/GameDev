@@ -1,13 +1,12 @@
 package Tiles;
 
-import java.awt.image.BufferedImage;
-
 import org.joml.Vector2f;
 
 import Collision.HammerShape;
 import GameController.GameManager;
 import GameController.Map;
 import Rendering.SpriteRenderer;
+import Rendering.Texture;
 import Wrappers.Color;
 
 /**
@@ -15,9 +14,7 @@ import Wrappers.Color;
  * @author Benjamin
  *
  */
-public abstract class Tile implements Cloneable{
-	protected int ID;
-	protected BufferedImage sprite;
+public class Tile implements Cloneable{
 	protected Map map;
 	public SpriteRenderer renderer;
 	protected HammerShape hammerState; //NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when loaded in maps)
@@ -28,13 +25,13 @@ public abstract class Tile implements Cloneable{
 	public static final int CORNER_BL = 2;
 	public static final int CORNER_BR = 3;
 	
-	public Tile(int ID, BufferedImage sprite, SpriteRenderer renderer) {
-		this.ID = ID;
-		this.sprite = sprite;
+	public Tile(SpriteRenderer renderer, Texture tex, HammerShape hs) {
+		this.hammerState = hs;
 		
 		//Create shallow copy
 		try {
 			this.renderer = renderer.clone();
+			this.renderer.spr = tex;
 		} catch (CloneNotSupportedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -59,15 +56,7 @@ public abstract class Tile implements Cloneable{
 		renderer.transform.setPos(pos);
 		renderer.render();
 	}
-	public int getID() {
-		return ID;
-	}
-	public BufferedImage getImage() {
-		return sprite;
-	}
-	public void setHammerState(HammerShape hammerState) {
-		this.hammerState = hammerState;
-	}
+	
 	public HammerShape getHammerState() {
 		return hammerState;
 	}

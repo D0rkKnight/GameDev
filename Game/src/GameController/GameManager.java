@@ -27,7 +27,6 @@ import Entities.Player;
 import Rendering.SpriteRenderer;
 import Rendering.SpriteShader;
 import Rendering.Texture;
-import Tiles.SquareTile;
 import Tiles.Tile;
 import Wrappers.Color;
 import Wrappers.Hitbox;
@@ -146,62 +145,9 @@ public class GameManager {
 		initCollision();
 		initPlayer();
 		Camera.main.attach(player);
-		
-		
-		
-		
+
 		initTiles();
-		
-		/*
-		try {
-			serializer.loadMap("place holder file name", tileLookup); //TODO set up code to load each map that is needed in the level
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
-		
-		//Just do this for now
-		Tile[][] mapData = new Tile[100][100];
-		Tile tile = tileLookup.get(1);
-		try {
-			mapData[2][0] = tile.clone();
-			mapData[0][3] = tile.clone();
-			mapData[2][15] = tile.clone();
-			for (int i=0; i<mapData.length; i++) {
-				mapData[i][0] = tile.clone();
-				mapData[i][30] = tile.clone();
-				mapData[0][i] = tile.clone();
-				mapData[50][i] = tile.clone();
-				
-				if (i>20) mapData[i][i-20] = tile.clone();
-				if (i>20) mapData[i][i-14] = tile.clone();
-				if (i<=10) mapData[i][10-i] = tile.clone();
-			}
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		
-		
-		//Tiles are currently raw and unitialized. Initialize them.
-		for (int i=0; i<mapData.length; i++) for (int j=0; j<mapData[0].length; j++) {
-			Tile t = mapData[i][j];
-			if (t != null) {
-				//Do this before the renderer is initialized
-				if (i == j+20) {
-					t.setHammerState(hammerLookup.get(HammerShape.HAMMER_SHAPE_TRIANGLE_BR));
-				}
-				if (i > 20 && i == j+14) {
-					t.setHammerState(hammerLookup.get(HammerShape.HAMMER_SHAPE_TRIANGLE_UL));
-				}
-				else if (i + j == 10) {
-					t.setHammerState(hammerLookup.get(HammerShape.HAMMER_SHAPE_TRIANGLE_BL));
-				}
-				
-				t.init(new Vector2f(i*tileSize, j*tileSize), new Vector2f(tileSize, tileSize));
-			}
-		}
-		
-		
-		currmap = new Map(mapData, null, null, null);//TODO
+		initMap();
 	}
 
 	private void loadProgression() {
@@ -220,12 +166,51 @@ public class GameManager {
 	 */
 	private void initTiles() {
 		tileLookup = new HashMap<>();
-
-
-		BufferedImage img = serializer.loadImage("tile1.png");
-		SquareTile t1 = new SquareTile(1, img, renderer);
-
-		tileLookup.put(1, t1);
+		try {
+			Serializer.loadTileHash("assets/tset1.tsx", tileLookup, hammerLookup, renderer);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void initMap() {
+//		Tile[][] mapData = new Tile[100][100];
+//		Tile tile = tileLookup.get(0);
+//		try {
+//			mapData[2][0] = tile.clone();
+//			mapData[0][3] = tile.clone();
+//			mapData[2][15] = tile.clone();
+//			for (int i=0; i<mapData.length; i++) {
+//				mapData[i][0] = tile.clone();
+//				mapData[i][30] = tile.clone();
+//				mapData[0][i] = tile.clone();
+//				mapData[50][i] = tile.clone();
+//				
+//				if (i>20) mapData[i][i-20] = tile.clone();
+//				if (i>20) mapData[i][i-14] = tile.clone();
+//				if (i<=10) mapData[i][10-i] = tile.clone();
+//			}
+//		} catch (CloneNotSupportedException e) {
+//			e.printStackTrace();
+//		}
+		
+		Tile[][] mapData = null;
+		try {
+			mapData = Serializer.loadTileGrid("assets/tmap1.tmx", tileLookup);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		//Tiles are currently raw and unitialized. Initialize them.
+		for (int i=0; i<mapData.length; i++) for (int j=0; j<mapData[0].length; j++) {
+			Tile t = mapData[i][j];
+			if (t != null) {
+				t.init(new Vector2f(i*tileSize, j*tileSize), new Vector2f(tileSize, tileSize));
+			}
+		}
+		currmap = new Map(mapData, null, null, null);//TODO
 	}
 
 	private void finishArea() { // called when character finishes a major area, updates level and chapter of
