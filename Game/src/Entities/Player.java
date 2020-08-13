@@ -106,7 +106,6 @@ public class Player extends Combatant{
 			if(this.decelMulti < decelMulti) this.decelMulti = decelMulti;
 		}
 		else {
-			System.out.println("elsed, not in knockback");
 			velo.x = knockbackDir.x;
 			velo.y = knockbackDir.y;
 			this.knockbackDir = new Vector2f(knockbackDir);
