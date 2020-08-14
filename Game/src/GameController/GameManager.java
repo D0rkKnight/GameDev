@@ -52,7 +52,6 @@ public class GameManager {
 	public static boolean debugElementsEnabled = false;
 	
 	//Rendering stuff
-	private Drawer drawer;
 	public static SpriteRenderer renderer;
 	public static SpriteShader shader;
 	public static Texture[] tileSpritesheet;
@@ -127,17 +126,9 @@ public class GameManager {
 		
 		//Init renderer
 		//TODO: We have to make a renderer factory in order for this to, like, work.
-		
-		//Dunno if this should go here
-		//TODO
-		tileSpritesheet = Texture.unpackSpritesheet("assets/tset1.png", 8, 8);
-		
+
 		shader = new SpriteShader("texShader");
-		
 		SpriteRenderer sprRenderer = new SpriteRenderer(shader);
-		//sprRenderer.spr = new Texture("tile1.png");
-		sprRenderer.spr = tileSpritesheet[0];
-		
 		renderer = sprRenderer;
 		
 		//Init player
@@ -174,29 +165,9 @@ public class GameManager {
 	}
 	
 	private void initMap() {
-//		Tile[][] mapData = new Tile[100][100];
-//		Tile tile = tileLookup.get(0);
-//		try {
-//			mapData[2][0] = tile.clone();
-//			mapData[0][3] = tile.clone();
-//			mapData[2][15] = tile.clone();
-//			for (int i=0; i<mapData.length; i++) {
-//				mapData[i][0] = tile.clone();
-//				mapData[i][30] = tile.clone();
-//				mapData[0][i] = tile.clone();
-//				mapData[50][i] = tile.clone();
-//				
-//				if (i>20) mapData[i][i-20] = tile.clone();
-//				if (i>20) mapData[i][i-14] = tile.clone();
-//				if (i<=10) mapData[i][10-i] = tile.clone();
-//			}
-//		} catch (CloneNotSupportedException e) {
-//			e.printStackTrace();
-//		}
-		
 		Tile[][] mapData = null;
 		try {
-			mapData = Serializer.loadTileGrid("assets/tmap1.tmx", tileLookup);
+			mapData = Serializer.loadMapData("assets/TestMap64.tmx", tileLookup);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -254,7 +225,7 @@ public class GameManager {
 	}
 	
 	private void initPlayer() {
-		player = new Player(0, new Vector2f(100, 100), null, renderer, "Player", null);
+		player = new Player(0, new Vector2f(100, 2000), null, renderer, "Player", null);
 		
 		
 		subscribeEntity(player);
@@ -275,7 +246,7 @@ public class GameManager {
 
 			// Drawing stuff
 			update();
-			drawer.draw(currmap, entities);
+			Drawer.draw(currmap, entities);
 
 			// Event listening stuff. Key callback is invoked here.
 			// Do wipe input before going in

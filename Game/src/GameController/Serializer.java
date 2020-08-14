@@ -140,7 +140,7 @@ public class Serializer {
 		}
 	}
 	
-	public static Tile[][] loadTileGrid(String f, HashMap<Integer, Tile> tileMap) throws Exception {
+	public static Tile[][] loadMapData(String f, HashMap<Integer, Tile> tileMap) throws Exception {
 		Document doc = readDoc(f);
 		
 		//Just pull one layer for now

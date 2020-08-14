@@ -8,7 +8,7 @@ import Wrappers.Arithmetic;
 public class Camera {
 	public static Camera main;
 	private Entity target;
-	public Vector2f pos;
+	public Vector2f pos; //Camera is centered on position
 	public Vector2f viewport;
 	
 	private float moveSpeed;
@@ -22,7 +22,8 @@ public class Camera {
 		//TODO: Resolve this with input's stuff
 		viewport = Drawer.GetWindowSize();
 		viewport.x /= 2;
-		viewport.y /= 2;
+		viewport.y /= 2; //??? Why?
+		//TODO: Fix this stuff
 	}
 	
 	public void attach(Entity target) {

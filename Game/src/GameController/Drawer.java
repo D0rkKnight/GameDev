@@ -48,8 +48,35 @@ public class Drawer {
 		//calls render function of every tile of map within distance of player, and entities within certain distance
   		Tile[][] grid = map.getGrid();
   		
-  		for (int i=0; i<grid.length; i++) {
-  			for (int j=0; j<grid[0].length; j++) {
+  		//Get clipping bounds
+  		Camera cam = Camera.main;
+  		Vector2f cPos = cam.pos;
+  		Vector2f cDims = cam.viewport;
+  		int txMin = (int) (cPos.x - (cDims.x));
+  		int txMax = (int) (cPos.x + (cDims.x));
+  		int tyMin = (int) (cPos.y - (cDims.y));
+  		int tyMax = (int) (cPos.y + (cDims.y));
+  		
+  		System.out.println(cDims.toString());
+  		
+  		txMin /= GameManager.tileSize;
+  		txMax /= GameManager.tileSize;
+  		tyMin /= GameManager.tileSize;
+  		tyMax /= GameManager.tileSize;
+  		
+  		txMax ++;
+  		tyMax ++;
+  		
+  		int gridW = grid.length;
+  		int gridH = grid[0].length;
+  		
+  		txMin = Math.max(txMin, 0);
+  		txMax = Math.min(txMax, gridW);
+  		tyMin = Math.max(tyMin, 0);
+  		tyMax = Math.min(tyMax, gridH);
+  		
+  		for (int i=txMin; i<txMax; i++) {
+  			for (int j=tyMin; j<tyMax; j++) {
   				Tile tile = grid[i][j];
   				if (tile == null) continue;
   				
