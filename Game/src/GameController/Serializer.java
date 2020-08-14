@@ -171,7 +171,7 @@ public class Serializer {
 			for (int j=0; j<w; j++) {
 				int index = i*w + j;
 				int id = intArr[index]-firstgid;
-				System.out.println(id);
+				//System.out.println(id);
 				
 				//Invert y only
 				int x = j;

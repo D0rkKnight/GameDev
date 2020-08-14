@@ -30,6 +30,7 @@ public class Player extends Combatant{
 	private Timer dashTimer;
 	private Vector2f dashDir;
 	private Vector2f knockbackDir; //for debug purposes, only shows initial knockback 
+	private boolean releasedJump = true; //for making sure the player can't hold down w to jump
 	
 	//knockback only dependent on velocity: reduces effect of movement keys (not completely disabling), reduced velocity every frame, changes to normal movement when at normal velocities
 	private float movementMulti; //multiplier for movement when knocked back (suggest 0.5)
@@ -229,13 +230,17 @@ public class Player extends Combatant{
 		//cap velo
 		if (Input.moveX > 0) velo.x = Math.min(velo.x, xCap);
 		if (Input.moveX < 0) velo.x = Math.max(velo.x, -xCap);
+		if(Input.moveY == 0) {
+			releasedJump = true;
+		}
 		
-		if (grounded && Input.moveY == 1) { // if player is colliding with ground underneath and digital input detected
+		if (grounded && Input.moveY == 1 && releasedJump) { // if player is colliding with ground underneath and digital input detected
 										// (space pressed)
 			velo.y = jumpSpeed;
 			
 			//TODO: Rename this so its purpose is less vague.
 			isJumping = true; //Signals to the physics system that some operations ought to be done
+			releasedJump = false;
 		}
 		
 		hasGravity = true;

@@ -197,7 +197,9 @@ public class GameManager {
 			}
 		}
 		currmap = new Map(mapData, null, null, null);//TODO
-		initPlayer(40f, 70f);//hardcode for now
+		initPlayer( 100f, mapData.length * 8);//hardcode for now
+		System.out.println(mapData.length * 8);
+		System.out.println(mapData[0].length * 8);
 		Camera.main.attach(player);
 	}
 
@@ -242,7 +244,7 @@ public class GameManager {
 	}
 	
 	private void initPlayer(float xpos, float ypos) {
-		player = new Player(0, new Vector2f(100, 100), null, renderer, "Player", null);
+		player = new Player(0, new Vector2f(xpos, ypos), null, renderer, "Player", null);
 		
 		
 		subscribeEntity(player);
