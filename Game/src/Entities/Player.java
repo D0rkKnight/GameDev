@@ -62,8 +62,8 @@ public class Player extends Combatant{
 		
 		jumpSpeed = 1f;
 		
-		dashSpeed = 3f;
-		dashDuration = 100;
+		dashSpeed = 2f;
+		dashDuration = 50;
 		movementMode = MOVEMENT_MODE_CONTROLLED;
 		
 		//Configure firing
@@ -241,7 +241,6 @@ public class Player extends Combatant{
 		}
 		else {
 			float decelConst = (Math.max(xCap, Math.abs(velo.x) - 2 * accelConst) / GameManager.deltaT());
-			System.out.println("dashdeacc");
 			velo.x -= decelConst * Arithmetic.sign(velo.x);
 		}
 		if(Input.moveY == 0) {
@@ -255,10 +254,15 @@ public class Player extends Combatant{
 			//TODO: Rename this so its purpose is less vague.
 			isJumping = true; //Signals to the physics system that some operations ought to be done
 			releasedJump = false;
+			if( false ) {//TODO colliding with wall
+				//TODO velo.x += xCap;
+			}
 		}
-		
+	
+	
 		hasGravity = true;
 	}
+
 	
 	private void dashingMovement()
 	{

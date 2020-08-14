@@ -74,7 +74,7 @@ public class Serializer {
 //		}
 //	}
 	
-	private static Document readDoc(String f) throws Exception {
+	public static Document readDoc(String f) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		Document doc = null;
 		try {
@@ -140,8 +140,7 @@ public class Serializer {
 		}
 	}
 	
-	public static Tile[][] loadTileGrid(String f, HashMap<Integer, Tile> tileMap) throws Exception {
-		Document doc = readDoc(f);
+	public static Tile[][] loadTileGrid(Document doc, HashMap<Integer, Tile> tileMap) throws Exception {
 		
 		//Just pull one layer for now
 		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);

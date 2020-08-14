@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.joml.Vector2f;
+import org.w3c.dom.Document;
 
 import Accessories.Accessory;
 import Collision.HammerRightTriangle;
@@ -140,11 +141,18 @@ public class GameManager {
 		
 		renderer = sprRenderer;
 		
-		initEntities();
 		initCollision();
-
+		
 		initTiles("tset1.tsx");
-		initMap("TestMap64.tmx");//also should initialize entities
+		
+		Document doc = null;
+		try {
+			doc = Serializer.readDoc("assets/TestMap64.tmx");
+		} catch (Exception e) {
+			System.out.println("File not found");
+			e.printStackTrace();
+		}
+		initMap(doc);//also should initialize entities
 		//Init player
 		//initEntities();
 		//initCollision();
@@ -177,11 +185,11 @@ public class GameManager {
 		}
 	}
 	
-	private void initMap(String mapFile) {
+	private void initMap(Document mapFile) {
 		Tile[][] mapData = null;
 		try {
 			//assets/TestMap64.tmx
-			mapData = Serializer.loadTileGrid("assets/" + mapFile, tileLookup);
+			mapData = Serializer.loadTileGrid(mapFile, tileLookup);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.out.println("map error");
@@ -197,6 +205,7 @@ public class GameManager {
 			}
 		}
 		currmap = new Map(mapData, null, null, null);//TODO
+		initEntities(mapFile);
 		initPlayer( 100f, mapData.length * 8);//hardcode for now
 		System.out.println(mapData.length * 8);
 		System.out.println(mapData[0].length * 8);
@@ -208,7 +217,7 @@ public class GameManager {
 
 	}
 	
-	private void initEntities() {
+	private void initEntities(Document mapFile) {
 		entities = new ArrayList();
 		entityWaitingList = new ArrayList();
 		entityClearList = new ArrayList();
