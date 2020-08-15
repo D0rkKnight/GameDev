@@ -21,6 +21,8 @@ public class Texture {
 		this.width = w;
 		this.height = h;
 		genThisTex(pixels);
+		
+		integrityCheck();
 	}
 	
 	public Texture(String url) {
@@ -37,6 +39,8 @@ public class Texture {
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
+		
+		integrityCheck();
 	}
 	
 	private static ByteBuffer imageToBuffer(BufferedImage bi, int w, int h) {

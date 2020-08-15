@@ -53,6 +53,10 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	    
 	    setTransformMatrix();
 		
+	    // Enable blending
+	    glEnable(GL_BLEND);
+	    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	    
 		shader.bind();
 		spr.bind();
 		
