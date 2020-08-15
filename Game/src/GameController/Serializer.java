@@ -74,7 +74,7 @@ public class Serializer {
 //		}
 //	}
 	
-	private static Document readDoc(String f) throws Exception {
+	public static Document readDoc(String f) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		Document doc = null;
 		try {
@@ -140,8 +140,7 @@ public class Serializer {
 		}
 	}
 	
-	public static Tile[][] loadMapData(String f, HashMap<Integer, Tile> tileMap) throws Exception {
-		Document doc = readDoc(f);
+	public static Tile[][] loadTileGrid(Document doc, HashMap<Integer, Tile> tileMap) throws Exception {
 		
 		//Just pull one layer for now
 		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
@@ -171,14 +170,17 @@ public class Serializer {
 			for (int j=0; j<w; j++) {
 				int index = i*w + j;
 				int id = intArr[index]-firstgid;
-				System.out.println(id);
+				//System.out.println(id);
 				
 				//Invert y only
 				int x = j;
 				int y = h-i-1;
 				
 				if (id == -1) grid[x][y] = null;
-				else grid[x][y] = tileMap.get(id).clone();
+				else {
+					Tile t = tileMap.get(id);
+					grid[x][y] = t.clone();
+				}
 			}
 		}
 		

@@ -3,7 +3,7 @@ package GameController;
 import org.joml.Vector2f;
 
 import Entities.Entity;
-import Wrappers.Arithmetic;
+import Math.Arithmetic;
 
 public class Camera {
 	public static Camera main;

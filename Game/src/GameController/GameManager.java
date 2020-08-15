@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.joml.Vector2f;
+import org.w3c.dom.Document;
 
 import Accessories.Accessory;
 import Collision.HammerRightTriangle;
@@ -131,14 +132,23 @@ public class GameManager {
 		SpriteRenderer sprRenderer = new SpriteRenderer(shader);
 		renderer = sprRenderer;
 		
-		//Init player
-		initEntities();
 		initCollision();
-		initPlayer();
-		Camera.main.attach(player);
-
-		initTiles();
-		initMap();
+		
+		initTiles("tset1.tsx");
+		
+		Document doc = null;
+		try {
+			doc = Serializer.readDoc("assets/TestMap64.tmx");
+		} catch (Exception e) {
+			System.out.println("File not found");
+			e.printStackTrace();
+		}
+		initMap(doc);//also should initialize entities
+		//Init player
+		//initEntities();
+		//initCollision();
+		//initPlayer();
+		//Camera.main.attach(player);
 	}
 
 	private void loadProgression() {
@@ -155,21 +165,25 @@ public class GameManager {
 	 * Loads and constructs tiles based off of external file, then logs in
 	 * tileLookup
 	 */
-	private void initTiles() {
+	private void initTiles(String tileFile) {
 		tileLookup = new HashMap<>();
 		try {
-			Serializer.loadTileHash("assets/tset1.tsx", tileLookup, hammerLookup, renderer);
+			//assets/TestTiles.tsx
+			//TODO add the tileset that works
+			Serializer.loadTileHash("assets/" + tileFile, tileLookup, hammerLookup, renderer);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private void initMap() {
+	private void initMap(Document mapFile) {
 		Tile[][] mapData = null;
 		try {
-			mapData = Serializer.loadMapData("assets/TestMap64.tmx", tileLookup);
+			//assets/TestMap64.tmx
+			mapData = Serializer.loadTileGrid(mapFile, tileLookup);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
+			System.out.println("map error");
 			e.printStackTrace();
 		}
 		
@@ -182,6 +196,11 @@ public class GameManager {
 			}
 		}
 		currmap = new Map(mapData, null, null, null);//TODO
+		initEntities(mapFile);
+		initPlayer( 100f, mapData.length * 8);//hardcode for now
+		System.out.println(mapData.length * 8);
+		System.out.println(mapData[0].length * 8);
+		Camera.main.attach(player);
 	}
 
 	private void finishArea() { // called when character finishes a major area, updates level and chapter of
@@ -189,7 +208,7 @@ public class GameManager {
 
 	}
 	
-	private void initEntities() {
+	private void initEntities(Document mapFile) {
 		entities = new ArrayList();
 		entityWaitingList = new ArrayList();
 		entityClearList = new ArrayList();
@@ -224,9 +243,8 @@ public class GameManager {
 		else System.err.println("Collider not defined!");
 	}
 	
-	private void initPlayer() {
-		player = new Player(0, new Vector2f(100, 2000), null, renderer, "Player", null);
-		
+	private void initPlayer(float xpos, float ypos) {
+		player = new Player(0, new Vector2f(xpos, ypos), null, renderer, "Player", null);
 		
 		subscribeEntity(player);
 	}

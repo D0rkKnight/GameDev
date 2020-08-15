@@ -1,11 +1,17 @@
 package Entities;
 
+import java.util.ArrayList;
+
 import org.joml.Vector2f;
 
 import Collision.Collidable;
+import Collision.PhysicsCollisionBehavior;
+import Collision.PhysicsCollisionBehaviorDeflect;
+import Collision.PhysicsCollisionBehaviorStepUp;
+import Collision.PhysicsCollisionBehaviorWallCling;
+import Math.Vector;
 import Rendering.Renderer;
 import Wrappers.Sprites;
-import Wrappers.Vector;
 
 public abstract class PhysicsEntity extends Entity implements Collidable{
 	
@@ -26,6 +32,11 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	public boolean grounded;
 	public boolean wasGrounded; //Used exclusively to update physics events, DO NOT TAMPER WITH
 	public boolean collidedWithTile;
+	public boolean canBeGrounded;
+	
+	//For now, presume that if one of these behaviors trigger, the following behavior are canceled.
+	public ArrayList<PhysicsCollisionBehavior> groundedCollBehaviorList;
+	public ArrayList<PhysicsCollisionBehavior> nonGroundedCollBehaviorList;
 	
 	public PhysicsEntity(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name) {
 		super(ID, position, sprites, renderer, name);
@@ -36,6 +47,19 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 		xDir = new Vector2f(1, 0);
 		isJumping = false;
 		collidedWithTile = false;
+		canBeGrounded = true;
+		
+		initPhysicsCollBehavior();
+	}
+	
+	protected void initPhysicsCollBehavior() {
+		groundedCollBehaviorList = new ArrayList();
+		nonGroundedCollBehaviorList = new ArrayList();
+		
+		//TODO: Array named poorly, distinction isn't that the character isn't grounded.
+		nonGroundedCollBehaviorList.add(new PhysicsCollisionBehaviorStepUp());
+		nonGroundedCollBehaviorList.add(new PhysicsCollisionBehaviorWallCling());
+		nonGroundedCollBehaviorList.add(new PhysicsCollisionBehaviorDeflect());
 	}
 	
 	/**

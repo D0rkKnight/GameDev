@@ -7,11 +7,14 @@ import org.joml.Vector2f;
 import GameController.GameManager;
 import Rendering.ColorShader;
 import Rendering.Shader;
+import Rendering.Texture;
 
 public class Debug {
 	
 	private static ArrayList<DebugElement> debugElements;
 	private static Shader debugShader;
+	
+	public static Texture debugTex;
 	
 	private static void config() {
 		GameManager.timeScale = 1f;
@@ -27,6 +30,8 @@ public class Debug {
 		
 		debugElements = new ArrayList<DebugElement>();
 		debugShader = new ColorShader("shader");
+		
+		debugTex = new Texture("assets/debugTex.png");
 	}
 	
 	public static void renderDebug() {

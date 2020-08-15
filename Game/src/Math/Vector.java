@@ -1,4 +1,4 @@
-package Wrappers;
+package Math;
 
 import org.joml.Vector2f;
 

@@ -4,13 +4,14 @@ import org.joml.Math;
 import org.joml.Vector2f;
 
 import Collision.HammerShape;
+import Debug.Debug;
 import GameController.GameManager;
 import GameController.Input;
+import Math.Arithmetic;
 import Rendering.Animation;
 import Rendering.Animator;
 import Rendering.SpriteRenderer;
 import Rendering.Texture;
-import Wrappers.Arithmetic;
 import Wrappers.Color;
 import Wrappers.Hitbox;
 import Wrappers.Sprites;
@@ -30,6 +31,9 @@ public class Player extends Combatant{
 	private Timer dashTimer;
 	private Vector2f dashDir;
 	private Vector2f knockbackDir; //for debug purposes, only shows initial knockback 
+	private boolean releasedJump = true; //for making sure the player can't hold down w to jump
+	private boolean justDashed = false;
+
 	
 	//knockback only dependent on velocity: reduces effect of movement keys (not completely disabling), reduced velocity every frame, changes to normal movement when at normal velocities
 	private float movementMulti; //multiplier for movement when knocked back (suggest 0.5)
@@ -57,10 +61,10 @@ public class Player extends Combatant{
 		//Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
 		
-		jumpSpeed = 1.5f;
+		jumpSpeed = 1f;
 		
-		dashSpeed = 3f;
-		dashDuration = 100;
+		dashSpeed = 2f;
+		dashDuration = 50;
 		movementMode = MOVEMENT_MODE_CONTROLLED;
 		
 		//Configure firing
@@ -152,8 +156,13 @@ public class Player extends Combatant{
 		
 		//Gravity
 		if (hasGravity) {
-			velo.y -= Entity.gravity * GameManager.deltaT() / 1000;
-			velo.y = Math.max(velo.y, -3);
+			velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
+			velo.y = Math.max(velo.y, -2);
+			if(justDashed) {
+				velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
+				if(velo.y < 0) justDashed = false;
+			}
+			
 		}
 		
 		//Shoot a gun
@@ -182,6 +191,7 @@ public class Player extends Combatant{
 			knockbackDir = null;
 		}
 		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && movementMode != MOVEMENT_MODE_IS_DASHING) {
+			justDashed = true;
 			movementMode = MOVEMENT_MODE_IS_DASHING;
 			dashDir = new Vector2f(Input.moveX, Input.moveY).normalize();
 			
@@ -223,23 +233,37 @@ public class Player extends Combatant{
 			xAccel = -decelConst * Arithmetic.sign(velo.x);
 		}
 		xAccel *= GameManager.deltaT();
+		if(Math.abs(velo.x) <= xCap) {
+			velo.x += xAccel;
 		
-		velo.x += xAccel;
+			//cap velo
+			if (Input.moveX > 0) velo.x = Math.min(velo.x, xCap);
+			if (Input.moveX < 0) velo.x = Math.max(velo.x, -xCap);
+		}
+		else {
+			float decelConst = (Math.max(xCap, Math.abs(velo.x) - 2 * accelConst) / GameManager.deltaT());
+			velo.x -= decelConst * Arithmetic.sign(velo.x);
+		}
+		if(Input.moveY == 0) {
+			releasedJump = true;
+		}
 		
-		//cap velo
-		if (Input.moveX > 0) velo.x = Math.min(velo.x, xCap);
-		if (Input.moveX < 0) velo.x = Math.max(velo.x, -xCap);
-		
-		if (grounded && Input.moveY == 1) { // if player is colliding with ground underneath and digital input detected
+		if (grounded && movementMode != MOVEMENT_MODE_IS_DASHING && Input.moveY == 1 && releasedJump) { // if player is colliding with ground underneath and digital input detected
 										// (space pressed)
 			velo.y = jumpSpeed;
 			
 			//TODO: Rename this so its purpose is less vague.
 			isJumping = true; //Signals to the physics system that some operations ought to be done
+			releasedJump = false;
+			if( false ) {//TODO colliding with wall
+				//TODO velo.x += xCap;
+			}
 		}
-		
+	
+	
 		hasGravity = true;
 	}
+
 	
 	private void dashingMovement()
 	{
@@ -264,8 +288,11 @@ public class Player extends Combatant{
 		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32));
 		
 		Projectile proj = new Projectile(0, pos, null, GameManager.renderer, "Bullet"); //initializes bullet entity
-		Vector2f dir = new Vector2f(firePos).sub(position).normalize();
 		
+		SpriteRenderer rend = (SpriteRenderer) proj.renderer;
+		rend.spr = Debug.debugTex;
+		
+		Vector2f dir = new Vector2f(firePos).sub(position).normalize();
 		Vector2f velo = new Vector2f(dir).mul(3);
 		
 		proj.velo = new Vector2f(velo);
