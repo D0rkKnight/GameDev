@@ -10,8 +10,8 @@ import Wrappers.Stats;
 
 public class WormHead extends Enemy implements Collidable{
 	protected WormTail backSegment;
-	public WormHead(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name, Stats stats, WormTail backSegment) {
-		super(ID, position, sprites, renderer, name, stats);
+	public WormHead(int ID, Vector2f position, Renderer renderer, String name, Stats stats, WormTail backSegment) {
+		super(ID, position, renderer, name, stats);
 		this.backSegment = backSegment;
 		// TODO Auto-generated constructor stub
 	}

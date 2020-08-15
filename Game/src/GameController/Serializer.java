@@ -282,7 +282,7 @@ public class Serializer {
 		try {
 			progressFile = new BufferedReader(new FileReader(filename));
 		} catch (FileNotFoundException e) {
-			System.out.println("File not found");
+			System.err.println("File not found");
 			e.printStackTrace();
 		}
 		int[] progress = new int[3];
@@ -327,7 +327,7 @@ public class Serializer {
 		try {
 			charFile = new BufferedReader(new FileReader(filename));
 		} catch (FileNotFoundException e) {
-			System.out.println("File not found");
+			System.err.println("File not found");
 			e.printStackTrace();
 		}
 		/*

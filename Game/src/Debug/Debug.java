@@ -7,14 +7,20 @@ import org.joml.Vector2f;
 import GameController.GameManager;
 import Rendering.ColorShader;
 import Rendering.Shader;
+import Rendering.SpriteRenderer;
 import Rendering.Texture;
+import Rendering.Transformation;
+import Wrappers.Color;
 
 public class Debug {
 	
 	private static ArrayList<DebugElement> debugElements;
+	private static ArrayList<SpriteRenderer> highlightedRenderers;
 	private static Shader debugShader;
 	
 	public static Texture debugTex;
+	
+	public static Transformation trans;
 	
 	private static void config() {
 		GameManager.timeScale = 1f;
@@ -22,16 +28,19 @@ public class Debug {
 		GameManager.frameDelta = 20f;
 		
 		GameManager.showCollisions = true;
-		GameManager.debugElementsEnabled = true;
+		GameManager.debugElementsEnabled = false;
 	}
 	
 	public static void init() {
 		config();
 		
 		debugElements = new ArrayList<DebugElement>();
-		debugShader = new ColorShader("shader");
+		highlightedRenderers = new ArrayList<SpriteRenderer>();
 		
+		debugShader = new ColorShader("shader");
 		debugTex = new Texture("assets/debugTex.png");
+		
+		trans = new Transformation(new Vector2f(0, 0));
 	}
 	
 	public static void renderDebug() {
@@ -50,6 +59,12 @@ public class Debug {
 		}
 	}
 	
+	public static void clearHighlights() {
+		for (SpriteRenderer r : highlightedRenderers) r.col = new Color(1, 1, 1);
+		
+		highlightedRenderers.clear();
+	}
+	
 	//Some unique behavior here so I'll insulate the process a bit
 	public static void trackMovementVector(Vector2f p, Vector2f v, float mult) {
 		enqueueElement(new DebugVector(p, new Vector2f(v), mult));
@@ -57,5 +72,10 @@ public class Debug {
 	
 	public static void enqueueElement(DebugElement e) {
 		debugElements.add(e);
+	}
+	
+	public static void highlightRenderer(SpriteRenderer rend, Color col) {
+		rend.col = col;
+		highlightedRenderers.add(rend);
 	}
 }

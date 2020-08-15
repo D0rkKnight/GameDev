@@ -37,4 +37,10 @@ public class Animator {
 	public void update() {
 		timer.update();
 	}
+	
+	public void switchAnim(int animId) {
+		//Reset current anim
+		currentAnim.resetCurrFrame();
+		currentAnim = anims[animId];
+	}
 }

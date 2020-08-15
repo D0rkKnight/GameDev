@@ -11,8 +11,8 @@ import Wrappers.Sprites;
 
 public class Projectile extends PhysicsEntity{
 
-	public Projectile(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name) {
-		super(ID, position, sprites, renderer, name);
+	public Projectile(int ID, Vector2f position, Renderer renderer, String name) {
+		super(ID, position, renderer, name);
 		// TODO Auto-generated constructor stub
 		
 		//Configure renderer
@@ -26,7 +26,16 @@ public class Projectile extends PhysicsEntity{
 	}
 
 	public void onHit(Hitbox otherHb) { //upon colliding with another hitbox
+		PhysicsEntity e = otherHb.owner;
 		
+		//Hit an enemy
+		if (e.alignment == ALIGNMENT_ENEMY) {
+			Vector2f kb = new Vector2f(velo).mul(0.2f);
+			e.knockback(kb, 0.5f, 1f);
+			
+			//DESTROY
+			Destroy();
+		}
 	}
 
 	public void calculate() {

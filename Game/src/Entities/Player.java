@@ -30,27 +30,13 @@ public class Player extends Combatant{
 	private long dashDuration;
 	private Timer dashTimer;
 	private Vector2f dashDir;
-	private Vector2f knockbackDir; //for debug purposes, only shows initial knockback 
 	private boolean releasedJump = true; //for making sure the player can't hold down w to jump
 	private boolean justDashed = false;
-
-	
-	//knockback only dependent on velocity: reduces effect of movement keys (not completely disabling), reduced velocity every frame, changes to normal movement when at normal velocities
-	private float movementMulti; //multiplier for movement when knocked back (suggest 0.5)
-	private float decelMulti; //multiplier for decel when knocked back (suggest 1)
-	private boolean knockback = true;
-	
-	private int movementMode;
-	private boolean hasGravity;
-	
-	private static final int MOVEMENT_MODE_CONTROLLED = 1;
-	private static final int MOVEMENT_MODE_IS_DASHING = 2;
-	private static final int MOVEMENT_MODE_KNOCKBACK = 3;
 	
 	private Animator anim;
 	
-	public Player(int ID, Vector2f position, Sprites sprites, SpriteRenderer renderer, String name, Stats stats) {
-		super(ID, position, sprites, renderer, name, stats);
+	public Player(int ID, Vector2f position, SpriteRenderer renderer, String name, Stats stats) {
+		super(ID, position, renderer, name, stats);
 		
 		//Configure the renderer real quick
 		dim = new Vector2f(15f, 60f);
@@ -83,41 +69,13 @@ public class Player extends Combatant{
 		Texture[] animSheet = Texture.unpackSpritesheet("Assets/ChargingSlime.png", 32, 32);
 		anims[0] = new Animation(animSheet);
 		anim = new Animator(anims, 24, renderer);
+		
+		//Alignment
+		alignment = ALIGNMENT_PLAYER;
 	}
 
 	public void onHit(Hitbox hb) {
 		// TODO Auto-generated method stub
-		
-	}
-	
-	/**
-	 * applies knockback values. if currently in knockback state, chooses larger values.
-	 * @param knockbackDir
-	 * @param movementMulti
-	 * @param decelMulti
-	 */
-	public void knockback(Vector2f knockbackDir, float movementMulti, float decelMulti) {
-		if(movementMode == MOVEMENT_MODE_KNOCKBACK) {
-			if(Math.abs(velo.x) < Math.abs(knockbackDir.x)) {
-				velo.x = knockbackDir.x;
-				this.knockbackDir.x = knockbackDir.x;
-			}
-			if(Math.abs(velo.y) < Math.abs(knockbackDir.y)) {
-				velo.y = knockbackDir.y;
-				this.knockbackDir.y = knockbackDir.y;
-			}
-			if(this.movementMulti < movementMulti) this.movementMulti = movementMulti;
-			if(this.decelMulti < decelMulti) this.decelMulti = decelMulti;
-		}
-		else {
-			velo.x = knockbackDir.x;
-			velo.y = knockbackDir.y;
-			this.knockbackDir = new Vector2f(knockbackDir);
-			this.movementMulti = movementMulti;
-			this.decelMulti = decelMulti;
-			knockback = true;
-		}
-		
 		
 	}
 	
@@ -154,15 +112,10 @@ public class Player extends Combatant{
 			System.err.println("Movement mode not set.");
 		}
 		
-		//Gravity
-		if (hasGravity) {
+		gravity();
+		if(justDashed && hasGravity) {
 			velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
-			velo.y = Math.max(velo.y, -2);
-			if(justDashed) {
-				velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
-				if(velo.y < 0) justDashed = false;
-			}
-			
+			if(velo.y < 0) justDashed = false;
 		}
 		
 		//Shoot a gun
@@ -287,15 +240,16 @@ public class Player extends Combatant{
 	private void fireGun(Vector2f firePos) {
 		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32));
 		
-		Projectile proj = new Projectile(0, pos, null, GameManager.renderer, "Bullet"); //initializes bullet entity
+		Projectile proj = new Projectile(0, pos, GameManager.renderer, "Bullet"); //initializes bullet entity
 		
 		SpriteRenderer rend = (SpriteRenderer) proj.renderer;
 		rend.spr = Debug.debugTex;
 		
-		Vector2f dir = new Vector2f(firePos).sub(position).normalize();
+		Vector2f dir = new Vector2f(firePos).sub(pos).normalize();
 		Vector2f velo = new Vector2f(dir).mul(3);
 		
 		proj.velo = new Vector2f(velo);
+		proj.alignment = alignment;
 		
 		GameManager.subscribeEntity(proj);
 	}

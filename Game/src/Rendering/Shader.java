@@ -131,7 +131,7 @@ public abstract class Shader {
 	public void createUniform(String name) throws Exception {
 		int loc = glGetUniformLocation(program, name);
 		if (loc < 0) {
-			throw new Exception ("Could not find uniform: "+name);
+			throw new Exception ("Could not find uniform, is it used in the shader?: "+name);
 		}
 		
 		uniforms.put(name, loc);

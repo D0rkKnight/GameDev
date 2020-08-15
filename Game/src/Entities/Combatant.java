@@ -9,13 +9,9 @@ import Wrappers.Stats;
 
 public abstract class Combatant extends PhysicsEntity {
 	protected Stats stats;
-	protected Player p;
-
-	public Combatant(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name, Stats stats) {
-		super(ID, position, sprites, renderer, name);
+	public Combatant(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
+		super(ID, position, renderer, name);
 		this.stats = stats;
-		
-		p = GameManager.player;
 	}
 
 	/**

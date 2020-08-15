@@ -57,8 +57,6 @@ public class Drawer {
   		int tyMin = (int) (cPos.y - (cDims.y));
   		int tyMax = (int) (cPos.y + (cDims.y));
   		
-  		System.out.println(cDims.toString());
-  		
   		txMin /= GameManager.tileSize;
   		txMax /= GameManager.tileSize;
   		tyMin /= GameManager.tileSize;

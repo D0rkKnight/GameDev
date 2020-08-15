@@ -19,4 +19,12 @@ public class Animation {
 		//Loop
 		if (currFrame == frames.length) currFrame = 0;
 	}
+	
+	public void resetCurrFrame() {
+		setCurrFrame(0);
+	}
+	
+	public void setCurrFrame(int newFrame) {
+		currFrame = newFrame;
+	}
 }

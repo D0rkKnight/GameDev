@@ -22,7 +22,7 @@ public abstract class Entity {
 	static float gravity = 5f; //TODO: Don't forget to fix this
 	
 	protected Renderer renderer;
-	protected String name;
+	public String name;
 	public Vector2f dim;
 	protected int animationGroups;
 	protected int currentGroup;
@@ -33,7 +33,7 @@ public abstract class Entity {
 	
 	//TODO: Move these within a physics affected class.
 
-	public Entity(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name) {
+	public Entity(int ID, Vector2f position, Renderer renderer, String name) {
 		this.ID = ID;
 		this.position = position;
 		this.sprites = sprites;
@@ -54,11 +54,6 @@ public abstract class Entity {
 	 * Applies AI / controls
 	 */
 	public abstract void controlledMovement();
-	
-	/**
-	 * Applies deltas
-	 */
-	public abstract void pushMovement();
 
 	public Vector2f getPosition() {
 		return position;

@@ -1,12 +1,24 @@
 package Rendering;
 
-import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
+import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glVertex2f;
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
+import static org.lwjgl.opengl.GL15.glBufferSubData;
+
+import java.nio.FloatBuffer;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.lwjgl.BufferUtils;
 
 import Collision.HammerShape;
-import GameController.Camera;
 import Wrappers.Color;
 
 public class SpriteRenderer extends Renderer implements Cloneable {
@@ -40,16 +52,16 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		//Update verts
 		//TODO: implement camera with view matrix, not vertex updates.
 		
-		//Move mesh
+		//Put in new colors
 //		mesh.write(genVerts(), attribs[0]);
-//		mesh.write(genColors(col), attribs[2]);
-//		
-//		FloatBuffer fBuff = BufferUtils.createFloatBuffer(mesh.data.length);
-//		fBuff.put(mesh.data);
-//		fBuff.flip();
-//		
-//		glBindBuffer(GL_ARRAY_BUFFER, vboId);
-//	    glBufferSubData(GL_ARRAY_BUFFER, 0, fBuff);
+		mesh.write(genColors(col), attribs[2]);
+		
+		FloatBuffer fBuff = BufferUtils.createFloatBuffer(mesh.data.length);
+		fBuff.put(mesh.data);
+		fBuff.flip();
+		
+		glBindBuffer(GL_ARRAY_BUFFER, vboId);
+	    glBufferSubData(GL_ARRAY_BUFFER, 0, fBuff);
 	    
 	    setTransformMatrix();
 		

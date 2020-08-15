@@ -176,30 +176,6 @@ public abstract class Physics {
 			ArrayList<PhysicsCollisionBehavior> behaviors = null;
 			
 			if (Math.abs(tangentDir.y) < 0.8 && tangentDir.x < 0 && e.canBeGrounded) { //TODO: Make this work along any gravitational pull
-				//Dunno why this needs to be flipped but it does
-				Vector2f newXDir = new Vector2f(-tangent.x, -tangent.y);
-				
-				if (e.wasGrounded) {
-					//Ground-ground transition
-					//No need to queue whatever, just force the change.
-					/**
-					 * Redefining the x axis should only occur when moving along the x axis.
-					 */
-					if (moveAxis == e.xDir) {
-						e.forceDirectionalChange(newXDir, e.yDir);
-					}
-				} else {
-					//Aerial landing
-					/**
-					 * Doesn't matter which axis of approach, any ground tangent is preferential to the aerial axises.
-					 */
-					e.forceDirectionalChange(newXDir, e.yDir);
-				}
-				
-				//Make sure you don't continue falling
-				velo.y = 0;
-				e.grounded = true;
-				
 				//Now, set the behavior list that should be executed.
 				behaviors = e.groundedCollBehaviorList;
 			}
@@ -258,7 +234,7 @@ public abstract class Physics {
 						maxMoveDist = d;
 						normal = tempNormal;
 					}
-					if (GameManager.showCollisions) t.renderer.col = new Color(1, 0, 1);
+					if (GameManager.showCollisions) Debug.highlightRenderer(t.renderer, new Color(1, 0, 1));
 					
 					isColl = true;
 				}
@@ -322,12 +298,7 @@ public abstract class Physics {
 		
 		//					STEP 1: PREP DATA
 		//Begin by generating a point set for the Vector2fangle.
-		Vector2f[] rectPoints = new Vector2f[] {
-				new Vector2f(bl.x, bl.y),
-				new Vector2f(ur.x, bl.y),
-				new Vector2f(ur.x, ur.y),
-				new Vector2f(bl.x, ur.y)
-		};
+		Vector2f[] rectPoints = Geometry.pointsFromCorners(bl, ur);
 		
 		//This needs to use world space, not normalized tile space.
 		Vector2f[] shapePoints = new Vector2f[shape.points.length];
@@ -346,7 +317,26 @@ public abstract class Physics {
 			shapePoints[i] = new Vector2f(x, y);
 		}
 		
-		Float out = Geometry.separateAxisCheck(rectPoints, shapePoints,  moveDir,  extNormal);
-		return out;
+		float[] out = new float[1];
+		boolean hasColl = Geometry.separateAxisCheck(rectPoints, shapePoints,  moveDir,  extNormal, out);
+		
+		if (hasColl) return out[0];
+		else return null;
+	}
+	
+
+	public static void checkEntityCollision(Hitbox c1, Hitbox c2) {
+		//Do separate axis theorem on them
+		PhysicsEntity e1 = c1.owner;
+		Vector2f[] c1Points = Geometry.pointsFromRect(e1.getPosition(), e1.dim);
+		
+		PhysicsEntity e2 = c2.owner;
+		Vector2f[] c2Points = Geometry.pointsFromRect(e2.getPosition(), e2.dim);
+		
+		//Todo: inch this
+		if (Geometry.separateAxisCheck(c1Points, c2Points, null, null, null)) {
+			c1.hitBy(c2);
+			c2.hitBy(c1);
+		}
 	}
 }

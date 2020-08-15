@@ -8,8 +8,8 @@ import Wrappers.Sprites;
 
 public class LockedEntity extends Entity{
 
-	public LockedEntity(int ID, Vector2f position, Renderer renderer, String name, Sprites sprites) {
-		super(ID, position, sprites, renderer, name);
+	public LockedEntity(int ID, Vector2f position, Renderer renderer, String name) {
+		super(ID, position, renderer, name);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -40,12 +40,6 @@ public class LockedEntity extends Entity{
 	public void onHit(Hitbox otherHb) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public void pushMovement() {
-		// TODO Auto-generated method stub
-		//Locked entities should never have to push their movement
 	}
 
 }

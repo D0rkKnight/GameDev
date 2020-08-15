@@ -2,11 +2,6 @@ package Rendering;
 
 import static org.lwjgl.opengl.GL21.*;
 
-/**
- * This class isn't used for anything.
- * @author Hanzen Shou
- *
- */
 public class ColorShader extends Shader{
 
 	public ColorShader(String filename) {
@@ -17,13 +12,18 @@ public class ColorShader extends Shader{
 	protected void bindAttributes() {
 		// TODO Auto-generated method stub
 		glBindAttribLocation(program, 0, "vertices");
-		glBindAttribLocation(program, 1, "color");
+		glBindAttribLocation(program, 1, "color"); //TODO: Attribute not being used right now
 	}
 
 	@Override
 	protected void initUniforms() {
 		// TODO Auto-generated method stub
-		
+		try {
+			createUniform("MVP");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

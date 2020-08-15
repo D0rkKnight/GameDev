@@ -11,7 +11,6 @@ out vec3 vertexColor;
 
 void main() {
 	gl_Position = MVP * vec4(vertices, 1.0);
-	//gl_Position = vec4(vertices, 1.0); 
 	TexCord = texCords;
 	vertexColor = color;
 }

@@ -54,4 +54,10 @@ public class Vector implements Cloneable {
 		Vector2f right = new Vector2f(v.y, -v.x); //This is 90 degrees clockwise
 		return right;
 	}
+	
+	public static Vector2f dirTo(Vector2f start, Vector2f end) {
+		if (start.equals(end)) return null;
+		
+		return new Vector2f(end).sub(start).normalize();
+	}
 }
