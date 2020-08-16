@@ -19,4 +19,11 @@ public class Color {
 		this.b = b;
 		this.a = a;
 	}
+	
+	public Color() {
+		r = 0;
+		g = 0;
+		b = 0;
+		a = 0;
+	}
 }

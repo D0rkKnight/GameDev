@@ -2,12 +2,12 @@
 
 attribute vec3 vertices;
 attribute vec2 texCords;
-attribute vec3 color;
+attribute vec4 color;
 
 uniform mat4 MVP;
 
 out vec2 TexCord;
-out vec3 vertexColor;
+out vec4 vertexColor;
 
 void main() {
 	gl_Position = MVP * vec4(vertices, 1.0);

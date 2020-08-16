@@ -25,7 +25,7 @@ public class Animator {
 		
 		TimerCallback cb = new TimerCallback() {
 			
-			public void invoke() {
+			public void invoke(Timer timer) {
 				currentAnim.nextFrame();
 				rend.spr = currentAnim.getFrame();
 			}

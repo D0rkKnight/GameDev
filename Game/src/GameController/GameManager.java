@@ -30,6 +30,7 @@ import Rendering.SpriteShader;
 import Rendering.Texture;
 import Tiles.Tile;
 import Wrappers.Hitbox;
+import Wrappers.Stats;
 
 
 public class GameManager {
@@ -203,7 +204,7 @@ public class GameManager {
 		
 		
 		//Hardcoding some enemy spawns
-		Enemy en = new FloaterEnemy(10, new Vector2f(100f, mapData.length * 8), renderer, "Enemy", null);
+		Enemy en = new FloaterEnemy(10, new Vector2f(100f, mapData.length * 8), renderer, "Enemy", new Stats());
 		subscribeEntity(en);
 	}
 
@@ -248,7 +249,7 @@ public class GameManager {
 	}
 	
 	private void initPlayer(Vector2f pos) {
-		player = new Player(0, new Vector2f(pos), renderer, "Player", null);
+		player = new Player(0, new Vector2f(pos), renderer, "Player", new Stats());
 		
 		subscribeEntity(player);
 	}
@@ -360,9 +361,9 @@ public class GameManager {
 		for (Entity e : entities) {
 			//Somehow need to avoid pushing the movement of entities that don't move.
 			PhysicsEntity pe = (PhysicsEntity) e;
-			if (pe.collidedWithTile) {
+			if (pe.pData.collidedWithTile) {
 				pe.onTileCollision();
-				pe.collidedWithTile = false;
+				pe.pData.collidedWithTile = false;
 			}
 			pe.pushMovement();
 		}

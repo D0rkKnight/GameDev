@@ -21,7 +21,7 @@ public abstract class Entity {
 	protected Sprites sprites;
 	static float gravity = 5f; //TODO: Don't forget to fix this
 	
-	protected Renderer renderer;
+	public Renderer renderer;
 	public String name;
 	public Vector2f dim;
 	protected int animationGroups;

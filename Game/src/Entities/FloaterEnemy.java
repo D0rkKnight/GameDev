@@ -24,7 +24,7 @@ public class FloaterEnemy extends Enemy{
 		//Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
 		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer; //Renderer has been duplicated by now
-		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 1, 0));
+		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
 		
 		rendTemp.spr = Debug.debugTex;
 		renderer = rendTemp;
@@ -53,6 +53,8 @@ public class FloaterEnemy extends Enemy{
 
 	@Override
 	public void calculate() {
+		super.calculate();
+		
 		Tile[][] grid = GameManager.currmap.getGrid();
 		 
 		ai.calculatePath(position, target.position, grid);
@@ -66,7 +68,7 @@ public class FloaterEnemy extends Enemy{
 			Vector2f target = new Vector2f(dir).mul(movespeed).mul(GameManager.deltaT());
 			
 			float ratio = 0.1f;
-			velo = Vector.lerp(velo, target, ratio);
+			pData.velo = Vector.lerp(pData.velo, target, ratio);
 		}
 	}
 
