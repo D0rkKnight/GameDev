@@ -30,32 +30,22 @@ public class Player extends Combatant{
 	private long dashDuration;
 	private Timer dashTimer;
 	private Vector2f dashDir;
-	private Vector2f knockbackDir; //for debug purposes, only shows initial knockback 
 	private boolean releasedJump = true; //for making sure the player can't hold down w to jump
 	private boolean justDashed = false;
-
-	
-	//knockback only dependent on velocity: reduces effect of movement keys (not completely disabling), reduced velocity every frame, changes to normal movement when at normal velocities
-	private float movementMulti; //multiplier for movement when knocked back (suggest 0.5)
-	private float decelMulti; //multiplier for decel when knocked back (suggest 1)
-	private boolean knockback = true;
-	
-	private int movementMode;
-	private boolean hasGravity;
-	
-	private static final int MOVEMENT_MODE_CONTROLLED = 1;
-	private static final int MOVEMENT_MODE_IS_DASHING = 2;
-	private static final int MOVEMENT_MODE_KNOCKBACK = 3;
 	
 	private Animator anim;
 	
-	public Player(int ID, Vector2f position, Sprites sprites, SpriteRenderer renderer, String name, Stats stats) {
-		super(ID, position, sprites, renderer, name, stats);
+	private boolean canJump;
+	private long jumpGraceInterval = 100;
+	private Timer jumpGraceTimer;
+	
+	public Player(int ID, Vector2f position, SpriteRenderer renderer, String name, Stats stats) {
+		super(ID, position, renderer, name, stats);
 		
 		//Configure the renderer real quick
 		dim = new Vector2f(15f, 60f);
 		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer; //Renderer has been duplicated by now
-		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0));
+		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0, 0));
 		renderer = rendTemp;
 		
 		//Configure hitbox
@@ -71,7 +61,7 @@ public class Player extends Combatant{
 		gunTimer = new Timer(100, new TimerCallback() {
 
 			@Override
-			public void invoke() {
+			public void invoke(Timer timer) {
 				fireGun(Input.mouseWorldPos);
 			}
 			
@@ -83,44 +73,16 @@ public class Player extends Combatant{
 		Texture[] animSheet = Texture.unpackSpritesheet("Assets/ChargingSlime.png", 32, 32);
 		anims[0] = new Animation(animSheet);
 		anim = new Animator(anims, 24, renderer);
+		
+		//Alignment
+		alignment = ALIGNMENT_PLAYER;
 	}
 
 	public void onHit(Hitbox hb) {
 		// TODO Auto-generated method stub
 		
 	}
-	
-	/**
-	 * applies knockback values. if currently in knockback state, chooses larger values.
-	 * @param knockbackDir
-	 * @param movementMulti
-	 * @param decelMulti
-	 */
-	public void knockback(Vector2f knockbackDir, float movementMulti, float decelMulti) {
-		if(movementMode == MOVEMENT_MODE_KNOCKBACK) {
-			if(Math.abs(pData.velo.x) < Math.abs(knockbackDir.x)) {
-				pData.velo.x = knockbackDir.x;
-				this.knockbackDir.x = knockbackDir.x;
-			}
-			if(Math.abs(pData.velo.y) < Math.abs(knockbackDir.y)) {
-				pData.velo.y = knockbackDir.y;
-				this.knockbackDir.y = knockbackDir.y;
-			}
-			if(this.movementMulti < movementMulti) this.movementMulti = movementMulti;
-			if(this.decelMulti < decelMulti) this.decelMulti = decelMulti;
-		}
-		else {
-			pData.velo.x = knockbackDir.x;
-			pData.velo.y = knockbackDir.y;
-			this.knockbackDir = new Vector2f(knockbackDir);
-			this.movementMulti = movementMulti;
-			this.decelMulti = decelMulti;
-			knockback = true;
-		}
-		
-		
-	}
-	
+  
 	@Override
 	public void attack() {
 		// TODO Auto-generated method stub
@@ -134,6 +96,8 @@ public class Player extends Combatant{
 	}
 	
 	public void calculate() {
+		super.calculate();
+		
 		determineMovementMode(); //determine what movement mode and execute it
 		
 		SpriteRenderer sprRend = (SpriteRenderer) renderer;
@@ -153,7 +117,7 @@ public class Player extends Combatant{
 		default:
 			System.err.println("Movement mode not set.");
 		}
-		
+
 		//Gravity
 		if (hasGravity) {
 			pData.velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
@@ -161,8 +125,22 @@ public class Player extends Combatant{
 			if(justDashed) {
 				pData.velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
 				if(pData.velo.y < 0) justDashed = false;
+      }
+    }
+		
+		//Jump
+		if (jumpGraceTimer != null) jumpGraceTimer.update();
+		if (canJump && Input.moveY == 1 && releasedJump) {
+			velo.y = jumpSpeed;
+			
+			//TODO: Rename this so its purpose is less vague.
+			isJumping = true; //Signals to the physics system that some operations ought to be done
+			releasedJump = false;
+			if( false ) {//TODO colliding with wall
+				//TODO velo.x += xCap;
 			}
 			
+			canJump = false;
 		}
 		
 		//Shoot a gun
@@ -202,7 +180,7 @@ public class Player extends Combatant{
 			dashTimer = new Timer(dashDuration, new TimerCallback() {
 
 				@Override
-				public void invoke() {
+				public void invoke(Timer timer) {
 					//First, dump this timer
 					dashTimer = null;
 					
@@ -247,20 +225,19 @@ public class Player extends Combatant{
 		if(Input.moveY == 0) {
 			releasedJump = true;
 		}
-		
-		if (pData.grounded && movementMode != MOVEMENT_MODE_IS_DASHING && Input.moveY == 1 && releasedJump) { // if player is colliding with ground underneath and digital input detected
-										// (space pressed)
-			pData.velo.y = jumpSpeed;
-			
-			//TODO: Rename this so its purpose is less vague.
-			pData.isJumping = true; //Signals to the physics system that some operations ought to be done
-			releasedJump = false;
-			if( false ) {//TODO colliding with wall
-				//TODO velo.x += xCap;
-			}
+		if (grounded && movementMode != MOVEMENT_MODE_IS_DASHING) canJump = true;
+		else if (wasGrounded) {
+			//begin timer
+			jumpGraceTimer = new Timer(jumpGraceInterval, new TimerCallback() {
+
+				@Override
+				public void invoke(Timer timer) {
+					// TODO Auto-generated method stub
+					canJump = false;
+					jumpGraceTimer = null;
+				}
+			});
 		}
-	
-	
 		hasGravity = true;
 	}
 
@@ -287,15 +264,16 @@ public class Player extends Combatant{
 	private void fireGun(Vector2f firePos) {
 		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32));
 		
-		Projectile proj = new Projectile(0, pos, null, GameManager.renderer, "Bullet"); //initializes bullet entity
+		Projectile proj = new Projectile(0, pos, GameManager.renderer, "Bullet"); //initializes bullet entity
 		
 		SpriteRenderer rend = (SpriteRenderer) proj.renderer;
 		rend.spr = Debug.debugTex;
 		
-		Vector2f dir = new Vector2f(firePos).sub(position).normalize();
+		Vector2f dir = new Vector2f(firePos).sub(pos).normalize();
 		Vector2f velo = new Vector2f(dir).mul(3);
 		
 		proj.pData.velo = new Vector2f(velo);
+		proj.alignment = alignment;
 		
 		GameManager.subscribeEntity(proj);
 	}

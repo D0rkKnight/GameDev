@@ -7,6 +7,24 @@ import GameController.GameManager;
 
 public abstract class Geometry {
 	
+	public static Vector2f[] pointsFromCorners(Vector2f bl, Vector2f ur) {
+		//Begin by generating a point set for the rectangle.
+		Vector2f[] rectPoints = new Vector2f[] {
+				new Vector2f(bl.x, bl.y),
+				new Vector2f(ur.x, bl.y),
+				new Vector2f(ur.x, ur.y),
+				new Vector2f(bl.x, ur.y)
+		};
+		
+		return rectPoints;
+	}
+	
+	public static Vector2f[] pointsFromRect(Vector2f bl, Vector2f dims) {
+		Vector2f ur = new Vector2f(bl).add(dims);
+		
+		return pointsFromCorners(bl, ur);
+	}
+	
 	/**
 	 * Given some information, figure out if there is a collision and how far back to move the entity.
 	 * TODO: Code this into a more general form
@@ -16,13 +34,15 @@ public abstract class Geometry {
 	 * @param sideEnteringFrom
 	 * @return
 	 */
-	public static Float separateAxisCheck(Vector2f[] pointsA, Vector2f[] pointsB, Vector2f moveDir, Vector2f extNormal) {
+	public static boolean separateAxisCheck(Vector2f[] pointsA, Vector2f[] pointsB, Vector2f moveDir, Vector2f extNormal, float[] dOut) {
 		//		STEP 2: ANALYZE
 		int edgeCountA = pointsA.length;
 		int edgeCountB = pointsB.length;
 		
 		float shortestDist = Float.POSITIVE_INFINITY;
 		Vector2f shortestNormal = null;
+		
+		boolean distAnalysis = (moveDir != null && extNormal != null && dOut != null);
 		
 		//Get normals
 		//TODO: Potential error since I'm only counting the shape's normals, and not the Vector2f's normals.
@@ -62,46 +82,54 @@ public abstract class Geometry {
 			float[] distBuffer = new float[1];
 			if (Arithmetic.isIntersecting(boundsB[0], boundsB[1], boundsA[0], boundsA[1], distBuffer)) {
 				
-				//Project along moveAxis
-				float dist = distBuffer[0];
-				float moveDist = 0;
-				if (dist != 0) {
-					Vector2f perpVec = new Vector2f(unitNormal.x * dist, unitNormal.y * dist);
-
-					Vector2f projAxis = new Vector2f(moveDir).normalize();
+				/**
+				 * Only bother with this if containers supplied
+				 */
+				if (distAnalysis) {
+					//Project along moveAxis
+					float dist = distBuffer[0];
+					float moveDist = 0;
+					if (dist != 0) {
+						Vector2f perpVec = new Vector2f(unitNormal.x * dist, unitNormal.y * dist);
+	
+						Vector2f projAxis = new Vector2f(moveDir).normalize();
+						
+						moveDist = (float) (Math.pow(dist, 2) / perpVec.dot(projAxis));
+					} 
 					
-					moveDist = (float) (Math.pow(dist, 2) / perpVec.dot(projAxis));
-				} 
-				
-				else {
-					System.err.println("ERROR: distance is zero");
+					else {
+						System.err.println("ERROR: distance is zero");
+						
+						//This is like the same thing as not colliding
+						return false;
+					}
 					
-					//This is like the same thing as not colliding
-					return null;
-				}
-				
-				float absDist = Math.abs(moveDist);
-				if (absDist < shortestDist) {
-					shortestDist = absDist;
-					shortestNormal = unitNormal;
-				} 
-				
-				//If the distance is the same, this stands to reason that there may be an interfereing parallel surface
-				//Thus, if this new edge is more reasonable, use it instead.
-				if (absDist == shortestDist && absDist != Float.POSITIVE_INFINITY) {
-					if (unitNormal.dot(moveDir) < shortestNormal.dot(moveDir)) {
+					float absDist = Math.abs(moveDist);
+					if (absDist < shortestDist) {
+						shortestDist = absDist;
 						shortestNormal = unitNormal;
+					} 
+					
+					//If the distance is the same, this stands to reason that there may be an interfereing parallel surface
+					//Thus, if this new edge is more reasonable, use it instead.
+					if (absDist == shortestDist && absDist != Float.POSITIVE_INFINITY) {
+						if (unitNormal.dot(moveDir) < shortestNormal.dot(moveDir)) {
+							shortestNormal = unitNormal;
+						}
 					}
 				}
 			} else {
-				return null;
+				return false; //Not intersecting, leave.
 			}
 		}
+		
+		if (!distAnalysis) return true;
 		
 		//Return shortest distance out.
 		extNormal.x = shortestNormal.x;
 		extNormal.y = shortestNormal.y;
 		
-		return shortestDist;
+		dOut[0] = shortestDist;
+		return true;
 	}
 }

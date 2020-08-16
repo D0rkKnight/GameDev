@@ -2,6 +2,7 @@ package Debug;
 
 import static org.lwjgl.opengl.GL21.*;
 
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import GameController.Camera;
@@ -26,6 +27,9 @@ public class DebugBox extends DebugElement {
 	
 	@Override
 	public void render(Shader shader) {
+		Matrix4f mvp = Debug.trans.genMVP();
+		shader.setUniform("MVP", mvp);
+		
 		//Bind shader
 		shader.bind();
 		
@@ -36,12 +40,6 @@ public class DebugBox extends DebugElement {
 		points[1] = new Vector2f(p).add(new Vector2f(0, dims.y));
 		points[2] = new Vector2f(p).add(dims);
 		points[3] = new Vector2f(p).add(new Vector2f(dims.x, 0));
-		
-		//Map
-		for (int i=0; i<points.length; i++) {
-			//points[i] = cam.mapVert(points[i]);
-			//TODO: Make this stuff work too
-		}
 		
 		//TODO: Update this deprecated code
 		glBegin(GL_LINES);

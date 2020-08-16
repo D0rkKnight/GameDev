@@ -24,9 +24,9 @@ public class ChargingEnemy extends Enemy implements Gravity {
 	protected int cooldownNum = 0; // counter
 	protected float speed;
 	
-	public ChargingEnemy(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name, Stats stats,
+	public ChargingEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats,
 			boolean charging, int windupCycles, int cooldownCycles, float speed, float topspeed) {
-		super(ID, position, sprites, renderer, name, stats);
+		super(ID, position, renderer, name, stats);
 		this.charging = charging;
 		windup = false; // enemies either charge upon entering room or are idle
 		this.windupCycles = windupCycles;
@@ -50,6 +50,8 @@ public class ChargingEnemy extends Enemy implements Gravity {
 
 	@Override
 	public void calculate() {
+		super.calculate();
+		
 		calcFrame();
 		if (currentGroup == 3) { // winddown
 

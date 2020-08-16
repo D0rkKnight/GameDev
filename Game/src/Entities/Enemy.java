@@ -3,6 +3,7 @@ package Entities;
 
 import org.joml.Vector2f;
 
+import GameController.GameManager;
 import Rendering.Renderer;
 import Wrappers.Sprites;
 import Wrappers.Stats;
@@ -12,12 +13,18 @@ import Wrappers.Stats;
  *
  */
 public abstract class Enemy extends Combatant{
-
-	public Enemy(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name, Stats stats) {
-		super(ID, position, sprites, renderer, name, stats);
+	
+	protected Combatant target;
+	
+	public Enemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
+		super(ID, position, renderer, name, stats);
 		// TODO Auto-generated constructor stub
+		
+		alignment = ALIGNMENT_ENEMY;
+		findTarget();
 	}
 	
-	
-	
+	public void findTarget() {
+		target = GameManager.player;
+	}
 }

@@ -1,12 +1,24 @@
 package Rendering;
 
-import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
+import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glVertex2f;
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
+import static org.lwjgl.opengl.GL15.glBufferSubData;
+
+import java.nio.FloatBuffer;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.lwjgl.BufferUtils;
 
 import Collision.HammerShape;
-import GameController.Camera;
 import Wrappers.Color;
 
 public class SpriteRenderer extends Renderer implements Cloneable {
@@ -40,16 +52,16 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		//Update verts
 		//TODO: implement camera with view matrix, not vertex updates.
 		
-		//Move mesh
+		//Put in new colors
 //		mesh.write(genVerts(), attribs[0]);
-//		mesh.write(genColors(col), attribs[2]);
-//		
-//		FloatBuffer fBuff = BufferUtils.createFloatBuffer(mesh.data.length);
-//		fBuff.put(mesh.data);
-//		fBuff.flip();
-//		
-//		glBindBuffer(GL_ARRAY_BUFFER, vboId);
-//	    glBufferSubData(GL_ARRAY_BUFFER, 0, fBuff);
+		mesh.write(genColors(col), attribs[2]);
+		
+		FloatBuffer fBuff = BufferUtils.createFloatBuffer(mesh.data.length);
+		fBuff.put(mesh.data);
+		fBuff.flip();
+		
+		glBindBuffer(GL_ARRAY_BUFFER, vboId);
+	    glBufferSubData(GL_ARRAY_BUFFER, 0, fBuff);
 	    
 	    setTransformMatrix();
 		
@@ -88,10 +100,10 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		
 		//Generate attributes
 		attribs = new Attribute[3];
-		rowSize = 8;
+		rowSize = 9;
 		attribs[0] = new Attribute(0, 3, rowSize, 0); //vertices
 		attribs[1] = new Attribute(1, 2, rowSize, 3); //Tex UVs
-		attribs[2] = new Attribute(2, 3, rowSize, 5); //Colors
+		attribs[2] = new Attribute(2, 4, rowSize, 5); //Colors
 		
 		//Vertex count
 		switch(shape) {
@@ -244,11 +256,14 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	}
 	
 	protected float[] genColors(Color col) {
-		float[] out = new float[vertexCount * 3];
+		int stride = 4;
+		float[] out = new float[vertexCount * stride];
 		for (int i=0; i<vertexCount; i++) {
-			out[i*3] = col.r;
-			out[i*3+1] = col.g;
-			out[i*3+2] = col.b;
+			out[i*stride] = col.r;
+			out[i*stride+1] = col.g;
+			out[i*stride+2] = col.b;
+			
+			if (stride > 3) out[i*stride+3] = col.a;
 		}
 		
 		return out;

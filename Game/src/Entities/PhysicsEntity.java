@@ -2,13 +2,16 @@ package Entities;
 
 import java.util.ArrayList;
 
+import org.joml.Math;
 import org.joml.Vector2f;
 
 import Collision.Collidable;
 import Collision.PhysicsCollisionBehavior;
 import Collision.PhysicsCollisionBehaviorDeflect;
+import Collision.PhysicsCollisionBehaviorGroundMove;
 import Collision.PhysicsCollisionBehaviorStepUp;
 import Collision.PhysicsCollisionBehaviorWallCling;
+import GameController.GameManager;
 import Math.Vector;
 import Rendering.Renderer;
 import Wrappers.Sprites;
@@ -23,12 +26,30 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	//WAS TAMPERED WITH
 	
 	
+	protected boolean hasGravity;
+	
+	protected Vector2f knockbackDir; //for debug purposes, only shows initial knockback 
+	//knockback only dependent on velocity: reduces effect of movement keys (not completely disabling), reduced velocity every frame, changes to normal movement when at normal velocities
+	protected float movementMulti; //multiplier for movement when knocked back (suggest 0.5)
+	protected float decelMulti; //multiplier for decel when knocked back (suggest 1)
+	protected boolean knockback = true;
+	protected int movementMode;
+	
+	public static final int MOVEMENT_MODE_CONTROLLED = 1;
+	public static final int MOVEMENT_MODE_IS_DASHING = 2;
+	public static final int MOVEMENT_MODE_KNOCKBACK = 3;
+	
+	protected int alignment;
+	public static final int ALIGNMENT_NEUTRAL = 0;
+	public static final int ALIGNMENT_PLAYER = 1;
+	public static final int ALIGNMENT_ENEMY = 2;
+	
 	//For now, presume that if one of these behaviors trigger, the following behavior are canceled.
 	public ArrayList<PhysicsCollisionBehavior> groundedCollBehaviorList;
 	public ArrayList<PhysicsCollisionBehavior> nonGroundedCollBehaviorList;
 	
-	public PhysicsEntity(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name) {
-		super(ID, position, sprites, renderer, name);
+	public PhysicsEntity(int ID, Vector2f position, Renderer renderer, String name) {
+		super(ID, position, renderer, name);
 		
 		pData = new PhysicsData();
 		pData.moveDelta = new Vector2f(0, 0);
@@ -47,6 +68,8 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	protected void initPhysicsCollBehavior() {
 		groundedCollBehaviorList = new ArrayList();
 		nonGroundedCollBehaviorList = new ArrayList();
+		
+		groundedCollBehaviorList.add(new PhysicsCollisionBehaviorGroundMove());
 		
 		//TODO: Array named poorly, distinction isn't that the character isn't grounded.
 		nonGroundedCollBehaviorList.add(new PhysicsCollisionBehaviorStepUp());
@@ -117,4 +140,41 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	
 	//Collision events
 	public void onTileCollision() {}
+	
+	protected void gravity() {
+		//Gravity
+		if (hasGravity) {
+			velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
+			velo.y = Math.max(velo.y, -2);
+		}
+	}
+	
+	/**
+	 * applies knockback values. if currently in knockback state, chooses larger values.
+	 * @param knockbackVector
+	 * @param movementMulti
+	 * @param decelMulti
+	 */
+	public void knockback(Vector2f knockbackVector, float movementMulti, float decelMulti) {
+		if(movementMode == MOVEMENT_MODE_KNOCKBACK) {
+			if(Math.abs(velo.x) < Math.abs(knockbackVector.x)) {
+				velo.x = knockbackVector.x;
+				this.knockbackDir.x = knockbackVector.x;
+			}
+			if(Math.abs(velo.y) < Math.abs(knockbackVector.y)) {
+				velo.y = knockbackVector.y;
+				this.knockbackDir.y = knockbackVector.y;
+			}
+			if(this.movementMulti < movementMulti) this.movementMulti = movementMulti;
+			if(this.decelMulti < decelMulti) this.decelMulti = decelMulti;
+		}
+		else {
+			velo.x = knockbackVector.x;
+			velo.y = knockbackVector.y;
+			this.knockbackDir = new Vector2f(knockbackVector);
+			this.movementMulti = movementMulti;
+			this.decelMulti = decelMulti;
+			knockback = true;
+		}
+	}
 }

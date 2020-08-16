@@ -8,8 +8,8 @@ import Wrappers.Sprites;
 
 public class NPC extends Entity {
 
-	public NPC(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name) {
-		super(ID, position, sprites, renderer, name);
+	public NPC(int ID, Vector2f position, Renderer renderer, String name) {
+		super(ID, position, renderer, name);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -40,12 +40,6 @@ public class NPC extends Entity {
 	public void onHit(Hitbox otherHb) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public void pushMovement() {
-		// TODO Auto-generated method stub
-		System.err.println("what");
 	}
 
 }

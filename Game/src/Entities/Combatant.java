@@ -2,20 +2,21 @@ package Entities;
 
 import org.joml.Vector2f;
 
-import GameController.GameManager;
 import Rendering.Renderer;
-import Wrappers.Sprites;
+import Rendering.SpriteRenderer;
+import Wrappers.Color;
+import Wrappers.FlickerTimer;
 import Wrappers.Stats;
+import Wrappers.Timer;
+import Wrappers.TimerCallback;
 
 public abstract class Combatant extends PhysicsEntity {
 	protected Stats stats;
-	protected Player p;
-
-	public Combatant(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name, Stats stats) {
-		super(ID, position, sprites, renderer, name);
+	protected Timer hurtTimer;
+	
+	public Combatant(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
+		super(ID, position, renderer, name);
 		this.stats = stats;
-		
-		p = GameManager.player;
 	}
 
 	/**
@@ -27,27 +28,46 @@ public abstract class Combatant extends PhysicsEntity {
 	 * @param knockback force of knockback (in float, change of velocity)
 	 * 
 	 */
-	public void hit(int damage, float direction, float knockback) {
+	public void hit(int damage) {
 		stats.health -= damage;
-		// These two whiles make sure degrees is within 0-360
-		while (direction > 360) {
-			direction -= 360;
-		}
-		while (direction < 0) {
-			direction += 360;
-		}
-		// this if else accounts for the angle being to the right/left
-		if (direction <= 180) {
-			velo.x += knockback * Math.cos(Math.toRadians((90 - direction)));
-		} else {
-			velo.x -= knockback * Math.cos(Math.toRadians((270 - direction)));
-		}
-		// and top/bot
-		if (direction < 90 || direction > 270) {
-			velo.x += knockback * Math.cos(Math.toRadians(direction));
-		} else {
-			velo.x -= knockback * Math.cos(Math.toRadians(180 - direction));
-		}
+		
+		SpriteRenderer sprRen = (SpriteRenderer) renderer;
+		sprRen.col = new Color(1, 0, 0);
+		
+		hurtTimer = new FlickerTimer(500, 50, new Color(1,1,1), new Color(1, 0, 0), this, new TimerCallback() {
+			@Override
+			public void invoke(Timer timer) {
+				// TODO Auto-generated method stub
+				hurtTimer = null; //Color reset is handled
+			}
+		});
+		
+		/**
+		 * This is old, right? -- Hanzen
+		 */
+//		// These two whiles make sure degrees is within 0-360
+//		while (direction > 360) {
+//			direction -= 360;
+//		}
+//		while (direction < 0) {
+//			direction += 360;
+//		}
+//		// this if else accounts for the angle being to the right/left
+//		if (direction <= 180) {
+//			velo.x += knockback * Math.cos(Math.toRadians((90 - direction)));
+//		} else {
+//			velo.x -= knockback * Math.cos(Math.toRadians((270 - direction)));
+//		}
+//		// and top/bot
+//		if (direction < 90 || direction > 270) {
+//			velo.x += knockback * Math.cos(Math.toRadians(direction));
+//		} else {
+//			velo.x -= knockback * Math.cos(Math.toRadians(180 - direction));
+//		}
+	}
+	
+	public void calculate() {
+		if (hurtTimer != null) hurtTimer.update();
 	}
 	
 	public abstract void attack();

@@ -1,5 +1,5 @@
 package Wrappers;
 
 public interface TimerCallback {
-	public void invoke();
+	public void invoke(Timer timer);
 }

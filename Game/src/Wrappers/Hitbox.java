@@ -12,4 +12,12 @@ public class Hitbox {
 		this.width = width;
 		this.owner = owner;
 	}
+	
+	/**
+	 * Special kinds of hitboxes may not propagate the hit to its owner
+	 * @param hb
+	 */
+	public void hitBy(Hitbox hb) {
+		owner.onHit(hb);
+	}
 }

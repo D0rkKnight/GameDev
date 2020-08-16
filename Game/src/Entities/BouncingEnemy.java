@@ -9,8 +9,8 @@ import Wrappers.Stats;
 public class BouncingEnemy extends Enemy{
 
 
-	public BouncingEnemy(int ID, Vector2f position, Sprites sprites, Renderer renderer, String name, Stats stats) {
-		super(ID, position, sprites, renderer, name, stats);
+	public BouncingEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
+		super(ID, position, renderer, name, stats);
 		// TODO Auto-generated constructor stub
 	}
 	@Override
@@ -25,10 +25,8 @@ public class BouncingEnemy extends Enemy{
 		
 	}
 
-	@Override
 	public void calculate() {
-		// TODO Auto-generated method stub
-		
+		super.calculate();
 	}
 
 	

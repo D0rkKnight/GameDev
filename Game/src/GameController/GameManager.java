@@ -4,12 +4,10 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
-import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
-import static org.lwjgl.opengl.GL21.*;
+import static org.lwjgl.opengl.GL11.glClearColor;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -22,15 +20,17 @@ import Collision.HammerShape;
 import Collision.HammerSquare;
 import Collision.Physics;
 import Debug.Debug;
+import Entities.Enemy;
 import Entities.Entity;
+import Entities.FloaterEnemy;
 import Entities.PhysicsEntity;
 import Entities.Player;
 import Rendering.SpriteRenderer;
 import Rendering.SpriteShader;
 import Rendering.Texture;
 import Tiles.Tile;
-import Wrappers.Color;
 import Wrappers.Hitbox;
+import Wrappers.Stats;
 
 
 public class GameManager {
@@ -59,7 +59,7 @@ public class GameManager {
 
 	// Storage for tiles
 	private ArrayList<Map> maps;
-	private Map currmap;
+	public static Map currmap;
 
 	// Lookup table for different kinds of tiles
 	private HashMap<Integer, Tile> tileLookup;
@@ -114,8 +114,6 @@ public class GameManager {
 
 	
 	private void init() {
-		initTime();
-		
 		serializer = new Serializer();
 		Drawer.initGraphics();
 		Input.initInput();
@@ -149,6 +147,8 @@ public class GameManager {
 		//initCollision();
 		//initPlayer();
 		//Camera.main.attach(player);
+		
+		initTime();
 	}
 
 	private void loadProgression() {
@@ -197,10 +197,13 @@ public class GameManager {
 		}
 		currmap = new Map(mapData, null, null, null);//TODO
 		initEntities(mapFile);
-		initPlayer( 100f, mapData.length * 8);//hardcode for now
-		System.out.println(mapData.length * 8);
-		System.out.println(mapData[0].length * 8);
+		initPlayer(new Vector2f(100f, mapData.length * 8));//hardcode for now
 		Camera.main.attach(player);
+		
+		
+		//Hardcoding some enemy spawns
+		Enemy en = new FloaterEnemy(10, new Vector2f(100f, mapData.length * 8), renderer, "Enemy", new Stats());
+		subscribeEntity(en);
 	}
 
 	private void finishArea() { // called when character finishes a major area, updates level and chapter of
@@ -243,8 +246,8 @@ public class GameManager {
 		else System.err.println("Collider not defined!");
 	}
 	
-	private void initPlayer(float xpos, float ypos) {
-		player = new Player(0, new Vector2f(xpos, ypos), null, renderer, "Player", null);
+	private void initPlayer(Vector2f pos) {
+		player = new Player(0, new Vector2f(pos), renderer, "Player", new Stats());
 		
 		subscribeEntity(player);
 	}
@@ -294,6 +297,7 @@ public class GameManager {
 		currTime = System.nanoTime() / 1000000;
 		
 		deltaTime = currTime - lastTime;
+		deltaTime = Math.max(1, deltaTime);
 	}
 	
 	public static long deltaT() {
@@ -313,11 +317,7 @@ public class GameManager {
 	 */
 	private void update() {
 		//Clear tile collision colorings (debug purposes)
-		if (GameManager.showCollisions) {
-			for (Tile[] tArr : currmap.getGrid()) {
-				for (Tile t : tArr) if (t != null) t.renderer.col = new Color(0.5f, 0.5f, 0.5f);
-			}
-		}
+		if (GameManager.showCollisions) Debug.clearHighlights();
 		
 		//Dump entity waiting list into entity list
 		for (Entity e : entityWaitingList) {
@@ -339,7 +339,19 @@ public class GameManager {
 		
 		//Push in collision deltas
 		Tile[][] grid = currmap.getGrid();
-		for (Hitbox c : coll) {
+		for (int i=0; i<coll.size(); i++) {
+			Hitbox c = coll.get(i);
+			
+			//Collide against other hitboxes
+			for (int j=i+1; j<coll.size(); j++) {
+				if (j==coll.size()) break;
+				
+				Hitbox otherC = coll.get(j);
+				
+				Physics.checkEntityCollision(c, otherC);
+			}
+			
+			//Figure out movement
 			Physics.calculateDeltas(c, grid);
 		}
 		
@@ -351,7 +363,7 @@ public class GameManager {
 				pe.onTileCollision();
 				pe.pData.collidedWithTile = false;
 			}
-			e.pushMovement();
+			pe.pushMovement();
 		}
 		
 		Camera.main.update();

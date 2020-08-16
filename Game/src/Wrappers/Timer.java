@@ -1,5 +1,8 @@
 package Wrappers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import GameController.GameManager;
 
 /**
@@ -14,15 +17,20 @@ public class Timer {
 	private long loopTime;
 	private long loopLength;
 	
-	private TimerCallback cb;
+	protected ArrayList<TimerCallback> cbs;
 	
-	public Timer(long loopLength, TimerCallback cb) {
+	public ArrayList<Timer> subTimers;
+	
+	public Timer(long loopLength, TimerCallback... cbs) {
 		this.currTime = GameManager.getFrameTime();
 		this.loopLength = loopLength;
 		
 		this.loopTime = this.currTime + loopLength;
 		
-		this.cb = cb;
+		this.cbs = new ArrayList<>();
+		for (TimerCallback cb : cbs) this.cbs.add(cb); //Dump callbacks into arraylist
+		
+		subTimers = new ArrayList<>();
 	}
 	
 	//Returns whether the time threshold is crossed.
@@ -31,10 +39,14 @@ public class Timer {
 		if (currTime > loopTime) {
 			loopTime = currTime + loopLength;
 			
-			cb.invoke();
+			for (TimerCallback cb : cbs) cb.invoke(this);
 			
 			return true;
 		}
+		
+		//Update child timers too
+		for (Timer t : subTimers) t.update(); //Note: child timers have to be freed by deletion from this array.
+		
 		return false;
 	}
 }
