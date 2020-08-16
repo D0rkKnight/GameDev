@@ -60,4 +60,16 @@ public class WormHead extends Enemy implements Collidable{
 		
 	}
 
+	@Override
+	public Entity clone() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Entity clone(float xPos, float yPos) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

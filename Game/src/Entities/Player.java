@@ -38,12 +38,14 @@ public class Player extends Combatant{
 	private boolean canJump;
 	private long jumpGraceInterval = 100;
 	private Timer jumpGraceTimer;
+	private SpriteRenderer srenderer;
 	
 	public Player(int ID, Vector2f position, SpriteRenderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
 		
 		//Configure the renderer real quick
 		dim = new Vector2f(15f, 60f);
+		srenderer = renderer;
 		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer; //Renderer has been duplicated by now
 		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0, 0));
 		renderer = rendTemp;
@@ -289,5 +291,25 @@ public class Player extends Combatant{
 	public void onTileCollision() {
 		// TODO Auto-generated method stub
 		
+	}
+	public Entity clone() {
+		try {
+			return new Player(ID, new Vector2f(position.x, position.y), srenderer.clone(), name, stats.clone());
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public Entity clone(float xPos, float yPos) {
+		try {
+			return new Player(ID, new Vector2f(xPos, yPos), srenderer.clone(), name, stats.clone());
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

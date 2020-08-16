@@ -73,4 +73,6 @@ public abstract class Entity {
 	public void Destroy() {
 		GameManager.unsubscribeEntity(this);
 	}
+	public abstract Entity clone();
+	public abstract Entity clone(float xPos, float yPos);
 }

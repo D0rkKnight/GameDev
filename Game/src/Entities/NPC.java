@@ -48,4 +48,10 @@ public class NPC extends Entity {
 		return null;
 	}
 
+	@Override
+	public Entity clone(float xPos, float yPos) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

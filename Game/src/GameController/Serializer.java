@@ -29,6 +29,7 @@ import org.xml.sax.SAXException;
 import Accessories.Accessory;
 import Collision.HammerShape;
 import Entities.Entity;
+import Entities.Player;
 import Rendering.SpriteRenderer;
 import Rendering.Texture;
 import Tiles.Tile;
@@ -189,18 +190,27 @@ public class Serializer {
 	
 	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash){
 		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
-		int w = Integer.parseInt(layerE.getAttribute("width"));
-		int h = Integer.parseInt(layerE.getAttribute("height"));
+		int width = Integer.parseInt(layerE.getAttribute("width"));
+		int height = Integer.parseInt(layerE.getAttribute("height"));
 		
 		Element layerO = (Element) doc.getElementsByTagName("objectgroup").item(0);
 		NodeList objects = (layerO).getElementsByTagName("object");
 		int entitynum = objects.getLength();
 		ArrayList<Entity> entities = new ArrayList<Entity>();
 		for(int i = 0; i < entitynum; i++) {
-			//entityHash.get(0).
+			Element entity = (Element) objects.item(i);
+			int ID = Integer.parseInt((entity).getAttribute("type"));
+			float xPos = Float.parseFloat((entity).getAttribute("x")) / 8;
+			float yPos = Float.parseFloat((entity).getAttribute("y")) / 8;
+			//System.out.println(xPos);
+			//System.out.println(yPos);
+			yPos += Float.parseFloat((entity).getAttribute("height")) / 8;
+			yPos = height - yPos;
+			//System.out.println(xPos);
+			//System.out.println(yPos);
+			entities.add(entityHash.get(ID).clone(xPos * 16, yPos * 16));
 		}
-		
-		return null;
+		return entities;
 		
 	}
 	

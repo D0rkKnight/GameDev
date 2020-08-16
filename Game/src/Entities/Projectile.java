@@ -63,4 +63,16 @@ public class Projectile extends PhysicsEntity{
 	public void onTileCollision() {
 		Destroy();
 	}
+
+	@Override
+	public Entity clone() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Entity clone(float xPos, float yPos) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
