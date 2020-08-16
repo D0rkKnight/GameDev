@@ -67,6 +67,7 @@ public class GameManager {
 	private HashMap<Integer, Accessory> accessoryLookup;
 	// Lookup table for hammershapes
 	public static HashMap<Integer, HammerShape> hammerLookup;
+	private HashMap<Integer, Entity> entityHash;
 
 	// current progression of player ingame
 	private int chapter; // chapter, determines plot events
@@ -199,13 +200,10 @@ public class GameManager {
 		initEntities(mapFile);
 		int xTiles = 5;
 		int yTiles = 90;
-		initPlayer(new Vector2f(xTiles * 16, yTiles * 16));//hardcode for now
-		Camera.main.attach(player);
+		
 		
 		
 		//Hardcoding some enemy spawns
-		Enemy en = new FloaterEnemy(10, new Vector2f(100f, mapData.length * 8), renderer, "Enemy", new Stats());
-		subscribeEntity(en);
 	}
 
 	private void finishArea() { // called when character finishes a major area, updates level and chapter of
@@ -214,9 +212,21 @@ public class GameManager {
 	}
 	
 	private void initEntities(Document mapFile) {
+		//TODO this is hardcoded, make a initEntityHash
+		entityHash = new HashMap<Integer, Entity>();
+		entityHash.put(0, new Player(0, new Vector2f(0f, 0f), renderer, "Player", new Stats()));
+		entityHash.put(1, new FloaterEnemy(10, new Vector2f(0, 0), renderer, "Enemy", new Stats()));
 		entities = new ArrayList();
 		entityWaitingList = new ArrayList();
 		entityClearList = new ArrayList();
+		
+		ArrayList<Entity> entitytemp = Serializer.loadEntities(mapFile, entityHash);
+		for(Entity e : entitytemp) {
+			subscribeEntity(e);
+		}
+		
+		initPlayer();
+		
 	}
 	
 	private void initCollision() {
@@ -248,10 +258,13 @@ public class GameManager {
 		else System.err.println("Collider not defined!");
 	}
 	
-	private void initPlayer(Vector2f pos) {
-		player = new Player(0, new Vector2f(pos), renderer, "Player", new Stats());
+	private void initPlayer() {
+		//if(entities.get(0) == null) {
+		//	System.out.println("ERROR, PLAYER NOT SERIALIZED");
+		//	player = new Player(0, new Vector2f(5 * 16, 90 * 16), renderer, "Player", new Stats());
+		//}
 		
-		subscribeEntity(player);
+		Camera.main.attach(entityWaitingList.get(0));
 	}
 
 	/*

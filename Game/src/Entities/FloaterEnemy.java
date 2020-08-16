@@ -84,4 +84,26 @@ public class FloaterEnemy extends Enemy{
 		
 	}
 
+	@Override
+	public Entity clone(float xPos, float yPos) {
+		try {
+			return new FloaterEnemy(ID, new Vector2f(xPos, yPos), renderer.clone(), name, stats.clone());
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public Entity clone() {
+		try {
+			return new FloaterEnemy(ID, new Vector2f(position.x, position.y), renderer.clone(), name, stats.clone());
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }
