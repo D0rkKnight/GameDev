@@ -50,6 +50,8 @@ public class ChargingEnemy extends Enemy implements Gravity {
 
 	@Override
 	public void calculate() {
+		super.calculate();
+		
 		calcFrame();
 		if (currentGroup == 3) { // winddown
 

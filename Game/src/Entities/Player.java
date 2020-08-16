@@ -35,13 +35,17 @@ public class Player extends Combatant{
 	
 	private Animator anim;
 	
+	private boolean canJump;
+	private long jumpGraceInterval = 100;
+	private Timer jumpGraceTimer;
+	
 	public Player(int ID, Vector2f position, SpriteRenderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
 		
 		//Configure the renderer real quick
 		dim = new Vector2f(15f, 60f);
 		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer; //Renderer has been duplicated by now
-		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0));
+		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0, 0));
 		renderer = rendTemp;
 		
 		//Configure hitbox
@@ -57,7 +61,7 @@ public class Player extends Combatant{
 		gunTimer = new Timer(100, new TimerCallback() {
 
 			@Override
-			public void invoke() {
+			public void invoke(Timer timer) {
 				fireGun(Input.mouseWorldPos);
 			}
 			
@@ -92,6 +96,8 @@ public class Player extends Combatant{
 	}
 	
 	public void calculate() {
+		super.calculate();
+		
 		determineMovementMode(); //determine what movement mode and execute it
 		
 		SpriteRenderer sprRend = (SpriteRenderer) renderer;
@@ -116,6 +122,21 @@ public class Player extends Combatant{
 		if(justDashed && hasGravity) {
 			velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
 			if(velo.y < 0) justDashed = false;
+		}
+		
+		//Jump
+		if (jumpGraceTimer != null) jumpGraceTimer.update();
+		if (canJump && Input.moveY == 1 && releasedJump) {
+			velo.y = jumpSpeed;
+			
+			//TODO: Rename this so its purpose is less vague.
+			isJumping = true; //Signals to the physics system that some operations ought to be done
+			releasedJump = false;
+			if( false ) {//TODO colliding with wall
+				//TODO velo.x += xCap;
+			}
+			
+			canJump = false;
 		}
 		
 		//Shoot a gun
@@ -155,7 +176,7 @@ public class Player extends Combatant{
 			dashTimer = new Timer(dashDuration, new TimerCallback() {
 
 				@Override
-				public void invoke() {
+				public void invoke(Timer timer) {
 					//First, dump this timer
 					dashTimer = null;
 					
@@ -201,19 +222,19 @@ public class Player extends Combatant{
 			releasedJump = true;
 		}
 		
-		if (grounded && movementMode != MOVEMENT_MODE_IS_DASHING && Input.moveY == 1 && releasedJump) { // if player is colliding with ground underneath and digital input detected
-										// (space pressed)
-			velo.y = jumpSpeed;
-			
-			//TODO: Rename this so its purpose is less vague.
-			isJumping = true; //Signals to the physics system that some operations ought to be done
-			releasedJump = false;
-			if( false ) {//TODO colliding with wall
-				//TODO velo.x += xCap;
-			}
+		if (grounded && movementMode != MOVEMENT_MODE_IS_DASHING) canJump = true;
+		else if (wasGrounded) {
+			//begin timer
+			jumpGraceTimer = new Timer(jumpGraceInterval, new TimerCallback() {
+
+				@Override
+				public void invoke(Timer timer) {
+					// TODO Auto-generated method stub
+					canJump = false;
+					jumpGraceTimer = null;
+				}
+			});
 		}
-	
-	
 		hasGravity = true;
 	}
 

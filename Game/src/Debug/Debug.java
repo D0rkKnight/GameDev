@@ -60,7 +60,7 @@ public class Debug {
 	}
 	
 	public static void clearHighlights() {
-		for (SpriteRenderer r : highlightedRenderers) r.col = new Color(1, 1, 1);
+		for (SpriteRenderer r : highlightedRenderers) r.col = new Color();
 		
 		highlightedRenderers.clear();
 	}

@@ -44,7 +44,7 @@ public class Tile implements Cloneable{
 			hammerState = GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE);
 		}
 		
-		this.renderer.init(pos, rect, hammerState.shapeId, new Color(1, 1, 1));
+		this.renderer.init(pos, rect, hammerState.shapeId, new Color());
 	}
 	
 	/**

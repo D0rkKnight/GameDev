@@ -100,10 +100,10 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		
 		//Generate attributes
 		attribs = new Attribute[3];
-		rowSize = 8;
+		rowSize = 9;
 		attribs[0] = new Attribute(0, 3, rowSize, 0); //vertices
 		attribs[1] = new Attribute(1, 2, rowSize, 3); //Tex UVs
-		attribs[2] = new Attribute(2, 3, rowSize, 5); //Colors
+		attribs[2] = new Attribute(2, 4, rowSize, 5); //Colors
 		
 		//Vertex count
 		switch(shape) {
@@ -256,11 +256,14 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	}
 	
 	protected float[] genColors(Color col) {
-		float[] out = new float[vertexCount * 3];
+		int stride = 4;
+		float[] out = new float[vertexCount * stride];
 		for (int i=0; i<vertexCount; i++) {
-			out[i*3] = col.r;
-			out[i*3+1] = col.g;
-			out[i*3+2] = col.b;
+			out[i*stride] = col.r;
+			out[i*stride+1] = col.g;
+			out[i*stride+2] = col.b;
+			
+			if (stride > 3) out[i*stride+3] = col.a;
 		}
 		
 		return out;

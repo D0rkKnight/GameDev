@@ -25,10 +25,8 @@ public class BouncingEnemy extends Enemy{
 		
 	}
 
-	@Override
 	public void calculate() {
-		// TODO Auto-generated method stub
-		
+		super.calculate();
 	}
 
 	

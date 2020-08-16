@@ -18,7 +18,7 @@ public class Projectile extends PhysicsEntity{
 		//Configure renderer
 		dim = new Vector2f(8f, 8f);
 		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer;
-		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 1, 0));
+		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 1, 0, 0));
 		renderer = rendTemp;
 		
 		//Configure hitbox
@@ -27,11 +27,19 @@ public class Projectile extends PhysicsEntity{
 
 	public void onHit(Hitbox otherHb) { //upon colliding with another hitbox
 		PhysicsEntity e = otherHb.owner;
-		
+			
 		//Hit an enemy
 		if (e.alignment == ALIGNMENT_ENEMY) {
-			Vector2f kb = new Vector2f(velo).mul(0.2f);
-			e.knockback(kb, 0.5f, 1f);
+			
+			//If it's a combatant, do damange and knockback
+			if (e instanceof Combatant) {
+				Combatant c = (Combatant) e;
+				
+				Vector2f kb = new Vector2f(velo).mul(0.2f);
+				c.knockback(kb, 0.5f, 1f);
+				
+				c.hit(1);
+			}
 			
 			//DESTROY
 			Destroy();

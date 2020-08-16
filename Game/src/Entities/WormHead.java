@@ -36,6 +36,8 @@ public class WormHead extends Enemy implements Collidable{
 
 	@Override
 	public void calculate() {
+		super.calculate();
+		
 		// TODO Auto-generated method stub
 		
 	}

@@ -23,6 +23,7 @@ public abstract class Physics {
 		PhysicsEntity e = c.owner;
 		
 		//Presume to be free falling, until able to prove otherwise
+		e.wasGrounded = e.grounded;
 		e.grounded = false;
 		
 		//If jumping, force a velocity change.
@@ -115,8 +116,6 @@ public abstract class Physics {
 		//Push changes
 		e.setMoveDelta(deltaTemp);
 		e.velo = velo;
-		
-		e.wasGrounded = e.grounded;
 		
 		if (e.veloChangeQueued) {
 			e.resolveVeloChange();
