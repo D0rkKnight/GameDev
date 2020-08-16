@@ -29,6 +29,7 @@ import org.xml.sax.SAXException;
 import Accessories.Accessory;
 import Collision.HammerShape;
 import Entities.Entity;
+import Entities.Player;
 import Rendering.SpriteRenderer;
 import Rendering.Texture;
 import Tiles.Tile;
@@ -187,7 +188,7 @@ public class Serializer {
 		return grid;
 	}
 	
-	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash){
+	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash, Player player){
 		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
 		int width = Integer.parseInt(layerE.getAttribute("width"));
 		int height = Integer.parseInt(layerE.getAttribute("height"));
@@ -208,6 +209,10 @@ public class Serializer {
 			System.out.println(xPos);
 			System.out.println(yPos);
 			entities.add(entityHash.get(ID).clone(xPos * 16, yPos * 16));
+			if(i == 0) {
+				player = (Player) entities.get(0);
+				System.out.println("triggered");
+			}
 		}
 		return entities;
 		

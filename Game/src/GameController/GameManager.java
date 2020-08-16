@@ -216,15 +216,17 @@ public class GameManager {
 		entityHash = new HashMap<Integer, Entity>();
 		entityHash.put(0, new Player(0, new Vector2f(0f, 0f), renderer, "Player", new Stats()));
 		entityHash.put(1, new FloaterEnemy(10, new Vector2f(0, 0), renderer, "Enemy", new Stats()));
+		
+		
 		entities = new ArrayList();
 		entityWaitingList = new ArrayList();
 		entityClearList = new ArrayList();
 		
-		ArrayList<Entity> entitytemp = Serializer.loadEntities(mapFile, entityHash);
+		ArrayList<Entity> entitytemp = Serializer.loadEntities(mapFile, entityHash, player);
 		for(Entity e : entitytemp) {
 			subscribeEntity(e);
 		}
-		
+		player = (Player) entityWaitingList.get(0);
 		initPlayer();
 		
 	}
@@ -264,7 +266,7 @@ public class GameManager {
 		//	player = new Player(0, new Vector2f(5 * 16, 90 * 16), renderer, "Player", new Stats());
 		//}
 		
-		Camera.main.attach(entityWaitingList.get(0));
+		Camera.main.attach(player);
 	}
 
 	/*

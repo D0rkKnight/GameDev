@@ -56,19 +56,25 @@ public class FloaterEnemy extends Enemy{
 		super.calculate();
 		
 		Tile[][] grid = GameManager.currmap.getGrid();
-		 
-		ai.calculatePath(position, target.position, grid);
 		
-		// TODO Auto-generated method stub
-		// Point towards the player and move
-		Vector2f dir = Vector.dirTo(position, ai.nextNode());
-		
-		float movespeed = 0.01f;
-		if (dir != null) {
-			Vector2f target = new Vector2f(dir).mul(movespeed).mul(GameManager.deltaT());
+		if(target != null) {
+			ai.calculatePath(position, target.position, grid); 
 			
-			float ratio = 0.1f;
-			pData.velo = Vector.lerp(pData.velo, target, ratio);
+			// TODO Auto-generated method stub
+			// Point towards the player and move
+			Vector2f dir = Vector.dirTo(position, ai.nextNode());
+			
+			
+			float movespeed = 0.01f;
+			if (dir != null) {
+				Vector2f target = new Vector2f(dir).mul(movespeed).mul(GameManager.deltaT());
+				
+				float ratio = 0.1f;
+				pData.velo = Vector.lerp(pData.velo, target, ratio);
+			}
+		}
+		else {
+			findTarget();
 		}
 	}
 
