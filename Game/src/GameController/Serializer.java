@@ -187,6 +187,24 @@ public class Serializer {
 		return grid;
 	}
 	
+	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash){
+		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
+		int w = Integer.parseInt(layerE.getAttribute("width"));
+		int h = Integer.parseInt(layerE.getAttribute("height"));
+		
+		Element layerO = (Element) doc.getElementsByTagName("objectgroup").item(0);
+		NodeList objects = (layerO).getElementsByTagName("object");
+		int entitynum = objects.getLength();
+		ArrayList<Entity> entities = new ArrayList<Entity>();
+		for(int i = 0; i < entitynum; i++) {
+			//entityHash.get(0).
+		}
+		
+		return null;
+		
+	}
+	
+	
 	private static String trim(String str) {
 		BufferedReader br = new BufferedReader(new StringReader(str));
 		StringBuffer out = new StringBuffer();

@@ -196,7 +196,9 @@ public class GameManager {
 		}
 		currmap = new Map(mapData, null, null, null);//TODO
 		initEntities(mapFile);
-		initPlayer(new Vector2f(100f, mapData.length * 8));//hardcode for now
+		int xTiles = 5;
+		int yTiles = 90;
+		initPlayer(new Vector2f(xTiles * 16, yTiles * 16));//hardcode for now
 		Camera.main.attach(player);
 		
 		
