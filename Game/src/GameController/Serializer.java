@@ -208,7 +208,12 @@ public class Serializer {
 			yPos = height - yPos;
 			//System.out.println(xPos);
 			//System.out.println(yPos);
-			entities.add(entityHash.get(ID).clone(xPos * 16, yPos * 16));
+			
+			Entity e = entityHash.get(ID).clone(xPos * 16, yPos * 16);
+			
+			if (e instanceof Player) GameManager.player = (Player) e;
+			
+			entities.add(e);
 		}
 		return entities;
 		
