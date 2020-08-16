@@ -58,8 +58,6 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 		pData.xDir = new Vector2f(1, 0);
 		pData.isJumping = false;
 		pData.collidedWithTile = false;
-		pData.height = dim.y;
-		pData.width = dim.x;
 		pData.canBeGrounded = true;
 		
 		initPhysicsCollBehavior();
@@ -144,8 +142,8 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	protected void gravity() {
 		//Gravity
 		if (hasGravity) {
-			velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
-			velo.y = Math.max(velo.y, -2);
+			pData.velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
+			pData.velo.y = Math.max(pData.velo.y, -2);
 		}
 	}
 	
@@ -157,20 +155,20 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	 */
 	public void knockback(Vector2f knockbackVector, float movementMulti, float decelMulti) {
 		if(movementMode == MOVEMENT_MODE_KNOCKBACK) {
-			if(Math.abs(velo.x) < Math.abs(knockbackVector.x)) {
-				velo.x = knockbackVector.x;
+			if(Math.abs(pData.velo.x) < Math.abs(knockbackVector.x)) {
+				pData.velo.x = knockbackVector.x;
 				this.knockbackDir.x = knockbackVector.x;
 			}
-			if(Math.abs(velo.y) < Math.abs(knockbackVector.y)) {
-				velo.y = knockbackVector.y;
+			if(Math.abs(pData.velo.y) < Math.abs(knockbackVector.y)) {
+				pData.velo.y = knockbackVector.y;
 				this.knockbackDir.y = knockbackVector.y;
 			}
 			if(this.movementMulti < movementMulti) this.movementMulti = movementMulti;
 			if(this.decelMulti < decelMulti) this.decelMulti = decelMulti;
 		}
 		else {
-			velo.x = knockbackVector.x;
-			velo.y = knockbackVector.y;
+			pData.velo.x = knockbackVector.x;
+			pData.velo.y = knockbackVector.y;
 			this.knockbackDir = new Vector2f(knockbackVector);
 			this.movementMulti = movementMulti;
 			this.decelMulti = decelMulti;

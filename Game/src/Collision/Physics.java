@@ -24,8 +24,8 @@ public abstract class Physics {
 		
 		//Presume to be free falling, until able to prove otherwise
 
-		e.wasGrounded = e.grounded;
-		e.grounded = false;
+		e.pData.wasGrounded = e.pData.grounded;
+		e.pData.grounded = false;
 		
 		//If jumping, force a velocity change.
 		if (e.pData.isJumping) {

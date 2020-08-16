@@ -16,7 +16,7 @@ public class PhysicsCollisionBehaviorStepUp extends PhysicsCollisionBehavior{
 		 * Moving up 1 tile tall steps
 		 */
 		boolean tileBumpSuccess = false;
-		if (e.wasGrounded && moveAxis == e.xDir) {
+		if (e.pData.wasGrounded && moveAxis == e.pData.xDir) {
 			Vector2f rightAxis = Vector.rightVector(axises[1]);
 			float dot = rightAxis.dot(tangent);
 			

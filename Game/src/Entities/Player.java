@@ -131,10 +131,10 @@ public class Player extends Combatant{
 		//Jump
 		if (jumpGraceTimer != null) jumpGraceTimer.update();
 		if (canJump && Input.moveY == 1 && releasedJump) {
-			velo.y = jumpSpeed;
+			pData.velo.y = jumpSpeed;
 			
 			//TODO: Rename this so its purpose is less vague.
-			isJumping = true; //Signals to the physics system that some operations ought to be done
+			pData.isJumping = true; //Signals to the physics system that some operations ought to be done
 			releasedJump = false;
 			if( false ) {//TODO colliding with wall
 				//TODO velo.x += xCap;
@@ -225,8 +225,8 @@ public class Player extends Combatant{
 		if(Input.moveY == 0) {
 			releasedJump = true;
 		}
-		if (grounded && movementMode != MOVEMENT_MODE_IS_DASHING) canJump = true;
-		else if (wasGrounded) {
+		if (pData.grounded && movementMode != MOVEMENT_MODE_IS_DASHING) canJump = true;
+		else if (pData.wasGrounded) {
 			//begin timer
 			jumpGraceTimer = new Timer(jumpGraceInterval, new TimerCallback() {
 

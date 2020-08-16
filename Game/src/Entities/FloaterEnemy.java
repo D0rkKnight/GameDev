@@ -68,7 +68,7 @@ public class FloaterEnemy extends Enemy{
 			Vector2f target = new Vector2f(dir).mul(movespeed).mul(GameManager.deltaT());
 			
 			float ratio = 0.1f;
-			velo = Vector.lerp(velo, target, ratio);
+			pData.velo = Vector.lerp(pData.velo, target, ratio);
 		}
 	}
 

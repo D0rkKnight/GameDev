@@ -84,12 +84,12 @@ public class ChargingEnemy extends Enemy implements Gravity {
 	public void gravity() {
 		if (true) { // entity not colliding with ground
 			// Set this to universal gravitational constant
-			yAcceleration = Entity.gravity;
-			velo.y -= yAcceleration;
-			velo.y = Math.max(velo.y, -3);
+			pData.yAcceleration = Entity.gravity;
+			pData.velo.y -= pData.yAcceleration;
+			pData.velo.y = Math.max(pData.velo.y, -3);
 		}
     else{
-      velo.y = 0;
+    	pData.velo.y = 0;
     }
 
 	}

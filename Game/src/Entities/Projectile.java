@@ -35,7 +35,7 @@ public class Projectile extends PhysicsEntity{
 			if (e instanceof Combatant) {
 				Combatant c = (Combatant) e;
 				
-				Vector2f kb = new Vector2f(velo).mul(0.2f);
+				Vector2f kb = new Vector2f(pData.velo).mul(0.2f);
 				c.knockback(kb, 0.5f, 1f);
 				
 				c.hit(1);
