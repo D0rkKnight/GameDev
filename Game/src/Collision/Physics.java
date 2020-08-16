@@ -23,27 +23,28 @@ public abstract class Physics {
 		PhysicsEntity e = c.owner;
 		
 		//Presume to be free falling, until able to prove otherwise
+
 		e.wasGrounded = e.grounded;
 		e.grounded = false;
 		
 		//If jumping, force a velocity change.
-		if (e.isJumping) {
+		if (e.pData.isJumping) {
 			//Pass in new diVector2fional axises (x axis perpendicular to the y axis)
-			Vector2f yAxis = e.yDir;
+			Vector2f yAxis = e.pData.yDir;
 			Vector2f xAxis = Vector.rightVector(yAxis); //This is 90 degrees clockwise
-			float yVelo = e.velo.y;
+			float yVelo = e.pData.velo.y;
 			
 			//This will modify both x and y velocities.
 			e.recordVeloChange(xAxis, yAxis);
 			e.resolveVeloChange();
 			
 			//The point is to retain the y velocity.
-			e.velo.y = yVelo;
-			e.isJumping = false;
+			e.pData.velo.y = yVelo;
+			e.pData.isJumping = false;
 		}
 		
 		//Grab projected movement
-		Vector2f velo = new Vector2f(e.velo);
+		Vector2f velo = new Vector2f(e.pData.velo);
 		
 		//Calculate projected position
 		Vector2f rawPos = e.getPosition();
@@ -51,11 +52,11 @@ public abstract class Physics {
 		//Axises of movement, in order of movement done.
 		//Components are stacked onto deltaTemp before being pushed fully to moveDelta.
 		Vector2f[] axises = new Vector2f[2];
-		axises[0] = e.xDir;
+		axises[0] = e.pData.xDir;
 		
 		//This is now definitely pointed in the right diVector2fion, 
 		//	but I have no clue why it's pointed opposite to the velo deflection tangent.
-		axises[1] = e.yDir;
+		axises[1] = e.pData.yDir;
 		
 		//This is pointed in the right diVector2fion now, now split deltaMove and cache it.
 		Vector2f[] deltaComponents = new Vector2f[axises.length];
@@ -115,9 +116,9 @@ public abstract class Physics {
 		
 		//Push changes
 		e.setMoveDelta(deltaTemp);
-		e.velo = velo;
+		e.pData.velo = velo;
 		
-		if (e.veloChangeQueued) {
+		if (e.pData.veloChangeQueued) {
 			e.resolveVeloChange();
 		}
 	}
@@ -173,8 +174,8 @@ public abstract class Physics {
 			 * Determine what behavior to use
 			 */
 			ArrayList<PhysicsCollisionBehavior> behaviors = null;
-			
-			if (Math.abs(tangentDir.y) < 0.8 && tangentDir.x < 0 && e.canBeGrounded) { //TODO: Make this work along any gravitational pull
+
+			if (Math.abs(tangentDir.y) < 0.8 && tangentDir.x < 0 && e.pData.canBeGrounded) { //TODO: Make this work along any gravitational pull
 				//Now, set the behavior list that should be executed.
 				behaviors = e.groundedCollBehaviorList;
 			}
@@ -197,7 +198,7 @@ public abstract class Physics {
 			deltaMove.add(delta);
 			
 			//Enqueue collision response (but store this for later since I want it batched)
-			e.collidedWithTile = true;
+			e.pData.collidedWithTile = true;
 		}
 		
 		return isSuccess;
