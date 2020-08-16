@@ -36,7 +36,6 @@ public abstract class Entity {
 	public Entity(int ID, Vector2f position, Renderer renderer, String name) {
 		this.ID = ID;
 		this.position = position;
-		this.sprites = sprites;
 		this.name = name;
 		try {
 			this.renderer = renderer.clone();

@@ -125,8 +125,8 @@ public class Player extends Combatant{
 			if(justDashed) {
 				pData.velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
 				if(pData.velo.y < 0) justDashed = false;
-      }
-    }
+			}
+	    }
 		
 		//Jump
 		if (jumpGraceTimer != null) jumpGraceTimer.update();
