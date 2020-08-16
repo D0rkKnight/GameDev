@@ -347,9 +347,9 @@ public class GameManager {
 		for (Entity e : entities) {
 			//Somehow need to avoid pushing the movement of entities that don't move.
 			PhysicsEntity pe = (PhysicsEntity) e;
-			if (pe.collidedWithTile) {
+			if (pe.pData.collidedWithTile) {
 				pe.onTileCollision();
-				pe.collidedWithTile = false;
+				pe.pData.collidedWithTile = false;
 			}
 			e.pushMovement();
 		}

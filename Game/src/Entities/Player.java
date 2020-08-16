@@ -98,20 +98,20 @@ public class Player extends Combatant{
 	 */
 	public void knockback(Vector2f knockbackDir, float movementMulti, float decelMulti) {
 		if(movementMode == MOVEMENT_MODE_KNOCKBACK) {
-			if(Math.abs(velo.x) < Math.abs(knockbackDir.x)) {
-				velo.x = knockbackDir.x;
+			if(Math.abs(pData.velo.x) < Math.abs(knockbackDir.x)) {
+				pData.velo.x = knockbackDir.x;
 				this.knockbackDir.x = knockbackDir.x;
 			}
-			if(Math.abs(velo.y) < Math.abs(knockbackDir.y)) {
-				velo.y = knockbackDir.y;
+			if(Math.abs(pData.velo.y) < Math.abs(knockbackDir.y)) {
+				pData.velo.y = knockbackDir.y;
 				this.knockbackDir.y = knockbackDir.y;
 			}
 			if(this.movementMulti < movementMulti) this.movementMulti = movementMulti;
 			if(this.decelMulti < decelMulti) this.decelMulti = decelMulti;
 		}
 		else {
-			velo.x = knockbackDir.x;
-			velo.y = knockbackDir.y;
+			pData.velo.x = knockbackDir.x;
+			pData.velo.y = knockbackDir.y;
 			this.knockbackDir = new Vector2f(knockbackDir);
 			this.movementMulti = movementMulti;
 			this.decelMulti = decelMulti;
@@ -156,11 +156,11 @@ public class Player extends Combatant{
 		
 		//Gravity
 		if (hasGravity) {
-			velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
-			velo.y = Math.max(velo.y, -2);
+			pData.velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
+			pData.velo.y = Math.max(pData.velo.y, -2);
 			if(justDashed) {
-				velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
-				if(velo.y < 0) justDashed = false;
+				pData.velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
+				if(pData.velo.y < 0) justDashed = false;
 			}
 			
 		}
@@ -186,7 +186,7 @@ public class Player extends Combatant{
 			movementMode = MOVEMENT_MODE_KNOCKBACK;
 			knockback = false;
 		}
-		if(movementMode == MOVEMENT_MODE_KNOCKBACK && Math.abs(velo.x) < xCap) {
+		if(movementMode == MOVEMENT_MODE_KNOCKBACK && Math.abs(pData.velo.x) < xCap) {
 			movementMode = MOVEMENT_MODE_CONTROLLED;
 			knockbackDir = null;
 		}
@@ -196,7 +196,7 @@ public class Player extends Combatant{
 			dashDir = new Vector2f(Input.moveX, Input.moveY).normalize();
 			
 			//Set velocity here
-			velo = new Vector2f(dashDir).mul(dashSpeed);
+			pData.velo = new Vector2f(dashDir).mul(dashSpeed);
 			
 			//Begin a timer
 			dashTimer = new Timer(dashDuration, new TimerCallback() {
@@ -228,32 +228,32 @@ public class Player extends Combatant{
 			xAccel = accelConst * Input.moveX;
 		} else {
 			//Reduce jitter (divide by deltaT to balance out equation)
-			float decelConst = Math.min(accelConst, Math.abs(velo.x) / GameManager.deltaT());
+			float decelConst = Math.min(accelConst, Math.abs(pData.velo.x) / GameManager.deltaT());
 			
-			xAccel = -decelConst * Arithmetic.sign(velo.x);
+			xAccel = -decelConst * Arithmetic.sign(pData.velo.x);
 		}
 		xAccel *= GameManager.deltaT();
-		if(Math.abs(velo.x) <= xCap) {
-			velo.x += xAccel;
+		if(Math.abs(pData.velo.x) <= xCap) {
+			pData.velo.x += xAccel;
 		
 			//cap velo
-			if (Input.moveX > 0) velo.x = Math.min(velo.x, xCap);
-			if (Input.moveX < 0) velo.x = Math.max(velo.x, -xCap);
+			if (Input.moveX > 0) pData.velo.x = Math.min(pData.velo.x, xCap);
+			if (Input.moveX < 0) pData.velo.x = Math.max(pData.velo.x, -xCap);
 		}
 		else {
-			float decelConst = (Math.max(xCap, Math.abs(velo.x) - 2 * accelConst) / GameManager.deltaT());
-			velo.x -= decelConst * Arithmetic.sign(velo.x);
+			float decelConst = (Math.max(xCap, Math.abs(pData.velo.x) - 2 * accelConst) / GameManager.deltaT());
+			pData.velo.x -= decelConst * Arithmetic.sign(pData.velo.x);
 		}
 		if(Input.moveY == 0) {
 			releasedJump = true;
 		}
 		
-		if (grounded && movementMode != MOVEMENT_MODE_IS_DASHING && Input.moveY == 1 && releasedJump) { // if player is colliding with ground underneath and digital input detected
+		if (pData.grounded && movementMode != MOVEMENT_MODE_IS_DASHING && Input.moveY == 1 && releasedJump) { // if player is colliding with ground underneath and digital input detected
 										// (space pressed)
-			velo.y = jumpSpeed;
+			pData.velo.y = jumpSpeed;
 			
 			//TODO: Rename this so its purpose is less vague.
-			isJumping = true; //Signals to the physics system that some operations ought to be done
+			pData.isJumping = true; //Signals to the physics system that some operations ought to be done
 			releasedJump = false;
 			if( false ) {//TODO colliding with wall
 				//TODO velo.x += xCap;
@@ -275,12 +275,12 @@ public class Player extends Combatant{
 	 */
 	private void knockbackMovement() {
 		//automatic deacceleration
-		float decelConst = Math.min(accelConst * decelMulti, Math.abs(velo.x) - xCap) * -Arithmetic.sign(velo.x);
+		float decelConst = Math.min(accelConst * decelMulti, Math.abs(pData.velo.x) - xCap) * -Arithmetic.sign(pData.velo.x);
 		//effect of movement
 		decelConst += accelConst * movementMulti * Input.moveX;
 		decelConst *= GameManager.deltaT();
 		
-		velo.x += decelConst;
+		pData.velo.x += decelConst;
 		hasGravity = true;
 	}
 	
@@ -295,7 +295,7 @@ public class Player extends Combatant{
 		Vector2f dir = new Vector2f(firePos).sub(position).normalize();
 		Vector2f velo = new Vector2f(dir).mul(3);
 		
-		proj.velo = new Vector2f(velo);
+		proj.pData.velo = new Vector2f(velo);
 		
 		GameManager.subscribeEntity(proj);
 	}
