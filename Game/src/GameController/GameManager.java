@@ -222,7 +222,7 @@ public class GameManager {
 		entityWaitingList = new ArrayList();
 		entityClearList = new ArrayList();
 		
-		ArrayList<Entity> entitytemp = Serializer.loadEntities(mapFile, entityHash, player);
+		ArrayList<Entity> entitytemp = Serializer.loadEntities(mapFile, entityHash);
 		for(Entity e : entitytemp) {
 			subscribeEntity(e);
 		}

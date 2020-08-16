@@ -188,7 +188,7 @@ public class Serializer {
 		return grid;
 	}
 	
-	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash, Player player){
+	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash){
 		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
 		int width = Integer.parseInt(layerE.getAttribute("width"));
 		int height = Integer.parseInt(layerE.getAttribute("height"));
@@ -202,17 +202,13 @@ public class Serializer {
 			int ID = Integer.parseInt((entity).getAttribute("type"));
 			float xPos = Float.parseFloat((entity).getAttribute("x")) / 8;
 			float yPos = Float.parseFloat((entity).getAttribute("y")) / 8;
-			System.out.println(xPos);
-			System.out.println(yPos);
+			//System.out.println(xPos);
+			//System.out.println(yPos);
 			yPos += Float.parseFloat((entity).getAttribute("height")) / 8;
 			yPos = height - yPos;
-			System.out.println(xPos);
-			System.out.println(yPos);
+			//System.out.println(xPos);
+			//System.out.println(yPos);
 			entities.add(entityHash.get(ID).clone(xPos * 16, yPos * 16));
-			if(i == 0) {
-				player = (Player) entities.get(0);
-				System.out.println("triggered");
-			}
 		}
 		return entities;
 		
