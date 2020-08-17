@@ -25,12 +25,23 @@ public class HammerRightTriangle extends HammerShape{
 			System.err.println("rotation type not recognized");
 		}
 		
-		//Archetypal no rotation triangle
-		points = new Vector2f[] {
+		//Archetypal no rotation triangle (Bottom left)
+		vertices = new Vector2f[] {
 				new Vector2f(0f, 1f),
 				new Vector2f(0f, 0f),
 				new Vector2f(1f, 0f)
 		};
-		pushRotations(rotations);
+		pushRotations(rotations, vertices);
+		
+		Vector2f bl = new Vector2f(0, 0);
+		Vector2f br = new Vector2f(1, 0);
+		Vector2f ul = new Vector2f(0, 1);
+		Vector2f ur = new Vector2f(1, 1);
+		triangulatedVertices = new Vector2f[] {
+			ul,
+			bl,
+			br
+		};
+		pushRotations(rotations, triangulatedVertices);
 	}
 }

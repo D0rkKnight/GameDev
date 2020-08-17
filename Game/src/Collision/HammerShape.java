@@ -16,14 +16,16 @@ public abstract class HammerShape {
 	public static final int HAMMER_SHAPE_FINAL = 5;
 	
 	public int shapeId;
-	public Vector2f[] points;
+	public Vector2f[] vertices;
+	public Vector2f[] triangulatedVertices;
 	
 	public HammerShape(int shapeId) {
-		points = null;
+		vertices = null;
+		triangulatedVertices = null;
 		this.shapeId = shapeId;
 	}
 	
-	protected void pushRotations(int rotations) {
+	protected static void pushRotations(int rotations, Vector2f[] points) {
 		for (int i=0; i<rotations; i++) {
 			for (int j=0; j<points.length; j++) {
 				Vector2f v = points[j];

@@ -309,10 +309,10 @@ public abstract class Physics {
 		Vector2f[] rectPoints = Geometry.pointsFromCorners(bl, ur);
 		
 		//This needs to use world space, not normalized tile space.
-		Vector2f[] shapePoints = new Vector2f[shape.points.length];
+		Vector2f[] shapePoints = new Vector2f[shape.vertices.length];
 		for (int i=0; i<shapePoints.length; i++) {
 			//Translate and push in points
-			Vector2f v = shape.points[i];
+			Vector2f v = shape.vertices[i];
 			float x = v.x;
 			float y = v.y;
 			

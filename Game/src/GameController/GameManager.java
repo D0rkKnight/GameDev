@@ -197,6 +197,7 @@ public class GameManager {
 				t.init(new Vector2f(i*tileSize, j*tileSize), new Vector2f(tileSize, tileSize));
 			}
 		}
+		
 		currmap = new Map(mapData, null, null, null);//TODO
 		initEntities(mapFile);
 		int xTiles = 5;
@@ -244,6 +245,8 @@ public class GameManager {
 		for (int i=HammerShape.HAMMER_SHAPE_TRIANGLE_BL; i<=HammerShape.HAMMER_SHAPE_TRIANGLE_UR; i++) cache.add(new HammerRightTriangle(i));
 			
 		for (HammerShape h : cache) hammerLookup.put(h.shapeId, h);
+		
+
 	}
 	
 	public static void subscribeEntity(Entity e) {
@@ -335,6 +338,7 @@ public class GameManager {
 	 * Called once per frame, and is responsible for updating internal game logic.
 	 */
 	private void update() {
+		
 		//Clear tile collision colorings (debug purposes)
 		if (GameManager.showCollisions) Debug.clearHighlights();
 		

@@ -27,6 +27,7 @@ public abstract class BouncingEnemy extends Enemy{
 	
 	Timer bounceTimer;
 	boolean bounceReady;
+	int moveDir;
 
 	public BouncingEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
@@ -70,10 +71,14 @@ public abstract class BouncingEnemy extends Enemy{
 			// Point towards the player and move
 			Vector2f dir = Vector.dirTo(position, ai.nextNode());
 			float movespeed = 0.03f;
+			float deltaX = 0f;
+			if (dir != null) {
+				deltaX = moveDir * movespeed * GameManager.deltaT();
+			}
 			if (dir != null && pData.grounded && bounceReady) {
 				int side = Arithmetic.sign(dir.x);
 				
-				pData.velo = new Vector2f(side * movespeed * GameManager.deltaT(), 0.03f * GameManager.deltaT());
+				pData.velo = new Vector2f(deltaX, 0.03f * GameManager.deltaT());
 				onBounce();
 				
 				bounceReady = false;
@@ -91,7 +96,11 @@ public abstract class BouncingEnemy extends Enemy{
 				
 				bounceTimer.update();
 				
+				moveDir = Arithmetic.sign(dir.x);
 				pData.velo.x = Arithmetic.lerp(pData.velo.x, 0, 0.5f);
+			} else {
+				//Aerial drift
+				pData.velo.x = Arithmetic.lerp(pData.velo.x, deltaX, 0.1f);
 			}
 		} else {
 			findTarget();

@@ -18,12 +18,9 @@ import org.joml.Vector2f;
 
 public abstract class Renderer implements Cloneable{
 	protected Shader shader;
-	public static final int RENDERER_POS_ID = 0;
-	public static final int RENDERER_RECT_ID = 1;
 	
 	protected int vaoId;
 	protected int vboId;
-	protected int rowSize;
 	protected Attribute[] attribs;
 	
 	public Transformation transform;
@@ -90,11 +87,38 @@ public abstract class Renderer implements Cloneable{
 		 * @param stride
 		 * @param offset
 		 */
-		Attribute(int id, int groupSize, int stride, int offset) {
+		Attribute(int id, int groupSize) {
 			this.id = id;
 			this.groupSize = groupSize;
-			this.stride = stride;
-			this.offset = offset;
 		}
+		
+		static void addAttribute(Attribute[] arr, Attribute a) {
+			//Insert item and calculate offset
+			int stride = 0;
+			boolean attribPlaced = false;
+			for (int i=0; i<arr.length; i++) {
+				if (arr[i] == null && !attribPlaced) {
+					arr[i] = a;
+					
+					int off = 0;
+					if (i>0) off = arr[i-1].offset + arr[i-1].groupSize; //Attributes are tightly packed
+					a.offset = off;
+					
+					attribPlaced = true;
+				}
+				
+				//Note: this includes arr[i] if the previous if statement triggers.
+				if (arr[i] != null) {
+					stride += arr[i].groupSize;
+				}
+			}
+			
+			//Recalculate strides
+			for (int i=0; i<arr.length; i++) {
+				if (arr[i] != null) arr[i].stride = stride;
+			}
+		}
+		
+		static int getRowsize(Attribute[] arr) {return arr[0].stride;}
 	}
 }
