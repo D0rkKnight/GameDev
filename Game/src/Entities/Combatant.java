@@ -30,6 +30,7 @@ public abstract class Combatant extends PhysicsEntity {
 	 */
 	public void hit(int damage) {
 		stats.health -= damage;
+		checkForDeath();
 		
 		SpriteRenderer sprRen = (SpriteRenderer) renderer;
 		sprRen.col = new Color(1, 0, 0);
@@ -64,6 +65,10 @@ public abstract class Combatant extends PhysicsEntity {
 //		} else {
 //			velo.x -= knockback * Math.cos(Math.toRadians(180 - direction));
 //		}
+	}
+	
+	public void checkForDeath() {
+		if (stats.health <= 0) Destroy();
 	}
 	
 	public void calculate() {
