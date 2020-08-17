@@ -6,6 +6,7 @@ import org.joml.Vector2f;
 
 import GameController.GameManager;
 import Wrappers.Color;
+import Wrappers.Stats;
 
 public class UI {
 	private static UIBarElement healthBar;
@@ -21,7 +22,10 @@ public class UI {
 	}
 	
 	public static void render() {
-		healthBar.fillRatio = ((float)(GameManager.getFrameTime()%1000))/1000;
+		Stats pStats = GameManager.player.stats;
+		healthBar.fillRatio = ((float)pStats.health) / ((float)pStats.maxHealth);
+		
+		System.out.println(healthBar.fillRatio);
 		
 		for (UIElement e : elements) e.update();
 		for (UIElement e : elements) e.render();

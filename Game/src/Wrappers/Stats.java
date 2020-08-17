@@ -1,7 +1,8 @@
 package Wrappers;
 
-public class Stats {
+public class Stats implements Cloneable{
 	public int health;
+	public int maxHealth;
 	public int stamina;
 	public int invulnerable;
 	//for both enemies and the player, each of their attacks is designated with a number
@@ -12,21 +13,19 @@ public class Stats {
 	 * TODO: Fix this heap of spaghetti
 	 */
 	
-	public Stats() {};
-	
-	public Stats(int health) {
-		this.health = health;
+	public Stats(int maxHealth) {
+		this.maxHealth = maxHealth;
+		this.health = maxHealth;
 	}
 	
 	public Stats clone() {
-		Stats newStats = new Stats();
-		newStats.health = health;
-		newStats.stamina = stamina;
-		newStats.invulnerable = invulnerable;
-		if(attacks != null) {
-			newStats.attacks = attacks.clone();
+		Stats newStats = null;
+		try {
+			newStats = (Stats) super.clone();
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		newStats.isDying = isDying;
 		return newStats;
 	}
 }

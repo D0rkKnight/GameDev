@@ -11,7 +11,7 @@ import Wrappers.Timer;
 import Wrappers.TimerCallback;
 
 public abstract class Combatant extends PhysicsEntity {
-	protected Stats stats;
+	public Stats stats;
 	protected Timer hurtTimer;
 	
 	public Combatant(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
