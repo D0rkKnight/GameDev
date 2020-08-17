@@ -26,5 +26,6 @@ public class PhysicsData {
 	public ArrayList<PhysicsCollisionBehavior> groundedCollBehaviorList;
 	public ArrayList<PhysicsCollisionBehavior> nonGroundedCollBehaviorList;
 	
+	public boolean walksUpSlopes;
 }
 

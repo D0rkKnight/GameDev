@@ -20,11 +20,12 @@ import Collision.HammerShape;
 import Collision.HammerSquare;
 import Collision.Physics;
 import Debug.Debug;
-import Entities.Enemy;
+import Entities.BouncingEnemy;
 import Entities.Entity;
 import Entities.FloaterEnemy;
 import Entities.PhysicsEntity;
 import Entities.Player;
+import Entities.ShardSlimeEnemy;
 import Rendering.SpriteRenderer;
 import Rendering.SpriteShader;
 import Rendering.Texture;
@@ -216,6 +217,7 @@ public class GameManager {
 		entityHash = new HashMap<Integer, Entity>();
 		entityHash.put(0, new Player(0, new Vector2f(0f, 0f), renderer, "Player", new Stats()));
 		entityHash.put(1, new FloaterEnemy(10, new Vector2f(0, 0), renderer, "Enemy", new Stats()));
+		entityHash.put(2, new ShardSlimeEnemy(10, new Vector2f(0, 0), renderer, "BEnemy", new Stats()));
 		
 		
 		entities = new ArrayList();

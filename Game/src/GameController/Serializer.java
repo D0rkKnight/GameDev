@@ -197,6 +197,7 @@ public class Serializer {
 		NodeList objects = (layerO).getElementsByTagName("object");
 		int entitynum = objects.getLength();
 		ArrayList<Entity> entities = new ArrayList<Entity>();
+		
 		for(int i = 0; i < entitynum; i++) {
 			Element entity = (Element) objects.item(i);
 			int ID = Integer.parseInt((entity).getAttribute("type"));

@@ -28,7 +28,7 @@ public abstract class Physics {
 		e.pData.grounded = false;
 		
 		//If jumping, force a velocity change.
-		if (e.pData.isJumping) {
+		if (e.pData.isJumping && e.pData.walksUpSlopes) {
 			//Pass in new diVector2fional axises (x axis perpendicular to the y axis)
 			Vector2f yAxis = e.pData.yDir;
 			Vector2f xAxis = Vector.rightVector(yAxis); //This is 90 degrees clockwise
@@ -177,6 +177,7 @@ public abstract class Physics {
 
 			if (Math.abs(tangentDir.y) < 0.8 && tangentDir.x < 0 && e.pData.canBeGrounded) { //TODO: Make this work along any gravitational pull
 				//Now, set the behavior list that should be executed.
+				e.pData.grounded = true;
 				behaviors = e.groundedCollBehaviorList;
 			}
 			else {
@@ -187,6 +188,13 @@ public abstract class Physics {
 			 * Execute behaviors
 			 */
 			for (PhysicsCollisionBehavior behavior : behaviors) {
+				boolean shouldContinue = behavior.onColl(rawPos, deltaMove, velo, e, grid, moveAxis, axises, moveDir, tangent, delta);
+				
+				if (!shouldContinue) break;
+			}
+			
+			//Execute common behavior after?
+			for (PhysicsCollisionBehavior behavior : e.commonCollBehaviorList) {
 				boolean shouldContinue = behavior.onColl(rawPos, deltaMove, velo, e, grid, moveAxis, axises, moveDir, tangent, delta);
 				
 				if (!shouldContinue) break;

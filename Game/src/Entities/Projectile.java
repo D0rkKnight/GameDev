@@ -23,13 +23,16 @@ public class Projectile extends PhysicsEntity{
 		
 		//Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
+		
+		hasGravity = false;
 	}
 
 	public void onHit(Hitbox otherHb) { //upon colliding with another hitbox
 		PhysicsEntity e = otherHb.owner;
 			
 		//Hit an enemy
-		if (e.alignment == ALIGNMENT_ENEMY) {
+		int oppAlign = Combatant.getOpposingAlignment(alignment);
+		if (e.alignment == oppAlign) {
 			
 			//If it's a combatant, do damange and knockback
 			if (e instanceof Combatant) {
@@ -47,6 +50,7 @@ public class Projectile extends PhysicsEntity{
 	}
 
 	public void calculate() {
+		gravity();
 		// TODO Auto-generated method stub
 	}
 

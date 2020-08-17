@@ -3,6 +3,10 @@ package Entities;
 import org.joml.Vector2f;
 
 import Collision.HammerShape;
+import Collision.PhysicsCollisionBehavior;
+import Collision.PhysicsCollisionBehaviorDeflect;
+import Collision.PhysicsCollisionBehaviorStepUp;
+import Collision.PhysicsCollisionBehaviorWallCling;
 import Debug.Debug;
 import GameController.GameManager;
 import Math.AI;
@@ -15,8 +19,6 @@ import Wrappers.Hitbox;
 import Wrappers.Stats;
 
 public class FloaterEnemy extends Enemy{
-	
-	private AI ai;
 	
 	public FloaterEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
@@ -31,7 +33,16 @@ public class FloaterEnemy extends Enemy{
 		
 		//Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
+		
+		pData.walksUpSlopes = false;
 		ai = new AI();
+	}
+	
+	protected void initPhysicsCollBehavior() {
+		super.initPhysicsCollBehavior();
+		
+		PhysicsCollisionBehavior.removeBehavior(groundedCollBehaviorList, "groundMove");
+		groundedCollBehaviorList.add(new PhysicsCollisionBehaviorDeflect());
 	}
 
 	public void onHit(Hitbox otherHb) {
@@ -63,8 +74,6 @@ public class FloaterEnemy extends Enemy{
 			// TODO Auto-generated method stub
 			// Point towards the player and move
 			Vector2f dir = Vector.dirTo(position, ai.nextNode());
-			
-			
 			float movespeed = 0.01f;
 			if (dir != null) {
 				Vector2f target = new Vector2f(dir).mul(movespeed).mul(GameManager.deltaT());

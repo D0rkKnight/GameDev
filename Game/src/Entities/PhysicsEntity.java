@@ -47,6 +47,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	//For now, presume that if one of these behaviors trigger, the following behavior are canceled.
 	public ArrayList<PhysicsCollisionBehavior> groundedCollBehaviorList;
 	public ArrayList<PhysicsCollisionBehavior> nonGroundedCollBehaviorList;
+	public ArrayList<PhysicsCollisionBehavior> commonCollBehaviorList;
 	
 	public PhysicsEntity(int ID, Vector2f position, Renderer renderer, String name) {
 		super(ID, position, renderer, name);
@@ -59,6 +60,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 		pData.isJumping = false;
 		pData.collidedWithTile = false;
 		pData.canBeGrounded = true;
+		pData.walksUpSlopes = true;
 		
 		initPhysicsCollBehavior();
 	}
@@ -66,12 +68,9 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	protected void initPhysicsCollBehavior() {
 		groundedCollBehaviorList = new ArrayList();
 		nonGroundedCollBehaviorList = new ArrayList();
+		commonCollBehaviorList = new ArrayList();
 		
 		groundedCollBehaviorList.add(new PhysicsCollisionBehaviorGroundMove());
-		
-		//TODO: Array named poorly, distinction isn't that the character isn't grounded.
-		nonGroundedCollBehaviorList.add(new PhysicsCollisionBehaviorStepUp());
-		nonGroundedCollBehaviorList.add(new PhysicsCollisionBehaviorWallCling());
 		nonGroundedCollBehaviorList.add(new PhysicsCollisionBehaviorDeflect());
 	}
 	

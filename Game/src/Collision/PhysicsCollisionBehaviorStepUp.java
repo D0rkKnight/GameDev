@@ -8,7 +8,11 @@ import Math.Vector;
 import Tiles.Tile;
 
 public class PhysicsCollisionBehaviorStepUp extends PhysicsCollisionBehavior{
-
+	
+	public PhysicsCollisionBehaviorStepUp() {
+		this.name = "stepUp";
+	}
+	
 	@Override
 	public boolean onColl(Vector2f rawPos, Vector2f deltaMove, Vector2f velo, PhysicsEntity e, Tile[][] grid,
 			Vector2f moveAxis, Vector2f[] axises, Vector2f moveDir, Vector2f tangent, Vector2f delta) {

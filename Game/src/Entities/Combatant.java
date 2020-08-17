@@ -74,4 +74,15 @@ public abstract class Combatant extends PhysicsEntity {
 
 	// just sets stats.isDying to true
 	public abstract void die();
+	
+	public static int getOpposingAlignment(int align) {
+		switch (align) {
+		case ALIGNMENT_PLAYER:
+			return ALIGNMENT_ENEMY;
+		case ALIGNMENT_ENEMY:
+			return ALIGNMENT_PLAYER;
+		}
+		
+		return -1;
+	}
 }

@@ -4,6 +4,8 @@ import org.joml.Math;
 import org.joml.Vector2f;
 
 import Collision.HammerShape;
+import Collision.PhysicsCollisionBehaviorStepUp;
+import Collision.PhysicsCollisionBehaviorWallCling;
 import Debug.Debug;
 import GameController.GameManager;
 import GameController.Input;
@@ -78,6 +80,13 @@ public class Player extends Combatant{
 		
 		//Alignment
 		alignment = ALIGNMENT_PLAYER;
+	}
+	
+	protected void initPhysicsCollBehavior() {
+		super.initPhysicsCollBehavior();
+		
+		nonGroundedCollBehaviorList.add(new PhysicsCollisionBehaviorStepUp());
+		nonGroundedCollBehaviorList.add(new PhysicsCollisionBehaviorWallCling());
 	}
 
 	public void onHit(Hitbox hb) {
