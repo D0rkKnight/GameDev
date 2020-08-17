@@ -41,7 +41,7 @@ public class Projectile extends PhysicsEntity{
 				Vector2f kb = new Vector2f(pData.velo).mul(0.2f);
 				c.knockback(kb, 0.5f, 1f);
 				
-				c.hit(1);
+				c.hit(10);
 			}
 			
 			//DESTROY

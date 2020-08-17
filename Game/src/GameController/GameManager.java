@@ -212,9 +212,9 @@ public class GameManager {
 	private void initEntities(Document mapFile) {
 		//TODO this is hardcoded, make a initEntityHash
 		entityHash = new HashMap<Integer, Entity>();
-		entityHash.put(0, new Player(0, new Vector2f(0f, 0f), renderer, "Player", new Stats(5)));
-		entityHash.put(1, new FloaterEnemy(10, new Vector2f(0, 0), renderer, "Enemy", new Stats(5)));
-		entityHash.put(2, new ShardSlimeEnemy(10, new Vector2f(0, 0), renderer, "BEnemy", new Stats(5)));
+		entityHash.put(0, new Player(0, new Vector2f(0f, 0f), renderer, "Player", new Stats(100)));
+		entityHash.put(1, new FloaterEnemy(10, new Vector2f(0, 0), renderer, "Enemy", new Stats(100)));
+		entityHash.put(2, new ShardSlimeEnemy(10, new Vector2f(0, 0), renderer, "BEnemy", new Stats(100)));
 		
 		
 		entities = new ArrayList();
