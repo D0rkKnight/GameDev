@@ -20,7 +20,6 @@ import Collision.HammerShape;
 import Collision.HammerSquare;
 import Collision.Physics;
 import Debug.Debug;
-import Entities.BouncingEnemy;
 import Entities.Entity;
 import Entities.FloaterEnemy;
 import Entities.PhysicsEntity;
@@ -30,6 +29,7 @@ import Rendering.SpriteRenderer;
 import Rendering.SpriteShader;
 import Rendering.Texture;
 import Tiles.Tile;
+import UI.UI;
 import Wrappers.Hitbox;
 import Wrappers.Stats;
 
@@ -144,12 +144,8 @@ public class GameManager {
 			e.printStackTrace();
 		}
 		initMap(doc);//also should initialize entities
-		//Init player
-		//initEntities();
-		//initCollision();
-		//initPlayer();
-		//Camera.main.attach(player);
 		
+		UI.init();
 		initTime();
 	}
 

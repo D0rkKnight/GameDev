@@ -7,6 +7,7 @@ import GameController.GameManager;
 import GameController.Map;
 import Rendering.SpriteRenderer;
 import Rendering.Texture;
+import Rendering.Transformation;
 import Wrappers.Color;
 
 /**
@@ -44,7 +45,7 @@ public class Tile implements Cloneable{
 			hammerState = GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE);
 		}
 		
-		this.renderer.init(pos, rect, hammerState.shapeId, new Color());
+		this.renderer.init(new Transformation(pos), rect, hammerState.shapeId, new Color());
 	}
 	
 	/**
@@ -53,7 +54,7 @@ public class Tile implements Cloneable{
 	 * @param dim: dimensions of tile
 	 */
 	public void render(Vector2f pos, float dim) {
-		renderer.transform.setPos(pos);
+		renderer.transform.pos = pos;
 		renderer.render();
 	}
 	

@@ -16,8 +16,8 @@ public abstract class HammerShape {
 	public static final int HAMMER_SHAPE_FINAL = 5;
 	
 	public int shapeId;
-	public Vector2f[] vertices;
-	public Vector2f[] triangulatedVertices;
+	protected Vector2f[] vertices;
+	protected Vector2f[] triangulatedVertices;
 	
 	public HammerShape(int shapeId) {
 		vertices = null;
@@ -40,5 +40,25 @@ public abstract class HammerShape {
 				v.y = y;
 			}
 		}
+	}
+	
+	public Vector2f[] getRenderVertices(Vector2f dims) {
+		Vector2f[] vs = triangulatedVertices.clone();
+
+		//scale to dims
+		for (int i=0; i<vs.length; i++) {
+			vs[i] = new Vector2f(vs[i].x * dims.x, vs[i].y * dims.y);
+		}
+		return vs;
+	}
+	
+	public Vector2f[] getRenderUVs() {
+		Vector2f[] uvs = triangulatedVertices.clone();
+		//Flip UVs vertically? Not a clue why this has to be done.
+		//TODO: Investigate
+		for (int i=0; i<uvs.length; i++) {
+			uvs[i] = new Vector2f(uvs[i].x, 1-uvs[i].y);
+		}
+		return uvs;
 	}
 }

@@ -11,6 +11,7 @@ import Math.Arithmetic;
 import Math.Vector;
 import Rendering.Renderer;
 import Rendering.SpriteRenderer;
+import Rendering.Transformation;
 import Tiles.Tile;
 import Wrappers.Color;
 import Wrappers.Hitbox;
@@ -35,7 +36,7 @@ public abstract class BouncingEnemy extends Enemy{
 		//Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
 		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer; //Renderer has been duplicated by now
-		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
+		rendTemp.init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
 		
 		rendTemp.spr = Debug.debugTex;
 		renderer = rendTemp;

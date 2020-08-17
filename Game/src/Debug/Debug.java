@@ -40,7 +40,7 @@ public class Debug {
 		debugShader = new ColorShader("shader");
 		debugTex = new Texture("assets/debugTex.png");
 		
-		trans = new Transformation(new Vector2f(0, 0));
+		trans = new Transformation(new Vector2f(0, 0), Transformation.MATRIX_MODE_WORLD);
 	}
 	
 	public static void renderDebug() {

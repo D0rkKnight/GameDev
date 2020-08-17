@@ -14,9 +14,9 @@ import Rendering.Animation;
 import Rendering.Animator;
 import Rendering.SpriteRenderer;
 import Rendering.Texture;
+import Rendering.Transformation;
 import Wrappers.Color;
 import Wrappers.Hitbox;
-import Wrappers.Sprites;
 import Wrappers.Stats;
 import Wrappers.Timer;
 import Wrappers.TimerCallback;
@@ -49,7 +49,7 @@ public class Player extends Combatant{
 		dim = new Vector2f(15f, 60f);
 		srenderer = renderer;
 		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer; //Renderer has been duplicated by now
-		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0, 0));
+		rendTemp.init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0, 0));
 		renderer = rendTemp;
 		
 		//Configure hitbox

@@ -21,9 +21,6 @@ public class Camera {
 		
 		//TODO: Resolve this with input's stuff
 		viewport = Drawer.GetWindowSize();
-		viewport.x /= 2;
-		viewport.y /= 2; //??? Why?
-		//TODO: Fix this stuff
 	}
 	
 	public void attach(Entity target) {

@@ -5,9 +5,9 @@ import org.joml.Vector2f;
 import Collision.HammerShape;
 import Rendering.Renderer;
 import Rendering.SpriteRenderer;
+import Rendering.Transformation;
 import Wrappers.Color;
 import Wrappers.Hitbox;
-import Wrappers.Sprites;
 
 public class Projectile extends PhysicsEntity{
 
@@ -18,7 +18,7 @@ public class Projectile extends PhysicsEntity{
 		//Configure renderer
 		dim = new Vector2f(8f, 8f);
 		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer;
-		rendTemp.init(position, dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 1, 0, 0));
+		rendTemp.init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 1, 0, 0));
 		renderer = rendTemp;
 		
 		//Configure hitbox

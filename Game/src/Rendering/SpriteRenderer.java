@@ -34,6 +34,7 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	protected boolean hasInit;
 	
 	public Color col;
+	public int matrixMode;
 	
 	public SpriteRenderer(Shader shader) {
 		super(shader);
@@ -43,13 +44,14 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	@Override
 	public void render() {
 		if (!hasInit) {
-			System.err.println("Renderer not initialized!");
+			new Exception("Renderer not initialized!").printStackTrace();
 			System.exit(1);
 		}
 		
 		//Put in new colors
 		mesh.write(genColors(col), attribs[2]);
 		
+		//This should be buffered once per frame, right?
 		FloatBuffer fBuff = BufferUtils.createFloatBuffer(mesh.data.length);
 		fBuff.put(mesh.data);
 		fBuff.flip();
@@ -81,33 +83,22 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		shader.setUniform("MVP", mvp);
 	}
 	
-	public void init(Vector2f pos, Vector2f dims, int shape, Color col) {
+	public void init(Transformation transform, Vector2f dims, int shape, Color col) {
 		HammerShape hs = GameManager.hammerLookup.get(shape);
 		
-		Vector2f[] vertices = hs.triangulatedVertices.clone();
-
-		//scale to dims
-		for (int i=0; i<vertices.length; i++) {
-			vertices[i] = new Vector2f(vertices[i].x * dims.x, vertices[i].y * dims.y);
-		}
+		Vector2f[] vertices = hs.getRenderVertices(dims);
+		Vector2f[] uvs = hs.getRenderUVs();
 		
-		Vector2f[] uvs = hs.triangulatedVertices.clone();
-		//Flip UVs vertically? Not a clue why this has to be done.
-		//TODO: Investigate
-		for (int i=0; i<uvs.length; i++) {
-			uvs[i] = new Vector2f(uvs[i].x, 1-uvs[i].y);
-		}
-		
-		init(pos, vertices, uvs, col);
+		init(transform, vertices, uvs, col);
 	}
 	
 	/**
 	 * Initialize
 	 */
-	public void init(Vector2f pos, Vector2f[] vertices, Vector2f[] uvs, Color col) {
+	public void init(Transformation transform, Vector2f[] vertices, Vector2f[] uvs, Color col) {
 		
 		//Link objects (these objects cannot be destroyed)
-		this.transform = new Transformation(pos);
+		this.transform = transform;
 		this.col = col;
 		hasInit = true;
 		
@@ -130,6 +121,11 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	@Override
 	public SpriteRenderer clone() throws CloneNotSupportedException {
 		return (SpriteRenderer) super.clone();
+	}
+	
+	public void updateVertices(Vector2f[] verts) {
+		//Buffer sub data
+		mesh.write(genVerts(verts), attribs[0]);
 	}
 	
 	protected float[] genVerts(Vector2f[] vertices) {

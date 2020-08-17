@@ -67,6 +67,9 @@ public abstract class Combatant extends PhysicsEntity {
 //		}
 	}
 	
+	//TODO: Figure out how to work this out
+	// just sets stats.isDying to true
+	public abstract void die();
 	public void checkForDeath() {
 		if (stats.health <= 0) Destroy();
 	}
@@ -76,9 +79,6 @@ public abstract class Combatant extends PhysicsEntity {
 	}
 	
 	public abstract void attack();
-
-	// just sets stats.isDying to true
-	public abstract void die();
 	
 	public static int getOpposingAlignment(int align) {
 		switch (align) {

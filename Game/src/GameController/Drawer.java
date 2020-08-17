@@ -17,8 +17,14 @@ import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL21.*;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glLoadIdentity;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glOrtho;
+import static org.lwjgl.opengl.GL11.glPushMatrix;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -34,6 +40,7 @@ import org.lwjgl.system.MemoryStack;
 import Debug.Debug;
 import Entities.Entity;
 import Tiles.Tile;
+import UI.UI;
 
 /*
  * Calls shaders to render themselves.
@@ -52,10 +59,10 @@ public class Drawer {
   		Camera cam = Camera.main;
   		Vector2f cPos = cam.pos;
   		Vector2f cDims = cam.viewport;
-  		int txMin = (int) (cPos.x - (cDims.x));
-  		int txMax = (int) (cPos.x + (cDims.x));
-  		int tyMin = (int) (cPos.y - (cDims.y));
-  		int tyMax = (int) (cPos.y + (cDims.y));
+  		int txMin = (int) (cPos.x - (cDims.x/2));
+  		int txMax = (int) (cPos.x + (cDims.x/2));
+  		int tyMin = (int) (cPos.y - (cDims.y/2));
+  		int tyMax = (int) (cPos.y + (cDims.y/2));
   		
   		txMin /= GameManager.tileSize;
   		txMax /= GameManager.tileSize;
@@ -85,6 +92,9 @@ public class Drawer {
   		for (Entity ent : entities) {
   			ent.render();
   		}
+  		
+  		//UI elements
+  		UI.render();
   		
   		//Overlay debug elements
   		Debug.renderDebug();
