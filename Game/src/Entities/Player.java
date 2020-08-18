@@ -27,6 +27,8 @@ public class Player extends Combatant{
 	private Timer gunTimer;
 	float xCap = 0.5f; //todo add to contructor (and break everything)
 	float accelConst = 2f / 300f;
+	float gunCost = 30f;
+	float dashCost = 20f;
 	
 	private float dashSpeed;
 	private long dashDuration;
@@ -117,7 +119,7 @@ public class Player extends Combatant{
 			sprRend.col = new Color(1, 0, 0);
 			controlledMovement();
 			break;
-		case MOVEMENT_MODE_IS_DASHING: //dashing
+		case MOVEMENT_MODE_IS_DASHING: //dashing, a bit spaghetti here TODO
 			sprRend.col = new Color(1, 1, 1);
 			dashingMovement();
 			break;
@@ -180,6 +182,12 @@ public class Player extends Combatant{
 			knockbackDir = null;
 		}
 		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && movementMode != MOVEMENT_MODE_IS_DASHING) {
+			stats.stamina -= gunCost;
+			if(stats.stamina < 0) {
+				stats.stamina += dashCost;
+				System.out.println("out of stamina, can't dash");
+				return;
+			}
 			justDashed = true;
 			movementMode = MOVEMENT_MODE_IS_DASHING;
 			dashDir = new Vector2f(Input.moveX, Input.moveY).normalize();
@@ -273,6 +281,12 @@ public class Player extends Combatant{
 	}
 	
 	private void fireGun(Vector2f firePos) {
+		stats.stamina -= gunCost;
+		if(stats.stamina < 0) {
+			stats.stamina+= gunCost;
+			System.out.println("out of stamina, can't fire");
+			return;
+		}
 		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32));
 		
 		Projectile proj = new Projectile(0, pos, GameManager.renderer, "Bullet"); //initializes bullet entity

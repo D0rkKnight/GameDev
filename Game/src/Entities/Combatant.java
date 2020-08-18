@@ -42,40 +42,24 @@ public abstract class Combatant extends PhysicsEntity {
 				hurtTimer = null; //Color reset is handled
 			}
 		});
-		
-		/**
-		 * This is old, right? -- Hanzen
-		 */
-//		// These two whiles make sure degrees is within 0-360
-//		while (direction > 360) {
-//			direction -= 360;
-//		}
-//		while (direction < 0) {
-//			direction += 360;
-//		}
-//		// this if else accounts for the angle being to the right/left
-//		if (direction <= 180) {
-//			velo.x += knockback * Math.cos(Math.toRadians((90 - direction)));
-//		} else {
-//			velo.x -= knockback * Math.cos(Math.toRadians((270 - direction)));
-//		}
-//		// and top/bot
-//		if (direction < 90 || direction > 270) {
-//			velo.x += knockback * Math.cos(Math.toRadians(direction));
-//		} else {
-//			velo.x -= knockback * Math.cos(Math.toRadians(180 - direction));
-//		}
 	}
 	
 	//TODO: Figure out how to work this out
 	// just sets stats.isDying to true
 	public abstract void die();
+	
 	public void checkForDeath() {
 		if (stats.health <= 0) Destroy();
 	}
 	
 	public void calculate() {
 		if (hurtTimer != null) hurtTimer.update();
+		regen();
+	}
+	
+	public void regen() {
+		stats.health = Math.min(stats.health + stats.healthRegen, stats.maxHealth);
+		stats.stamina = Math.min(stats.stamina + stats.staminaRegen, stats.maxStamina);
 	}
 	
 	public abstract void attack();
