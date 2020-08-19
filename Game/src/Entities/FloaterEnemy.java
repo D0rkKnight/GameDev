@@ -65,7 +65,7 @@ public class FloaterEnemy extends Enemy{
 	public void calculate() {
 		super.calculate();
 		
-		Tile[][] grid = GameManager.currmap.getGrid();
+		Tile[][] grid = GameManager.currmap.grids.get("coll");
 		
 		if(target != null) {
 			ai.calculatePath(position, target.position, grid); 

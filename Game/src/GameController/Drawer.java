@@ -53,7 +53,7 @@ public class Drawer {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		//calls render function of every tile of map within distance of player, and entities within certain distance
-  		Tile[][] grid = map.getGrid();
+  		Tile[][] grid = map.grids.get("ground");
   		
   		//Get clipping bounds
   		Camera cam = Camera.main;

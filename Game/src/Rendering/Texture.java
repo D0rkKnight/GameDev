@@ -113,6 +113,7 @@ public class Texture {
 		try {
 			bi = ImageIO.read(new File(url));
 		} catch (IOException e) {
+			System.err.println("URL "+url+" not recognized.");
 			e.printStackTrace();
 		}
 		

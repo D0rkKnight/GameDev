@@ -51,8 +51,6 @@ public class ShardSlimeEnemy extends BouncingEnemy{
 			proj.alignment = alignment;
 			
 			GameManager.subscribeEntity(proj);
-			
-			System.out.println(proj.name);
 		}
 	}
 

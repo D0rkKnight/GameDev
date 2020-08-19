@@ -25,8 +25,6 @@ public class UIBarElement extends UIBoxElement{
 			Vector2f[] verts = GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE).getRenderVertices(fillDims);
 			
 			((SpriteRenderer) rend).updateVertices(verts);
-			
-			System.out.println("hi");
 		} else {
 			new Exception("It's time to fix this hack").printStackTrace();
 		}
