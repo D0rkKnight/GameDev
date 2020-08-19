@@ -26,7 +26,6 @@ public class UIBarElement extends UIBoxElement{
 			
 			((SpriteRenderer) rend).updateVertices(verts);
 			
-			System.out.println("hi");
 		} else {
 			new Exception("It's time to fix this hack").printStackTrace();
 		}

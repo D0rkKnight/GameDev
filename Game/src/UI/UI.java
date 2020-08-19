@@ -20,7 +20,7 @@ public class UI {
 		healthBar = new UIBarElement(GameManager.renderer, new Vector2f(10, 10), new Vector2f(200, 20), new Color(0.3f, 0.3f, 1, 1));
 		healthBar.rend.transform.pos.y += healthBar.dims.y;
 		elements.add(healthBar);
-		staminaBar = new UIBarElement(GameManager.renderer, new Vector2f(10, 35), new Vector2f(200, 20), new Color(0.3f, 0.3f, 1, 1));
+		staminaBar = new UIBarElement(GameManager.renderer, new Vector2f(10, 35), new Vector2f(200, 20), new Color(0.3f, 1, 1, 1));
 		staminaBar.rend.transform.pos.y += staminaBar.dims.y;
 		elements.add(staminaBar);
 	}
