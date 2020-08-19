@@ -30,11 +30,8 @@ public class UI {
 		healthBar.fillRatio = ((float)pStats.health) / ((float)pStats.maxHealth);
 		staminaBar.fillRatio = ((float)pStats.stamina) / ((float)pStats.maxStamina);
 		
-		//System.out.println(healthBar.fillRatio);
 		
 		for (UIElement e : elements) e.update();
 		for (UIElement e : elements) e.render();
-		
-		
 	}
 }

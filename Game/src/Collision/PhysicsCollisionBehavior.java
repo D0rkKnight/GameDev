@@ -27,8 +27,7 @@ public abstract class PhysicsCollisionBehavior {
 		}
 		
 		if (!nameRemoved) {
-			System.err.println("Behavior to be removed not found!");
-			System.exit(1);
+			new Exception("Behavior to be removed not found!").printStackTrace();
 		}
 	}
 }

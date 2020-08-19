@@ -63,7 +63,8 @@ public class GameManager {
 	public static Map currmap;
 
 	// Lookup table for different kinds of tiles
-	private HashMap<Integer, Tile> tileLookup;
+	private HashMap<String, HashMap<Integer, Tile>> tileLookup;
+	private ArrayList<Integer> tsStarts;
 	// Lookup table for different kinds of accessories
 	private HashMap<Integer, Accessory> accessoryLookup;
 	// Lookup table for hammershapes
@@ -133,14 +134,13 @@ public class GameManager {
 		renderer = sprRenderer;
 		
 		initCollision();
-		
-		initTiles("tset1.tsx");
+		initTiles();
 		
 		Document doc = null;
 		try {
-			doc = Serializer.readDoc("assets/TestMap64.tmx");
+			doc = Serializer.readDoc("assets/Maps/", "test.tmx");
 		} catch (Exception e) {
-			System.out.println("File not found");
+			System.err.println("File not found");
 			e.printStackTrace();
 		}
 		initMap(doc);//also should initialize entities
@@ -163,34 +163,45 @@ public class GameManager {
 	 * Loads and constructs tiles based off of external file, then logs in
 	 * tileLookup
 	 */
-	private void initTiles(String tileFile) {
+	private void initTiles() {
 		tileLookup = new HashMap<>();
+		
+		initTileSet("assets/Maps/", "ground.tsx", tileLookup);
+		initTileSet("assets/Maps/", "set.tsx", tileLookup);
+		initTileSet("assets/Maps/", "coll.tsx", tileLookup);
+	}
+	
+	private void initTileSet(String fileDir, String fileName, HashMap<String, HashMap<Integer, Tile>> masterTSet) {
 		try {
-			//assets/TestTiles.tsx
-			//TODO add the tileset that works
-			Serializer.loadTileHash("assets/" + tileFile, tileLookup, hammerLookup, renderer);
+			HashMap<Integer, Tile> tSet = new HashMap<>();
+			Serializer.loadTileHash(fileDir, fileName, tSet, hammerLookup, renderer);
+			masterTSet.put(fileName, tSet);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	private void initMap(Document mapFile) {
-		Tile[][] mapData = null;
+		HashMap<String, Tile[][]> mapData = null;
 		try {
 			//assets/TestMap64.tmx
-			mapData = Serializer.loadTileGrid(mapFile, tileLookup);
+			mapData = Serializer.loadTileGrids(mapFile, tileLookup);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			System.out.println("map error");
+			System.err.println("map error");
 			e.printStackTrace();
 		}
 		
 		
 		//Tiles are currently raw and unitialized. Initialize them.
-		for (int i=0; i<mapData.length; i++) for (int j=0; j<mapData[0].length; j++) {
-			Tile t = mapData[i][j];
-			if (t != null) {
-				t.init(new Vector2f(i*tileSize, j*tileSize), new Vector2f(tileSize, tileSize));
+		//Will do it in whatever order... so possibly some unpredictable behavior.
+		//TODO: Get rid of this bs init process altogether
+		for (Tile[][] g : mapData.values()) {
+			for (int i=0; i<g.length; i++) for (int j=0; j<g[0].length; j++) {
+				Tile t = g[i][j];
+				if (t != null) {
+					t.init(new Vector2f(i*tileSize, j*tileSize), new Vector2f(tileSize, tileSize));
+				}
 			}
 		}
 		
@@ -262,11 +273,6 @@ public class GameManager {
 	}
 	
 	private void initPlayer() {
-		//if(entities.get(0) == null) {
-		//	System.out.println("ERROR, PLAYER NOT SERIALIZED");
-		//	player = new Player(0, new Vector2f(5 * 16, 90 * 16), renderer, "Player", new Stats());
-		//}
-		
 		Camera.main.attach(player);
 	}
 
@@ -357,7 +363,8 @@ public class GameManager {
 		//Physics simulation step begin from here ________________________________________________________
 		
 		//Push in collision deltas
-		Tile[][] grid = currmap.getGrid();
+		Tile[][] grid = currmap.grids.get("collision");
+		
 		for (int i=0; i<coll.size(); i++) {
 			Hitbox c = coll.get(i);
 			

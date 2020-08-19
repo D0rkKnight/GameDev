@@ -75,12 +75,12 @@ public class Serializer {
 //		}
 //	}
 	
-	public static Document readDoc(String f) throws Exception {
+	public static Document readDoc(String fdir, String fname) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		Document doc = null;
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			doc = builder.parse(new File(f));
+			doc = builder.parse(new File(fdir+fname));
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -95,9 +95,12 @@ public class Serializer {
 		return (Element) e.getElementsByTagName(name).item(0);
 	}
 	
-	public static void loadTileHash(String f, HashMap<Integer, Tile> tileMap, HashMap<Integer, HammerShape> hsMap, SpriteRenderer rend) throws Exception {
-		Document doc = readDoc(f);
+	public static void loadTileHash(String fdir, String fname, HashMap<Integer, Tile> tileMap,
+			HashMap<Integer, HammerShape> hsMap, SpriteRenderer rend) throws Exception {
+		
+		Document doc = readDoc(fdir, fname);
 		NodeList nList = doc.getElementsByTagName("tile");
+		
 		
 		//Grab textures
 		Element tilesetE = (Element) doc.getElementsByTagName("tileset").item(0);
@@ -106,7 +109,7 @@ public class Serializer {
 		int th = Integer.parseInt(tilesetE.getAttribute("tileheight"));
 		
 		String src = srcE.getAttribute("source");
-		Texture[] tileSheet = Texture.unpackSpritesheet("assets/"+src, tw, th);
+		Texture[] tileSheet = Texture.unpackSpritesheet(fdir+src, tw, th);
 		
 		for (int i=0; i<nList.getLength(); i++) {
 			Element e = (Element) nList.item(i);
@@ -141,10 +144,44 @@ public class Serializer {
 		}
 	}
 	
-	public static Tile[][] loadTileGrid(Document doc, HashMap<Integer, Tile> tileMap) throws Exception {
+	public static HashMap<String, Tile[][]> loadTileGrids(Document doc, HashMap<String, HashMap<Integer, Tile>> tileMap) {
+		//Grab all gids
+		ArrayList<Integer> gids = new ArrayList<>();
+		ArrayList<String> tSetNames = new ArrayList<>();
 		
-		//Just pull one layer for now
-		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
+		NodeList tilesets = doc.getElementsByTagName("tileset");
+		for (int i=0; i<tilesets.getLength(); i++) {
+			Element tilesetE = (Element) tilesets.item(i);
+			gids.add(Integer.parseInt(tilesetE.getAttribute("firstgid"))); //This is an offset value
+			tSetNames.add(tilesetE.getAttribute("source"));
+		}
+		
+		NodeList layers = doc.getElementsByTagName("layer");
+		HashMap<String, Tile[][]> grids = new HashMap<>();
+		
+		for (int i=0; i<layers.getLength(); i++) {
+			Element layer = (Element) layers.item(i);
+			String name = layer.getAttribute("name");
+			
+			Tile[][] tGrid = null;
+			try {
+				tGrid = loadTileGridFromLayer(layer, tileMap, gids, tSetNames);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.exit(1);
+			}
+			
+			grids.put(name, tGrid);
+		}
+		
+		return grids;
+	}
+	
+	public static Tile[][] loadTileGridFromLayer(Element layerE, HashMap<String, HashMap<Integer, Tile>> tileMap, 
+			ArrayList<Integer> gids, ArrayList<String> tSetNames) throws Exception {
+		
+		
 		int w = Integer.parseInt(layerE.getAttribute("width"));
 		int h = Integer.parseInt(layerE.getAttribute("height"));
 		
@@ -153,9 +190,6 @@ public class Serializer {
 		String encoding = dataE.getAttribute("encoding");
 		String compression = dataE.getAttribute("compression");
 		String d = trim(dataE.getTextContent());
-		
-		Element tilesetE = (Element) doc.getElementsByTagName("tileset").item(0);
-		int firstgid = Integer.parseInt(tilesetE.getAttribute("firstgid")); //This is an offset value
 		
 		//Base 64 decode
 		byte[] bytes = Base64.getDecoder().decode(d);
@@ -170,18 +204,33 @@ public class Serializer {
 		for (int i=0; i<h; i++) {
 			for (int j=0; j<w; j++) {
 				int index = i*w + j;
-				int id = intArr[index]-firstgid;
-				//System.out.println(id);
 				
 				//Invert y only
 				int x = j;
 				int y = h-i-1;
 				
-				if (id == -1) grid[x][y] = null;
-				else {
-					Tile t = tileMap.get(id);
-					grid[x][y] = t.clone();
+				int id = intArr[index];
+				if (id == 0) {
+					grid[x][y] = null;
+					continue;
 				}
+				
+				//Get the right tileset data
+				int a = gids.size()-1;
+				for (int k=0; k<gids.size(); k++) {
+					if (id < gids.get(k)) {
+						a=k-1;
+						break;
+					}
+				}
+				
+				System.out.println(gids.get(1));
+				
+				int offset = gids.get(a);
+				HashMap<Integer, Tile> tSet = tileMap.get(tSetNames.get(a));
+				
+				Tile t = tSet.get(id-offset);
+				grid[x][y] = t.clone();
 			}
 		}
 		
@@ -203,12 +252,11 @@ public class Serializer {
 			int ID = Integer.parseInt((entity).getAttribute("type"));
 			float xPos = Float.parseFloat((entity).getAttribute("x")) / 8;
 			float yPos = Float.parseFloat((entity).getAttribute("y")) / 8;
-			//System.out.println(xPos);
-			//System.out.println(yPos);
+
+			
 			yPos += Float.parseFloat((entity).getAttribute("height")) / 8;
 			yPos = height - yPos;
-			//System.out.println(xPos);
-			//System.out.println(yPos);
+
 			
 			Entity e = entityHash.get(ID).clone(xPos * 16, yPos * 16);
 			

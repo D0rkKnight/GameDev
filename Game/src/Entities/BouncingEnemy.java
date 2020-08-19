@@ -60,7 +60,7 @@ public abstract class BouncingEnemy extends Enemy{
 	public void calculate() {
 		super.calculate();
 		
-		Tile[][] grid = GameManager.currmap.getGrid();
+		Tile[][] grid = GameManager.currmap.grids.get("coll");
 		
 		if (target != null) {
 			hasGravity = true;

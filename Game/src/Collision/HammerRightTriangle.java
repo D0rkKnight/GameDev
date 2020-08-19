@@ -22,7 +22,7 @@ public class HammerRightTriangle extends HammerShape{
 			rotations = 3;
 			break;
 		default:
-			System.err.println("rotation type not recognized");
+			new Exception("rotation type not recognized").printStackTrace();
 		}
 		
 		//Archetypal no rotation triangle (Bottom left)
