@@ -1,0 +1,4 @@
+Enemies:3
+Name,Player:ID,0:HP,100:Stamina,100:HPregen,0.5:StaminaRegen,1
+Name,Floater:ID,1:HP,100:Stamina,100:HPregen,0:StaminaRegen,0
+Name,Bouncer:ID,2:HP,100:Stamina,100:HPregen,0:StaminaRegen,0

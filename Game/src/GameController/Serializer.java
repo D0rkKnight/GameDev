@@ -29,10 +29,13 @@ import org.xml.sax.SAXException;
 import Accessories.Accessory;
 import Collision.HammerShape;
 import Entities.Entity;
+import Entities.FloaterEnemy;
 import Entities.Player;
+import Entities.ShardSlimeEnemy;
 import Rendering.SpriteRenderer;
 import Rendering.Texture;
 import Tiles.Tile;
+import Wrappers.Stats;
 
 public class Serializer {
 //	public void loadTileHash(String filename, HashMap<Integer, Tile> tileLookup, SpriteRenderer renderer) { // loads a hashmap
@@ -224,7 +227,7 @@ public class Serializer {
 					}
 				}
 				
-				System.out.println(gids.get(1));
+				//System.out.println(gids.get(1));
 				
 				int offset = gids.get(a);
 				HashMap<Integer, Tile> tSet = tileMap.get(tSetNames.get(a));
@@ -235,6 +238,41 @@ public class Serializer {
 		}
 		
 		return grid;
+	}
+	
+	public static HashMap<Integer, Entity> loadEntityHash(String fileDir, String fileName, SpriteRenderer renderer) throws NumberFormatException, IOException{
+		BufferedReader charFile = null;
+		try {
+			charFile = new BufferedReader(new FileReader(fileDir + fileName));
+		} catch (FileNotFoundException e) {
+			System.err.println("File not found");
+			e.printStackTrace();
+		}
+		int enemies = Integer.parseInt(charFile.readLine().split(":")[1]);
+		HashMap<Integer, Entity> enemyHash = new HashMap<Integer, Entity>();
+		for(int i = 0; i < enemies; i++) {
+			String[] enemy = charFile.readLine().split(":");
+			String name = enemy[0].split(",")[1];
+			int ID = Integer.parseInt(enemy[1].split(",")[1]);
+			float HP = Float.parseFloat(enemy[2].split(",")[1]);
+			float ST = Float.parseFloat(enemy[3].split(",")[1]);
+			float HPR = Float.parseFloat(enemy[4].split(",")[1]);
+			float STR = Float.parseFloat(enemy[5].split(",")[1]);
+			if(name.equals("Player")){
+				enemyHash.put(i, new Player(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
+			}
+			else if(name.equals("Floater")){
+				enemyHash.put(i, new FloaterEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
+			}
+			else if(name.equals("Bouncer")){
+				enemyHash.put(i, new ShardSlimeEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
+			}
+			else {
+				System.out.println("error, wrong enemy name");
+			}
+		}
+		return enemyHash;
+		
 	}
 	
 	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash){
