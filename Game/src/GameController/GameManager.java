@@ -8,6 +8,7 @@ import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.glClearColor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -136,15 +137,8 @@ public class GameManager {
 		
 		initCollision();
 		initTiles();
-		
-		Document doc = null;
-		try {
-			doc = Serializer.readDoc("assets/Maps/", "test.tmx");
-		} catch (Exception e) {
-			System.err.println("File not found");
-			e.printStackTrace();
-		}
-		initMap(doc);//also should initialize entities
+		initEntityHash("assets/Hashfiles/", "EntitiesTest.txt");
+		initMap("assets/Maps/", "test.tmx");//also should initialize entities
 		
 		UI.init();
 		initTime();
@@ -182,7 +176,14 @@ public class GameManager {
 		}
 	}
 	
-	private void initMap(Document mapFile) {
+	private void initMap(String fileDir, String fileName) {
+		Document mapFile = null;
+		try {
+			mapFile = Serializer.readDoc(fileDir, fileName);
+		} catch (Exception e) {
+			System.err.println("File not found");
+			e.printStackTrace();
+		}
 		HashMap<String, Tile[][]> mapData = null;
 		try {
 			//assets/TestMap64.tmx
@@ -221,12 +222,25 @@ public class GameManager {
 
 	}
 	
+	private void initEntityHash(String fileDir, String fileName) {
+		try {
+			entityHash = Serializer.loadEntityHash(fileDir, fileName, renderer);
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	private void initEntities(Document mapFile) {
 		//TODO this is hardcoded, make a initEntityHash
-		entityHash = new HashMap<Integer, Entity>();
-		entityHash.put(0, new Player(0, new Vector2f(0f, 0f), renderer, "Player", new Stats(100, 100, 0.5f, 1f)));
-		entityHash.put(1, new FloaterEnemy(10, new Vector2f(0, 0), renderer, "Enemy", new Stats(100, 100, 0, 0)));
-		entityHash.put(2, new ShardSlimeEnemy(10, new Vector2f(0, 0), renderer, "BEnemy", new Stats(100, 100, 0, 0)));
+		//no longer hardcoded
+		//entityHash = new HashMap<Integer, Entity>();
+		//entityHash.put(0, new Player(0, null, renderer, "Player", new Stats(100, 100, 0.5f, 1f)));
+		//entityHash.put(1, new FloaterEnemy(10, null, renderer, "Enemy", new Stats(100, 100, 0, 0)));
+		///entityHash.put(2, new ShardSlimeEnemy(10, null, renderer, "BEnemy", new Stats(100, 100, 0, 0)));
 		
 		
 		entities = new ArrayList();
