@@ -18,8 +18,10 @@ import Accessories.Accessory;
 import Collision.HammerRightTriangle;
 import Collision.HammerShape;
 import Collision.HammerSquare;
+import Collision.Hitbox;
 import Collision.Physics;
 import Debug.Debug;
+import Entities.CollidableEntity;
 import Entities.Entity;
 import Entities.FloaterEnemy;
 import Entities.PhysicsEntity;
@@ -30,7 +32,6 @@ import Rendering.SpriteShader;
 import Rendering.Texture;
 import Tiles.Tile;
 import UI.UI;
-import Wrappers.Hitbox;
 import Wrappers.Stats;
 
 
@@ -259,17 +260,21 @@ public class GameManager {
 	public static void subscribeEntity(Entity e) {
 		entityWaitingList.add(e);
 		
-		Hitbox hb = e.getHitbox();
-		if (hb != null) coll.add(hb);
-		else System.err.println("Collider not defined!");
+		if (e instanceof CollidableEntity) {
+			Hitbox hb = ((CollidableEntity)e).hitbox;
+			if (hb != null) coll.add(hb);
+			else System.err.println("Collider not defined!");
+		}
 	}
 	
 	public static void unsubscribeEntity(Entity e) {
 		entityClearList.add(e);
 		
-		Hitbox hb = e.getHitbox();
-		if (hb != null) coll.remove(hb);
-		else System.err.println("Collider not defined!");
+		if (e instanceof CollidableEntity) {
+			Hitbox hb = ((CollidableEntity)e).hitbox;
+			if (hb != null) coll.remove(hb);
+			else System.err.println("Collider not defined!");
+		}
 	}
 	
 	private void initPlayer() {
@@ -377,19 +382,24 @@ public class GameManager {
 				Physics.checkEntityCollision(c, otherC);
 			}
 			
-			//Figure out movement
-			Physics.calculateDeltas(c, grid);
+			//Figure out movement (but only if it's a physics entity)
+			CollidableEntity e = c.owner;
+			if (c.owner instanceof PhysicsEntity) {
+				Physics.calculateDeltas((PhysicsEntity) e, grid);
+			}
 		}
 		
 		//Push physics outcomes
 		for (Entity e : entities) {
 			//Somehow need to avoid pushing the movement of entities that don't move.
-			PhysicsEntity pe = (PhysicsEntity) e;
-			if (pe.pData.collidedWithTile) {
-				pe.onTileCollision();
-				pe.pData.collidedWithTile = false;
+			if (e instanceof PhysicsEntity) {
+				PhysicsEntity pe = (PhysicsEntity) e;
+				if (pe.pData.collidedWithTile) {
+					pe.onTileCollision();
+					pe.pData.collidedWithTile = false;
+				}
+				pe.pushMovement();
 			}
-			pe.pushMovement();
 		}
 		
 		Camera.main.update();

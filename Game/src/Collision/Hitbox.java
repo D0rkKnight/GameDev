@@ -1,13 +1,13 @@
-package Wrappers;
+package Collision;
 
-import Entities.PhysicsEntity;
+import Entities.CollidableEntity;
 
 public class Hitbox {
 	public float height;
 	public float width;
-	public PhysicsEntity owner;
+	public CollidableEntity owner;
 	
-	public Hitbox(PhysicsEntity owner, float height, float width) {
+	public Hitbox(CollidableEntity owner, float height, float width) {
 		this.height = height;
 		this.width = width;
 		this.owner = owner;

@@ -27,8 +27,8 @@ public class Debug {
 		GameManager.frameWalk = false;
 		GameManager.frameDelta = 20f;
 		
-		GameManager.showCollisions = true;
-		GameManager.debugElementsEnabled = true;
+		GameManager.showCollisions = false;
+		GameManager.debugElementsEnabled = false;
 	}
 	
 	public static void init() {

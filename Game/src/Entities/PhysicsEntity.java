@@ -17,7 +17,7 @@ import Rendering.Renderer;
 import Wrappers.Sprites;
 import Wrappers.PhysicsData;
 
-public abstract class PhysicsEntity extends Entity implements Collidable{
+public abstract class PhysicsEntity extends CollidableEntity{
 	
 	//Velocity is handled as always relative to two axises. This is nice for its flexibility.
 	public PhysicsData pData;

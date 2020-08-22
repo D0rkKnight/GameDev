@@ -36,9 +36,13 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	public Color col;
 	public int matrixMode;
 	
+	private boolean hasBufferUpdate;
+	
 	public SpriteRenderer(Shader shader) {
 		super(shader);
 		spr = null;
+		
+		hasBufferUpdate = false;
 	}
 	
 	@Override
@@ -52,12 +56,14 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		mesh.write(genColors(col), attribs[2]);
 		
 		//This should be buffered once per frame, right?
-		FloatBuffer fBuff = BufferUtils.createFloatBuffer(mesh.data.length);
-		fBuff.put(mesh.data);
-		fBuff.flip();
-		
-		glBindBuffer(GL_ARRAY_BUFFER, vboId);
-	    glBufferSubData(GL_ARRAY_BUFFER, 0, fBuff);
+		if (hasBufferUpdate) {
+			FloatBuffer fBuff = mesh.toBuffer();
+			
+			glBindBuffer(GL_ARRAY_BUFFER, vboId);
+		    glBufferSubData(GL_ARRAY_BUFFER, 0, fBuff);
+		    
+		    hasBufferUpdate = false;
+		}
 	    
 	    setTransformMatrix();
 		
@@ -123,9 +129,17 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		return (SpriteRenderer) super.clone();
 	}
 	
+	//Note: this is an expensive operation
 	public void updateVertices(Vector2f[] verts) {
+		bufferSubData(genVerts(verts), 0);
+	}
+	
+	//Encapsulated to make sure that hasBufferUpdate is set to true
+	private void bufferSubData(float[] data, int attribId) {
 		//Buffer sub data
-		mesh.write(genVerts(verts), attribs[0]);
+		mesh.write(data, attribs[attribId]);
+		
+		hasBufferUpdate = true; //this should be set to true, otherwise the update won't be seen.
 	}
 	
 	protected float[] genVerts(Vector2f[] vertices) {

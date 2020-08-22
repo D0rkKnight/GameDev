@@ -14,6 +14,16 @@ public class Transformation {
 	public static final int MATRIX_MODE_WORLD = 0;
 	public static final int MATRIX_MODE_SCREEN = 1;
 	
+	//Do this to avoid reallocation every frame
+	private Matrix4f trans;
+	private Matrix4f rot;
+	private Matrix4f scale;
+	private Matrix4f model;
+	
+	private Matrix4f view;
+	private Matrix4f proj;
+	private Matrix4f mvp;
+	
 	public Transformation(Vector2f pos) {
 		this(pos, MATRIX_MODE_WORLD);
 	}
@@ -21,79 +31,69 @@ public class Transformation {
 	public Transformation(Vector2f pos, int matrixMode) {
 		this.pos = pos;
 		this.matrixMode = matrixMode;
+		
+		trans = new Matrix4f();
+		rot = new Matrix4f();
+		scale = new Matrix4f();
+		model = new Matrix4f();
+		
+		view = new Matrix4f();
+		proj = new Matrix4f();
+		mvp = new Matrix4f();
 	}
 	
 	public Matrix4f genMVP() {
 		switch(matrixMode) {
 		case MATRIX_MODE_WORLD:
-			return genWorldMVP();
+			genWorldMVP();
+			break;
 		case MATRIX_MODE_SCREEN:
-			return genScreenMVP();
+			genScreenMVP();
+			break;
 		default:
 			new Exception("Matrix mode not recognized!").printStackTrace();
 		}
 		
-		return null;
+		//Getting MVP
+		mvp.identity().mul(proj).mul(view).mul(model);
+		
+		return mvp;
 	}
 	
 	/**
 	 * For objects that exist in the world
 	 * @return
 	 */
-	public Matrix4f genWorldMVP() {
+	public void genWorldMVP() {
 		Camera cam = Camera.main;
 		
 		//Setting model space transformations
-		Matrix4f translation = new Matrix4f();
-		translation.setTranslation(pos.x, pos.y, 0);
-		Matrix4f rotation = new Matrix4f();
-		Matrix4f scale = new Matrix4f();
+		trans.setTranslation(pos.x, pos.y, 0);
+		rot.identity();
+		scale.identity();
 		
-		Matrix4f modelMatrix = new Matrix4f(scale).mul(rotation).mul(translation);
+		model.identity().mul(trans).mul(rot).mul(scale);
 		
-		//Setting the view matrix
-		Vector2f camPos = cam.pos;
-		Matrix4f viewMatrix = new Matrix4f().setTranslation(-camPos.x, -camPos.y, 0);
-		
-		//Setting the projection matrix (screw it we're just calculating this one ourselves)
-		//Maps camera space coordinates to clip space
-
-		Vector2f viewport = cam.viewport;
-		Matrix4f projectionMatrix = new Matrix4f().scale(2f/viewport.x, 2f/viewport.y, 1);
-		
-		//Getting MVP
-		Matrix4f mvp = new Matrix4f(projectionMatrix).mul(viewMatrix).mul(modelMatrix);
-		
-		return mvp;
+		//Setting the view/projection matrices
+		view = cam.worldViewMatrix;
+		proj = cam.projectionMatrix;
 	}
 	
 	/**
 	 * For UI elements (These are anchored upper right btw)
 	 */
-	public Matrix4f genScreenMVP() {
+	public void genScreenMVP() {
 		Camera cam = Camera.main;
 		
 		//Setting model space transformations
-		Matrix4f translation = new Matrix4f();
-		translation.setTranslation(pos.x, -pos.y, 0);
-		Matrix4f rotation = new Matrix4f();
-		Matrix4f scale = new Matrix4f();
+		trans.setTranslation(pos.x, -pos.y, 0);
+		rot.identity();
+		scale.identity();
 		
-		Matrix4f modelMatrix = new Matrix4f(scale).mul(rotation).mul(translation);
+		model.identity().mul(trans).mul(rot).mul(scale);
 		
-		//No view matrix, since the screen is anchored.
-		Vector2f viewport = cam.viewport;
-		Matrix4f viewMatrix = new Matrix4f().translate(-viewport.x/2, viewport.y/2, 0);
-		
-		//Setting the projection matrix (screw it we're just calculating this one ourselves)
-		//Maps camera space coordinates to clip space
-
-		
-		Matrix4f projectionMatrix = new Matrix4f().scale(2f/viewport.x, 2f/viewport.y, 1);
-		
-		//Getting MVP
-		Matrix4f mvp = new Matrix4f(projectionMatrix).mul(viewMatrix).mul(modelMatrix);
-		
-		return mvp;
+		//Use screen view matrix
+		view = cam.screenViewMatrix;
+		proj = cam.projectionMatrix;
 	}
 }

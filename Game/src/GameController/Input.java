@@ -39,6 +39,8 @@ public class Input {
 	
 	public static boolean primaryButtonDown;
 	public static boolean secondaryButtonDown;
+	public static boolean meleeAction;
+	
 	public static boolean dashAction; //Only active for one frame
 	public static boolean knockbackTest;
 	public static Vector2f knockbackVectorTest = new Vector2f(-2f, 0.5f);
@@ -93,6 +95,7 @@ public class Input {
 	public static void update() {
 		dashAction = false;
 		knockbackTest = false;
+		meleeAction = false;
 	}
 	
 	public static void updateKeys(long window, int key, int scancode, int action, int mods) {
@@ -146,6 +149,11 @@ public class Input {
 		
 		primaryButtonDown = mouseStates[GLFW_MOUSE_BUTTON_LEFT];
 		secondaryButtonDown = mouseStates[GLFW_MOUSE_BUTTON_RIGHT];
+		
+		if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_RIGHT) {
+			meleeAction = true;
+			System.out.println("melee");
+		}
 	}
 
 	

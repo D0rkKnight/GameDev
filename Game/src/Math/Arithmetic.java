@@ -24,4 +24,11 @@ public abstract class Arithmetic {
 		float comp2 = v2 * ratio;
 		return comp1 + comp2;
 	}
+	
+	public static float limit(float v, float min, float max) {
+		v = Math.max(v, min);
+		v = Math.min(v, max);
+		
+		return v;
+	}
 }

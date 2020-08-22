@@ -1,5 +1,6 @@
 package Rendering;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
@@ -12,9 +13,11 @@ import org.lwjgl.BufferUtils;
 public class Mesh {
 	
 	public float[] data;
+	private FloatBuffer buff;
 	
 	public Mesh(int size) {
 		data = new float[size];
+		buff = BufferUtils.createFloatBuffer(data.length);
 	}
 	
 	public void write(float[] d, Renderer.Attribute attrib) {
@@ -33,10 +36,10 @@ public class Mesh {
 	}
 	
 	protected FloatBuffer toBuffer() {
-		FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(data.length);
-		verticesBuffer.put(data);
-		verticesBuffer.flip();
-		return verticesBuffer;
+		buff.clear();
+		buff.put(data);
+		buff.flip();
+		return buff;
 	}
 	
 	public String toString() {

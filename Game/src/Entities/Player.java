@@ -4,6 +4,7 @@ import org.joml.Math;
 import org.joml.Vector2f;
 
 import Collision.HammerShape;
+import Collision.Hitbox;
 import Collision.PhysicsCollisionBehaviorStepUp;
 import Collision.PhysicsCollisionBehaviorWallCling;
 import Debug.Debug;
@@ -16,7 +17,6 @@ import Rendering.SpriteRenderer;
 import Rendering.Texture;
 import Rendering.Transformation;
 import Wrappers.Color;
-import Wrappers.Hitbox;
 import Wrappers.Stats;
 import Wrappers.Timer;
 import Wrappers.TimerCallback;
@@ -36,6 +36,9 @@ public class Player extends Combatant{
 	private Vector2f dashDir;
 	private boolean releasedJump = true; //for making sure the player can't hold down w to jump
 	private boolean justDashed = false;
+	
+	private Timer meleeTimer;
+	private Melee meleeEntity;
 	
 	private Animator anim;
 	
@@ -161,10 +164,16 @@ public class Player extends Combatant{
 			gunTimer.update();
 		}
 		
-		//Update dash timer
-		if (dashTimer != null) {
-			dashTimer.update();
+		//Melee
+		if (Input.meleeAction && meleeTimer == null) {
+			melee();
 		}
+		
+		//Update timers
+		if (meleeTimer != null) {
+			meleeTimer.update();
+		}
+		if (dashTimer != null) dashTimer.update();
 		
 		calcFrame();
 	}
@@ -301,6 +310,32 @@ public class Player extends Combatant{
 		proj.alignment = alignment;
 		
 		GameManager.subscribeEntity(proj);
+	}
+	
+	private void melee() {
+		meleeEntity = new Melee(1, new Vector2f(position), GameManager.renderer, "Melee", this);
+		GameManager.subscribeEntity(meleeEntity);
+		
+		meleeTimer = new Timer(1000, new TimerCallback() {
+			
+			@Override
+			public void invoke(Timer timer) {
+				// TODO Auto-generated method stub
+				GameManager.unsubscribeEntity(meleeEntity);
+				meleeEntity = null;
+				meleeTimer = null;
+			}
+		});
+	}
+	
+	public void pushMovement() {
+		super.pushMovement();
+		
+		//Dragging melee box along, after collision has been resolved.
+		if (meleeEntity != null) {
+			//Update melee entity (drag it along with the character)
+			meleeEntity.position.set(position);
+		}
 	}
 
 	@Override

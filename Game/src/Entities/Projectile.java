@@ -3,11 +3,11 @@ package Entities;
 import org.joml.Vector2f;
 
 import Collision.HammerShape;
+import Collision.Hitbox;
 import Rendering.Renderer;
 import Rendering.SpriteRenderer;
 import Rendering.Transformation;
 import Wrappers.Color;
-import Wrappers.Hitbox;
 
 public class Projectile extends PhysicsEntity{
 
@@ -28,24 +28,27 @@ public class Projectile extends PhysicsEntity{
 	}
 
 	public void onHit(Hitbox otherHb) { //upon colliding with another hitbox
-		PhysicsEntity e = otherHb.owner;
+		CollidableEntity e = otherHb.owner;
 			
 		//Hit an enemy
 		int oppAlign = Combatant.getOpposingAlignment(alignment);
-		if (e.alignment == oppAlign) {
-			
-			//If it's a combatant, do damange and knockback
-			if (e instanceof Combatant) {
-				Combatant c = (Combatant) e;
+		
+		if (e instanceof PhysicsEntity) {
+			if (((PhysicsEntity) e).alignment == oppAlign) {
 				
-				Vector2f kb = new Vector2f(pData.velo).mul(0.2f);
-				c.knockback(kb, 0.5f, 1f);
+				//If it's a combatant, do damange and knockback
+				if (e instanceof Combatant) {
+					Combatant c = (Combatant) e;
+					
+					Vector2f kb = new Vector2f(pData.velo).mul(0.2f);
+					c.knockback(kb, 0.5f, 1f);
+					
+					c.hit(10);
+				}
 				
-				c.hit(10);
+				//DESTROY
+				Destroy();
 			}
-			
-			//DESTROY
-			Destroy();
 		}
 	}
 

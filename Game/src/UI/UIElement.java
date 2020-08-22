@@ -1,21 +1,18 @@
 package UI;
 
+import org.joml.Vector2f;
+
 import Rendering.Renderer;
 
 public class UIElement {
 	
-	Renderer rend;
+	Vector2f pos;
 	
-	public UIElement(Renderer rend) {
-		try {
-			this.rend = rend.clone();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public UIElement(Vector2f pos) {
+		this.pos = pos;
 	}
 	
 	public void render() {
-		rend.render();
 	}
 	
 	public void update() {}
