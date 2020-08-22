@@ -47,6 +47,8 @@ public class Player extends Combatant{
 	private Timer jumpGraceTimer;
 	private SpriteRenderer srenderer;
 	
+	private int sideFacing;
+	
 	public Player(int ID, Vector2f position, SpriteRenderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
 		
@@ -85,6 +87,8 @@ public class Player extends Combatant{
 		
 		//Alignment
 		alignment = ALIGNMENT_PLAYER;
+		
+		sideFacing = 1;
 	}
 	
 	protected void initPhysicsCollBehavior() {
@@ -119,15 +123,15 @@ public class Player extends Combatant{
 		SpriteRenderer sprRend = (SpriteRenderer) renderer;
 		switch (movementMode) {
 		case MOVEMENT_MODE_CONTROLLED: //walking
-			sprRend.col = new Color(1, 0, 0);
+			sprRend.updateColors(new Color(1, 0, 0));
 			controlledMovement();
 			break;
 		case MOVEMENT_MODE_IS_DASHING: //dashing, a bit spaghetti here TODO
-			sprRend.col = new Color(1, 1, 1);
+			sprRend.updateColors(new Color(1, 1, 1));
 			dashingMovement();
 			break;
 		case MOVEMENT_MODE_KNOCKBACK:
-			sprRend.col = new Color(0, 0, 1);
+			sprRend.updateColors(new Color(0, 0, 1));
 			knockbackMovement();
 			break;
 		default:
@@ -253,6 +257,8 @@ public class Player extends Combatant{
 		if(Input.moveY == 0) {
 			releasedJump = true;
 		}
+		
+		//Jump grace
 		if (pData.grounded && movementMode != MOVEMENT_MODE_IS_DASHING) canJump = true;
 		else if (pData.wasGrounded) {
 			//begin timer
@@ -266,6 +272,11 @@ public class Player extends Combatant{
 				}
 			});
 		}
+		
+		int newSideFacing = Arithmetic.sign(Input.moveX);
+		//Can only change sides if not attacking
+		if (newSideFacing != 0 && meleeTimer == null) sideFacing = newSideFacing;
+		
 		hasGravity = true;
 	}
 
@@ -313,14 +324,15 @@ public class Player extends Combatant{
 	}
 	
 	private void melee() {
-		meleeEntity = new Melee(1, new Vector2f(position), GameManager.renderer, "Melee", this);
+		Vector2f kbDir = new Vector2f(sideFacing, 0);
+		meleeEntity = new Melee(1, new Vector2f(position), GameManager.renderer, "Melee", this, kbDir);
 		GameManager.subscribeEntity(meleeEntity);
 		
-		meleeTimer = new Timer(1000, new TimerCallback() {
+		meleeTimer = new Timer(200, new TimerCallback() {
 			
 			@Override
 			public void invoke(Timer timer) {
-				// TODO Auto-generated method stub
+				// TODO: unsubscribing takes time while setting melee entity to null is instant, so there is one frame where melee entity is not attached to the player.
 				GameManager.unsubscribeEntity(meleeEntity);
 				meleeEntity = null;
 				meleeTimer = null;
@@ -334,7 +346,10 @@ public class Player extends Combatant{
 		//Dragging melee box along, after collision has been resolved.
 		if (meleeEntity != null) {
 			//Update melee entity (drag it along with the character)
-			meleeEntity.position.set(position);
+			Vector2f centerD = new Vector2f(-dim.x/2, 15);
+			Vector2f sideD = new Vector2f(30, 0).mul(sideFacing);
+			
+			meleeEntity.position.set(position).add(centerD).add(sideD);;
 		}
 	}
 

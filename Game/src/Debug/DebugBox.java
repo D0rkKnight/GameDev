@@ -33,8 +33,6 @@ public class DebugBox extends DebugElement {
 		//Bind shader
 		shader.bind();
 		
-		Camera cam = Camera.main;
-		
 		Vector2f[] points = new Vector2f[4];
 		points[0] = new Vector2f(p);
 		points[1] = new Vector2f(p).add(new Vector2f(0, dims.y));

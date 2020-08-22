@@ -19,9 +19,10 @@ public class FlickerTimer extends Timer {
 		TimerCallback flickerCb = new TimerCallback() {
 			@Override
 			public void invoke(Timer timer) {
-				
-				if (isPeak) sprRen.col = troughColor;
-				if (!isPeak) sprRen.col = peakColor;
+				Color newCol = null;
+				if (isPeak) newCol = troughColor;
+				if (!isPeak) newCol = peakColor;
+				sprRen.updateColors(newCol);
 				
 				isPeak = !isPeak;
 			}
@@ -32,7 +33,7 @@ public class FlickerTimer extends Timer {
 			@Override
 			public void invoke(Timer timer) {
 				// TODO Auto-generated method stub
-				sprRen.col = new Color();
+				sprRen.updateColors(new Color());
 			}
 			
 		};

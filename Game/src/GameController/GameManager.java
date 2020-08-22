@@ -277,7 +277,9 @@ public class GameManager {
 		if (e instanceof CollidableEntity) {
 			Hitbox hb = ((CollidableEntity)e).hitbox;
 			if (hb != null) coll.add(hb);
-			else System.err.println("Collider not defined!");
+			else {
+				new Exception("Collider of "+e.name+" not defined!").printStackTrace();
+			}
 		}
 	}
 	
@@ -287,7 +289,9 @@ public class GameManager {
 		if (e instanceof CollidableEntity) {
 			Hitbox hb = ((CollidableEntity)e).hitbox;
 			if (hb != null) coll.remove(hb);
-			else System.err.println("Collider not defined!");
+			else {
+				new Exception("Collider of "+e.name+" not defined!").printStackTrace();
+			}
 		}
 	}
 	
@@ -359,9 +363,6 @@ public class GameManager {
 	 * Called once per frame, and is responsible for updating internal game logic.
 	 */
 	private void update() {
-		
-		//Clear tile collision colorings (debug purposes)
-		if (GameManager.showCollisions) Debug.clearHighlights();
 		
 		//Dump entity waiting list into entity list
 		for (Entity e : entityWaitingList) {

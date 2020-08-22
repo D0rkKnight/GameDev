@@ -239,7 +239,10 @@ public abstract class Physics {
 						maxMoveDist = d;
 						normal = tempNormal;
 					}
-					if (GameManager.showCollisions) Debug.highlightRenderer(t.renderer, new Color(1, 0, 1));
+					if (GameManager.showCollisions) {
+						Vector2f pos = new Vector2f(x, y).mul(GameManager.tileSize);
+						Debug.highlightRect(pos, new Vector2f(GameManager.tileSize, GameManager.tileSize), new Color(1, 0, 1));
+					}
 					
 					isColl = true;
 				}

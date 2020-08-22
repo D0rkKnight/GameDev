@@ -33,7 +33,7 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	
 	protected boolean hasInit;
 	
-	public Color col;
+	private Color col;
 	public int matrixMode;
 	
 	private boolean hasBufferUpdate;
@@ -51,9 +51,6 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 			new Exception("Renderer not initialized!").printStackTrace();
 			System.exit(1);
 		}
-		
-		//Put in new colors
-		mesh.write(genColors(col), attribs[2]);
 		
 		//This should be buffered once per frame, right?
 		if (hasBufferUpdate) {
@@ -132,6 +129,11 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	//Note: this is an expensive operation
 	public void updateVertices(Vector2f[] verts) {
 		bufferSubData(genVerts(verts), 0);
+	}
+	
+	public void updateColors(Color color) {
+		col = color;
+		bufferSubData(genColors(color), 2);
 	}
 	
 	//Encapsulated to make sure that hasBufferUpdate is set to true

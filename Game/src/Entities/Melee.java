@@ -1,5 +1,7 @@
 package Entities;
 
+import java.util.ArrayList;
+
 import org.joml.Vector2f;
 
 import Collision.HammerShape;
@@ -17,13 +19,18 @@ import Wrappers.Color;
  */
 public class Melee extends CollidableEntity {
 	
-	Hitbox hitbox;
 	Entity owner;
+	int alignment;
+	Vector2f kbDir;
+	
+	ArrayList<Entity> hitEntities;
 
-	public Melee(int ID, Vector2f position, Renderer renderer, String name, Entity owner) {
+	public Melee(int ID, Vector2f position, Renderer renderer, String name, Entity owner, Vector2f kbDir) {
 		super(ID, position, renderer, name);
 		
 		this.owner = owner;
+		if (owner instanceof PhysicsEntity) alignment = ((PhysicsEntity) owner).alignment;
+		else System.err.println("Attack owned by non physic entity?");
 		
 		//Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
@@ -35,6 +42,9 @@ public class Melee extends CollidableEntity {
 		
 		//Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
+		
+		this.kbDir = kbDir;
+		hitEntities = new ArrayList<>();
 	}
 
 	@Override
@@ -69,8 +79,29 @@ public class Melee extends CollidableEntity {
 
 	@Override
 	public void onHit(Hitbox otherHb) {
-		// TODO Auto-generated method stub
+		//Copied straight over from Projectile. TODO: Generalize some sort of solution
+		CollidableEntity e = otherHb.owner;
 		
+		//Hit an enemy
+		int oppAlign = Combatant.getOpposingAlignment(alignment);
+		
+		//Can only hit each enemy once
+		if (e instanceof PhysicsEntity && !hitEntities.contains(e)) {
+			if (((PhysicsEntity) e).alignment == oppAlign) {
+				
+				//If it's a combatant, do damange and knockback
+				if (e instanceof Combatant) {
+					Combatant c = (Combatant) e;
+					
+					Vector2f kb = new Vector2f(kbDir).mul(2);
+					c.knockback(kb, 0.5f, 1f);
+					
+					c.hit(10);
+				}
+				
+				hitEntities.add(e);
+			}
+		}
 	}
 
 }

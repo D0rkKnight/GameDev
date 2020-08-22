@@ -21,7 +21,7 @@ public class Camera {
 		if (main == null) main = this;
 		
 		pos = new Vector2f(0f, 0f);
-		moveSpeed = 0.5f;
+		moveSpeed = 0.3f;
 		
 		//TODO: Resolve this with input's stuff
 		viewport = Drawer.GetWindowSize();
@@ -39,8 +39,6 @@ public class Camera {
 	}
 	
 	public void update() {
-		System.out.println(GameManager.deltaT());
-		
 		//Change the viewport
 		Vector2f tPos = target.getPosition();
 		pos.x = Arithmetic.lerp(pos.x, tPos.x, moveSpeed);

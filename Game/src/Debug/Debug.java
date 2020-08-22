@@ -15,7 +15,6 @@ import Wrappers.Color;
 public class Debug {
 	
 	private static ArrayList<DebugElement> debugElements;
-	private static ArrayList<SpriteRenderer> highlightedRenderers;
 	private static Shader debugShader;
 	
 	public static Texture debugTex;
@@ -35,7 +34,6 @@ public class Debug {
 		config();
 		
 		debugElements = new ArrayList<DebugElement>();
-		highlightedRenderers = new ArrayList<SpriteRenderer>();
 		
 		debugShader = new ColorShader("shader");
 		debugTex = new Texture("assets/debugTex.png");
@@ -49,7 +47,6 @@ public class Debug {
 		for (DebugElement e : debugElements) {
 			if (GameManager.debugElementsEnabled) e.render(debugShader);
 			e.lifespan --;
-			
 			if (e.lifespan <= 0) clearList.add(e);
 		}
 		
@@ -57,12 +54,6 @@ public class Debug {
 		for (DebugElement e : clearList) {
 			debugElements.remove(e);
 		}
-	}
-	
-	public static void clearHighlights() {
-		for (SpriteRenderer r : highlightedRenderers) r.col = new Color();
-		
-		highlightedRenderers.clear();
 	}
 	
 	//Some unique behavior here so I'll insulate the process a bit
@@ -74,8 +65,14 @@ public class Debug {
 		debugElements.add(e);
 	}
 	
-	public static void highlightRenderer(SpriteRenderer rend, Color col) {
-		rend.col = col;
-		highlightedRenderers.add(rend);
+	/**
+	 * Really shouldn't need this method
+	 * @param pos
+	 * @param dims
+	 * @param col
+	 */
+	public static void highlightRect(Vector2f pos, Vector2f dims, Color col) {
+		DebugBox box = new DebugBox(pos, dims); //Just use a debug box for now
+		enqueueElement(box);
 	}
 }
