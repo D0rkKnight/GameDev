@@ -28,7 +28,7 @@ public class Projectile extends PhysicsEntity{
 	}
 
 	public void onHit(Hitbox otherHb) { //upon colliding with another hitbox
-		CollidableEntity e = otherHb.owner;
+		Object e = otherHb.owner;
 			
 		//Hit an enemy
 		int oppAlign = Combatant.getOpposingAlignment(alignment);

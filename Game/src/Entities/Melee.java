@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
+import Collision.Collidable;
 import Collision.HammerShape;
 import Collision.Hitbox;
 import Debug.Debug;
@@ -17,13 +18,15 @@ import Wrappers.Color;
  * @author Hanzen Shou
  *
  */
-public class Melee extends CollidableEntity {
+public class Melee extends Entity implements Collidable {
 	
 	Entity owner;
 	int alignment;
 	Vector2f kbDir;
 	
 	ArrayList<Entity> hitEntities;
+	
+	protected Hitbox hitbox;
 
 	public Melee(int ID, Vector2f position, Renderer renderer, String name, Entity owner, Vector2f kbDir) {
 		super(ID, position, renderer, name);
@@ -80,7 +83,7 @@ public class Melee extends CollidableEntity {
 	@Override
 	public void onHit(Hitbox otherHb) {
 		//Copied straight over from Projectile. TODO: Generalize some sort of solution
-		CollidableEntity e = otherHb.owner;
+		Entity e = (Entity) otherHb.owner;
 		
 		//Hit an enemy
 		int oppAlign = Combatant.getOpposingAlignment(alignment);
@@ -102,6 +105,18 @@ public class Melee extends CollidableEntity {
 				hitEntities.add(e);
 			}
 		}
+	}
+
+	@Override
+	public Hitbox getHb() {
+		// TODO Auto-generated method stub
+		return hitbox;
+	}
+
+	@Override
+	public void setHb(Hitbox hb) {
+		// TODO Auto-generated method stub
+		hitbox = hb;
 	}
 
 }

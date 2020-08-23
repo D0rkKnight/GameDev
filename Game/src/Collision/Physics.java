@@ -6,7 +6,7 @@ import org.joml.Vector2f;
 
 import Debug.Debug;
 import Debug.DebugBox;
-import Entities.CollidableEntity;
+import Entities.Entity;
 import Entities.PhysicsEntity;
 import GameController.GameManager;
 import Math.Arithmetic;
@@ -20,7 +20,6 @@ public abstract class Physics {
 	public static void calculateDeltas(PhysicsEntity e, Tile[][] grid) {
 		
 		//Presume to be free falling, until able to prove otherwise
-
 		e.pData.wasGrounded = e.pData.grounded;
 		e.pData.grounded = false;
 		
@@ -335,10 +334,10 @@ public abstract class Physics {
 
 	public static void checkEntityCollision(Hitbox c1, Hitbox c2) {
 		//Do separate axis theorem on them
-		CollidableEntity e1 = c1.owner;
+		Entity e1 = (Entity) c1.owner;
 		Vector2f[] c1Points = Geometry.pointsFromRect(e1.getPosition(), e1.dim);
 		
-		CollidableEntity e2 = c2.owner;
+		Entity e2 = (Entity) c2.owner;
 		Vector2f[] c2Points = Geometry.pointsFromRect(e2.getPosition(), e2.dim);
 		
 		//Todo: inch this

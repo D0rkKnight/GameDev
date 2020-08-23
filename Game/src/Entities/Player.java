@@ -26,7 +26,7 @@ public class Player extends Combatant{
 	private float jumpSpeed;
 	private Timer gunTimer;
 	float xCap = 0.5f; //todo add to contructor (and break everything)
-	float accelConst = 2f / 300f;
+	float accelConst = 2f / 20f;
 	float gunCost = 15f;
 	float dashCost = 30f;
 	
@@ -140,10 +140,12 @@ public class Player extends Combatant{
 
 		//Gravity
 		if (hasGravity) {
-			pData.velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
+			pData.velo.y -= Entity.gravity / 100;
 			pData.velo.y = Math.max(pData.velo.y, -2);
+			
+			//Bring entity back to normal
 			if(justDashed) {
-				pData.velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
+				pData.velo.y -= Entity.gravity / 100;
 				if(pData.velo.y < 0) justDashed = false;
 			}
 	    }
@@ -156,9 +158,6 @@ public class Player extends Combatant{
 			//TODO: Rename this so its purpose is less vague.
 			pData.isJumping = true; //Signals to the physics system that some operations ought to be done
 			releasedJump = false;
-			if( false ) {//TODO colliding with wall
-				//TODO velo.x += xCap;
-			}
 			
 			canJump = false;
 		}
@@ -227,22 +226,16 @@ public class Player extends Combatant{
 
 	@Override
 	public void controlledMovement() {
-		
-		
-		float accelConst = 2f / 300f;
-		
 		float xAccel = 0;
 		
 		//Deceleration
 		if (Input.moveX != 0) {
 			xAccel = accelConst * Input.moveX;
 		} else {
-			//Reduce jitter (divide by deltaT to balance out equation)
-			float decelConst = Math.min(accelConst, Math.abs(pData.velo.x) / GameManager.deltaT());
+			float decelConst = Math.min(accelConst, Math.abs(pData.velo.x));
 			
 			xAccel = -decelConst * Arithmetic.sign(pData.velo.x);
 		}
-		xAccel *= GameManager.deltaT();
 		if(Math.abs(pData.velo.x) <= xCap) {
 			pData.velo.x += xAccel;
 		
@@ -251,7 +244,7 @@ public class Player extends Combatant{
 			if (Input.moveX < 0) pData.velo.x = Math.max(pData.velo.x, -xCap);
 		}
 		else {
-			float decelConst = (Math.max(xCap, Math.abs(pData.velo.x) - 2 * accelConst) / GameManager.deltaT());
+			float decelConst = (Math.max(xCap, Math.abs(pData.velo.x) - 2 * accelConst));
 			pData.velo.x -= decelConst * Arithmetic.sign(pData.velo.x);
 		}
 		if(Input.moveY == 0) {
@@ -294,7 +287,6 @@ public class Player extends Combatant{
 		float decelConst = Math.min(accelConst * decelMulti, Math.abs(pData.velo.x) - xCap) * -Arithmetic.sign(pData.velo.x);
 		//effect of movement
 		decelConst += accelConst * movementMulti * Input.moveX;
-		decelConst *= GameManager.deltaT();
 		
 		pData.velo.x += decelConst;
 		hasGravity = true;

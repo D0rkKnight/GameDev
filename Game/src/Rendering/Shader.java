@@ -16,6 +16,7 @@ import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 import static org.lwjgl.opengl.GL20.glLinkProgram;
 import static org.lwjgl.opengl.GL20.glShaderSource;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
+import static org.lwjgl.opengl.GL20.glUniform1f;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL20.glValidateProgram;
 
@@ -93,7 +94,13 @@ public abstract class Shader {
 		}
 		
 		uniforms = new HashMap<String, Integer>();
-		initUniforms();
+		try {
+			initUniforms();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}
 	
 	public void bind() {
@@ -101,7 +108,7 @@ public abstract class Shader {
 	}
 	
 	protected abstract void bindAttributes();
-	protected abstract void initUniforms();
+	protected abstract void initUniforms() throws Exception;
 	
 	/*
 	 * Shader interpreter
@@ -143,5 +150,9 @@ public abstract class Shader {
 			val.get(fb);
 			glUniformMatrix4fv(uniforms.get(name), false, fb);
 		}
+	}
+	
+	public void setUniform(String name, float f) {
+		glUniform1f(uniforms.get(name), f);
 	}
 }

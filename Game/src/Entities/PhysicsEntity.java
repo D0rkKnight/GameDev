@@ -6,18 +6,16 @@ import org.joml.Math;
 import org.joml.Vector2f;
 
 import Collision.Collidable;
+import Collision.Hitbox;
 import Collision.PhysicsCollisionBehavior;
 import Collision.PhysicsCollisionBehaviorDeflect;
 import Collision.PhysicsCollisionBehaviorGroundMove;
-import Collision.PhysicsCollisionBehaviorStepUp;
-import Collision.PhysicsCollisionBehaviorWallCling;
 import GameController.GameManager;
 import Math.Vector;
 import Rendering.Renderer;
-import Wrappers.Sprites;
 import Wrappers.PhysicsData;
 
-public abstract class PhysicsEntity extends CollidableEntity{
+public abstract class PhysicsEntity extends Entity implements Collidable{
 	
 	//Velocity is handled as always relative to two axises. This is nice for its flexibility.
 	public PhysicsData pData;
@@ -48,6 +46,8 @@ public abstract class PhysicsEntity extends CollidableEntity{
 	public ArrayList<PhysicsCollisionBehavior> groundedCollBehaviorList;
 	public ArrayList<PhysicsCollisionBehavior> nonGroundedCollBehaviorList;
 	public ArrayList<PhysicsCollisionBehavior> commonCollBehaviorList;
+	
+	protected Hitbox hitbox;
 	
 	public PhysicsEntity(int ID, Vector2f position, Renderer renderer, String name) {
 		super(ID, position, renderer, name);
@@ -174,4 +174,7 @@ public abstract class PhysicsEntity extends CollidableEntity{
 			knockback = true;
 		}
 	}
+	
+	public Hitbox getHb() {return hitbox;}
+	public void setHb(Hitbox hb) {hitbox = hb;}
 }
