@@ -8,6 +8,8 @@ import Entities.Entity;
 import Tiles.Tile;
 public class Map {
 	public HashMap<String, Tile[][]> grids; //[x][y]
+	public float w;
+	public float h;
 	
 	/*
 	 * entrance coordinates, contains list of positions [topleft, topright, botleft, botright]
@@ -23,6 +25,9 @@ public class Map {
 	private ArrayList<Entity> entities;
 	public Map(HashMap<String, Tile[][]> mapData, Vector2f[][] entrances, int[][] entranceInfo, ArrayList<Entity> entities) {
 		grids = mapData;
+		w = grids.get("set").length * GameManager.tileSize;
+		h = grids.get("set")[0].length * GameManager.tileSize;
+		
 		this.setEntrances(entrances);
 		this.setEntranceInfo(entranceInfo);
 		this.setEntities(entities);

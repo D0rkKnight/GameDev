@@ -2,8 +2,8 @@ package Entities;
 
 import org.joml.Vector2f;
 
+import Collision.Hitbox;
 import Rendering.Renderer;
-import Wrappers.Hitbox;
 import Wrappers.Sprites;
 import Wrappers.Stats;
 

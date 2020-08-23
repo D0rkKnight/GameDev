@@ -1,10 +1,13 @@
 package Rendering;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.GL_STREAM_DRAW;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL15.glBufferSubData;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
@@ -13,8 +16,12 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
+
+import Rendering.Renderer.Attribute;
 
 public abstract class Renderer implements Cloneable{
 	protected Shader shader;
@@ -24,19 +31,65 @@ public abstract class Renderer implements Cloneable{
 	protected Attribute[] attribs;
 	
 	public Transformation transform;
+	protected Mesh mesh;
+	protected boolean hasBufferUpdate;
+	
+	public int matrixMode;
+	protected int vertexCount;
+	
+	protected boolean hasInit;
 	
 	Renderer(Shader shader) {
 		this.shader = shader;
 	}
 	
-	public abstract void render();
+	public void render() {
+		renderStart();
+		draw();
+	}
+	
+	protected void renderStart() {
+		if (!hasInit) {
+			new Exception("Renderer not initialized!").printStackTrace();
+			System.exit(1);
+		}
+		
+		//This should be buffered once per frame, right?
+		if (hasBufferUpdate) {
+			FloatBuffer fBuff = mesh.toBuffer();
+			
+			glBindBuffer(GL_ARRAY_BUFFER, vboId);
+		    glBufferSubData(GL_ARRAY_BUFFER, 0, fBuff);
+		    
+		    hasBufferUpdate = false;
+		}
+		
+		shader.bind();
+	}
+	
+	protected void draw() {
+		//Draw stuff
+		enableVAOs();
+		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+		disableVAOs();
+	}
+		
 	
 	@Override
 	public Renderer clone() throws CloneNotSupportedException {
 		return (Renderer) super.clone();
 	}
 	
-	protected void initData(FloatBuffer vBuff, Attribute[] attribs) {
+	protected void init(Transformation transform) {
+		this.transform = transform;
+		hasInit = true;
+	}
+	
+	protected void initData(FloatBuffer vBuff, ArrayList<Attribute> attribsBuff) {
+		//Load attribute buffer to attribute list
+		attribs = new Attribute[attribsBuff.size()];
+		for (int i=0; i<attribsBuff.size(); i++) attribs[i] = attribsBuff.get(i);
+		
 		//Creating vertex array
 		vaoId = glGenVertexArrays();
 		glBindVertexArray(vaoId);
@@ -72,7 +125,51 @@ public abstract class Renderer implements Cloneable{
 		}
 		glBindVertexArray(0);
 	}
-
+	
+	protected void createAttribs(ArrayList<Attribute> attribsBuff) {
+		return;
+	}
+	
+	protected void writeToMesh(ArrayList<Attribute> attribsBuff, Vector2f[] vertices) {
+		vertexCount = vertices.length;
+		mesh = new Mesh(vertexCount * Attribute.getRowsize(attribsBuff));
+		
+		mesh.write(genVerts(vertices), attribsBuff.get(0));
+	};
+	
+	//Hmm this needs an MVP uniform, well if there isn't one then don't set the transform matrix
+	public void setTransformMatrix() {
+		//Setting model space transformations
+		Matrix4f mvp = transform.genMVP();
+		
+		//Set matrix uniform
+		shader.bind();
+		shader.setUniform("MVP", mvp);
+	}
+	
+	protected float[] genVerts(Vector2f[] vertices) {
+		float[] out = new float[vertices.length * 3];
+		for (int i=0; i<vertices.length; i++) {
+			Vector2f v = vertices[i];
+			out[i*3] = v.x;
+			out[i*3 + 1] = v.y;
+			out[i*3 + 2] = 0;
+		}
+		return out;
+	}
+	
+	//Note: this is an expensive operation
+	public void updateVertices(Vector2f[] verts) {
+		bufferSubData(genVerts(verts), 0);
+	}
+	
+	//Encapsulated to make sure that hasBufferUpdate is set to true
+	protected void bufferSubData(float[] data, int attribId) {
+		//Buffer sub data
+		mesh.write(data, attribs[attribId]);
+		
+		hasBufferUpdate = true; //this should be set to true, otherwise the update won't be seen.
+	}
 	
 	static class Attribute {
 		public int id;
@@ -90,35 +187,30 @@ public abstract class Renderer implements Cloneable{
 		Attribute(int id, int groupSize) {
 			this.id = id;
 			this.groupSize = groupSize;
+			this.offset = 0;
 		}
 		
-		static void addAttribute(Attribute[] arr, Attribute a) {
+		static void addAttribute(ArrayList<Attribute> arr, Attribute a) {
 			//Insert item and calculate offset
 			int stride = 0;
-			boolean attribPlaced = false;
-			for (int i=0; i<arr.length; i++) {
-				if (arr[i] == null && !attribPlaced) {
-					arr[i] = a;
-					
-					int off = 0;
-					if (i>0) off = arr[i-1].offset + arr[i-1].groupSize; //Attributes are tightly packed
-					a.offset = off;
-					
-					attribPlaced = true;
-				}
+			
+			if (arr.size() > 0) {
+				Attribute lastAttrib = arr.get(arr.size() - 1);
+				a.offset = lastAttrib.offset + lastAttrib.groupSize;
 				
-				//Note: this includes arr[i] if the previous if statement triggers.
-				if (arr[i] != null) {
-					stride += arr[i].groupSize;
-				}
+				stride = getRowsize(arr);
 			}
 			
+			arr.add(a);
+			stride += a.groupSize;
+			
+			
 			//Recalculate strides
-			for (int i=0; i<arr.length; i++) {
-				if (arr[i] != null) arr[i].stride = stride;
-			}
+			for (Attribute attrib : arr) attrib.stride = stride;
+			
+			System.out.println(stride);
 		}
 		
-		static int getRowsize(Attribute[] arr) {return arr[0].stride;}
+		static int getRowsize(ArrayList<Attribute> attribBuff) {return attribBuff.get(0).stride;}
 	}
 }

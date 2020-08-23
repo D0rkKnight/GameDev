@@ -4,6 +4,7 @@ import org.joml.Math;
 import org.joml.Vector2f;
 
 import Collision.HammerShape;
+import Collision.Hitbox;
 import Collision.PhysicsCollisionBehaviorStepUp;
 import Collision.PhysicsCollisionBehaviorWallCling;
 import Debug.Debug;
@@ -16,7 +17,6 @@ import Rendering.SpriteRenderer;
 import Rendering.Texture;
 import Rendering.Transformation;
 import Wrappers.Color;
-import Wrappers.Hitbox;
 import Wrappers.Stats;
 import Wrappers.Timer;
 import Wrappers.TimerCallback;
@@ -26,7 +26,7 @@ public class Player extends Combatant{
 	private float jumpSpeed;
 	private Timer gunTimer;
 	float xCap = 0.5f; //todo add to contructor (and break everything)
-	float accelConst = 2f / 300f;
+	float accelConst = 2f / 20f;
 	float gunCost = 15f;
 	float dashCost = 30f;
 	
@@ -37,12 +37,17 @@ public class Player extends Combatant{
 	private boolean releasedJump = true; //for making sure the player can't hold down w to jump
 	private boolean justDashed = false;
 	
+	private Timer meleeTimer;
+	private Melee meleeEntity;
+	
 	private Animator anim;
 	
 	private boolean canJump;
 	private long jumpGraceInterval = 100;
 	private Timer jumpGraceTimer;
 	private SpriteRenderer srenderer;
+	
+	private int sideFacing;
 	
 	public Player(int ID, Vector2f position, SpriteRenderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
@@ -82,6 +87,8 @@ public class Player extends Combatant{
 		
 		//Alignment
 		alignment = ALIGNMENT_PLAYER;
+		
+		sideFacing = 1;
 	}
 	
 	protected void initPhysicsCollBehavior() {
@@ -116,15 +123,15 @@ public class Player extends Combatant{
 		SpriteRenderer sprRend = (SpriteRenderer) renderer;
 		switch (movementMode) {
 		case MOVEMENT_MODE_CONTROLLED: //walking
-			sprRend.col = new Color(1, 0, 0);
+			sprRend.updateColors(new Color(1, 0, 0));
 			controlledMovement();
 			break;
 		case MOVEMENT_MODE_IS_DASHING: //dashing, a bit spaghetti here TODO
-			sprRend.col = new Color(1, 1, 1);
+			sprRend.updateColors(new Color(1, 1, 1));
 			dashingMovement();
 			break;
 		case MOVEMENT_MODE_KNOCKBACK:
-			sprRend.col = new Color(0, 0, 1);
+			sprRend.updateColors(new Color(0, 0, 1));
 			knockbackMovement();
 			break;
 		default:
@@ -133,10 +140,12 @@ public class Player extends Combatant{
 
 		//Gravity
 		if (hasGravity) {
-			pData.velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
+			pData.velo.y -= Entity.gravity / 100;
 			pData.velo.y = Math.max(pData.velo.y, -2);
+			
+			//Bring entity back to normal
 			if(justDashed) {
-				pData.velo.y -= Entity.gravity * GameManager.deltaT() / 1300;
+				pData.velo.y -= Entity.gravity / 100;
 				if(pData.velo.y < 0) justDashed = false;
 			}
 	    }
@@ -149,9 +158,6 @@ public class Player extends Combatant{
 			//TODO: Rename this so its purpose is less vague.
 			pData.isJumping = true; //Signals to the physics system that some operations ought to be done
 			releasedJump = false;
-			if( false ) {//TODO colliding with wall
-				//TODO velo.x += xCap;
-			}
 			
 			canJump = false;
 		}
@@ -161,10 +167,16 @@ public class Player extends Combatant{
 			gunTimer.update();
 		}
 		
-		//Update dash timer
-		if (dashTimer != null) {
-			dashTimer.update();
+		//Melee
+		if (Input.meleeAction && meleeTimer == null) {
+			melee();
 		}
+		
+		//Update timers
+		if (meleeTimer != null) {
+			meleeTimer.update();
+		}
+		if (dashTimer != null) dashTimer.update();
 		
 		calcFrame();
 	}
@@ -214,22 +226,16 @@ public class Player extends Combatant{
 
 	@Override
 	public void controlledMovement() {
-		
-		
-		float accelConst = 2f / 300f;
-		
 		float xAccel = 0;
 		
 		//Deceleration
 		if (Input.moveX != 0) {
 			xAccel = accelConst * Input.moveX;
 		} else {
-			//Reduce jitter (divide by deltaT to balance out equation)
-			float decelConst = Math.min(accelConst, Math.abs(pData.velo.x) / GameManager.deltaT());
+			float decelConst = Math.min(accelConst, Math.abs(pData.velo.x));
 			
 			xAccel = -decelConst * Arithmetic.sign(pData.velo.x);
 		}
-		xAccel *= GameManager.deltaT();
 		if(Math.abs(pData.velo.x) <= xCap) {
 			pData.velo.x += xAccel;
 		
@@ -238,12 +244,14 @@ public class Player extends Combatant{
 			if (Input.moveX < 0) pData.velo.x = Math.max(pData.velo.x, -xCap);
 		}
 		else {
-			float decelConst = (Math.max(xCap, Math.abs(pData.velo.x) - 2 * accelConst) / GameManager.deltaT());
+			float decelConst = (Math.max(xCap, Math.abs(pData.velo.x) - 2 * accelConst));
 			pData.velo.x -= decelConst * Arithmetic.sign(pData.velo.x);
 		}
 		if(Input.moveY == 0) {
 			releasedJump = true;
 		}
+		
+		//Jump grace
 		if (pData.grounded && movementMode != MOVEMENT_MODE_IS_DASHING) canJump = true;
 		else if (pData.wasGrounded) {
 			//begin timer
@@ -257,6 +265,11 @@ public class Player extends Combatant{
 				}
 			});
 		}
+		
+		int newSideFacing = Arithmetic.sign(Input.moveX);
+		//Can only change sides if not attacking
+		if (newSideFacing != 0 && meleeTimer == null) sideFacing = newSideFacing;
+		
 		hasGravity = true;
 	}
 
@@ -274,7 +287,6 @@ public class Player extends Combatant{
 		float decelConst = Math.min(accelConst * decelMulti, Math.abs(pData.velo.x) - xCap) * -Arithmetic.sign(pData.velo.x);
 		//effect of movement
 		decelConst += accelConst * movementMulti * Input.moveX;
-		decelConst *= GameManager.deltaT();
 		
 		pData.velo.x += decelConst;
 		hasGravity = true;
@@ -301,6 +313,36 @@ public class Player extends Combatant{
 		proj.alignment = alignment;
 		
 		GameManager.subscribeEntity(proj);
+	}
+	
+	private void melee() {
+		Vector2f kbDir = new Vector2f(sideFacing, 0);
+		meleeEntity = new Melee(1, new Vector2f(position), GameManager.renderer, "Melee", this, kbDir);
+		GameManager.subscribeEntity(meleeEntity);
+		
+		meleeTimer = new Timer(200, new TimerCallback() {
+			
+			@Override
+			public void invoke(Timer timer) {
+				// TODO: unsubscribing takes time while setting melee entity to null is instant, so there is one frame where melee entity is not attached to the player.
+				GameManager.unsubscribeEntity(meleeEntity);
+				meleeEntity = null;
+				meleeTimer = null;
+			}
+		});
+	}
+	
+	public void pushMovement() {
+		super.pushMovement();
+		
+		//Dragging melee box along, after collision has been resolved.
+		if (meleeEntity != null) {
+			//Update melee entity (drag it along with the character)
+			Vector2f centerD = new Vector2f(-dim.x/2, 15);
+			Vector2f sideD = new Vector2f(30, 0).mul(sideFacing);
+			
+			meleeEntity.position.set(position).add(centerD).add(sideD);;
+		}
 	}
 
 	@Override

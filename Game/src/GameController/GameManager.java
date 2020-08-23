@@ -16,23 +16,23 @@ import org.joml.Vector2f;
 import org.w3c.dom.Document;
 
 import Accessories.Accessory;
+import Collision.Collidable;
 import Collision.HammerRightTriangle;
 import Collision.HammerShape;
 import Collision.HammerSquare;
+import Collision.Hitbox;
 import Collision.Physics;
 import Debug.Debug;
 import Entities.Entity;
-import Entities.FloaterEnemy;
 import Entities.PhysicsEntity;
 import Entities.Player;
-import Entities.ShardSlimeEnemy;
 import Rendering.SpriteRenderer;
 import Rendering.SpriteShader;
 import Rendering.Texture;
+import Rendering.WaveShader;
+import Rendering.WavyRenderer;
 import Tiles.Tile;
 import UI.UI;
-import Wrappers.Hitbox;
-import Wrappers.Stats;
 
 
 public class GameManager {
@@ -41,6 +41,7 @@ public class GameManager {
 	private static long deltaTime = 0;
 	private static long currTime = 0;
 	private static long lastTime = 0;
+	private static long startTime;
 	
 	//Helper variable for frame walking
 	public static boolean waitingForFrameWalk = true;
@@ -65,7 +66,6 @@ public class GameManager {
 
 	// Lookup table for different kinds of tiles
 	private HashMap<String, HashMap<Integer, Tile>> tileLookup;
-	private ArrayList<Integer> tsStarts;
 	// Lookup table for different kinds of accessories
 	private HashMap<Integer, Accessory> accessoryLookup;
 	// Lookup table for hammershapes
@@ -84,7 +84,6 @@ public class GameManager {
 	static private ArrayList<Entity> entityClearList;
 	static private ArrayList<Hitbox> coll;
 	
-	private Serializer serializer;
 	public static Player player;
 	
 	public static final int tileSize = 16;
@@ -118,7 +117,6 @@ public class GameManager {
 
 	
 	private void init() {
-		serializer = new Serializer();
 		Drawer.initGraphics();
 		Input.initInput();
 		Debug.init();
@@ -130,9 +128,8 @@ public class GameManager {
 		//Init renderer
 		//TODO: We have to make a renderer factory in order for this to, like, work.
 
-		shader = new SpriteShader("texShader");
-		SpriteRenderer sprRenderer = new SpriteRenderer(shader);
-		renderer = sprRenderer;
+		shader = new WaveShader("waveShader");
+		renderer = new WavyRenderer(shader);
 		
 		initCollision();
 		initTiles();
@@ -273,17 +270,25 @@ public class GameManager {
 	public static void subscribeEntity(Entity e) {
 		entityWaitingList.add(e);
 		
-		Hitbox hb = e.getHitbox();
-		if (hb != null) coll.add(hb);
-		else System.err.println("Collider not defined!");
+		if (e instanceof Collidable) {
+			Hitbox hb = ((Collidable)e).getHb();
+			if (hb != null) coll.add(hb);
+			else {
+				new Exception("Collider of "+e.name+" not defined!").printStackTrace();
+			}
+		}
 	}
 	
 	public static void unsubscribeEntity(Entity e) {
 		entityClearList.add(e);
 		
-		Hitbox hb = e.getHitbox();
-		if (hb != null) coll.remove(hb);
-		else System.err.println("Collider not defined!");
+		if (e instanceof Collidable) {
+			Hitbox hb = ((Collidable)e).getHb();
+			if (hb != null) coll.remove(hb);
+			else {
+				new Exception("Collider of "+e.name+" not defined!").printStackTrace();
+			}
+		}
 	}
 	
 	private void initPlayer() {
@@ -328,6 +333,8 @@ public class GameManager {
 	private void initTime() {
 		currTime = System.nanoTime() / 1000000;
 		lastTime = currTime;
+		
+		startTime = currTime;
 	}
 	
 	private void updateTime() {
@@ -350,13 +357,14 @@ public class GameManager {
 		return currTime;
 	}
 	
+	public static long timeSinceStart() {
+		return (currTime - startTime);
+	}
+	
 	/**
 	 * Called once per frame, and is responsible for updating internal game logic.
 	 */
 	private void update() {
-		
-		//Clear tile collision colorings (debug purposes)
-		if (GameManager.showCollisions) Debug.clearHighlights();
 		
 		//Dump entity waiting list into entity list
 		for (Entity e : entityWaitingList) {
@@ -391,19 +399,24 @@ public class GameManager {
 				Physics.checkEntityCollision(c, otherC);
 			}
 			
-			//Figure out movement
-			Physics.calculateDeltas(c, grid);
+			//Figure out movement (but only if it's a physics entity)
+			Object e = c.owner;
+			if (c.owner instanceof PhysicsEntity) {
+				Physics.calculateDeltas((PhysicsEntity) e, grid);
+			}
 		}
 		
 		//Push physics outcomes
 		for (Entity e : entities) {
 			//Somehow need to avoid pushing the movement of entities that don't move.
-			PhysicsEntity pe = (PhysicsEntity) e;
-			if (pe.pData.collidedWithTile) {
-				pe.onTileCollision();
-				pe.pData.collidedWithTile = false;
+			if (e instanceof PhysicsEntity) {
+				PhysicsEntity pe = (PhysicsEntity) e;
+				if (pe.pData.collidedWithTile) {
+					pe.onTileCollision();
+					pe.pData.collidedWithTile = false;
+				}
+				pe.pushMovement();
 			}
-			pe.pushMovement();
 		}
 		
 		Camera.main.update();

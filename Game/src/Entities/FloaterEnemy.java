@@ -3,6 +3,7 @@ package Entities;
 import org.joml.Vector2f;
 
 import Collision.HammerShape;
+import Collision.Hitbox;
 import Collision.PhysicsCollisionBehavior;
 import Collision.PhysicsCollisionBehaviorDeflect;
 import Debug.Debug;
@@ -14,7 +15,6 @@ import Rendering.SpriteRenderer;
 import Rendering.Transformation;
 import Tiles.Tile;
 import Wrappers.Color;
-import Wrappers.Hitbox;
 import Wrappers.Stats;
 import AI.*;
 

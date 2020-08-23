@@ -2,9 +2,9 @@ package Entities;
 
 import org.joml.Vector2f;
 
+import Collision.Hitbox;
 import GameController.GameManager;
 import Rendering.Renderer;
-import Wrappers.Hitbox;
 import Wrappers.SpriteSheetSection;
 import Wrappers.Sprites;
 
@@ -28,8 +28,6 @@ public abstract class Entity {
 	protected int currentGroup;
 	protected int currentFrame;
 	protected SpriteSheetSection[][] frames;
-	
-	protected Hitbox hitbox;
 	
 	//TODO: Move these within a physics affected class.
 
@@ -64,10 +62,6 @@ public abstract class Entity {
 	public void render() {
 		renderer.transform.pos = position;
 		renderer.render();
-	}
-	
-	public Hitbox getHitbox() {
-		return hitbox;
 	}
 	
 	public void Destroy() {

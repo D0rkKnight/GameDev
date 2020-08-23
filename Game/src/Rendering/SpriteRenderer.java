@@ -7,80 +7,43 @@ import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.glBlendFunc;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glVertex2f;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferSubData;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 
-import org.joml.Matrix4f;
 import org.joml.Vector2f;
-import org.lwjgl.BufferUtils;
 
 import Collision.HammerShape;
 import GameController.GameManager;
+import Rendering.Renderer.Attribute;
 import Wrappers.Color;
 
 public class SpriteRenderer extends Renderer implements Cloneable {
 	
 	public Texture spr;
 	
-	protected Mesh mesh;
-	
-	protected int texVboId;
-	protected int vertexCount;
-	
-	protected boolean hasInit;
-	
-	public Color col;
-	public int matrixMode;
+	private Color col;
 	
 	public SpriteRenderer(Shader shader) {
 		super(shader);
 		spr = null;
+		
+		hasBufferUpdate = false;
 	}
 	
-	@Override
-	public void render() {
-		if (!hasInit) {
-			new Exception("Renderer not initialized!").printStackTrace();
-			System.exit(1);
-		}
+	protected void renderStart() {
+		super.renderStart();
 		
-		//Put in new colors
-		mesh.write(genColors(col), attribs[2]);
-		
-		//This should be buffered once per frame, right?
-		FloatBuffer fBuff = BufferUtils.createFloatBuffer(mesh.data.length);
-		fBuff.put(mesh.data);
-		fBuff.flip();
-		
-		glBindBuffer(GL_ARRAY_BUFFER, vboId);
-	    glBufferSubData(GL_ARRAY_BUFFER, 0, fBuff);
-	    
 	    setTransformMatrix();
 		
 	    // Enable blending
 	    glEnable(GL_BLEND);
 	    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	    
-		shader.bind();
 		spr.bind();
-		
-		//Draw stuff
-		enableVAOs();
-		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-		disableVAOs();
-	}
-	
-	public void setTransformMatrix() {
-		//Setting model space transformations
-		Matrix4f mvp = transform.genMVP();
-		
-		//Set matrix uniform
-		shader.bind();
-		shader.setUniform("MVP", mvp);
 	}
 	
 	public void init(Transformation transform, Vector2f dims, int shape, Color col) {
@@ -96,26 +59,31 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	 * Initialize
 	 */
 	public void init(Transformation transform, Vector2f[] vertices, Vector2f[] uvs, Color col) {
-		
-		//Link objects (these objects cannot be destroyed)
-		this.transform = transform;
+		super.init(transform);
 		this.col = col;
-		hasInit = true;
 		
-		//Generate attributes
-		attribs = new Attribute[3];
-		Attribute.addAttribute(attribs, new Attribute(0, 3)); //Vertices
-		Attribute.addAttribute(attribs, new Attribute(1, 2)); //Tex UVs
-		Attribute.addAttribute(attribs, new Attribute(2, 4)); //Colors
+		ArrayList<Attribute> attribsBuff = new ArrayList<>();
+		createAttribs(attribsBuff);
 		
 		//Write to mesh
-		vertexCount = vertices.length;
-		mesh = new Mesh(vertexCount * Attribute.getRowsize(attribs));
-		mesh.write(genVerts(vertices), attribs[0]);
-		mesh.write(genUVs(uvs), attribs[1]);
-		mesh.write(genColors(col), attribs[2]);
+		writeToMesh(attribsBuff, vertices, uvs, col);
 		
-		initData(mesh.toBuffer(), attribs);
+		initData(mesh.toBuffer(), attribsBuff);
+	}
+	
+	protected void createAttribs(ArrayList<Attribute> attribsBuff) {
+		super.createAttribs(attribsBuff);
+		
+		Attribute.addAttribute(attribsBuff, new Attribute(0, 3)); //Vertices
+		Attribute.addAttribute(attribsBuff, new Attribute(1, 2)); //Tex UVs
+		Attribute.addAttribute(attribsBuff, new Attribute(2, 4)); //Colors
+	}
+	
+	protected void writeToMesh(ArrayList<Attribute> attribsBuff, Vector2f[] vertices, Vector2f[] uvs, Color col) {
+		super.writeToMesh(attribsBuff, vertices);
+		
+		mesh.write(genUVs(uvs), attribsBuff.get(1));
+		mesh.write(genColors(col), attribsBuff.get(2));
 	}
 	
 	@Override
@@ -123,20 +91,9 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		return (SpriteRenderer) super.clone();
 	}
 	
-	public void updateVertices(Vector2f[] verts) {
-		//Buffer sub data
-		mesh.write(genVerts(verts), attribs[0]);
-	}
-	
-	protected float[] genVerts(Vector2f[] vertices) {
-		float[] out = new float[vertices.length * 3];
-		for (int i=0; i<vertices.length; i++) {
-			Vector2f v = vertices[i];
-			out[i*3] = v.x;
-			out[i*3 + 1] = v.y;
-			out[i*3 + 2] = 0;
-		}
-		return out;
+	public void updateColors(Color color) {
+		col = color;
+		bufferSubData(genColors(color), 2);
 	}
 	
 	protected float[] genUVs(Vector2f[] uvs) {
@@ -161,9 +118,5 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 		}
 		
 		return out;
-	}
-	
-	protected void setVert(Vector2f p) {
-		glVertex2f(p.x, p.y);
 	}
 }
