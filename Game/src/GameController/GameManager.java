@@ -206,9 +206,8 @@ public class GameManager {
 		
 		currmap = new Map(mapData, null, null, null);//TODO
 		initEntities(mapFile);
-		int xTiles = 5;
-		int yTiles = 90;
 		
+		Drawer.initTileChunks(currmap.grids.get("ground"));
 		
 		
 		//Hardcoding some enemy spawns

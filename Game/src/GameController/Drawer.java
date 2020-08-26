@@ -72,6 +72,9 @@ public class Drawer {
 	public static int drawTex;
 	private static ScreenBufferRenderer fBuffRend;
 	
+	private static int[][] tileChunks;
+	public static final int CHUNK_SIZE = 16;
+	
 	public static void draw(Map map, ArrayList<Entity> entities) {
 		//Draw to framebuffer please
 		glBindFramebuffer(GL_FRAMEBUFFER, Drawer.drawBuff);
@@ -169,6 +172,12 @@ public class Drawer {
 	}
 	
 	public static void initGraphics() {
+		initOpenGL();
+		
+		initDrawBuffer();
+	}
+	
+	private static void initOpenGL() {
 		// Error callback
 		GLFWErrorCallback.createPrint(System.err).set();
 
@@ -212,7 +221,9 @@ public class Drawer {
 		// Creating the context to which all graphics operations will be executed upon
 		GL.createCapabilities();
 		glEnable(GL_TEXTURE_2D);
-		
+	}
+	
+	private static void initDrawBuffer() {
 		/**
 		 * Draw buffer configuration
 		 */
@@ -247,6 +258,49 @@ public class Drawer {
 		//Now set up the renderer that deals with this.
 		Shader shader = new WaveShader("warpShader");
 		fBuffRend = new ScreenBufferRenderer(shader);
+	}
+	
+	public static void initTileChunks(Tile[][] grid) {
+		int w=grid.length;
+		int h=grid[0].length;
+		
+		if (w%CHUNK_SIZE != 0 || h%CHUNK_SIZE != 0) {
+			new Exception("Bad size!").printStackTrace();
+		}
+		
+		tileChunks = new int[w/CHUNK_SIZE][h/CHUNK_SIZE];
+		
+		for (int i=0; i<tileChunks.length; i++) {
+			for (int j=0; j<tileChunks[0].length; j++) {
+				//Gen the buffer
+				int buff = glGenFramebuffers();
+				tileChunks[i][j] = buff;
+				glBindFramebuffer(GL_FRAMEBUFFER, buff);
+				
+				int tex = glGenTextures();
+				
+				glBindTexture(GL_TEXTURE_2D, tex);
+				
+				int dim = CHUNK_SIZE * GameManager.tileSize;
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, dim, dim, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+				
+				// Poor filtering. Needed !
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				
+				//Bind texture to active frame buffer (not the same thing as "drawBuff", it is GL_COLOR_ATTACHMENT0 in this case. It's just a static buffer.)
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+				
+				//Configure that color0 is to be drawn to by shaders.
+				glDrawBuffers(GL_COLOR_ATTACHMENT0);
+				
+				if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+					System.out.println("Error!!!");
+				}
+				
+				
+			}
+		}
 	}
 	
 	public static Vector2f GetWindowSize() {
