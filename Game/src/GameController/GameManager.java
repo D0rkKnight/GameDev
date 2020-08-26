@@ -244,7 +244,7 @@ public class GameManager {
 		entityWaitingList = new ArrayList();
 		entityClearList = new ArrayList();
 		
-		ArrayList<Entity> entitytemp = Serializer.loadEntities(mapFile, entityHash);
+		ArrayList<Entity> entitytemp = Serializer.loadEntities(mapFile, entityHash, tileSize);
 		for(Entity e : entitytemp) {
 			subscribeEntity(e);
 		}

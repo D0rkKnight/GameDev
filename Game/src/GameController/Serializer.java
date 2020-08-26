@@ -275,7 +275,7 @@ public class Serializer {
 		
 	}
 	
-	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash){
+	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash, int tileSize){
 		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
 		int width = Integer.parseInt(layerE.getAttribute("width"));
 		int height = Integer.parseInt(layerE.getAttribute("height"));
@@ -287,7 +287,9 @@ public class Serializer {
 		
 		for(int i = 0; i < entitynum; i++) {
 			Element entity = (Element) objects.item(i);
+			System.out.println(tileSize);
 			int ID = Integer.parseInt((entity).getAttribute("type"));
+			
 			float xPos = Float.parseFloat((entity).getAttribute("x")) / GameManager.tileSpriteSize;
 			float yPos = Float.parseFloat((entity).getAttribute("y")) / GameManager.tileSpriteSize;
 

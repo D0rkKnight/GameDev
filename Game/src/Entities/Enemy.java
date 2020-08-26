@@ -13,7 +13,7 @@ import Wrappers.Stats;
  * @author Benjamin
  *
  */
-public abstract class Enemy extends Combatant{
+public abstract class Enemy extends Combatant {
 	
 	protected Combatant target;
 	protected AI ai;
@@ -26,7 +26,14 @@ public abstract class Enemy extends Combatant{
 		findTarget();
 	}
 	
-	public void findTarget() {
+	/**
+	 * TODO add actual aggro detection, using seperating axis theorem
+	 * @return
+	 */
+	public boolean findTarget() {
 		target = GameManager.player;
+		return true;
 	}
+	
+	
 }

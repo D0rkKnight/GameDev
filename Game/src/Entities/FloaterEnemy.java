@@ -16,8 +16,9 @@ import Rendering.Transformation;
 import Tiles.Tile;
 import Wrappers.Color;
 import Wrappers.Stats;
+import AI.*;
 
-public class FloaterEnemy extends Enemy{
+public class FloaterEnemy extends Enemy {
 	
 	public FloaterEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
@@ -119,5 +120,13 @@ public class FloaterEnemy extends Enemy{
 		}
 		return null;
 	}
+
+
+
+
+
+
+
+
 
 }
