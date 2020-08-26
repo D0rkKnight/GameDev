@@ -8,7 +8,7 @@ import Collision.PhysicsCollisionBehavior;
 import Collision.PhysicsCollisionBehaviorDeflect;
 import Debug.Debug;
 import GameController.GameManager;
-import Math.AI;
+import Math.Pathfinding;
 import Math.Vector;
 import Rendering.Renderer;
 import Rendering.SpriteRenderer;
@@ -35,7 +35,7 @@ public class FloaterEnemy extends Enemy {
 		hitbox = new Hitbox(this, dim.x, dim.y);
 		
 		pData.walksUpSlopes = false;
-		ai = new AI();
+		ai = new Pathfinding();
 	}
 	
 	protected void initPhysicsCollBehavior() {
