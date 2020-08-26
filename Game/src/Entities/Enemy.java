@@ -4,7 +4,7 @@ package Entities;
 import org.joml.Vector2f;
 
 import GameController.GameManager;
-import Math.AI;
+import Math.Pathfinding;
 import Rendering.Renderer;
 import Wrappers.Sprites;
 import Wrappers.Stats;
@@ -16,7 +16,7 @@ import Wrappers.Stats;
 public abstract class Enemy extends Combatant {
 	
 	protected Combatant target;
-	protected AI ai;
+	protected Pathfinding ai;
 	
 	public Enemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);

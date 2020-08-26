@@ -7,7 +7,7 @@ import Collision.PhysicsCollisionBehavior;
 import Collision.PhysicsCollisionBehaviorDeflect;
 import Debug.Debug;
 import GameController.GameManager;
-import Math.AI;
+import Math.Pathfinding;
 import Math.Arithmetic;
 import Math.Vector;
 import Rendering.Renderer;
@@ -46,7 +46,7 @@ public abstract class BouncingEnemy extends Enemy{
 		
 		pData.walksUpSlopes = false;
 		
-		ai = new AI();
+		ai = new Pathfinding();
 		bounceReady = true;
 	}
 	

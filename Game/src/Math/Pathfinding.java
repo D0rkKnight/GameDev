@@ -14,10 +14,10 @@ import Tiles.Tile;
  *
  */
 
-public class AI {
+public class Pathfinding {
 	private ArrayList<Vector2f> nodes;
 	
-	public AI() {
+	public Pathfinding() {
 		nodes = new ArrayList<>();
 	}
 	
