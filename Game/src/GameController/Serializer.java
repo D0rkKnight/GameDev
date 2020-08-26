@@ -32,7 +32,7 @@ import Entities.Entity;
 import Entities.FloaterEnemy;
 import Entities.Player;
 import Entities.ShardSlimeEnemy;
-import Rendering.SpriteRenderer;
+import Rendering.GeneralRenderer;
 import Rendering.Texture;
 import Tiles.Tile;
 import Wrappers.Stats;
@@ -99,7 +99,7 @@ public class Serializer {
 	}
 	
 	public static void loadTileHash(String fdir, String fname, HashMap<Integer, Tile> tileMap,
-			HashMap<Integer, HammerShape> hsMap, SpriteRenderer rend) throws Exception {
+			HashMap<Integer, HammerShape> hsMap, GeneralRenderer rend) throws Exception {
 		
 		Document doc = readDoc(fdir, fname);
 		NodeList nList = doc.getElementsByTagName("tile");
@@ -240,7 +240,7 @@ public class Serializer {
 		return grid;
 	}
 	
-	public static HashMap<Integer, Entity> loadEntityHash(String fileDir, String fileName, SpriteRenderer renderer) throws NumberFormatException, IOException{
+	public static HashMap<Integer, Entity> loadEntityHash(String fileDir, String fileName, GeneralRenderer renderer) throws NumberFormatException, IOException{
 		BufferedReader charFile = null;
 		try {
 			charFile = new BufferedReader(new FileReader(fileDir + fileName));
@@ -289,15 +289,16 @@ public class Serializer {
 			Element entity = (Element) objects.item(i);
 			System.out.println(tileSize);
 			int ID = Integer.parseInt((entity).getAttribute("type"));
-			float xPos = Float.parseFloat((entity).getAttribute("x")) / tileSize * 2;
-			float yPos = Float.parseFloat((entity).getAttribute("y")) / tileSize * 2;
+			
+			float xPos = Float.parseFloat((entity).getAttribute("x")) / GameManager.tileSpriteSize;
+			float yPos = Float.parseFloat((entity).getAttribute("y")) / GameManager.tileSpriteSize;
 
 			
-			yPos += Float.parseFloat((entity).getAttribute("height")) / tileSize * 2;
+			yPos += Float.parseFloat((entity).getAttribute("height")) / GameManager.tileSpriteSize;
 			yPos = height - yPos;
 
 			
-			Entity e = entityHash.get(ID).clone(xPos * tileSize, yPos * tileSize);
+			Entity e = entityHash.get(ID).clone(xPos * GameManager.tileSize, yPos * GameManager.tileSize);
 			
 			if (e instanceof Player) GameManager.player = (Player) e;
 			

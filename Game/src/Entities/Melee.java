@@ -9,7 +9,7 @@ import Collision.HammerShape;
 import Collision.Hitbox;
 import Debug.Debug;
 import Rendering.Renderer;
-import Rendering.SpriteRenderer;
+import Rendering.GeneralRenderer;
 import Rendering.Transformation;
 import Wrappers.Color;
 
@@ -37,7 +37,7 @@ public class Melee extends Entity implements Collidable {
 		
 		//Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer; //Renderer has been duplicated by now
+		GeneralRenderer rendTemp = (GeneralRenderer) this.renderer; //Renderer has been duplicated by now
 		rendTemp.init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
 		
 		rendTemp.spr = Debug.debugTex;

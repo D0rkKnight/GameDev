@@ -12,9 +12,9 @@ public class Animator {
 	private Animation[] anims;
 	private Animation currentAnim;
 	
-	private SpriteRenderer rend;
+	private GeneralRenderer rend;
 	
-	public Animator(Animation[] anims, int fps, SpriteRenderer rend) {
+	public Animator(Animation[] anims, int fps, GeneralRenderer rend) {
 		this.fps = fps;
 		this.frameDelta = 1000/fps;
 		

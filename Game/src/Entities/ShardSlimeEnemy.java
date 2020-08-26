@@ -6,7 +6,7 @@ import Collision.Hitbox;
 import Debug.Debug;
 import GameController.GameManager;
 import Rendering.Renderer;
-import Rendering.SpriteRenderer;
+import Rendering.GeneralRenderer;
 import Wrappers.Stats;
 
 public class ShardSlimeEnemy extends BouncingEnemy{
@@ -41,7 +41,7 @@ public class ShardSlimeEnemy extends BouncingEnemy{
 			
 			Projectile proj = new Projectile(0, pos, GameManager.renderer, "Bullet"); //initializes bullet entity
 			
-			SpriteRenderer rend = (SpriteRenderer) proj.renderer;
+			GeneralRenderer rend = (GeneralRenderer) proj.renderer;
 			rend.spr = Debug.debugTex;
 			
 			Vector2f velo = new Vector2f(((float) Math.random() - 0.5f), (float) (Math.random()/2) + 0.3f);

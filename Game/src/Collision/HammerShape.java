@@ -54,8 +54,7 @@ public abstract class HammerShape {
 	
 	public Vector2f[] getRenderUVs() {
 		Vector2f[] uvs = triangulatedVertices.clone();
-		//Flip UVs vertically? Not a clue why this has to be done.
-		//TODO: Investigate
+		//Flip UVs vertically since opengl UVs are anchored upper left
 		for (int i=0; i<uvs.length; i++) {
 			uvs[i] = new Vector2f(uvs[i].x, 1-uvs[i].y);
 		}

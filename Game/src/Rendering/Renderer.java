@@ -37,7 +37,7 @@ public abstract class Renderer implements Cloneable{
 	public int matrixMode;
 	protected int vertexCount;
 	
-	protected boolean hasInit;
+	public boolean hasInit;
 	
 	Renderer(Shader shader) {
 		this.shader = shader;
@@ -127,6 +127,8 @@ public abstract class Renderer implements Cloneable{
 	}
 	
 	protected void createAttribs(ArrayList<Attribute> attribsBuff) {
+		Attribute.addAttribute(attribsBuff, new Attribute(0, 3)); //Vertices
+		
 		return;
 	}
 	
@@ -207,8 +209,6 @@ public abstract class Renderer implements Cloneable{
 			
 			//Recalculate strides
 			for (Attribute attrib : arr) attrib.stride = stride;
-			
-			System.out.println(stride);
 		}
 		
 		static int getRowsize(ArrayList<Attribute> attribBuff) {return attribBuff.get(0).stride;}

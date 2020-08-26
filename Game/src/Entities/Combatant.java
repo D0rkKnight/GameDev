@@ -3,7 +3,7 @@ package Entities;
 import org.joml.Vector2f;
 
 import Rendering.Renderer;
-import Rendering.SpriteRenderer;
+import Rendering.GeneralRenderer;
 import Wrappers.Color;
 import Wrappers.FlickerTimer;
 import Wrappers.Stats;
@@ -32,7 +32,7 @@ public abstract class Combatant extends PhysicsEntity {
 		stats.health -= damage;
 		checkForDeath();
 		
-		SpriteRenderer sprRen = (SpriteRenderer) renderer;
+		GeneralRenderer sprRen = (GeneralRenderer) renderer;
 		sprRen.updateColors(new Color(1, 0, 0));
 		
 		hurtTimer = new FlickerTimer(500, 50, new Color(1,1,1), new Color(1, 0, 0), this, new TimerCallback() {

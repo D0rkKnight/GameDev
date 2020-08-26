@@ -1,7 +1,7 @@
 package Wrappers;
 
 import Entities.Entity;
-import Rendering.SpriteRenderer;
+import Rendering.GeneralRenderer;
 
 public class FlickerTimer extends Timer {
 
@@ -14,7 +14,7 @@ public class FlickerTimer extends Timer {
 		super(loopLength, masterCb); //master CB still needed to free the loop.
 		
 		this.owner = owner;
-		SpriteRenderer sprRen = (SpriteRenderer) owner.renderer;
+		GeneralRenderer sprRen = (GeneralRenderer) owner.renderer;
 		
 		TimerCallback flickerCb = new TimerCallback() {
 			@Override

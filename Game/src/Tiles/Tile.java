@@ -5,7 +5,7 @@ import org.joml.Vector2f;
 import Collision.HammerShape;
 import GameController.GameManager;
 import GameController.Map;
-import Rendering.SpriteRenderer;
+import Rendering.GeneralRenderer;
 import Rendering.Texture;
 import Rendering.Transformation;
 import Wrappers.Color;
@@ -17,7 +17,7 @@ import Wrappers.Color;
  */
 public class Tile implements Cloneable{
 	protected Map map;
-	public SpriteRenderer renderer;
+	public GeneralRenderer renderer;
 	protected HammerShape hammerState; //NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when loaded in maps)
 	
 	public static final int CORNER_NULL = -1;
@@ -26,7 +26,7 @@ public class Tile implements Cloneable{
 	public static final int CORNER_BL = 2;
 	public static final int CORNER_BR = 3;
 	
-	public Tile(SpriteRenderer renderer, Texture tex, HammerShape hs) {
+	public Tile(GeneralRenderer renderer, Texture tex, HammerShape hs) {
 		this.hammerState = hs;
 		
 		//Create shallow copy

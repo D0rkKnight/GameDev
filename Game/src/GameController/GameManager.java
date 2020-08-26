@@ -26,7 +26,7 @@ import Debug.Debug;
 import Entities.Entity;
 import Entities.PhysicsEntity;
 import Entities.Player;
-import Rendering.SpriteRenderer;
+import Rendering.GeneralRenderer;
 import Rendering.SpriteShader;
 import Rendering.Texture;
 import Rendering.WaveShader;
@@ -56,7 +56,7 @@ public class GameManager {
 	public static boolean debugElementsEnabled = false;
 	
 	//Rendering stuff
-	public static SpriteRenderer renderer;
+	public static GeneralRenderer renderer;
 	public static SpriteShader shader;
 	public static Texture[] tileSpritesheet;
 
@@ -86,7 +86,8 @@ public class GameManager {
 	
 	public static Player player;
 	
-	public static final int tileSize = 16;
+	public static final int tileSize = 8;
+	public static final int tileSpriteSize = 4;
 
 	public static final int MOVE_AXIS_X = 0;
 	public static final int MOVE_AXIS_Y = 1;
@@ -128,8 +129,8 @@ public class GameManager {
 		//Init renderer
 		//TODO: We have to make a renderer factory in order for this to, like, work.
 
-		shader = new WaveShader("waveShader");
-		renderer = new WavyRenderer(shader);
+		shader = new SpriteShader("texShader");
+		renderer = new GeneralRenderer(shader);
 		
 		initCollision();
 		initTiles();

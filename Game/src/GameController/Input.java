@@ -152,7 +152,6 @@ public class Input {
 		
 		if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_RIGHT) {
 			meleeAction = true;
-			System.out.println("melee");
 		}
 	}
 
