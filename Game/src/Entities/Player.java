@@ -13,7 +13,7 @@ import GameController.Input;
 import Math.Arithmetic;
 import Rendering.Animation;
 import Rendering.Animator;
-import Rendering.SpriteRenderer;
+import Rendering.GeneralRenderer;
 import Rendering.Texture;
 import Rendering.Transformation;
 import Wrappers.Color;
@@ -45,17 +45,17 @@ public class Player extends Combatant{
 	private boolean canJump;
 	private long jumpGraceInterval = 100;
 	private Timer jumpGraceTimer;
-	private SpriteRenderer srenderer;
+	private GeneralRenderer srenderer;
 	
 	private int sideFacing;
 	
-	public Player(int ID, Vector2f position, SpriteRenderer renderer, String name, Stats stats) {
+	public Player(int ID, Vector2f position, GeneralRenderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
 		
 		//Configure the renderer real quick
 		dim = new Vector2f(15f, 60f);
 		srenderer = renderer;
-		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer; //Renderer has been duplicated by now
+		GeneralRenderer rendTemp = (GeneralRenderer) this.renderer; //Renderer has been duplicated by now
 		rendTemp.init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0, 0));
 		renderer = rendTemp;
 		
@@ -94,8 +94,8 @@ public class Player extends Combatant{
 	protected void initPhysicsCollBehavior() {
 		super.initPhysicsCollBehavior();
 		
-		nonGroundedCollBehaviorList.add(new PhysicsCollisionBehaviorStepUp());
-		nonGroundedCollBehaviorList.add(new PhysicsCollisionBehaviorWallCling());
+		collBehaviorList.add(new PhysicsCollisionBehaviorStepUp());
+		collBehaviorList.add(new PhysicsCollisionBehaviorWallCling());
 	}
 
 	public void onHit(Hitbox hb) {
@@ -120,7 +120,7 @@ public class Player extends Combatant{
 		
 		determineMovementMode(); //determine what movement mode and execute it
 		
-		SpriteRenderer sprRend = (SpriteRenderer) renderer;
+		GeneralRenderer sprRend = (GeneralRenderer) renderer;
 		switch (movementMode) {
 		case MOVEMENT_MODE_CONTROLLED: //walking
 			sprRend.updateColors(new Color(1, 0, 0));
@@ -303,7 +303,7 @@ public class Player extends Combatant{
 		
 		Projectile proj = new Projectile(0, pos, GameManager.renderer, "Bullet"); //initializes bullet entity
 		
-		SpriteRenderer rend = (SpriteRenderer) proj.renderer;
+		GeneralRenderer rend = (GeneralRenderer) proj.renderer;
 		rend.spr = Debug.debugTex;
 		
 		Vector2f dir = new Vector2f(firePos).sub(pos).normalize();

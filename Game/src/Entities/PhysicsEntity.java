@@ -43,9 +43,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	public static final int ALIGNMENT_ENEMY = 2;
 	
 	//For now, presume that if one of these behaviors trigger, the following behavior are canceled.
-	public ArrayList<PhysicsCollisionBehavior> groundedCollBehaviorList;
-	public ArrayList<PhysicsCollisionBehavior> nonGroundedCollBehaviorList;
-	public ArrayList<PhysicsCollisionBehavior> commonCollBehaviorList;
+	public ArrayList<PhysicsCollisionBehavior> collBehaviorList;
 	
 	protected Hitbox hitbox;
 	
@@ -66,12 +64,10 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	}
 	
 	protected void initPhysicsCollBehavior() {
-		groundedCollBehaviorList = new ArrayList();
-		nonGroundedCollBehaviorList = new ArrayList();
-		commonCollBehaviorList = new ArrayList();
+		collBehaviorList = new ArrayList<>();
 		
-		groundedCollBehaviorList.add(new PhysicsCollisionBehaviorGroundMove());
-		nonGroundedCollBehaviorList.add(new PhysicsCollisionBehaviorDeflect());
+		collBehaviorList.add(new PhysicsCollisionBehaviorGroundMove());
+		collBehaviorList.add(new PhysicsCollisionBehaviorDeflect());
 	}
 	
 	/**

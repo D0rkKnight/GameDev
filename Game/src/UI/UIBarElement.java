@@ -5,7 +5,7 @@ import org.joml.Vector2f;
 import Collision.HammerShape;
 import GameController.GameManager;
 import Rendering.Renderer;
-import Rendering.SpriteRenderer;
+import Rendering.GeneralRenderer;
 import Wrappers.Color;
 
 public class UIBarElement extends UIBoxElement{
@@ -21,11 +21,11 @@ public class UIBarElement extends UIBoxElement{
 	public void update() {
 		
 		//Buffer vertex changes to renderer
-		if (rend instanceof SpriteRenderer) {
+		if (rend instanceof GeneralRenderer) {
 			Vector2f fillDims = new Vector2f(dims.x*fillRatio, dims.y);
 			Vector2f[] verts = GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE).getRenderVertices(fillDims);
 			
-			((SpriteRenderer) rend).updateVertices(verts);
+			((GeneralRenderer) rend).updateVertices(verts);
 
 		} else {
 			new Exception("It's time to fix this hack").printStackTrace();

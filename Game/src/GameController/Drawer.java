@@ -17,14 +17,27 @@ import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_PROJECTION;
+import static org.lwjgl.opengl.GL11.GL_NEAREST;
+import static org.lwjgl.opengl.GL11.GL_RGB;
+import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glLoadIdentity;
-import static org.lwjgl.opengl.GL11.glMatrixMode;
-import static org.lwjgl.opengl.GL11.glOrtho;
-import static org.lwjgl.opengl.GL11.glPushMatrix;
+import static org.lwjgl.opengl.GL11.glGenTextures;
+import static org.lwjgl.opengl.GL11.glTexImage2D;
+import static org.lwjgl.opengl.GL11.glTexParameteri;
+import static org.lwjgl.opengl.GL20.glDrawBuffers;
+import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
+import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
+import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_COMPLETE;
+import static org.lwjgl.opengl.GL30.glBindFramebuffer;
+import static org.lwjgl.opengl.GL30.glCheckFramebufferStatus;
+import static org.lwjgl.opengl.GL30.glFramebufferTexture2D;
+import static org.lwjgl.opengl.GL30.glGenFramebuffers;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -37,10 +50,17 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
+import Collision.HammerShape;
 import Debug.Debug;
 import Entities.Entity;
+import Rendering.ScreenBufferRenderer;
+import Rendering.Shader;
+import Rendering.Texture;
+import Rendering.Transformation;
+import Rendering.WaveShader;
 import Tiles.Tile;
 import UI.UI;
+import Wrappers.Color;
 
 /*
  * Calls shaders to render themselves.
@@ -48,7 +68,14 @@ import UI.UI;
 public class Drawer {
 	public static long window;
 	
+	public static int drawBuff;
+	public static int drawTex;
+	private static ScreenBufferRenderer fBuffRend;
+	
 	public static void draw(Map map, ArrayList<Entity> entities) {
+		//Draw to framebuffer please
+		glBindFramebuffer(GL_FRAMEBUFFER, Drawer.drawBuff);
+		
 		// Clear frame buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
@@ -99,6 +126,39 @@ public class Drawer {
   		//Overlay debug elements
   		Debug.renderDebug();
   		
+  		/**
+  		 * Now draw the texture to the screen as a quad
+  		 */
+  		if (!fBuffRend.hasInit) {
+  			fBuffRend.init(new Transformation(new Vector2f(0, Camera.main.viewport.y), Transformation.MATRIX_MODE_SCREEN), 
+  					Camera.main.viewport, HammerShape.HAMMER_SHAPE_SQUARE, new Color(0, 0, 0, 0));
+  			fBuffRend.spr = new Texture(drawTex);
+  		}
+  		
+  		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  		fBuffRend.render();
+  		
+  		//Yeesh that was hard.
+  		
+//  		ByteBuffer pixels = BufferUtils.createByteBuffer(20*20*4);
+//  		glReadPixels(0, 0, 20, 20, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+//  		
+//		byte[] arr = new byte[20*20*4];
+//		pixels.get(arr);
+//		
+//		for(byte b:arr) System.out.println(b);
+  		
+  		
+//  		glBindFramebuffer(GL_FRAMEBUFFER, Drawer.drawBuff);
+//  		fBuffRend.spr.bind();
+//  		//This has been quite the experience.
+//  		ByteBuffer pixels = BufferUtils.createByteBuffer(1280*720*4);
+//  		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+//  		
+//  		byte[] arr = new byte[1280*720*4];
+//  		pixels.get(arr);
+//  		
+//  		for(byte b:arr) System.out.println(b);
   		
   		// tldr: there are two buffers, one that is being displayed and one that we are
 		// writing to.
@@ -153,13 +213,40 @@ public class Drawer {
 		GL.createCapabilities();
 		glEnable(GL_TEXTURE_2D);
 		
-		// select projection matrix (controls view on screen)
-	    glMatrixMode(GL_PROJECTION);
-	    glLoadIdentity();
-	    // set ortho to same size as viewport, positioned at 0,0
-	    // TODO: Figure out what this like, does.
-	    glOrtho(0f, r.x, 0f, r.y, -1f, 1f);
-	    glPushMatrix();
+		/**
+		 * Draw buffer configuration
+		 */
+		
+		drawBuff = glGenFramebuffers();
+		glBindFramebuffer(GL_FRAMEBUFFER, drawBuff);
+		
+		drawTex = glGenTextures();
+		
+		glBindTexture(GL_TEXTURE_2D, drawTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1280, 720, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+		
+		// Poor filtering. Needed !
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		
+		//Bind texture to active frame buffer (not the same thing as "drawBuff", it is GL_COLOR_ATTACHMENT0 in this case. It's just a static buffer.)
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, drawTex, 0);
+		
+		//Configure that color0 is to be drawn to by shaders.
+		glDrawBuffers(GL_COLOR_ATTACHMENT0);
+		
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+			System.out.println("Error!!!");
+		}
+		
+		//Reset to the regular buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		
+		
+		
+		//Now set up the renderer that deals with this.
+		Shader shader = new WaveShader("warpShader");
+		fBuffRend = new ScreenBufferRenderer(shader);
 	}
 	
 	public static Vector2f GetWindowSize() {

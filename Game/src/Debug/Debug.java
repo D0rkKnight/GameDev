@@ -7,7 +7,7 @@ import org.joml.Vector2f;
 import GameController.GameManager;
 import Rendering.ColorShader;
 import Rendering.Shader;
-import Rendering.SpriteRenderer;
+import Rendering.GeneralRenderer;
 import Rendering.Texture;
 import Rendering.Transformation;
 import Wrappers.Color;

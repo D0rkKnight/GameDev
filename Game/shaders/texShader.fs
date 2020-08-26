@@ -1,6 +1,6 @@
 #version 330
 
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
 
 in vec2 TexCord;
 in vec4 vertexColor;
@@ -16,6 +16,6 @@ void main() {
 // 	fragColor = texCol * secondCol;
 
 	//Use a more aggressive blend
-	float blend = 0.5;
+    float blend = 0.5;
 	fragColor = texCol + (vertexColor * blend);
 }

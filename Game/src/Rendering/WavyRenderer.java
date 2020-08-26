@@ -2,7 +2,7 @@ package Rendering;
 
 import GameController.GameManager;
 
-public class WavyRenderer extends SpriteRenderer{
+public class WavyRenderer extends GeneralRenderer{
 
 	public WavyRenderer(Shader shader) {
 		super(shader);

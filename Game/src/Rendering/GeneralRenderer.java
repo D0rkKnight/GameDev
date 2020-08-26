@@ -1,33 +1,23 @@
 package Rendering;
 
-import static org.lwjgl.opengl.GL11.GL_BLEND;
-import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.glBlendFunc;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferSubData;
+import static org.lwjgl.opengl.GL30.*;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
 import Collision.HammerShape;
+import GameController.Drawer;
 import GameController.GameManager;
-import Rendering.Renderer.Attribute;
 import Wrappers.Color;
 
-public class SpriteRenderer extends Renderer implements Cloneable {
+public class GeneralRenderer extends Renderer implements Cloneable {
 	
 	public Texture spr;
 	
 	private Color col;
 	
-	public SpriteRenderer(Shader shader) {
+	public GeneralRenderer(Shader shader) {
 		super(shader);
 		spr = null;
 		
@@ -73,8 +63,7 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	
 	protected void createAttribs(ArrayList<Attribute> attribsBuff) {
 		super.createAttribs(attribsBuff);
-		
-		Attribute.addAttribute(attribsBuff, new Attribute(0, 3)); //Vertices
+
 		Attribute.addAttribute(attribsBuff, new Attribute(1, 2)); //Tex UVs
 		Attribute.addAttribute(attribsBuff, new Attribute(2, 4)); //Colors
 	}
@@ -87,8 +76,8 @@ public class SpriteRenderer extends Renderer implements Cloneable {
 	}
 	
 	@Override
-	public SpriteRenderer clone() throws CloneNotSupportedException {
-		return (SpriteRenderer) super.clone();
+	public GeneralRenderer clone() throws CloneNotSupportedException {
+		return (GeneralRenderer) super.clone();
 	}
 	
 	public void updateColors(Color color) {

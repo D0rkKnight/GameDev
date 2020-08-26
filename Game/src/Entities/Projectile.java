@@ -5,7 +5,7 @@ import org.joml.Vector2f;
 import Collision.HammerShape;
 import Collision.Hitbox;
 import Rendering.Renderer;
-import Rendering.SpriteRenderer;
+import Rendering.GeneralRenderer;
 import Rendering.Transformation;
 import Wrappers.Color;
 
@@ -17,7 +17,7 @@ public class Projectile extends PhysicsEntity{
 		
 		//Configure renderer
 		dim = new Vector2f(8f, 8f);
-		SpriteRenderer rendTemp = (SpriteRenderer) this.renderer;
+		GeneralRenderer rendTemp = (GeneralRenderer) this.renderer;
 		rendTemp.init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 1, 0, 0));
 		renderer = rendTemp;
 		

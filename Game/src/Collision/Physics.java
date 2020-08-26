@@ -18,6 +18,8 @@ import Wrappers.Color;
 public abstract class Physics {
 	
 	public static void calculateDeltas(PhysicsEntity e, Tile[][] grid) {
+		//if (e.name.equals("Player"))System.out.println(e.pData.velo + "START");
+		
 		
 		//Presume to be free falling, until able to prove otherwise
 		e.pData.wasGrounded = e.pData.grounded;
@@ -69,7 +71,6 @@ public abstract class Physics {
 		//Debug elements
 		for (Vector2f comp : deltaComponents) Debug.trackMovementVector(e.getPosition(), comp, 10f);
 		
-		
 		//Holds data to be pushed later, when reasonable movement is found
 		Vector2f deltaTemp = new Vector2f(0, 0);
 		//And push the different deltas
@@ -112,7 +113,7 @@ public abstract class Physics {
 		
 		//Push changes
 		e.setMoveDelta(deltaTemp);
-		e.pData.velo = velo;
+		e.pData.velo.set(velo);
 		
 		if (e.pData.veloChangeQueued) {
 			e.resolveVeloChange();
@@ -142,10 +143,6 @@ public abstract class Physics {
 		float dist = dBuff[0];
 		
 		if (!isSuccess) {
-			/**
-			 * TODO: Fix this horrible spaghetti
-			 */
-			
 			Vector2f delta = new Vector2f();
 			
 			//Move out of tile
@@ -155,42 +152,11 @@ public abstract class Physics {
 			float nudge = Math.min(GameManager.NUDGE_CONSTANT, deltaMove.length());
 			delta.sub(new Vector2f (moveDir).mul(nudge));
 			
-			/**
-			 * Surface deflection
-			 */
-			
 			//Rotate normal such that it is running along edge
 			Vector2f tangent = new Vector2f(-normal.y, normal.x);
 			
-			//No need to deflect if on the ground, just zero out y velo and x velo will naturally be aligned properly
-			//If grounded:
-			Vector2f tangentDir = new Vector2f(tangent).normalize();
-			
-			/**
-			 * Determine what behavior to use
-			 */
-			ArrayList<PhysicsCollisionBehavior> behaviors = null;
-
-			if (Math.abs(tangentDir.y) < 0.8 && tangentDir.x < 0 && e.pData.canBeGrounded) { //TODO: Make this work along any gravitational pull
-				//Now, set the behavior list that should be executed.
-				e.pData.grounded = true;
-				behaviors = e.groundedCollBehaviorList;
-			}
-			else {
-				behaviors = e.nonGroundedCollBehaviorList;
-			}
-			
-			/**
-			 * Execute behaviors
-			 */
-			for (PhysicsCollisionBehavior behavior : behaviors) {
-				boolean shouldContinue = behavior.onColl(rawPos, deltaMove, velo, e, grid, moveAxis, axises, moveDir, tangent, delta);
-				
-				if (!shouldContinue) break;
-			}
-			
-			//Execute common behavior after?
-			for (PhysicsCollisionBehavior behavior : e.commonCollBehaviorList) {
+			//Execute behaviors
+			for (PhysicsCollisionBehavior behavior : e.collBehaviorList) {
 				boolean shouldContinue = behavior.onColl(rawPos, deltaMove, velo, e, grid, moveAxis, axises, moveDir, tangent, delta);
 				
 				if (!shouldContinue) break;

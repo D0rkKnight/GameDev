@@ -17,6 +17,11 @@ public class Texture {
 	private int width;
 	private int height;
 	
+	public Texture(int id) {
+		this.id = id;
+		System.err.println("Width and height not set!");
+	}
+	
 	public Texture(ByteBuffer pixels, int w, int h) {
 		this.width = w;
 		this.height = h;
@@ -135,4 +140,6 @@ public class Texture {
 		
 		return out;
 	}
+	
+	public int getId() {return id;}
 }
