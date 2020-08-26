@@ -15,7 +15,7 @@ public class PhysicsCollisionBehaviorDeflect extends PhysicsCollisionBehavior {
 	}
 	
 	@Override
-	public boolean onColl(Vector2f rawPos, Vector2f deltaMove, Vector2f velo, PhysicsEntity e, Tile[][] grid,
+	public void onColl(Vector2f rawPos, Vector2f deltaMove, Vector2f velo, PhysicsEntity e, Tile[][] grid,
 			Vector2f moveAxis, Vector2f[] axises, Vector2f moveDir, Vector2f tangent, Vector2f delta) {
 		if (!e.pData.grounded) {
 			//TODO: Maybe this should just force perpendicular axises?
@@ -39,10 +39,6 @@ public class PhysicsCollisionBehaviorDeflect extends PhysicsCollisionBehavior {
 			
 			velo.x = magBuff[0];
 			velo.y = magBuff[1];
-			
-			return true;
 		}
-		
-		return false;
 	}
 }

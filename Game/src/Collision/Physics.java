@@ -157,9 +157,7 @@ public abstract class Physics {
 			
 			//Execute behaviors
 			for (PhysicsCollisionBehavior behavior : e.collBehaviorList) {
-				boolean shouldContinue = behavior.onColl(rawPos, deltaMove, velo, e, grid, moveAxis, axises, moveDir, tangent, delta);
-				
-				if (!shouldContinue) break;
+				behavior.onColl(rawPos, deltaMove, velo, e, grid, moveAxis, axises, moveDir, tangent, delta);
 			}
 			
 			/**

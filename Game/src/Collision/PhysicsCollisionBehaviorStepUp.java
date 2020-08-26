@@ -14,7 +14,7 @@ public class PhysicsCollisionBehaviorStepUp extends PhysicsCollisionBehavior{
 	}
 	
 	@Override
-	public boolean onColl(Vector2f rawPos, Vector2f deltaMove, Vector2f velo, PhysicsEntity e, Tile[][] grid,
+	public void onColl(Vector2f rawPos, Vector2f deltaMove, Vector2f velo, PhysicsEntity e, Tile[][] grid,
 			Vector2f moveAxis, Vector2f[] axises, Vector2f moveDir, Vector2f tangent, Vector2f delta) {
 		/**
 		 * Moving up 1 tile tall steps
@@ -39,9 +39,6 @@ public class PhysicsCollisionBehaviorStepUp extends PhysicsCollisionBehavior{
 				}
 			}
 		}
-		
-		// TODO Auto-generated method stub
-		return !tileBumpSuccess;
 	}
 
 }
