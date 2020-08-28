@@ -42,8 +42,7 @@ public class PhysicsCollisionBehaviorGroundMove extends PhysicsCollisionBehavior
 			}
 			
 			//Make sure you don't continue falling
-			velo.y = 0;
-			//e.pData.grounded = true; This is already happening in the physics loop
+			velo.y = Math.max(0, velo.y);
 		}
 	}
 

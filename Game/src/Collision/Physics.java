@@ -18,8 +18,6 @@ import Wrappers.Color;
 public abstract class Physics {
 	
 	public static void calculateDeltas(PhysicsEntity e, Tile[][] grid) {
-		//if (e.name.equals("Player"))System.out.println(e.pData.velo + "START");
-		
 		
 		//Presume to be free falling, until able to prove otherwise
 		e.pData.wasGrounded = e.pData.grounded;
@@ -27,6 +25,7 @@ public abstract class Physics {
 		
 		//If jumping, force a velocity change.
 		if (e.pData.isJumping && e.pData.walksUpSlopes) {
+			
 			//Pass in new diVector2fional axises (x axis perpendicular to the y axis)
 			Vector2f yAxis = e.pData.yDir;
 			Vector2f xAxis = Vector.rightVector(yAxis); //This is 90 degrees clockwise
@@ -75,8 +74,6 @@ public abstract class Physics {
 		Vector2f deltaTemp = new Vector2f(0, 0);
 		//And push the different deltas
 		for (int i=0; i<axises.length; i++) {
-			
-			
 			//Generate the vector along the axis of movement
 			Vector2f dir = axises[i];
 			Vector2f deltaAligned = deltaComponents[i];
@@ -104,6 +101,7 @@ public abstract class Physics {
 			//Push results to buffer
 			deltaTemp.x += deltaInch.x;
 			deltaTemp.y += deltaInch.y;
+			
 		}
 		
 		//Debug
@@ -111,9 +109,13 @@ public abstract class Physics {
 		
 		//Push buffer to delta
 		
+		
+		
 		//Push changes
 		e.setMoveDelta(deltaTemp);
 		e.pData.velo.set(velo);
+		
+		
 		
 		if (e.pData.veloChangeQueued) {
 			e.resolveVeloChange();
