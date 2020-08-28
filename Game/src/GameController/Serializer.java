@@ -231,15 +231,7 @@ public class Serializer {
 				enemyHash.put(i, new ShardSlimeEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
 			}
 			else if(name.equals("Button")){
-				int bool = Integer.parseInt(enemy[6].split(",")[1]);
-				boolean ans;
-				if(bool == 0) {
-					ans = false;
-				}
-				else {
-					ans = true;
-				}
-				enemyHash.put(i, new Button(ID, null, renderer, name, ans, Integer.parseInt(enemy[7].split(",")[1]), Float.parseFloat(enemy[8].split(",")[1]), null));
+				enemyHash.put(i, new Button(ID, null, renderer, name, Integer.parseInt(enemy[6].split(",")[1]), Integer.parseInt(enemy[7].split(",")[1]), Float.parseFloat(enemy[8].split(",")[1]), null));
 			}
 			else {
 				System.out.println("error, wrong enemy name");

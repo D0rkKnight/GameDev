@@ -6,44 +6,45 @@ import org.joml.Vector2f;
 import Collision.HammerShape;
 import Debug.Debug;
 import GameController.Input;
-import Wrappers.Color;
-import Wrappers.Timer;
-import Wrappers.TimerCallback;
 import Rendering.GeneralRenderer;
 import Rendering.Renderer;
 import Rendering.Transformation;
+import Wrappers.Color;
+import Wrappers.Timer;
+import Wrappers.TimerCallback;
 
-public class Button extends Entity implements Interactive {
+public class Switch extends Entity implements Interactive {
 	public int state;
+	public int statenum;
 	public boolean changed;
-	long timeOn;
 	float activationDistance;
 	Timer onTimer;
 	Player player;
 
-	public Button(int ID, Vector2f position, Renderer renderer, String name, int state, long timeOn,
-			float activationDistance, Player player) {
+	public Switch(int ID, Vector2f position, Renderer renderer, String name, int state, int statenum, float activationDistance,
+			Player player) {
 		super(ID, position, renderer, name);
 		this.state = state;
-		this.timeOn = timeOn;
 		this.activationDistance = activationDistance;
 		this.player = player;
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
-		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
+		GeneralRenderer rendTemp = (GeneralRenderer) this.renderer; // Renderer has been duplicated by now
+		rendTemp.init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
+
+		rendTemp.spr = Debug.debugTex;
+		renderer = rendTemp;
 	}
 
 	@Override
 	public void calculate() {
-		if(onTimer != null) {
+		if (onTimer != null) {
 			onTimer.update();
 		}
+
+		System.out.println(state);
 		
-		if(state == 1) {
-			System.out.println("buttonon");
-		}
-		
+
 		if (mouseHovered() && Input.primaryButtonDown && getMouseDistance() <= activationDistance) {
 			interact();
 		}
@@ -63,34 +64,52 @@ public class Button extends Entity implements Interactive {
 
 	}
 
+	@Override
+	public Entity clone() {
+		try {
+			return new Switch(ID, new Vector2f(position), renderer.clone(), name, state, statenum, activationDistance,
+					player);
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public Entity clone(float xPos, float yPos) {
+		try {
+			return new Switch(ID, new Vector2f(xPos, yPos), renderer.clone(), name, state, statenum, activationDistance,
+					player);
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public Entity clone(float xPos, float yPos, Player player) {
-		Button clonedE = (Button) super.clone(xPos, yPos);
-		clonedE.player = player;
-		
-		return clonedE;
+		try {
+			return new Switch(ID, new Vector2f(xPos, yPos), renderer.clone(), name, state, statenum, activationDistance,
+					player);
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	@Override
 	public void interact() {
-		state = 1;
+		state++;
+		if(state >= statenum) {
+			state = 0;
+		}
 		changed = true;
-		System.out.println("interact");
-		onTimer = new Timer(timeOn, new TimerCallback() {
-			@Override
-			public void invoke(Timer timer) {
-				state = 0;
-				changed = true;
-				onTimer = null;
-				
-			}
-		});
 	}
 
 	@Override
 	public float getMouseDistance() {
 		Vector2f playerpos = new Vector2f(player.getPosition());
 		playerpos.x += player.dim.x / 2;
-		playerpos.y += player.dim.y / 2;//center of player
+		playerpos.y += player.dim.y / 2;// center of player
 		return Math.sqrt((playerpos.x - position.x) * (playerpos.x - position.x)
 				+ (playerpos.y - position.y) * (playerpos.y - position.y));
 	}
