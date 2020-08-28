@@ -298,7 +298,17 @@ public class Drawer {
 					System.out.println("Error!!!");
 				}
 				
-				
+				//Now iterate over every tile in this grid that lies within the chunk
+				for (int a=i*CHUNK_SIZE; a<(i+1)*CHUNK_SIZE; a++) {
+					for (int b=j*CHUNK_SIZE; b<(j+1)*CHUNK_SIZE; j++) {
+						
+						/**
+						 * Here's the situation: we need a way to bake the sprites in, but the way I coded Transformations was bad.
+						 * I tried making a spinoff renderer but that feels like poor design.
+						 * I'll come back to this one tomorrow.
+						 */
+					}
+				}
 			}
 		}
 	}
