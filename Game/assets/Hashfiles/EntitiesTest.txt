@@ -1,4 +1,5 @@
-Enemies:3
+Enemies:4
 Name,Player:ID,0:HP,100:Stamina,100:HPregen,0.5:StaminaRegen,1
 Name,Floater:ID,1:HP,100:Stamina,100:HPregen,0:StaminaRegen,0
 Name,Bouncer:ID,2:HP,100:Stamina,100:HPregen,0:StaminaRegen,0
+Name,Button:ID,3:HP,100:Stamina,100:HPregen,0:StaminaRegen,0:State,0:TimeOn,1000:ActivationDistance,10000

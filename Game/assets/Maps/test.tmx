@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="256" height="128" tilewidth="4" tileheight="4" infinite="0" nextlayerid="3623" nextobjectid="4">
+<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="256" height="128" tilewidth="4" tileheight="4" infinite="0" nextlayerid="3623" nextobjectid="5">
  <tileset firstgid="1" source="set.tsx"/>
  <tileset firstgid="65" source="ground.tsx"/>
  <tileset firstgid="129" source="coll.tsx"/>
  <objectgroup id="3618" name="Objects">
   <object id="1" name="Player" type="0" x="120" y="200" width="7" height="28"/>
   <object id="3" name="Floater" type="1" x="300" y="100" width="32" height="32"/>
+  <object id="4" name="Button" type="3" x="370.75" y="192.5" width="17.25" height="19"/>
  </objectgroup>
  <layer id="1" name="set" width="256" height="128">
   <properties>

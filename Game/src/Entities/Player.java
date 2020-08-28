@@ -195,7 +195,7 @@ public class Player extends Combatant{
 		}
 		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && movementMode != MOVEMENT_MODE_IS_DASHING) {
 			if(stats.stamina < dashCost) {
-				System.out.println("out of stamina, can't dash");
+				//System.out.println("out of stamina, can't dash");
 				return;
 			}
 			
@@ -294,7 +294,7 @@ public class Player extends Combatant{
 	
 	private void fireGun(Vector2f firePos) {
 		if(stats.stamina < gunCost) {
-			System.out.println("out of stamina, can't fire");
+			//System.out.println("out of stamina, can't fire");
 			return;
 		}
 		

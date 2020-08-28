@@ -16,7 +16,6 @@ import Rendering.Transformation;
 import Tiles.Tile;
 import Wrappers.Color;
 import Wrappers.Stats;
-import AI.*;
 
 public class FloaterEnemy extends Enemy {
 	

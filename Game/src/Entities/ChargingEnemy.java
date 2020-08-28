@@ -15,7 +15,7 @@ import Wrappers.Stats;
  * @author Benjamin
  *
  */
-public class ChargingEnemy extends Enemy implements Gravity {
+public class ChargingEnemy extends Enemy {
 	protected boolean charging;// currently charging or no. can be set to
 	protected boolean windup; // currently winding up for charge or no.
 	protected int windupCycles; // animation cycles it should go through before charging

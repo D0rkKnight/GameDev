@@ -156,7 +156,7 @@ public class Input {
 	}
 
 	
-	//TODO: I'm fairly certain the input on these isn't x and y. Look into it tommorow.
+	//TODO: I'm fairly certain the input on these isn't x and y. Look into it tOmMoRoW.
 	public static void updateCursor(double xPos, double yPos) {
 		mouseScreenPos = new Vector2f((float) xPos, (float) yPos);
 		

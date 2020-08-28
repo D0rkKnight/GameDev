@@ -28,8 +28,10 @@ import org.xml.sax.SAXException;
 
 import Accessories.Accessory;
 import Collision.HammerShape;
+import Entities.Button;
 import Entities.Entity;
 import Entities.FloaterEnemy;
+import Entities.Interactive;
 import Entities.Player;
 import Entities.ShardSlimeEnemy;
 import Rendering.GeneralRenderer;
@@ -267,6 +269,17 @@ public class Serializer {
 			else if(name.equals("Bouncer")){
 				enemyHash.put(i, new ShardSlimeEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
 			}
+			else if(name.equals("Button")){
+				int bool = Integer.parseInt(enemy[6].split(",")[1]);
+				boolean ans;
+				if(bool == 0) {
+					ans = false;
+				}
+				else {
+					ans = true;
+				}
+				enemyHash.put(i, new Button(ID, null, renderer, name, ans, Integer.parseInt(enemy[7].split(",")[1]), Float.parseFloat(enemy[8].split(",")[1]), null));
+			}
 			else {
 				System.out.println("error, wrong enemy name");
 			}
@@ -296,11 +309,19 @@ public class Serializer {
 			
 			yPos += Float.parseFloat((entity).getAttribute("height")) / GameManager.tileSpriteSize;
 			yPos = height - yPos;
-
+			System.out.println(entityHash.size() + "s");
 			
-			Entity e = entityHash.get(ID).clone(xPos * GameManager.tileSize, yPos * GameManager.tileSize);
-			
-			if (e instanceof Player) GameManager.player = (Player) e;
+			Entity e;
+			if (entityHash.get(ID) instanceof Player) {
+				e = entityHash.get(ID).clone(xPos * GameManager.tileSize, yPos * GameManager.tileSize);
+				GameManager.player = (Player) e;
+			}
+			else if(entityHash.get(ID) instanceof Interactive) {
+				e = ((Button)entityHash.get(ID)).clone(xPos * GameManager.tileSize, yPos * GameManager.tileSize, GameManager.player);
+			}
+			else {
+				e = entityHash.get(ID).clone(xPos * GameManager.tileSize, yPos * GameManager.tileSize);
+			}
 			
 			entities.add(e);
 		}
