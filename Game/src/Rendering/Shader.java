@@ -1,24 +1,5 @@
 package Rendering;
-import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
-import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
-import static org.lwjgl.opengl.GL20.GL_LINK_STATUS;
-import static org.lwjgl.opengl.GL20.GL_VALIDATE_STATUS;
-import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
-import static org.lwjgl.opengl.GL20.glAttachShader;
-import static org.lwjgl.opengl.GL20.glCompileShader;
-import static org.lwjgl.opengl.GL20.glCreateProgram;
-import static org.lwjgl.opengl.GL20.glCreateShader;
-import static org.lwjgl.opengl.GL20.glGetProgramInfoLog;
-import static org.lwjgl.opengl.GL20.glGetProgrami;
-import static org.lwjgl.opengl.GL20.glGetShaderInfoLog;
-import static org.lwjgl.opengl.GL20.glGetShaderi;
-import static org.lwjgl.opengl.GL20.glGetUniformLocation;
-import static org.lwjgl.opengl.GL20.glLinkProgram;
-import static org.lwjgl.opengl.GL20.glShaderSource;
-import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
-import static org.lwjgl.opengl.GL20.glUniform1f;
-import static org.lwjgl.opengl.GL20.glUseProgram;
-import static org.lwjgl.opengl.GL20.glValidateProgram;
+import static org.lwjgl.opengl.GL30.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,6 +11,8 @@ import java.util.Map;
 
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
+
+import Wrappers.Color;
 
 /*
  * Only one copy of these should exist for every distinct shader.
@@ -154,5 +137,9 @@ public abstract class Shader {
 	
 	public void setUniform(String name, float f) {
 		glUniform1f(uniforms.get(name), f);
+	}
+
+	public void setUniform(String name, Color col) {
+		glUniform4f(uniforms.get(name), col.r, col.g, col.b, col.a);
 	}
 }

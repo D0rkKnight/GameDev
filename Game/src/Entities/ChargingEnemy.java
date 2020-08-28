@@ -168,17 +168,4 @@ public class ChargingEnemy extends Enemy {
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public Entity clone() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Entity clone(float xPos, float yPos) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

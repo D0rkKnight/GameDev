@@ -126,9 +126,6 @@ public class Drawer {
   		//UI elements
   		UI.render();
   		
-  		//Overlay debug elements
-  		Debug.renderDebug();
-  		
   		/**
   		 * Now draw the texture to the screen as a quad
   		 */
@@ -140,6 +137,9 @@ public class Drawer {
   		
   		glBindFramebuffer(GL_FRAMEBUFFER, 0);
   		fBuffRend.render();
+  		
+  		//Overlay debug elements
+  		Debug.renderDebug();
   		
   		//Yeesh that was hard.
   		
@@ -163,11 +163,8 @@ public class Drawer {
 //  		
 //  		for(byte b:arr) System.out.println(b);
   		
-  		// tldr: there are two buffers, one that is being displayed and one that we are
-		// writing to.
-		// This function waits until one buffer is written to before writing the next
-		// one.
-		// This is because of v-sync.
+  		// Cache the buffer, load the one cached last frame.
+  		// VSync affects this
 		glfwSwapBuffers(Drawer.window);
 	}
 	

@@ -12,6 +12,7 @@ import org.joml.Vector4f;
 
 import GameController.Camera;
 import Rendering.Shader;
+import Wrappers.Color;
 
 public class DebugVector extends DebugElement {
 	Vector2f p;
@@ -19,25 +20,25 @@ public class DebugVector extends DebugElement {
 	float mult;
 	
 	public DebugVector(Vector2f p, Vector2f v, float mult, int lifespan) {
-		this(p, v, mult);
-		
-		this.lifespan = lifespan;
-	}
-	
-	public DebugVector(Vector2f p, Vector2f v, float mult) {
 		this.p = p;
 		this.v = v;
 		this.mult = mult;
 		
-		this.lifespan = 1;
+		this.lifespan = lifespan;
+		
+		this.col = new Color(1, 1, 0, 1);
+	}
+	
+	public DebugVector(Vector2f p, Vector2f v, float mult) {
+		this(p, v, mult, 1);
 	}
 
 	@Override
 	public void render(Shader shader) {
 		Matrix4f mvp = Debug.trans.genMVP();
 		shader.setUniform("MVP", mvp);
+		shader.setUniform("Color", col);
 		
-		Camera cam = Camera.main;
 		Vector2f fullVec = new Vector2f(v).mul(mult);
 		
 		Vector2f start = new Vector2f(p);

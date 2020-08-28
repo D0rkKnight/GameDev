@@ -45,7 +45,6 @@ public class Player extends Combatant{
 	private boolean canJump;
 	private long jumpGraceInterval = 100;
 	private Timer jumpGraceTimer;
-	private GeneralRenderer srenderer;
 	
 	private int sideFacing;
 	
@@ -54,10 +53,8 @@ public class Player extends Combatant{
 		
 		//Configure the renderer real quick
 		dim = new Vector2f(15f, 60f);
-		srenderer = renderer;
-		GeneralRenderer rendTemp = (GeneralRenderer) this.renderer; //Renderer has been duplicated by now
-		rendTemp.init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0, 0));
-		renderer = rendTemp;
+		
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0, 0));
 		
 		//Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
@@ -117,6 +114,8 @@ public class Player extends Combatant{
 	
 	public void calculate() {
 		super.calculate();
+		
+		System.out.println(position.x);
 		
 		determineMovementMode(); //determine what movement mode and execute it
 		
@@ -347,34 +346,21 @@ public class Player extends Combatant{
 
 	@Override
 	protected void calcFrame() {
-		// TODO Auto-generated method stub
-		
 		//Just a simple animation update, nothing spicy.
 		anim.update();
+		
+		System.out.println(anim);
 	}
 
 	public void onTileCollision() {
 		// TODO Auto-generated method stub
 		
 	}
-	public Entity clone() {
-		try {
-			return new Player(ID, new Vector2f(position.x, position.y), srenderer.clone(), name, stats.clone());
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	@Override
-	public Entity clone(float xPos, float yPos) {
-		try {
-			return new Player(ID, new Vector2f(xPos, yPos), srenderer.clone(), name, stats.clone());
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+	
+	public Player clone() {
+		Player clonedE = (Player) super.clone();
+		clonedE.anim = new Animator(anim, (GeneralRenderer) renderer);
+		
+		return clonedE;
 	}
 }

@@ -17,6 +17,12 @@ public class Hitbox {
 		}
 	}
 	
+	public Hitbox(Hitbox hb, Object owner) {
+		this.height = hb.height;
+		this.width = hb.width;
+		this.owner = owner;
+	}
+	
 	/**
 	 * Special kinds of hitboxes may not propagate the hit to its owner
 	 * @param hb

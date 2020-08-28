@@ -17,17 +17,6 @@ public class ShardSlimeEnemy extends BouncingEnemy{
 	}
 
 	@Override
-	public Entity clone(float xPos, float yPos) {
-		try {
-			return new ShardSlimeEnemy(ID, new Vector2f(xPos, yPos), renderer.clone(), name, stats.clone());
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	@Override
 	public void onHit(Hitbox otherHb) {
 		// TODO Auto-generated method stub
 		
@@ -77,13 +66,7 @@ public class ShardSlimeEnemy extends BouncingEnemy{
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public Entity clone() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
 	@Override
 	public void onBounce() {
 		// TODO Auto-generated method stub

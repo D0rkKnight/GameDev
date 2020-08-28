@@ -15,8 +15,6 @@ public class GeneralRenderer extends Renderer implements Cloneable {
 	
 	public Texture spr;
 	
-	private Color col;
-	
 	public GeneralRenderer(Shader shader) {
 		super(shader);
 		spr = null;
@@ -50,7 +48,6 @@ public class GeneralRenderer extends Renderer implements Cloneable {
 	 */
 	public void init(Transformation transform, Vector2f[] vertices, Vector2f[] uvs, Color col) {
 		super.init(transform);
-		this.col = col;
 		
 		ArrayList<Attribute> attribsBuff = new ArrayList<>();
 		createAttribs(attribsBuff);
@@ -81,7 +78,6 @@ public class GeneralRenderer extends Renderer implements Cloneable {
 	}
 	
 	public void updateColors(Color color) {
-		col = color;
 		bufferSubData(genColors(color), 2);
 	}
 	

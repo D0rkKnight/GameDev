@@ -101,11 +101,7 @@ public abstract class Physics {
 			//Push results to buffer
 			deltaTemp.x += deltaInch.x;
 			deltaTemp.y += deltaInch.y;
-			
 		}
-		
-		//Debug
-		Debug.trackMovementVector(new Vector2f(e.getPosition()).add(new Vector2f(0, 20)), deltaTemp, 20f);
 		
 		//Push buffer to delta
 		

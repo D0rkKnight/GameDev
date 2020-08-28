@@ -35,11 +35,8 @@ public abstract class BouncingEnemy extends Enemy{
 		
 		//Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		GeneralRenderer rendTemp = (GeneralRenderer) this.renderer; //Renderer has been duplicated by now
-		rendTemp.init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
-		
-		rendTemp.spr = Debug.debugTex;
-		renderer = rendTemp;
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
+		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 		
 		//Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);

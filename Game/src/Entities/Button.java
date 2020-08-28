@@ -30,11 +30,8 @@ public class Button extends Entity implements Interactive {
 		this.player = player;
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		GeneralRenderer rendTemp = (GeneralRenderer) this.renderer; // Renderer has been duplicated by now
-		rendTemp.init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
-
-		rendTemp.spr = Debug.debugTex;
-		renderer = rendTemp;
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
+		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 	}
 
 	@Override
@@ -66,36 +63,11 @@ public class Button extends Entity implements Interactive {
 
 	}
 
-	@Override
-	public Entity clone() {
-		try {
-			return new Button(ID, new Vector2f(position), renderer.clone(), name, state, timeOn, activationDistance,
-					player);
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	@Override
-	public Entity clone(float xPos, float yPos) {
-		try {
-			return new Button(ID, new Vector2f(xPos, yPos), renderer.clone(), name, state, timeOn, activationDistance,
-					player);
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
 	public Entity clone(float xPos, float yPos, Player player) {
-		try {
-			return new Button(ID, new Vector2f(xPos, yPos), renderer.clone(), name, state, timeOn, activationDistance,
-					player);
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return null;
+		Button clonedE = (Button) super.clone(xPos, yPos);
+		clonedE.player = player;
+		
+		return clonedE;
 	}
 
 	@Override

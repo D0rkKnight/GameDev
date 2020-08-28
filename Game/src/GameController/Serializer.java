@@ -40,45 +40,6 @@ import Tiles.Tile;
 import Wrappers.Stats;
 
 public class Serializer {
-//	public void loadTileHash(String filename, HashMap<Integer, Tile> tileLookup, SpriteRenderer renderer) { // loads a hashmap
-//																									// assigning tile ID
-//																									// to Tile objects
-//		BufferedReader tileHashFile = null;
-//
-//		try {
-//			tileHashFile = new BufferedReader(new FileReader(filename));
-//		} catch (FileNotFoundException e) {
-//			System.err.println("File not found");
-//			e.printStackTrace();
-//		}
-//		int num = 0;
-//		try {
-//			num = Integer.parseInt(tileHashFile.readLine());
-//		} catch (NumberFormatException e) {
-//			System.err.println("First line of file should be int");
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		for (int i = 0; i < num; i++) {
-//			try {
-//				/*
-//				 * info[0] is tyr type of tile object we will put in . info[1] is the name of
-//				 * the sprite image
-//				 */
-//				String info[] = tileHashFile.readLine().split(":");
-//				BufferedImage sprite = ImageIO.read(new File(info[1]));
-//				// TODO change type of til
-//				if (Integer.parseInt(info[0]) == 0) { // squaretile: placeholder
-//					tileLookup.put(i, new SquareTile(i, sprite, renderer));
-//				}
-//				// TODO add more types of tiles
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//	}
 	
 	public static Document readDoc(String fdir, String fname) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -345,74 +306,6 @@ public class Serializer {
 		
 		return out.toString();
 	}
-
-//	/**
-//	 * Returns a Map object with an input filename and tile hashmap. filename should
-//	 * be directed to the correct map data file 
-//	 * 
-//	 * 
-//	 * FINISHED FOR NOW, completed entrances
-//	 * 
-//	 * @return
-//	 * @throws IOException
-//	 */
-//	public Map loadMap(String filename, HashMap<Integer, Tile> tileLookup) throws IOException {
-//		BufferedReader mapFile = null;
-//
-//		try {
-//			mapFile = new BufferedReader(new FileReader(filename));
-//		} catch (FileNotFoundException e) {
-//			System.out.println("File not found");
-//			e.printStackTrace();
-//		}
-//		/*
-//		 * Map data file is in format first line [xwidth]:[yheight], onwards is
-//		 * [tileID]:[tileID]:[tileID]:[tileID] [tileID]:[tileID]:[tileID]:[tileID]
-//		 * [tileID]:[tileID]:[tileID]:[tileID]
-//		 */
-//		String[] mapsize = mapFile.readLine().split(":");
-//		int xwidth = Integer.parseInt(mapsize[0]);
-//		int yheight = Integer.parseInt(mapsize[1]);
-//		Tile[][] maptiles = new Tile[xwidth][yheight];
-//		for (int i = 0; i < yheight; i++) {
-//			String[] tileLine = mapFile.readLine().split(":");
-//			for (int j = 0; j < xwidth; j++) {
-//				String[] tileInfo = tileLine[i].split(".");
-//				try {
-//					maptiles[i][j] = (tileLookup.get(Integer.parseInt(tileInfo[0]))).clone();
-//				} catch (NumberFormatException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				} catch (CloneNotSupportedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				} // want to clone the tile we
-//																							// load into array
-//				maptiles[i][j].setHammerState(GameManager.hammerLookup.get(Integer.parseInt(tileInfo[1])));
-//			}
-//		}
-//		int entrances = Integer.parseInt(mapFile.readLine());
-//		Vector2f[][] coords = new Vector2f[entrances][4];
-//		int[][] entranceInfo = new int[entrances][2];
-//		for (int i = 0; i < entrances; i++) { // looping through entrances
-//			String[] info = mapFile.readLine().split(":");
-//			for (int j = 0; j < 4; j++) { // looping through coordinates
-//				String[] coord = info[j].split(",");
-//				coords[i][j] = new Vector2f(Float.parseFloat(coord[0]), Float.parseFloat(coord[1]));
-//			}
-//			entranceInfo[i][0] = Integer.parseInt(info[4]); // taking care of ID and connection
-//			entranceInfo[i][1] = Integer.parseInt(info[5]);
-//
-//		}
-//		
-//		ArrayList<Entity> entities = new ArrayList<Entity>();//TODO
-//		
-//		
-//		mapFile.close();
-//		Map returnMap = new Map(maptiles, coords, entranceInfo, entities);
-//		return returnMap;
-//	}
-
 	
 	/**
 	 * Loads the progress (chapter number, level number, and room)

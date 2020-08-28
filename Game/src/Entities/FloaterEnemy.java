@@ -24,11 +24,8 @@ public class FloaterEnemy extends Enemy {
 		
 		//Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		GeneralRenderer rendTemp = (GeneralRenderer) this.renderer; //Renderer has been duplicated by now
-		rendTemp.init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
-		
-		rendTemp.spr = Debug.debugTex;
-		renderer = rendTemp;
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
+		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 		
 		//Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
@@ -96,28 +93,6 @@ public class FloaterEnemy extends Enemy {
 	public void controlledMovement() {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public Entity clone(float xPos, float yPos) {
-		try {
-			return new FloaterEnemy(ID, new Vector2f(xPos, yPos), renderer.clone(), name, stats.clone());
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	@Override
-	public Entity clone() {
-		try {
-			return new FloaterEnemy(ID, new Vector2f(position.x, position.y), renderer.clone(), name, stats.clone());
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 

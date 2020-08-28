@@ -7,9 +7,9 @@ public class Animator {
 	
 	private Timer timer;
 	private long frameDelta;
-	private int fps;
+	public int fps;
 	
-	private Animation[] anims;
+	public Animation[] anims;
 	private Animation currentAnim;
 	
 	private GeneralRenderer rend;
@@ -32,6 +32,10 @@ public class Animator {
 			
 		};
 		this.timer = new Timer(frameDelta, cb);
+	}
+	
+	public Animator(Animator anim, GeneralRenderer rend) {
+		this(anim.anims, anim.fps, rend);
 	}
 	
 	public void update() {

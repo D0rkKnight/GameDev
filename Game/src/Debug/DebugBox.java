@@ -7,28 +7,29 @@ import org.joml.Vector2f;
 
 import GameController.Camera;
 import Rendering.Shader;
+import Wrappers.Color;
 
 public class DebugBox extends DebugElement {
 	Vector2f p;
 	Vector2f dims;
 	
 	public DebugBox(Vector2f p, Vector2f dims, int lifespan) {
-		this(p, dims);
-		
-		this.lifespan = lifespan;
-	}
-	
-	public DebugBox(Vector2f p, Vector2f dims) {
 		this.p = p;
 		this.dims = dims;
 		
-		this.lifespan = 1;
+		this.lifespan = lifespan;
+		this.col = new Color(0, 1, 1, 1);
+	}
+	
+	public DebugBox(Vector2f p, Vector2f dims) {
+		this(p, dims, 1);
 	}
 	
 	@Override
 	public void render(Shader shader) {
 		Matrix4f mvp = Debug.trans.genMVP();
 		shader.setUniform("MVP", mvp);
+		shader.setUniform("Color", col);
 		
 		//Bind shader
 		shader.bind();

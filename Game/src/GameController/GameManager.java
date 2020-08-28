@@ -396,6 +396,7 @@ public class GameManager {
 				
 				Hitbox otherC = coll.get(j);
 				
+
 				Physics.checkEntityCollision(c, otherC);
 			}
 			

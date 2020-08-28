@@ -15,11 +15,9 @@ public class Projectile extends PhysicsEntity{
 		super(ID, position, renderer, name);
 		// TODO Auto-generated constructor stub
 		
-		//Configure renderer
+		//Configure renderer (this is a hack)
 		dim = new Vector2f(8f, 8f);
-		GeneralRenderer rendTemp = (GeneralRenderer) this.renderer;
-		rendTemp.init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 1, 0, 0));
-		renderer = rendTemp;
+		((GeneralRenderer) renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 1, 0, 0));
 		
 		//Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
@@ -69,17 +67,5 @@ public class Projectile extends PhysicsEntity{
 
 	public void onTileCollision() {
 		Destroy();
-	}
-
-	@Override
-	public Entity clone() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Entity clone(float xPos, float yPos) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

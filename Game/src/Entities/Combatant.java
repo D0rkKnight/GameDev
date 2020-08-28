@@ -74,4 +74,11 @@ public abstract class Combatant extends PhysicsEntity {
 		
 		return -1;
 	}
+	
+	public Combatant clone() {
+		Combatant clonedE = (Combatant) super.clone();
+		clonedE.stats = stats.clone();
+		
+		return clonedE;
+	}
 }

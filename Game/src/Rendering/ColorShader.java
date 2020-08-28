@@ -12,7 +12,6 @@ public class ColorShader extends Shader{
 	protected void bindAttributes() {
 		// TODO Auto-generated method stub
 		glBindAttribLocation(program, 0, "vertices");
-		glBindAttribLocation(program, 1, "color"); //TODO: Attribute not being used right now
 	}
 
 	@Override
@@ -20,6 +19,7 @@ public class ColorShader extends Shader{
 		// TODO Auto-generated method stub
 		try {
 			createUniform("MVP");
+			createUniform("Color");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

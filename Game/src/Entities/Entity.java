@@ -15,7 +15,7 @@ import Wrappers.Sprites;
  * @author Benjamin
  *
  */
-public abstract class Entity {
+public abstract class Entity implements Cloneable {
 	protected int ID;
 	protected Vector2f position;
 	protected Sprites sprites;
@@ -33,7 +33,7 @@ public abstract class Entity {
 
 	public Entity(int ID, Vector2f position, Renderer renderer, String name) {
 		this.ID = ID;
-		this.position = position;
+		if (position != null) this.position = new Vector2f(position);
 		this.name = name;
 		try {
 			this.renderer = renderer.clone();
@@ -60,6 +60,8 @@ public abstract class Entity {
 	 * You can override this with something spicy I guess
 	 */
 	public void render() {
+		System.out.println(name);
+		
 		renderer.transform.pos = position;
 		renderer.render();
 	}
@@ -67,6 +69,22 @@ public abstract class Entity {
 	public void Destroy() {
 		GameManager.unsubscribeEntity(this);
 	}
-	public abstract Entity clone();
-	public abstract Entity clone(float xPos, float yPos);
+	
+	public Entity clone() {
+		try {
+			return (Entity) super.clone();
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	public Entity clone(float xPos, float yPos) {
+		Entity clonedE = clone();
+		clonedE.position = new Vector2f(xPos, yPos);
+		
+		return clonedE;
+	}
 }
