@@ -5,8 +5,8 @@ import org.joml.Vector2f;
 import Debug.Debug;
 import Debug.DebugVector;
 import Entities.PhysicsEntity;
-import Math.Vector;
 import Tiles.Tile;
+import Utility.Vector;
 
 public class PhysicsCollisionBehaviorDeflect extends PhysicsCollisionBehavior {
 	

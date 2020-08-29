@@ -46,6 +46,9 @@ public class Melee extends Entity implements Collidable {
 		this.kbDir = kbDir;
 		hitEntities = new ArrayList<>();
 	}
+	public Entity createNew(float xPos, float yPos) {
+		return new Melee(ID, new Vector2f(xPos, yPos), renderer, name, owner, new Vector2f(kbDir));
+	}
 
 	@Override
 	public void calculate() {

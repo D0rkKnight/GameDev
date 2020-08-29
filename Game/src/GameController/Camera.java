@@ -4,7 +4,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import Entities.Entity;
-import Math.Arithmetic;
+import Utility.Arithmetic;
 
 public class Camera {
 	public static Camera main;

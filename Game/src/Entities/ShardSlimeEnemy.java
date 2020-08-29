@@ -15,6 +15,10 @@ public class ShardSlimeEnemy extends BouncingEnemy{
 		super(ID, position, renderer, name, stats);
 		// TODO Auto-generated constructor stub
 	}
+	
+	public ShardSlimeEnemy createNew(float xPos, float yPos, Stats stats) {
+		return new ShardSlimeEnemy(ID, new Vector2f(xPos, yPos), renderer, name, stats);
+	}
 
 	@Override
 	public void onHit(Hitbox otherHb) {

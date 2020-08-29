@@ -24,14 +24,7 @@ public class Stats implements Cloneable{
 		this.staminaRegen = staminaRegen;
 	}
 	
-	public Stats clone() {
-		Stats newStats = null;
-		try {
-			newStats = (Stats) super.clone();
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		return newStats;
+	public Stats(Stats stats) {
+		this(stats.maxHealth, stats.maxStamina, stats.healthRegen, stats.staminaRegen);
 	}
 }

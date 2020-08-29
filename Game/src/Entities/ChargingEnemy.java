@@ -4,7 +4,7 @@ import org.joml.Vector2f;
 
 import Collision.Hitbox;
 import Rendering.Renderer;
-import Wrappers.Sprites;
+import Utility.Pathfinding;
 import Wrappers.Stats;
 
 /**
@@ -25,13 +25,18 @@ public class ChargingEnemy extends Enemy {
 	protected float speed;
 	
 	public ChargingEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats,
-			boolean charging, int windupCycles, int cooldownCycles, float speed, float topspeed) {
+			boolean charging, int windupCycles, int cooldownCycles, float speed) {
 		super(ID, position, renderer, name, stats);
 		this.charging = charging;
 		windup = false; // enemies either charge upon entering room or are idle
 		this.windupCycles = windupCycles;
 		this.cooldownCycles = cooldownCycles;
 		this.speed = speed;
+	}
+	
+	public ChargingEnemy createNew(float xPos, float yPos, Stats stats) {
+		return new ChargingEnemy (ID, new Vector2f(xPos, yPos), renderer, name, stats,
+				charging, windupCycles, cooldownCycles, speed);
 	}
 
 	// This enemy attacks only by charging towards the player. No attack function,

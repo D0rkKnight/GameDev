@@ -32,7 +32,7 @@ public class Timer {
 		
 		subTimers = new ArrayList<>();
 	}
-	
+
 	//Returns whether the time threshold is crossed.
 	public boolean update() {
 		currTime = GameManager.getFrameTime();

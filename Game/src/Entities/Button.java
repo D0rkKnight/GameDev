@@ -33,6 +33,17 @@ public class Button extends Entity implements Interactive {
 		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 	}
+	
+	private Button(Button b, float xPos, float yPos, Player player) {
+		this(b.ID, new Vector2f(xPos, yPos), b.renderer, b.name, b.state, b.timeOn, b.activationDistance, player);
+	}
+	
+	public Button createNew(float xPos, float yPos, Player player) {
+		return new Button(this, xPos, yPos, player);
+	}
+	public Button createNew(float xPos, float yPos) {
+		return createNew(xPos, yPos, player);
+	}
 
 	@Override
 	public void calculate() {
@@ -61,13 +72,6 @@ public class Button extends Entity implements Interactive {
 	public void controlledMovement() {
 		// buttons don't move silly
 
-	}
-
-	public Entity clone(float xPos, float yPos, Player player) {
-		Button clonedE = (Button) super.clone(xPos, yPos);
-		clonedE.player = player;
-		
-		return clonedE;
 	}
 
 	@Override

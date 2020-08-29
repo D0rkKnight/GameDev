@@ -4,8 +4,8 @@ package Entities;
 import org.joml.Vector2f;
 
 import GameController.GameManager;
-import Math.Pathfinding;
 import Rendering.Renderer;
+import Utility.Pathfinding;
 import Wrappers.Sprites;
 import Wrappers.Stats;
 /**
@@ -34,6 +34,4 @@ public abstract class Enemy extends Combatant {
 		target = GameManager.player;
 		return true;
 	}
-	
-	
 }

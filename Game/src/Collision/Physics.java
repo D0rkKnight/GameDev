@@ -9,10 +9,10 @@ import Debug.DebugBox;
 import Entities.Entity;
 import Entities.PhysicsEntity;
 import GameController.GameManager;
-import Math.Arithmetic;
-import Math.Geometry;
-import Math.Vector;
 import Tiles.Tile;
+import Utility.Arithmetic;
+import Utility.Geometry;
+import Utility.Vector;
 import Wrappers.Color;
 
 public abstract class Physics {

@@ -11,8 +11,8 @@ import Collision.PhysicsCollisionBehavior;
 import Collision.PhysicsCollisionBehaviorDeflect;
 import Collision.PhysicsCollisionBehaviorGroundMove;
 import GameController.GameManager;
-import Math.Vector;
 import Rendering.Renderer;
+import Utility.Vector;
 import Wrappers.PhysicsData;
 
 public abstract class PhysicsEntity extends Entity implements Collidable{
@@ -173,10 +173,4 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	
 	public Hitbox getHb() {return hitbox;}
 	public void setHb(Hitbox hb) {hitbox = hb;}
-	
-	public PhysicsEntity clone() {
-		PhysicsEntity clonedE = (PhysicsEntity) super.clone();
-		clonedE.hitbox = new Hitbox(hitbox, clonedE);
-		return clonedE;
-	}
 }

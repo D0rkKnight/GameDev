@@ -10,12 +10,12 @@ import Collision.PhysicsCollisionBehaviorWallCling;
 import Debug.Debug;
 import GameController.GameManager;
 import GameController.Input;
-import Math.Arithmetic;
 import Rendering.Animation;
 import Rendering.Animator;
 import Rendering.GeneralRenderer;
 import Rendering.Texture;
 import Rendering.Transformation;
+import Utility.Arithmetic;
 import Wrappers.Color;
 import Wrappers.Stats;
 import Wrappers.Timer;
@@ -55,6 +55,7 @@ public class Player extends Combatant{
 		dim = new Vector2f(15f, 60f);
 		
 		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0, 0));
+		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 		
 		//Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
@@ -65,27 +66,20 @@ public class Player extends Combatant{
 		dashDuration = 50;
 		movementMode = MOVEMENT_MODE_CONTROLLED;
 		
-		//Configure firing
-		gunTimer = new Timer(100, new TimerCallback() {
-
-			@Override
-			public void invoke(Timer timer) {
-				fireGun(Input.mouseWorldPos);
-			}
-			
-		});
-		
 		
 		//Configure animation stuff
 		Animation[] anims = new Animation[1];
 		Texture[] animSheet = Texture.unpackSpritesheet("Assets/ChargingSlime.png", 32, 32);
 		anims[0] = new Animation(animSheet);
-		anim = new Animator(anims, 24, renderer);
+		anim = new Animator(anims, 24, (GeneralRenderer) this.renderer);
 		
 		//Alignment
 		alignment = ALIGNMENT_PLAYER;
 		
 		sideFacing = 1;
+	}
+	public Combatant createNew(float xPos, float yPos, Stats stats) {
+		return new Player(ID, new Vector2f(xPos, yPos), (GeneralRenderer) renderer, name, stats);
 	}
 	
 	protected void initPhysicsCollBehavior() {
@@ -114,8 +108,6 @@ public class Player extends Combatant{
 	
 	public void calculate() {
 		super.calculate();
-		
-		System.out.println(position.x);
 		
 		determineMovementMode(); //determine what movement mode and execute it
 		
@@ -163,6 +155,17 @@ public class Player extends Combatant{
 		
 		//Shoot a gun
 		if (Input.primaryButtonDown) {
+			if (gunTimer == null) {
+				//Configure firing
+				gunTimer = new Timer(100, new TimerCallback() {
+
+					@Override
+					public void invoke(Timer timer) {
+						fireGun(Input.mouseWorldPos);
+					}
+					
+				});
+			}
 			gunTimer.update();
 		}
 		
@@ -194,7 +197,6 @@ public class Player extends Combatant{
 		}
 		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && movementMode != MOVEMENT_MODE_IS_DASHING) {
 			if(stats.stamina < dashCost) {
-				//System.out.println("out of stamina, can't dash");
 				return;
 			}
 			
@@ -293,11 +295,12 @@ public class Player extends Combatant{
 	
 	private void fireGun(Vector2f firePos) {
 		if(stats.stamina < gunCost) {
-			//System.out.println("out of stamina, can't fire");
 			return;
 		}
 		
 		stats.stamina -= gunCost;
+
+		
 		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32));
 		
 		Projectile proj = new Projectile(0, pos, GameManager.renderer, "Bullet"); //initializes bullet entity
@@ -348,19 +351,10 @@ public class Player extends Combatant{
 	protected void calcFrame() {
 		//Just a simple animation update, nothing spicy.
 		anim.update();
-		
-		System.out.println(anim);
 	}
 
 	public void onTileCollision() {
 		// TODO Auto-generated method stub
 		
-	}
-	
-	public Player clone() {
-		Player clonedE = (Player) super.clone();
-		clonedE.anim = new Animator(anim, (GeneralRenderer) renderer);
-		
-		return clonedE;
 	}
 }

@@ -17,12 +17,15 @@ public class Projectile extends PhysicsEntity{
 		
 		//Configure renderer (this is a hack)
 		dim = new Vector2f(8f, 8f);
-		((GeneralRenderer) renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 1, 0, 0));
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 1, 0, 0));
 		
 		//Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
 		
 		hasGravity = false;
+	}
+	public Projectile createNew(float xPos, float yPos) {
+		return new Projectile(ID, new Vector2f(xPos, yPos), renderer, name);
 	}
 
 	public void onHit(Hitbox otherHb) { //upon colliding with another hitbox

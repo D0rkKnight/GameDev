@@ -2,9 +2,9 @@ package Entities;
 
 import org.joml.Vector2f;
 
-import Collision.Hitbox;
 import GameController.GameManager;
 import Rendering.Renderer;
+import Utility.CanBeCloned;
 import Wrappers.SpriteSheetSection;
 import Wrappers.Sprites;
 
@@ -15,7 +15,7 @@ import Wrappers.Sprites;
  * @author Benjamin
  *
  */
-public abstract class Entity implements Cloneable {
+public abstract class Entity implements CanBeCloned {
 	protected int ID;
 	protected Vector2f position;
 	protected Sprites sprites;
@@ -29,7 +29,7 @@ public abstract class Entity implements Cloneable {
 	protected int currentFrame;
 	protected SpriteSheetSection[][] frames;
 	
-	//TODO: Move these within a physics affected class.
+	protected boolean hasInit = false;
 
 	public Entity(int ID, Vector2f position, Renderer renderer, String name) {
 		this.ID = ID;
@@ -43,7 +43,11 @@ public abstract class Entity implements Cloneable {
 		}
 	}
 
-	public abstract void calculate();
+	public void calculate() {
+		if (!hasInit) {
+			new Exception("Entity not initialized.").printStackTrace();
+		}
+	}
 
 	protected abstract void calcFrame();
 	
@@ -70,21 +74,9 @@ public abstract class Entity implements Cloneable {
 		GameManager.unsubscribeEntity(this);
 	}
 	
-	public Entity clone() {
-		try {
-			return (Entity) super.clone();
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+	public Entity createNew() {
+		return createNew(position.x, position.y);
 	}
 	
-	
-	public Entity clone(float xPos, float yPos) {
-		Entity clonedE = clone();
-		clonedE.position = new Vector2f(xPos, yPos);
-		
-		return clonedE;
-	}
+	public abstract Entity createNew(float xPos, float yPos);
 }

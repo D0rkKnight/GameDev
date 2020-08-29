@@ -266,14 +266,14 @@ public class Serializer {
 			
 			Entity e;
 			if (entityHash.get(ID) instanceof Player) {
-				e = entityHash.get(ID).clone(xPos * GameManager.tileSize, yPos * GameManager.tileSize);
+				e = entityHash.get(ID).createNew(xPos * GameManager.tileSize, yPos * GameManager.tileSize);
 				GameManager.player = (Player) e;
 			}
 			else if(entityHash.get(ID) instanceof Interactive) {
-				e = ((Button)entityHash.get(ID)).clone(xPos * GameManager.tileSize, yPos * GameManager.tileSize, GameManager.player);
+				e = ((Button)entityHash.get(ID)).createNew(xPos * GameManager.tileSize, yPos * GameManager.tileSize, GameManager.player);
 			}
 			else {
-				e = entityHash.get(ID).clone(xPos * GameManager.tileSize, yPos * GameManager.tileSize);
+				e = entityHash.get(ID).createNew(xPos * GameManager.tileSize, yPos * GameManager.tileSize);
 			}
 			
 			entities.add(e);

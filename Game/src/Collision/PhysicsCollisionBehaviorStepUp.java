@@ -4,8 +4,8 @@ import org.joml.Vector2f;
 
 import Entities.PhysicsEntity;
 import GameController.GameManager;
-import Math.Vector;
 import Tiles.Tile;
+import Utility.Vector;
 
 public class PhysicsCollisionBehaviorStepUp extends PhysicsCollisionBehavior{
 	

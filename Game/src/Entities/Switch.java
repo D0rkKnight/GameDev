@@ -18,7 +18,7 @@ public class Switch extends Entity implements Interactive {
 	public int statenum;
 	public boolean changed;
 	float activationDistance;
-	Timer onTimer;
+	public Timer onTimer;
 	Player player;
 
 	public Switch(int ID, Vector2f position, Renderer renderer, String name, int state, int statenum, float activationDistance,
@@ -34,6 +34,9 @@ public class Switch extends Entity implements Interactive {
 
 		rendTemp.spr = Debug.debugTex;
 		renderer = rendTemp;
+	}
+	public Switch createNew(float xPos, float yPos) {
+		return new Switch(ID, new Vector2f(xPos, yPos), renderer, name, state, statenum, activationDistance, player);
 	}
 
 	@Override
@@ -62,38 +65,6 @@ public class Switch extends Entity implements Interactive {
 	public void controlledMovement() {
 		// buttons don't move silly
 
-	}
-
-	@Override
-	public Entity clone() {
-		try {
-			return new Switch(ID, new Vector2f(position), renderer.clone(), name, state, statenum, activationDistance,
-					player);
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	@Override
-	public Entity clone(float xPos, float yPos) {
-		try {
-			return new Switch(ID, new Vector2f(xPos, yPos), renderer.clone(), name, state, statenum, activationDistance,
-					player);
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public Entity clone(float xPos, float yPos, Player player) {
-		try {
-			return new Switch(ID, new Vector2f(xPos, yPos), renderer.clone(), name, state, statenum, activationDistance,
-					player);
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	@Override

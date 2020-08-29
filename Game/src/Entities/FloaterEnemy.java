@@ -8,12 +8,12 @@ import Collision.PhysicsCollisionBehavior;
 import Collision.PhysicsCollisionBehaviorDeflect;
 import Debug.Debug;
 import GameController.GameManager;
-import Math.Pathfinding;
-import Math.Vector;
 import Rendering.Renderer;
 import Rendering.GeneralRenderer;
 import Rendering.Transformation;
 import Tiles.Tile;
+import Utility.Pathfinding;
+import Utility.Vector;
 import Wrappers.Color;
 import Wrappers.Stats;
 
@@ -32,6 +32,10 @@ public class FloaterEnemy extends Enemy {
 		
 		pData.walksUpSlopes = false;
 		ai = new Pathfinding();
+	}
+	
+	public FloaterEnemy createNew(float xPos, float yPos, Stats stats) {
+		return new FloaterEnemy(ID, new Vector2f(xPos, yPos), renderer, name, stats);
 	}
 	
 	protected void initPhysicsCollBehavior() {
