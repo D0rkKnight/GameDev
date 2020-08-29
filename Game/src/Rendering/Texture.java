@@ -22,6 +22,12 @@ public class Texture {
 		System.err.println("Width and height not set!");
 	}
 	
+	public Texture(int id, int w, int h) {
+		this.id = id;
+		this.width = w;
+		this.height = h;
+	}
+	
 	public Texture(ByteBuffer pixels, int w, int h) {
 		this.width = w;
 		this.height = h;
@@ -47,7 +53,7 @@ public class Texture {
 		
 		integrityCheck();
 	}
-	
+
 	private static ByteBuffer imageToBuffer(BufferedImage bi, int w, int h) {
 		int[] pixels_raw = new int[w*h*4];
 		pixels_raw = bi.getRGB(0, 0, w, h, null, 0, w);

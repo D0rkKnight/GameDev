@@ -13,15 +13,16 @@ public class Transformation {
 	
 	public static final int MATRIX_MODE_WORLD = 0;
 	public static final int MATRIX_MODE_SCREEN = 1;
+	public static final int MATRIX_MODE_STATIC = 2; //The view matrix does not move
 	
 	//Do this to avoid reallocation every frame
-	private Matrix4f trans;
-	private Matrix4f rot;
-	private Matrix4f scale;
-	private Matrix4f model;
+	public Matrix4f trans;
+	public Matrix4f rot;
+	public Matrix4f scale;
+	public Matrix4f model;
 	
-	private Matrix4f view;
-	private Matrix4f proj;
+	public Matrix4f view;
+	public Matrix4f proj;
 	private Matrix4f mvp;
 	
 	public Transformation(Vector2f pos) {
@@ -42,58 +43,35 @@ public class Transformation {
 		mvp = new Matrix4f();
 	}
 	
+	/**
+	 * Note that UI elements are anchored to the top left.
+	 * @return
+	 */
 	public Matrix4f genMVP() {
+		Camera cam = Camera.main;
+		
 		switch(matrixMode) {
 		case MATRIX_MODE_WORLD:
-			genWorldMVP();
+			view = cam.worldViewMatrix;
+			trans.setTranslation(pos.x, pos.y, 0);
 			break;
 		case MATRIX_MODE_SCREEN:
-			genScreenMVP();
+			view = cam.screenViewMatrix;
+			trans.setTranslation(pos.x, -pos.y, 0);
+			break;
+		case MATRIX_MODE_STATIC:
+			trans.setTranslation(pos.x, pos.y, 0);
 			break;
 		default:
 			new Exception("Matrix mode not recognized!").printStackTrace();
 		}
 		
-		//Getting MVP
+		proj = cam.projectionMatrix;
+		
+		//Getting the MVP
+		model.identity().mul(trans).mul(rot).mul(scale);
 		mvp.identity().mul(proj).mul(view).mul(model);
 		
 		return mvp;
-	}
-	
-	/**
-	 * For objects that exist in the world
-	 * @return
-	 */
-	public void genWorldMVP() {
-		Camera cam = Camera.main;
-		
-		//Setting model space transformations
-		trans.setTranslation(pos.x, pos.y, 0);
-		rot.identity();
-		scale.identity();
-		
-		model.identity().mul(trans).mul(rot).mul(scale);
-		
-		//Setting the view/projection matrices
-		view = cam.worldViewMatrix;
-		proj = cam.projectionMatrix;
-	}
-	
-	/**
-	 * For UI elements (These are anchored upper right btw)
-	 */
-	public void genScreenMVP() {
-		Camera cam = Camera.main;
-		
-		//Setting model space transformations
-		trans.setTranslation(pos.x, -pos.y, 0);
-		rot.identity();
-		scale.identity();
-		
-		model.identity().mul(trans).mul(rot).mul(scale);
-		
-		//Use screen view matrix
-		view = cam.screenViewMatrix;
-		proj = cam.projectionMatrix;
 	}
 }

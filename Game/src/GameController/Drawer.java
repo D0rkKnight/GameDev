@@ -53,8 +53,10 @@ import org.lwjgl.system.MemoryStack;
 import Collision.HammerShape;
 import Debug.Debug;
 import Entities.Entity;
-import Rendering.ScreenBufferRenderer;
+import Rendering.GeneralRenderer;
+import Rendering.DrawBufferRenderer;
 import Rendering.Shader;
+import Rendering.SpriteShader;
 import Rendering.Texture;
 import Rendering.Transformation;
 import Rendering.WaveShader;
@@ -70,9 +72,11 @@ public class Drawer {
 	
 	public static int drawBuff;
 	public static int drawTex;
-	private static ScreenBufferRenderer fBuffRend;
+	private static DrawBufferRenderer fBuffRend;
+	private static GeneralRenderer chunkRend;
 	
-	private static int[][] tileChunks;
+	private static int[][] tileChunkBuffers;
+	private static Texture[][] tileChunkTexs;
 	public static final int CHUNK_SIZE = 16;
 	
 	public static void draw(Map map, ArrayList<Entity> entities) {
@@ -81,9 +85,6 @@ public class Drawer {
 		
 		// Clear frame buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		//calls render function of every tile of map within distance of player, and entities within certain distance
-  		Tile[][] grid = map.grids.get("ground");
   		
   		//Get clipping bounds
   		Camera cam = Camera.main;
@@ -94,28 +95,36 @@ public class Drawer {
   		int tyMin = (int) (cPos.y - (cDims.y/2));
   		int tyMax = (int) (cPos.y + (cDims.y/2));
   		
-  		txMin /= GameManager.tileSize;
-  		txMax /= GameManager.tileSize;
-  		tyMin /= GameManager.tileSize;
-  		tyMax /= GameManager.tileSize;
+  		txMin /= GameManager.tileSize * CHUNK_SIZE;
+  		txMax /= GameManager.tileSize * CHUNK_SIZE;
+  		tyMin /= GameManager.tileSize * CHUNK_SIZE;
+  		tyMax /= GameManager.tileSize * CHUNK_SIZE;
   		
   		txMax ++;
   		tyMax ++;
   		
-  		int gridW = grid.length;
-  		int gridH = grid[0].length;
+  		int chunkGridW = tileChunkTexs.length;
+  		int chunkGridH = tileChunkTexs[0].length;
   		
   		txMin = Math.max(txMin, 0);
-  		txMax = Math.min(txMax, gridW);
+  		txMax = Math.min(txMax, chunkGridW);
   		tyMin = Math.max(tyMin, 0);
-  		tyMax = Math.min(tyMax, gridH);
+  		tyMax = Math.min(tyMax, chunkGridH);
   		
+  		//Draw all of the textures
   		for (int i=txMin; i<txMax; i++) {
   			for (int j=tyMin; j<tyMax; j++) {
-  				Tile tile = grid[i][j];
-  				if (tile == null) continue;
+  				Texture tex = tileChunkTexs[i][j];
   				
-  				tile.render(new Vector2f(i*GameManager.tileSize, j*GameManager.tileSize), GameManager.tileSize);
+  				chunkRend.spr = tex;
+  				
+  				Vector2f pos = new Vector2f(i, j).mul(GameManager.tileSize).mul(CHUNK_SIZE);
+  				chunkRend.transform.pos.set(pos);
+  				chunkRend.transform.pos.add(0, GameManager.tileSize * CHUNK_SIZE);
+  				
+  				chunkRend.transform.scale.identity().scale(1, -1, 1);
+  				
+  				chunkRend.render();
   			}
   		}
   		
@@ -254,7 +263,7 @@ public class Drawer {
 		
 		//Now set up the renderer that deals with this.
 		Shader shader = new WaveShader("warpShader");
-		fBuffRend = new ScreenBufferRenderer(shader);
+		fBuffRend = new DrawBufferRenderer(shader);
 	}
 	
 	public static void initTileChunks(Tile[][] grid) {
@@ -265,21 +274,24 @@ public class Drawer {
 			new Exception("Bad size!").printStackTrace();
 		}
 		
-		tileChunks = new int[w/CHUNK_SIZE][h/CHUNK_SIZE];
+		tileChunkBuffers = new int[w/CHUNK_SIZE][h/CHUNK_SIZE];
+		tileChunkTexs = new Texture[tileChunkBuffers.length][tileChunkBuffers[0].length];
 		
-		for (int i=0; i<tileChunks.length; i++) {
-			for (int j=0; j<tileChunks[0].length; j++) {
+		for (int i=0; i<tileChunkBuffers.length; i++) {
+			for (int j=0; j<tileChunkBuffers[0].length; j++) {
 				//Gen the buffer
 				int buff = glGenFramebuffers();
-				tileChunks[i][j] = buff;
+				tileChunkBuffers[i][j] = buff;
 				glBindFramebuffer(GL_FRAMEBUFFER, buff);
 				
 				int tex = glGenTextures();
 				
 				glBindTexture(GL_TEXTURE_2D, tex);
 				
-				int dim = CHUNK_SIZE * GameManager.tileSize;
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, dim, dim, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+				int chunkDims = CHUNK_SIZE * GameManager.tileSize;
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, chunkDims, chunkDims, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+				
+				tileChunkTexs[i][j] = new Texture(tex, chunkDims, chunkDims);
 				
 				// Poor filtering. Needed !
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -292,22 +304,45 @@ public class Drawer {
 				glDrawBuffers(GL_COLOR_ATTACHMENT0);
 				
 				if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-					System.out.println("Error!!!");
+					System.err.println("Error!!!");
 				}
 				
 				//Now iterate over every tile in this grid that lies within the chunk
 				for (int a=i*CHUNK_SIZE; a<(i+1)*CHUNK_SIZE; a++) {
-					for (int b=j*CHUNK_SIZE; b<(j+1)*CHUNK_SIZE; j++) {
+					for (int b=j*CHUNK_SIZE; b<(j+1)*CHUNK_SIZE; b++) {
+						Tile t = grid[a][b];
+						if (t == null) continue;
 						
-						/**
-						 * Here's the situation: we need a way to bake the sprites in, but the way I coded Transformations was bad.
-						 * I tried making a spinoff renderer but that feels like poor design.
-						 * I'll come back to this one tomorrow.
-						 */
+						Transformation oldTrans = t.renderer.transform;
+						
+						Transformation newTrans = new Transformation(new Vector2f(oldTrans.pos), Transformation.MATRIX_MODE_STATIC);
+						t.renderer.transform = newTrans;
+						
+						float offsetX = i * GameManager.tileSize * CHUNK_SIZE;
+						float offsetY = j * GameManager.tileSize * CHUNK_SIZE;
+						
+						Vector2f camOffset = new Vector2f(Camera.main.viewport).div(2);
+						newTrans.view.setTranslation(-offsetX-camOffset.x, -offsetY-camOffset.y, 0);
+						
+						float x = a*GameManager.tileSize;
+						float y = b*GameManager.tileSize;
+						t.render(new Vector2f(x, y), GameManager.tileSize);
+						
+						t.renderer.transform = oldTrans;
 					}
 				}
 			}
 		}
+		
+		//Free the frame buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		
+		//Setting up the renderer
+		chunkRend = new GeneralRenderer(new SpriteShader("texShader"));
+		
+		float dim = GameManager.tileSize * CHUNK_SIZE;
+		chunkRend.init(new Transformation(new Vector2f(), Transformation.MATRIX_MODE_WORLD), new Vector2f(dim, dim), 
+				HammerShape.HAMMER_SHAPE_SQUARE, new Color());
 	}
 	
 	public static Vector2f GetWindowSize() {

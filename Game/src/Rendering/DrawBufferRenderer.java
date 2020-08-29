@@ -2,9 +2,9 @@ package Rendering;
 
 import org.joml.Vector2f;
 
-public class ScreenBufferRenderer extends WavyRenderer{
+public class DrawBufferRenderer extends WavyRenderer{
 
-	public ScreenBufferRenderer(Shader shader) {
+	public DrawBufferRenderer(Shader shader) {
 		super(shader);
 		// TODO Auto-generated constructor stub
 	}

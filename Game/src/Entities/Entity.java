@@ -64,8 +64,6 @@ public abstract class Entity implements CanBeCloned {
 	 * You can override this with something spicy I guess
 	 */
 	public void render() {
-		System.out.println(name);
-		
 		renderer.transform.pos = position;
 		renderer.render();
 	}

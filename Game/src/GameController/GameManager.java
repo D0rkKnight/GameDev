@@ -86,7 +86,7 @@ public class GameManager {
 	
 	public static Player player;
 	
-	public static final int tileSize = 16;
+	public static final int tileSize = 8;
 	public static final int tileSpriteSize = 4;
 
 	public static final int MOVE_AXIS_X = 0;
@@ -343,6 +343,8 @@ public class GameManager {
 		
 		deltaTime = currTime - lastTime;
 		deltaTime = Math.max(1, deltaTime);
+		
+		System.out.println(deltaTime);
 	}
 	
 	public static long deltaT() {
