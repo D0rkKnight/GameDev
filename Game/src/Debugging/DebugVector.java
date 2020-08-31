@@ -1,4 +1,4 @@
-package Debug;
+package Debugging;
 
 import static org.lwjgl.opengl.GL11.GL_LINES;
 import static org.lwjgl.opengl.GL11.glBegin;
@@ -19,14 +19,18 @@ public class DebugVector extends DebugElement {
 	Vector2f v;
 	float mult;
 	
-	public DebugVector(Vector2f p, Vector2f v, float mult, int lifespan) {
+	public DebugVector(Vector2f p, Vector2f v, float mult, Color col, int lifespan) {
 		this.p = p;
 		this.v = v;
 		this.mult = mult;
 		
 		this.lifespan = lifespan;
 		
-		this.col = new Color(1, 1, 0, 1);
+		this.col = col;
+	}
+	
+	public DebugVector(Vector2f p, Vector2f v, float mult, int lifespan) {
+		this(p, v, mult, new Color(1, 1, 0, 1), lifespan);
 	}
 	
 	public DebugVector(Vector2f p, Vector2f v, float mult) {

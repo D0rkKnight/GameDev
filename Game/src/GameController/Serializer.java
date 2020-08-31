@@ -29,6 +29,7 @@ import org.xml.sax.SAXException;
 import Accessories.Accessory;
 import Collision.HammerShape;
 import Entities.Button;
+import Entities.CrawlerEnemy;
 import Entities.Entity;
 import Entities.FloaterEnemy;
 import Entities.Interactive;
@@ -232,6 +233,9 @@ public class Serializer {
 			}
 			else if(name.equals("Button")){
 				enemyHash.put(i, new Button(ID, null, renderer, name, Integer.parseInt(enemy[6].split(",")[1]), Integer.parseInt(enemy[7].split(",")[1]), Float.parseFloat(enemy[8].split(",")[1]), null));
+			}
+			else if(name.equals("Crawler")) {
+				enemyHash.put(i, new CrawlerEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
 			}
 			else {
 				System.out.println("error, wrong enemy name");

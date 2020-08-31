@@ -15,53 +15,35 @@ import static org.lwjgl.glfw.GLFW.glfwShowWindow;
 import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_NEAREST;
-import static org.lwjgl.opengl.GL11.GL_RGB;
-import static org.lwjgl.opengl.GL11.GL_RGBA;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glGenTextures;
-import static org.lwjgl.opengl.GL11.glTexImage2D;
-import static org.lwjgl.opengl.GL11.glTexParameteri;
-import static org.lwjgl.opengl.GL20.glDrawBuffers;
-import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
-import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
-import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_COMPLETE;
-import static org.lwjgl.opengl.GL30.glBindFramebuffer;
-import static org.lwjgl.opengl.GL30.glCheckFramebufferStatus;
-import static org.lwjgl.opengl.GL30.glFramebufferTexture2D;
-import static org.lwjgl.opengl.GL30.glGenFramebuffers;
+import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 
 import org.joml.Vector2f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
 import Collision.HammerShape;
-import Debug.Debug;
+import Debugging.Debug;
+import Debugging.DebugVector;
 import Entities.Entity;
-import Rendering.GeneralRenderer;
 import Rendering.DrawBufferRenderer;
+import Rendering.GeneralRenderer;
 import Rendering.Shader;
 import Rendering.SpriteShader;
 import Rendering.Texture;
 import Rendering.Transformation;
-import Rendering.WaveShader;
 import Tiles.Tile;
 import UI.UI;
+import Utility.Vector;
 import Wrappers.Color;
 
 /*
@@ -150,8 +132,8 @@ public class Drawer {
   		//Overlay debug elements
   		Debug.renderDebug();
   		
-  		//Yeesh that was hard.
   		
+  		//Yeesh that was hard.
 //  		ByteBuffer pixels = BufferUtils.createByteBuffer(20*20*4);
 //  		glReadPixels(0, 0, 20, 20, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 //  		
@@ -227,6 +209,9 @@ public class Drawer {
 		// Creating the context to which all graphics operations will be executed upon
 		GL.createCapabilities();
 		glEnable(GL_TEXTURE_2D);
+		
+		// Set clear color
+		glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
 	}
 	
 	private static void initDrawBuffer() {
@@ -262,7 +247,7 @@ public class Drawer {
 		
 		
 		//Now set up the renderer that deals with this.
-		Shader shader = new WaveShader("warpShader");
+		Shader shader = new SpriteShader("texShader");
 		fBuffRend = new DrawBufferRenderer(shader);
 	}
 	
@@ -306,6 +291,9 @@ public class Drawer {
 				if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 					System.err.println("Error!!!");
 				}
+				
+				// Clear frame buffer, sets background color
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				
 				//Now iterate over every tile in this grid that lies within the chunk
 				for (int a=i*CHUNK_SIZE; a<(i+1)*CHUNK_SIZE; a++) {
@@ -363,7 +351,7 @@ public class Drawer {
 
 			return new Vector2f(pWidth.get(0), pHeight.get(0));
 		}
-		// Another benefit: garbage collection bsery is avoided because the stack is
+		// Another benefit: garbage collection is avoided because the stack is
 		// popped and reclaimed immediately after the try block.
 	}
 }

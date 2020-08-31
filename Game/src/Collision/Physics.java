@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
-import Debug.Debug;
-import Debug.DebugBox;
+import Debugging.Debug;
+import Debugging.DebugBox;
 import Entities.Entity;
 import Entities.PhysicsEntity;
 import GameController.GameManager;

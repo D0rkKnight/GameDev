@@ -2,6 +2,8 @@ package Collision;
 
 import org.joml.Vector2f;
 
+import Utility.Vector;
+
 /**
  * Container class for collision and mesh data
  * @author Hanzen Shou
@@ -16,7 +18,8 @@ public abstract class HammerShape {
 	public static final int HAMMER_SHAPE_FINAL = 5;
 	
 	public int shapeId;
-	protected Vector2f[] vertices;
+	public Vector2f[] vertices;
+	public Vector2f[] normals; //First edge is between 1st and 2nd points
 	protected Vector2f[] triangulatedVertices;
 	
 	public HammerShape(int shapeId) {
@@ -59,5 +62,19 @@ public abstract class HammerShape {
 			uvs[i] = new Vector2f(uvs[i].x, 1-uvs[i].y);
 		}
 		return uvs;
+	}
+	
+	public void genNormals() {
+		normals = new Vector2f[vertices.length];
+		
+		for (int i=0; i<vertices.length; i++) {
+			Vector2f p1 = vertices[i];
+			Vector2f p2 = vertices[(i+1+vertices.length)%vertices.length];
+			
+			//Knowing that these points are going counterclockwise, rotate the vector to the right.
+			Vector2f n = Vector.rightVector(new Vector2f(p2).sub(p1)).normalize();
+			
+			normals[i] = n;
+		}
 	}
 }

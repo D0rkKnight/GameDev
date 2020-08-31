@@ -2,8 +2,8 @@ package Collision;
 
 import org.joml.Vector2f;
 
-import Debug.Debug;
-import Debug.DebugVector;
+import Debugging.Debug;
+import Debugging.DebugVector;
 import Entities.PhysicsEntity;
 import Tiles.Tile;
 import Utility.Vector;

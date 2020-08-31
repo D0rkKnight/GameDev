@@ -1,4 +1,4 @@
-package Debug;
+package Debugging;
 
 import Rendering.Shader;
 import Wrappers.Color;

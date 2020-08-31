@@ -6,7 +6,7 @@ import Collision.HammerShape;
 import Collision.Hitbox;
 import Collision.PhysicsCollisionBehavior;
 import Collision.PhysicsCollisionBehaviorDeflect;
-import Debug.Debug;
+import Debugging.Debug;
 import GameController.GameManager;
 import Rendering.Renderer;
 import Rendering.GeneralRenderer;

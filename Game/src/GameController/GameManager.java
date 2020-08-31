@@ -22,7 +22,7 @@ import Collision.HammerShape;
 import Collision.HammerSquare;
 import Collision.Hitbox;
 import Collision.Physics;
-import Debug.Debug;
+import Debugging.Debug;
 import Entities.Entity;
 import Entities.PhysicsEntity;
 import Entities.Player;
@@ -93,11 +93,15 @@ public class GameManager {
 	public static final int MOVE_AXIS_Y = 1;
 	public static final float NUDGE_CONSTANT = 0.1f;
 	
-	public static final int CORNER_NONE = 1;
+	public static final int CORNER_NONE = 0;
 	public static final int CORNER_UL = 1;
 	public static final int CORNER_BL = 2;
 	public static final int CORNER_UR = 3;
 	public static final int CORNER_BR = 4;
+	
+	public static final String GRID_SET = "set";
+	public static final String GRID_COLL = "collision";
+	public static final String GRID_GROUND = "ground";
 
 	/*
 	 * Creates components before entering loop
@@ -191,26 +195,10 @@ public class GameManager {
 			e.printStackTrace();
 		}
 		
-		
-		//Tiles are currently raw and unitialized. Initialize them.
-		//Will do it in whatever order... so possibly some unpredictable behavior.
-		//TODO: Get rid of this bs init process altogether
-		for (Tile[][] g : mapData.values()) {
-			for (int i=0; i<g.length; i++) for (int j=0; j<g[0].length; j++) {
-				Tile t = g[i][j];
-				if (t != null) {
-					t.init(new Vector2f(i*tileSize, j*tileSize), new Vector2f(tileSize, tileSize));
-				}
-			}
-		}
-		
 		currmap = new Map(mapData, null, null, null);//TODO
 		initEntities(mapFile);
 		
 		Drawer.initTileChunks(currmap.grids.get("ground"));
-		
-		
-		//Hardcoding some enemy spawns
 	}
 
 	private void finishArea() { // called when character finishes a major area, updates level and chapter of
@@ -231,14 +219,6 @@ public class GameManager {
 	}
 	
 	private void initEntities(Document mapFile) {
-		//TODO this is hardcoded, make a initEntityHash
-		//no longer hardcoded
-		//entityHash = new HashMap<Integer, Entity>();
-		//entityHash.put(0, new Player(0, null, renderer, "Player", new Stats(100, 100, 0.5f, 1f)));
-		//entityHash.put(1, new FloaterEnemy(10, null, renderer, "Enemy", new Stats(100, 100, 0, 0)));
-		///entityHash.put(2, new ShardSlimeEnemy(10, null, renderer, "BEnemy", new Stats(100, 100, 0, 0)));
-		
-		
 		entities = new ArrayList();
 		entityWaitingList = new ArrayList();
 		entityClearList = new ArrayList();
@@ -263,8 +243,6 @@ public class GameManager {
 		for (int i=HammerShape.HAMMER_SHAPE_TRIANGLE_BL; i<=HammerShape.HAMMER_SHAPE_TRIANGLE_UR; i++) cache.add(new HammerRightTriangle(i));
 			
 		for (HammerShape h : cache) hammerLookup.put(h.shapeId, h);
-		
-
 	}
 	
 	public static void subscribeEntity(Entity e) {
@@ -299,9 +277,6 @@ public class GameManager {
 	 * Game loop that handles rendering and stuff
 	 */
 	private void loop() {
-		// Set clear color
-		glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
-
 		// Into the rendering loop we go
 		// Remember the lambda callback we attached to key presses? This is where the
 		// function returns.
@@ -343,8 +318,6 @@ public class GameManager {
 		
 		deltaTime = currTime - lastTime;
 		deltaTime = Math.max(1, deltaTime);
-		
-		System.out.println(deltaTime);
 	}
 	
 	public static long deltaT() {
@@ -387,7 +360,7 @@ public class GameManager {
 		//Physics simulation step begin from here ________________________________________________________
 		
 		//Push in collision deltas
-		Tile[][] grid = currmap.grids.get("collision");
+		Tile[][] grid = currmap.grids.get(GRID_COLL);
 		
 		for (int i=0; i<coll.size(); i++) {
 			Hitbox c = coll.get(i);

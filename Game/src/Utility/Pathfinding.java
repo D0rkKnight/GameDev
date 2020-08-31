@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
-import Debug.Debug;
-import Debug.DebugVector;
+import Debugging.Debug;
+import Debugging.DebugVector;
 import Tiles.Tile;
 
 /**
