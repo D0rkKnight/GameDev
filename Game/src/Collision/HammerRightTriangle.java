@@ -32,6 +32,7 @@ public class HammerRightTriangle extends HammerShape{
 				new Vector2f(1f, 0f)
 		};
 		pushRotations(rotations, vertices);
+		genNormals();
 		
 		Vector2f bl = new Vector2f(0, 0);
 		Vector2f br = new Vector2f(1, 0);

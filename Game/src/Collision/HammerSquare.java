@@ -12,6 +12,7 @@ public class HammerSquare extends HammerShape{
 			new Vector2f(1, 1),
 			new Vector2f(0, 1)
 		};
+		genNormals();
 		
 		//TODO: Polygon triangulation algorithm? Probably unecessary.
 		Vector2f ul = new Vector2f(0, 0);

@@ -7,7 +7,7 @@ import Collision.HammerShape;
 import Collision.Hitbox;
 import Collision.PhysicsCollisionBehaviorStepUp;
 import Collision.PhysicsCollisionBehaviorWallCling;
-import Debug.Debug;
+import Debugging.Debug;
 import GameController.GameManager;
 import GameController.Input;
 import Rendering.Animation;

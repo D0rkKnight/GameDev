@@ -1,4 +1,4 @@
-package Debug;
+package Debugging;
 
 import static org.lwjgl.opengl.GL21.*;
 
@@ -13,12 +13,16 @@ public class DebugBox extends DebugElement {
 	Vector2f p;
 	Vector2f dims;
 	
-	public DebugBox(Vector2f p, Vector2f dims, int lifespan) {
+	public DebugBox(Vector2f p, Vector2f dims, Color col, int lifespan) {
 		this.p = p;
 		this.dims = dims;
 		
 		this.lifespan = lifespan;
-		this.col = new Color(0, 1, 1, 1);
+		this.col = col;
+	}
+	
+	public DebugBox(Vector2f p, Vector2f dims, int lifespan) {
+		this(p, dims, new Color(0, 1, 1, 1), lifespan);
 	}
 	
 	public DebugBox(Vector2f p, Vector2f dims) {

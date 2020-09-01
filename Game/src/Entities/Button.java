@@ -4,7 +4,7 @@ import org.joml.Math;
 import org.joml.Vector2f;
 
 import Collision.HammerShape;
-import Debug.Debug;
+import Debugging.Debug;
 import GameController.Input;
 import Wrappers.Color;
 import Wrappers.Timer;

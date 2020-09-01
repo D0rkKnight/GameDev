@@ -2,7 +2,7 @@ package Rendering;
 
 import org.joml.Vector2f;
 
-public class DrawBufferRenderer extends WavyRenderer{
+public class DrawBufferRenderer extends GeneralRenderer{
 
 	public DrawBufferRenderer(Shader shader) {
 		super(shader);

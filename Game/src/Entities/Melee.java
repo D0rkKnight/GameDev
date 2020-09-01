@@ -7,7 +7,7 @@ import org.joml.Vector2f;
 import Collision.Collidable;
 import Collision.HammerShape;
 import Collision.Hitbox;
-import Debug.Debug;
+import Debugging.Debug;
 import Rendering.Renderer;
 import Rendering.GeneralRenderer;
 import Rendering.Transformation;

@@ -1,13 +1,18 @@
 package Tiles;
 
+import java.util.ArrayList;
+
 import org.joml.Vector2f;
 
 import Collision.HammerShape;
+import Debugging.Debug;
+import Debugging.DebugVector;
 import GameController.GameManager;
 import GameController.Map;
 import Rendering.GeneralRenderer;
 import Rendering.Texture;
 import Rendering.Transformation;
+import Utility.Vector;
 import Wrappers.Color;
 
 /**
@@ -26,6 +31,8 @@ public class Tile implements Cloneable{
 	public static final int CORNER_BL = 2;
 	public static final int CORNER_BR = 3;
 	
+	public ArrayList<Map.CompEdgeSegment> edgeSegs;
+	
 	public Tile(GeneralRenderer renderer, Texture tex, HammerShape hs) {
 		this.hammerState = hs;
 		
@@ -39,11 +46,15 @@ public class Tile implements Cloneable{
 		}
 	}
 	
+	//Use a clone function instead of this dumbass init function
 	public void init(Vector2f pos, Vector2f rect) {
 		if (hammerState == null) {
 			System.err.println("Hammer state not specified, capitulating to default.");
 			hammerState = GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE);
 		}
+		
+		//will be set later
+		edgeSegs = new ArrayList<>();
 		
 		this.renderer.init(new Transformation(pos), rect, hammerState.shapeId, new Color());
 	}

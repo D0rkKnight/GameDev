@@ -53,7 +53,7 @@
  </tile>
  <tile id="12">
   <properties>
-   <property name="HammerShape" type="int" value="0"/>
+   <property name="HammerShape" type="int" value="4"/>
   </properties>
  </tile>
  <tile id="13">

@@ -3,7 +3,7 @@ package UI;
 import org.joml.Vector2f;
 
 import Collision.HammerShape;
-import Debug.Debug;
+import Debugging.Debug;
 import Rendering.Renderer;
 import Rendering.GeneralRenderer;
 import Rendering.Transformation;

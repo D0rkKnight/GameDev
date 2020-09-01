@@ -1,15 +1,18 @@
-package Debug;
+package Debugging;
 
 import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
 import GameController.GameManager;
+import GameController.Map;
 import Rendering.ColorShader;
 import Rendering.Shader;
 import Rendering.GeneralRenderer;
 import Rendering.Texture;
 import Rendering.Transformation;
+import Tiles.Tile;
+import Utility.Vector;
 import Wrappers.Color;
 
 public class Debug {
@@ -26,7 +29,7 @@ public class Debug {
 		GameManager.frameWalk = false;
 		GameManager.frameDelta = 20f;
 		
-		GameManager.showCollisions = true;
+		GameManager.showCollisions = false;
 		GameManager.debugElementsEnabled = true;
 	}
 	
@@ -54,6 +57,22 @@ public class Debug {
 		for (DebugElement e : clearList) {
 			debugElements.remove(e);
 		}
+		
+  		//Draw some coll debug
+  		Tile[][] ts = GameManager.currmap.grids.get(GameManager.GRID_COLL);
+  		for (Tile[] tarr : ts) for (Tile t : tarr) {
+  			if (t == null) continue;
+			for (Map.CompEdgeSegment ce : t.edgeSegs) {
+				Map.GridAlignedEdge e = ce.edge;
+				
+				Vector2f dir = new Vector2f(e.v2).sub(e.v1.x, e.v1.y);
+				Debug.enqueueElement(new DebugVector(new Vector2f(e.v1).mul(GameManager.tileSize), dir, GameManager.tileSize, 1));
+				
+				//Draw normals too!
+				Vector2f nOrigin = Vector.lerp(new Vector2f(e.v1), new Vector2f(e.v2), 0.5f).mul(GameManager.tileSize);
+				Debug.enqueueElement(new DebugVector(nOrigin, e.normal, GameManager.tileSize, new Color(1, 1, 0, 1), 1));
+			}
+  		}
 	}
 	
 	//Some unique behavior here so I'll insulate the process a bit
@@ -71,8 +90,12 @@ public class Debug {
 	 * @param dims
 	 * @param col
 	 */
-	public static void highlightRect(Vector2f pos, Vector2f dims, Color col) {
-		DebugBox box = new DebugBox(pos, dims); //Just use a debug box for now
+	public static void highlightRect(Vector2f pos, Vector2f dims, Color col, int lifespan) {
+		DebugBox box = new DebugBox(pos, dims, col, lifespan); //Just use a debug box for now
 		enqueueElement(box);
+	}
+	
+	public static void highlightRect(Vector2f pos, Vector2f dims, Color col) {
+		highlightRect(pos, dims, col, 1);
 	}
 }
