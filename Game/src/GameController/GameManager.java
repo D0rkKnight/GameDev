@@ -344,7 +344,7 @@ public class GameManager {
 		deltaTime = currTime - lastTime;
 		deltaTime = Math.max(1, deltaTime);
 		
-		System.out.println(deltaTime);
+		//System.out.println(deltaTime);
 	}
 	
 	public static long deltaT() {

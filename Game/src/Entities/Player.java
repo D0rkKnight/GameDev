@@ -121,7 +121,7 @@ public class Player extends Combatant{
 			sprRend.updateColors(new Color(1, 1, 1));
 			dashingMovement();
 			break;
-		case MOVEMENT_MODE_KNOCKBACK:
+		case MOVEMENT_MODE_DECEL:
 			sprRend.updateColors(new Color(0, 0, 1));
 			knockbackMovement();
 			break;
@@ -133,12 +133,6 @@ public class Player extends Combatant{
 		if (hasGravity) {
 			pData.velo.y -= Entity.gravity / 100;
 			pData.velo.y = Math.max(pData.velo.y, -2);
-			
-			//Bring entity back to normal
-			if(justDashed) {
-				pData.velo.y -= Entity.gravity / 100;
-				if(pData.velo.y < 0) justDashed = false;
-			}
 	    }
 		
 		//Jump
@@ -188,10 +182,10 @@ public class Player extends Combatant{
 			knockback(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
 		}
 		if(knockback) { 
-			movementMode = MOVEMENT_MODE_KNOCKBACK;
+			movementMode = MOVEMENT_MODE_DECEL;
 			knockback = false;
 		}
-		if(movementMode == MOVEMENT_MODE_KNOCKBACK && Math.abs(pData.velo.x) < xCap) {
+		if(movementMode == MOVEMENT_MODE_DECEL && Math.abs(pData.velo.x) <= xCap) {
 			movementMode = MOVEMENT_MODE_CONTROLLED;
 			knockbackDir = null;
 		}
@@ -221,6 +215,14 @@ public class Player extends Combatant{
 				}
 				
 			});
+		}
+		//Bring entity back to normal
+		if(movementMode == MOVEMENT_MODE_CONTROLLED && justDashed) {
+			System.out.println("trig");
+			pData.velo.y *= 0.2; //TODO hardcode for dash deacc
+			pData.velo.x *= 0.8;
+			justDashed = false;
+			decelMode(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
 		}
 		
 	}
@@ -289,6 +291,13 @@ public class Player extends Combatant{
 		//effect of movement
 		decelConst += accelConst * movementMulti * Input.moveX;
 		
+		
+		if(pData.grounded) {
+			System.out.println("grounded");
+			decelConst *= 1.4;
+			System.out.println("xvelo: " + pData.velo.x);
+			System.out.println("decelConst: " + decelConst);
+		}
 		pData.velo.x += decelConst;
 		hasGravity = true;
 	}
