@@ -1,10 +1,12 @@
 package Entities;
 
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import GameController.GameManager;
 import Rendering.Renderer;
 import Utility.CanBeCloned;
+import Utility.Transformation;
 import Wrappers.SpriteSheetSection;
 import Wrappers.Sprites;
 
@@ -30,11 +32,17 @@ public abstract class Entity implements CanBeCloned {
 	protected SpriteSheetSection[][] frames;
 	
 	protected boolean hasInit = false;
+	
+	//For local transformations. Position/translation is added later.
+	public Transformation transform;
 
 	public Entity(int ID, Vector2f position, Renderer renderer, String name) {
 		this.ID = ID;
 		if (position != null) this.position = new Vector2f(position);
 		this.name = name;
+		
+		transform = new Transformation(position); //View/Proj matrices are unimportant
+		
 		try {
 			this.renderer = renderer.clone();
 		} catch (CloneNotSupportedException e) {
@@ -47,6 +55,14 @@ public abstract class Entity implements CanBeCloned {
 		if (!hasInit) {
 			new Exception("Entity not initialized.").printStackTrace();
 		}
+	}
+	
+	public void updateChildren() {
+		renderer.transform.pos = position;
+		
+		//Let's not rotate around a point yet
+		renderer.transform.rot.set(transform.rot);
+		renderer.transform.scale.set(transform.scale);
 	}
 
 	protected abstract void calcFrame();
@@ -64,7 +80,6 @@ public abstract class Entity implements CanBeCloned {
 	 * You can override this with something spicy I guess
 	 */
 	public void render() {
-		renderer.transform.pos = position;
 		renderer.render();
 	}
 	

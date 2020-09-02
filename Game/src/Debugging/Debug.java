@@ -10,8 +10,8 @@ import Rendering.ColorShader;
 import Rendering.Shader;
 import Rendering.GeneralRenderer;
 import Rendering.Texture;
-import Rendering.Transformation;
 import Tiles.Tile;
+import Utility.Transformation;
 import Utility.Vector;
 import Wrappers.Color;
 

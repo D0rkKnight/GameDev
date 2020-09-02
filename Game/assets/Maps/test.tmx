@@ -5,7 +5,7 @@
  <tileset firstgid="129" source="coll.tsx"/>
  <objectgroup id="3618" name="Objects">
   <object id="1" name="Player" type="0" x="120" y="200" width="7" height="28"/>
-  <object id="7" name="Crawler" type="4" x="198.25" y="160" width="16" height="16"/>
+  <object id="7" name="Crawler" type="4" x="69.25" y="135" width="16" height="16"/>
  </objectgroup>
  <layer id="1" name="set" width="256" height="128">
   <properties>

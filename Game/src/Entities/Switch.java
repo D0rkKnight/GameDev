@@ -8,7 +8,7 @@ import Debugging.Debug;
 import GameController.Input;
 import Rendering.GeneralRenderer;
 import Rendering.Renderer;
-import Rendering.Transformation;
+import Utility.Transformation;
 import Wrappers.Color;
 import Wrappers.Timer;
 import Wrappers.TimerCallback;

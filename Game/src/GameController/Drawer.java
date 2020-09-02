@@ -40,9 +40,9 @@ import Rendering.GeneralRenderer;
 import Rendering.Shader;
 import Rendering.SpriteShader;
 import Rendering.Texture;
-import Rendering.Transformation;
 import Tiles.Tile;
 import UI.UI;
+import Utility.Transformation;
 import Utility.Vector;
 import Wrappers.Color;
 

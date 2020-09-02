@@ -202,7 +202,7 @@ public class Map {
 			}
 		}
 		
-//		//Draw edge connections
+//		//-------------------- KEEP FOR FUTURE DEBUGGING ----------------------------
 //		float group = 1f;
 //		for (ArrayList<GridAlignedEdge> compEdge : edgeArr) {
 //			float counter = 1f;

@@ -1,7 +1,10 @@
 package Entities;
 
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import Collision.HammerShape;
 import Collision.Hitbox;
@@ -10,26 +13,29 @@ import GameController.GameManager;
 import GameController.Map;
 import Rendering.GeneralRenderer;
 import Rendering.Renderer;
-import Rendering.Transformation;
 import Tiles.Tile;
+import Utility.Transformation;
 import Wrappers.Color;
 import Wrappers.Stats;
 
 public class CrawlerEnemy extends Enemy {
 	
 	public Map.CompEdgeSegment attachedSegment;
+	public Vector2f anchorOffset; //This just offsets and rotates the model.
 	
 	public CrawlerEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
 		// TODO Auto-generated constructor stub
 		
 		//Configure the renderer real quick
-		dim = new Vector2f(30f, 30f);
+		dim = new Vector2f(60f, 60f);
 		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 		
 		//Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
+		
+		anchorOffset = new Vector2f(dim).div(-2);
 		
 		//Scan downwards to find a surface to attach to.
 		if (position != null) {
@@ -64,8 +70,20 @@ public class CrawlerEnemy extends Enemy {
 		super.calculate();
 		
 		if (attachedSegment.nextSeg != null) {
-			attachedSegment = attachedSegment.nextSeg;
-			this.position.set(new Vector2f(attachedSegment.edge.v1).mul(GameManager.tileSize));
+			//attachedSegment = attachedSegment.nextSeg;
+			position.set(new Vector2f(attachedSegment.edge.v1).mul(GameManager.tileSize));
+			position.add(anchorOffset);
+			
+			//Do a little hack and rotate around a point. Don't forget that these are done right to left.
+			Vector2f n = attachedSegment.edge.normal;
+			float ang = (float) (Math.atan(n.y/n.x) - Math.PI/2);
+			if (n.x < 0) ang += Math.PI;
+			
+			Matrix4f rot = transform.rot;
+			rot.identity();
+			rot.translate(new Vector3f(-anchorOffset.x, -anchorOffset.y, 0));
+			rot.setRotationXYZ(0, 0, ang);
+			rot.translate(new Vector3f(anchorOffset, 0));
 		}
 	}
 

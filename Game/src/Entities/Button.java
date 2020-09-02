@@ -11,7 +11,7 @@ import Wrappers.Timer;
 import Wrappers.TimerCallback;
 import Rendering.GeneralRenderer;
 import Rendering.Renderer;
-import Rendering.Transformation;
+import Utility.Transformation;
 
 public class Button extends Entity implements Interactive {
 	public int state;

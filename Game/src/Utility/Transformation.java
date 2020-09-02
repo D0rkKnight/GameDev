@@ -1,4 +1,4 @@
-package Rendering;
+package Utility;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -7,7 +7,7 @@ import GameController.Camera;
 
 public class Transformation {
 	
-	public Vector2f pos;
+	public Vector2f pos; // A weird implementation
 	
 	public int matrixMode;
 	
@@ -18,12 +18,17 @@ public class Transformation {
 	//Do this to avoid reallocation every frame
 	public Matrix4f trans;
 	public Matrix4f rot;
+	
 	public Matrix4f scale;
-	public Matrix4f model;
+	private Matrix4f model;
 	
 	public Matrix4f view;
 	public Matrix4f proj;
 	private Matrix4f mvp;
+	
+	public Transformation() {
+		this(new Vector2f());
+	}
 	
 	public Transformation(Vector2f pos) {
 		this(pos, MATRIX_MODE_WORLD);
@@ -53,14 +58,12 @@ public class Transformation {
 		switch(matrixMode) {
 		case MATRIX_MODE_WORLD:
 			view = cam.worldViewMatrix;
-			trans.setTranslation(pos.x, pos.y, 0);
 			break;
 		case MATRIX_MODE_SCREEN:
 			view = cam.screenViewMatrix;
-			trans.setTranslation(pos.x, -pos.y, 0);
 			break;
 		case MATRIX_MODE_STATIC:
-			trans.setTranslation(pos.x, pos.y, 0);
+			//Don't set a view matrix
 			break;
 		default:
 			new Exception("Matrix mode not recognized!").printStackTrace();
@@ -69,9 +72,17 @@ public class Transformation {
 		proj = cam.projectionMatrix;
 		
 		//Getting the MVP
-		model.identity().mul(trans).mul(rot).mul(scale);
+		genModel();
 		mvp.identity().mul(proj).mul(view).mul(model);
 		
 		return mvp;
+	}
+	
+	public Matrix4f genModel() {
+		if (matrixMode == MATRIX_MODE_SCREEN) trans.setTranslation(pos.x, -pos.y, 0);
+		else trans.setTranslation(pos.x, pos.y, 0);
+		
+		model.identity().mul(trans).mul(rot).mul(scale);
+		return model;
 	}
 }

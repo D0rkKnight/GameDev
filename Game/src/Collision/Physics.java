@@ -6,6 +6,7 @@ import org.joml.Vector2f;
 
 import Debugging.Debug;
 import Debugging.DebugBox;
+import Debugging.DebugPolygon;
 import Entities.Entity;
 import Entities.PhysicsEntity;
 import GameController.GameManager;
@@ -80,7 +81,7 @@ public abstract class Physics {
 			
 			//TODO: Calculate steps properly
 			int tilesTraversed = (int) Math.ceil(deltaAligned.length()/GameManager.tileSize);
-			int cycles = Math.max(tilesTraversed, 1) * 2;
+			int cycles = Math.max(tilesTraversed, 1);
 			
 			Vector2f deltaInch = null;
 			for (int j=0; j<cycles; j++) {
@@ -91,7 +92,8 @@ public abstract class Physics {
 				//Get the right position that takes into account past movements
 				Vector2f newPos = new Vector2f(rawPos.x + deltaTemp.x, rawPos.y + deltaTemp.y);
 				
-				Debug.enqueueElement(new DebugBox(new Vector2f(newPos).add(deltaInch), new Vector2f(e.dim.x, e.dim.y), 1));
+				//Debug.enqueueElement(new DebugBox(new Vector2f(newPos).add(deltaInch), new Vector2f(e.dim.x, e.dim.y), 1));
+				Debug.enqueueElement(new DebugPolygon(e.hitbox.genWorldVerts(), 1, new Color(1, 1, 1, 1)));
 				
 				//Move (this modifies deltaInch)
 				boolean isSuccess = Physics.moveTo(newPos, deltaInch, velo, e, grid, dir, axises);
@@ -296,11 +298,8 @@ public abstract class Physics {
 
 	public static void checkEntityCollision(Hitbox c1, Hitbox c2) {
 		//Do separate axis theorem on them
-		Entity e1 = (Entity) c1.owner;
-		Vector2f[] c1Points = Geometry.pointsFromRect(e1.getPosition(), e1.dim);
-		
-		Entity e2 = (Entity) c2.owner;
-		Vector2f[] c2Points = Geometry.pointsFromRect(e2.getPosition(), e2.dim);
+		Vector2f[] c1Points = c1.genWorldVerts();
+		Vector2f[] c2Points = c2.genWorldVerts();
 		
 		//Todo: inch this
 		if (Geometry.separateAxisCheck(c1Points, c2Points, null, null, null)) {

@@ -11,7 +11,7 @@ import GameController.GameManager;
 import GameController.Map;
 import Rendering.GeneralRenderer;
 import Rendering.Texture;
-import Rendering.Transformation;
+import Utility.Transformation;
 import Utility.Vector;
 import Wrappers.Color;
 

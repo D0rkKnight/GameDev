@@ -355,6 +355,7 @@ public class GameManager {
 		//Each entity makes decisions
 		for (Entity ent : entities) {
 			ent.calculate();
+			ent.updateChildren();
 		}
 		
 		//Physics simulation step begin from here ________________________________________________________

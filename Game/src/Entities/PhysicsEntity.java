@@ -45,7 +45,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	//For now, presume that if one of these behaviors trigger, the following behavior are canceled.
 	public ArrayList<PhysicsCollisionBehavior> collBehaviorList;
 	
-	protected Hitbox hitbox;
+	public Hitbox hitbox;
 	
 	public PhysicsEntity(int ID, Vector2f position, Renderer renderer, String name) {
 		super(ID, position, renderer, name);
@@ -169,6 +169,12 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 			this.decelMulti = decelMulti;
 			knockback = true;
 		}
+	}
+	
+	public void updateChildren() {
+		super.updateChildren();
+		
+		hitbox.update();
 	}
 	
 	public Hitbox getHb() {return hitbox;}

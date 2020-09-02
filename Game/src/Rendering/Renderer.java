@@ -22,6 +22,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import Rendering.Renderer.Attribute;
+import Utility.Transformation;
 
 public abstract class Renderer implements Cloneable{
 	protected Shader shader;
@@ -184,7 +185,7 @@ public abstract class Renderer implements Cloneable{
 		 * @param id
 		 * @param groupSize
 		 * @param stride
-		 * @param offset
+		 * @param anchorOffset
 		 */
 		Attribute(int id, int groupSize) {
 			this.id = id;

@@ -9,8 +9,8 @@ import Collision.HammerShape;
 import Collision.Hitbox;
 import Debugging.Debug;
 import Rendering.Renderer;
+import Utility.Transformation;
 import Rendering.GeneralRenderer;
-import Rendering.Transformation;
 import Wrappers.Color;
 
 /**
