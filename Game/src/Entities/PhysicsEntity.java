@@ -35,7 +35,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	
 	public static final int MOVEMENT_MODE_CONTROLLED = 1;
 	public static final int MOVEMENT_MODE_IS_DASHING = 2;
-	public static final int MOVEMENT_MODE_KNOCKBACK = 3;
+	public static final int MOVEMENT_MODE_DECEL = 3;
 	
 	protected int alignment;
 	public static final int ALIGNMENT_NEUTRAL = 0;
@@ -59,6 +59,11 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 		pData.collidedWithTile = false;
 		pData.canBeGrounded = true;
 		pData.walksUpSlopes = true;
+//Vector2f knockbackVector, float movementMulti, float decelMulti
+		knockbackDir = new Vector2f(0, 0);
+		movementMulti = 0.5f;
+		decelMulti = 1f;
+		
 		
 		initPhysicsCollBehavior();
 	}
@@ -149,7 +154,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 	 * @param decelMulti
 	 */
 	public void knockback(Vector2f knockbackVector, float movementMulti, float decelMulti) {
-		if(movementMode == MOVEMENT_MODE_KNOCKBACK) {
+		if(movementMode == MOVEMENT_MODE_DECEL) {
 			if(Math.abs(pData.velo.x) < Math.abs(knockbackVector.x)) {
 				pData.velo.x = knockbackVector.x;
 				this.knockbackDir.x = knockbackVector.x;
@@ -169,6 +174,13 @@ public abstract class PhysicsEntity extends Entity implements Collidable{
 			this.decelMulti = decelMulti;
 			knockback = true;
 		}
+	}
+	public void decelMode(Vector2f knockbackVector, float movementMulti, float decelMulti) {
+		this.knockbackDir = new Vector2f(knockbackVector);
+		this.movementMulti = movementMulti;
+		this.decelMulti = decelMulti;
+		knockback = true;
+		this.movementMode = MOVEMENT_MODE_DECEL;
 	}
 	
 	public void updateChildren() {

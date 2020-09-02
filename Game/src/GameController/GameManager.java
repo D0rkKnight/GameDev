@@ -318,6 +318,7 @@ public class GameManager {
 		
 		deltaTime = currTime - lastTime;
 		deltaTime = Math.max(1, deltaTime);
+
 	}
 	
 	public static long deltaT() {
