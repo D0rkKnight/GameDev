@@ -6,7 +6,6 @@ import Collision.Hitbox;
 import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
 import Graphics.Rendering.Renderer;
-import Utility.Pathfinding;
 import Wrappers.Stats;
 
 /**
@@ -25,9 +24,9 @@ public class ChargingEnemy extends Enemy {
 	protected int windupNum = 0; // counter
 	protected int cooldownNum = 0; // counter
 	protected float speed;
-	
-	public ChargingEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats,
-			boolean charging, int windupCycles, int cooldownCycles, float speed) {
+
+	public ChargingEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats, boolean charging,
+			int windupCycles, int cooldownCycles, float speed) {
 		super(ID, position, renderer, name, stats);
 		this.charging = charging;
 		windup = false; // enemies either charge upon entering room or are idle
@@ -35,17 +34,18 @@ public class ChargingEnemy extends Enemy {
 		this.cooldownCycles = cooldownCycles;
 		this.speed = speed;
 	}
-	
+
+	@Override
 	public ChargingEnemy createNew(float xPos, float yPos, Stats stats) {
-		return new ChargingEnemy (ID, new Vector2f(xPos, yPos), renderer, name, stats,
-				charging, windupCycles, cooldownCycles, speed);
+		return new ChargingEnemy(ID, new Vector2f(xPos, yPos), renderer, name, stats, charging, windupCycles,
+				cooldownCycles, speed);
 	}
 
 	// This enemy attacks only by charging towards the player. No attack function,
 	// damage is strictly from collider.
 	@Override
 	public void attack() {
-		//nothing for now
+		// nothing for now
 
 	}
 
@@ -58,47 +58,39 @@ public class ChargingEnemy extends Enemy {
 	@Override
 	public void calculate() {
 		super.calculate();
-		
+
 		calcFrame();
 		if (currentGroup == 3) { // winddown
 
-		} 
-		else if(charging) { //currently charging
+		} else if (charging) { // currently charging
 			controlledMovement();
-		}
-		else if(/*player nearby*/true) { //player nearby
-			windup = true; //start charge windup
+		} else if (/* player nearby */true) { // player nearby
+			windup = true; // start charge windup
 		}
 		// only charges at player if knocked back or moved. has a windup animation
 		// before and a post charge animation.
-		else {
-			move(); // idle move
-		}
+//		else {
+//			move(); // idle move
+//		}
 	}
 
 	public void move() {
-		
+
 	} // idle movement
-    
-    
-	public void controlledMovement() { //move mostly while charging. Otherwise idle movement.
-		if(charging) {
+
+	@Override
+	public void controlledMovement() { // move mostly while charging. Otherwise idle movement.
+		if (charging) {
 		}
 
 	}
 
 	@Override
 	public void gravity() {
-		if (true) { // entity not colliding with ground
-			// Set this to universal gravitational constant
-			pData.yAcceleration = Entity.gravity;
-			pData.velo.y -= pData.yAcceleration;
-			pData.velo.y = Math.max(pData.velo.y, -3);
-		}
-    else{
-    	pData.velo.y = 0;
-    }
-
+		// Set this to universal gravitational constant
+		pData.yAcceleration = Entity.gravity;
+		pData.velo.y -= pData.yAcceleration;
+		pData.velo.y = Math.max(pData.velo.y, -3);
 	}
 
 	@Override
@@ -173,6 +165,6 @@ public class ChargingEnemy extends Enemy {
 	@Override
 	public void onHit(Hitbox otherHb) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

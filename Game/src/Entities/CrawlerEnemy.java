@@ -4,11 +4,9 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 import Collision.Hitbox;
 import Collision.HammerShapes.HammerShape;
-import Debugging.Debug;
 import Entities.Framework.Combatant;
 import Entities.Framework.Enemy;
 import GameController.GameManager;
@@ -22,70 +20,76 @@ import Wrappers.Color;
 import Wrappers.Stats;
 
 public class CrawlerEnemy extends Enemy {
-	
+
 	public Map.CompEdgeSegment attachedSegment;
-	public Vector2f anchorOffset; //This just offsets and rotates the model.
+	public Vector2f anchorOffset; // This just offsets and rotates the model.
 	public float ang;
-	
+
 	public CrawlerEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
 		// TODO Auto-generated constructor stub
-		
-		//Configure the renderer real quick
+
+		// Configure the renderer real quick
 		dim = new Vector2f(96f, 96f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE,
+				new Color());
 		((GeneralRenderer) this.renderer).spr = new Texture("assets/Sprites/circle_saw.png");
-		
-		//Configure hitbox
+
+		// Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
-		
+
 		anchorOffset = new Vector2f(dim).div(-2);
-		
-		//Scan downwards to find a surface to attach to.
+
+		// Scan downwards to find a surface to attach to.
 		if (position != null) {
-			Vector2i tPos = new Vector2i ((int) position.x/GameManager.tileSize, (int) position.y/GameManager.tileSize);
+			Vector2i tPos = new Vector2i((int) position.x / GameManager.tileSize,
+					(int) position.y / GameManager.tileSize);
 			Tile[][] collGrid = GameManager.currmap.grids.get(GameManager.GRID_COLL);
-			for (int i=tPos.y; i>=0; i--) {
+			for (int i = tPos.y; i >= 0; i--) {
 				Tile t = collGrid[tPos.x][i];
-				if (t == null) continue;
-				
+				if (t == null)
+					continue;
+
 				if (!t.edgeSegs.isEmpty()) {
 					attachedSegment = t.edgeSegs.get(0);
-					
+
 					break;
 				}
 			}
-			
+
 			if (attachedSegment == null) {
-				new Exception("Entity "+name+" cannot find segment to attach to.").printStackTrace();
+				new Exception("Entity " + name + " cannot find segment to attach to.").printStackTrace();
 				System.exit(1);
 			}
-			
+
 			this.position.set(new Vector2f(attachedSegment.edge.v1).mul(GameManager.tileSize));
 		}
 	}
-	
+
+	@Override
 	public Combatant createNew(float xPos, float yPos, Stats stats) {
 		// TODO Auto-generated method stub
 		return new CrawlerEnemy(ID, new Vector2f(xPos, yPos), renderer, name, stats);
 	}
-	
+
+	@Override
 	public void calculate() {
 		super.calculate();
-		
+
 		if (attachedSegment.nextSeg != null) {
-			attachedSegment = attachedSegment.nextSeg; //Do this in a smarter way
-			
+			attachedSegment = attachedSegment.nextSeg; // Do this in a smarter way
+
 			position.set(new Vector2f(attachedSegment.edge.v1).mul(GameManager.tileSize));
 			position.add(anchorOffset);
-			
-			//Do a little hack and rotate around a point. Don't forget that these are done right to left.
+
+			// Do a little hack and rotate around a point. Don't forget that these are done
+			// right to left.
 //			Vector2f n = attachedSegment.edge.normal;
 //			float ang = (float) (Math.atan(n.y/n.x) - Math.PI/2);
 //			if (n.x < 0) ang += Math.PI;
-			
+
 			ang += 0.5;
-			
+
 			Matrix4f rot = transform.rot;
 			rot.identity();
 			rot.translate(new Vector3f(-anchorOffset.x, -anchorOffset.y, 0));
@@ -97,31 +101,31 @@ public class CrawlerEnemy extends Enemy {
 	@Override
 	public void onHit(Hitbox otherHb) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void die() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void attack() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	protected void calcFrame() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void controlledMovement() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

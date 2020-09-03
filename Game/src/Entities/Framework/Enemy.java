@@ -4,7 +4,6 @@ package Entities.Framework;
 import org.joml.Vector2f;
 
 import GameController.GameManager;
-import Graphics.Elements.Sprites;
 import Graphics.Rendering.Renderer;
 import Utility.Pathfinding;
 import Wrappers.Stats;

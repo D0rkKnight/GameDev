@@ -10,9 +10,8 @@ import Entities.Framework.Interactive;
 import GameController.Input;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
-import Utility.Timer;
-import Utility.TimerCallback;
 import Utility.Transformation;
+import Utility.Timers.Timer;
 import Wrappers.Color;
 
 public class Switch extends Entity implements Interactive {

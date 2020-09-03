@@ -2,8 +2,6 @@ package UI;
 
 import org.joml.Vector2f;
 
-import Graphics.Rendering.Renderer;
-
 public class UIElement {
 	
 	Vector2f pos;

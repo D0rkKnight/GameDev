@@ -4,10 +4,10 @@ import org.joml.Vector2f;
 
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
-import Utility.Timer;
-import Utility.TimerCallback;
+import Utility.Timers.FlickerTimer;
+import Utility.Timers.Timer;
+import Utility.Timers.TimerCallback;
 import Wrappers.Color;
-import Wrappers.FlickerTimer;
 import Wrappers.Stats;
 
 public abstract class Combatant extends PhysicsEntity {

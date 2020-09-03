@@ -13,8 +13,6 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.zip.Deflater;
-import java.util.zip.Inflater;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
@@ -41,106 +39,107 @@ import Tiles.Tile;
 import Wrappers.Stats;
 
 public class Serializer {
-	
+
 	public static Document readDoc(String fdir, String fname) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		Document doc = null;
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			doc = builder.parse(new File(fdir+fname));
+			doc = builder.parse(new File(fdir + fname));
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		doc.getDocumentElement().normalize();
-		
+
 		return doc;
 	}
-	
+
 	private static Element retrieveElement(Element e, String name) {
 		return (Element) e.getElementsByTagName(name).item(0);
 	}
-	
+
 	public static void loadTileHash(String fdir, String fname, HashMap<Integer, Tile> tileMap,
 			HashMap<Integer, HammerShape> hsMap, GeneralRenderer rend) throws Exception {
-		
+
 		Document doc = readDoc(fdir, fname);
 		NodeList nList = doc.getElementsByTagName("tile");
-		
-		
-		//Grab textures
+
+		// Grab textures
 		Element tilesetE = (Element) doc.getElementsByTagName("tileset").item(0);
 		Element srcE = (Element) doc.getElementsByTagName("image").item(0);
 		int tw = Integer.parseInt(tilesetE.getAttribute("tilewidth"));
 		int th = Integer.parseInt(tilesetE.getAttribute("tileheight"));
-		
+
 		String src = srcE.getAttribute("source");
-		Texture[] tileSheet = Texture.unpackSpritesheet(fdir+src, tw, th).texs;
-		
-		for (int i=0; i<nList.getLength(); i++) {
+		Texture[] tileSheet = Texture.unpackSpritesheet(fdir + src, tw, th).texs;
+
+		for (int i = 0; i < nList.getLength(); i++) {
 			Element e = (Element) nList.item(i);
 			Element props = (Element) e.getElementsByTagName("properties").item(0);
 			NodeList propList = props.getElementsByTagName("property");
-			
-			//Grab properties
+
+			// Grab properties
 			HammerShape hs = null;
-			for (int j=0; j<propList.getLength(); j++) {
+			for (int j = 0; j < propList.getLength(); j++) {
 				Element propE = (Element) propList.item(j);
-				
+
 				String type = propE.getAttribute("type");
 				String name = propE.getAttribute("name");
 				String val = propE.getAttribute("value");
-				
+
 				if (name.equals("HammerShape") && type.equals("int")) {
 					int valInt = Integer.parseInt(val);
-					
+
 					hs = hsMap.get(valInt);
 				}
 			}
-			
-			//Check that properties were retrieved properly
-			if (hs == null) throw new Exception("Hammershape not found!");
-			
-			//Create and submit tile
+
+			// Check that properties were retrieved properly
+			if (hs == null)
+				throw new Exception("Hammershape not found!");
+
+			// Create and submit tile
 			int id = Integer.parseInt(e.getAttribute("id"));
 			Texture tex = tileSheet[id];
-			
+
 			Tile t = new Tile(rend, tex, hs);
 			tileMap.put(id, t);
 		}
 	}
-	
-	public static HashMap<String, Tile[][]> loadTileGrids(Document doc, HashMap<String, HashMap<Integer, Tile>> tileMap) {
-		//Grab all gids
+
+	public static HashMap<String, Tile[][]> loadTileGrids(Document doc,
+			HashMap<String, HashMap<Integer, Tile>> tileMap) {
+		// Grab all gids
 		ArrayList<Integer> gids = new ArrayList<>();
 		ArrayList<String> tSetNames = new ArrayList<>();
-		
+
 		NodeList tilesets = doc.getElementsByTagName("tileset");
-		for (int i=0; i<tilesets.getLength(); i++) {
+		for (int i = 0; i < tilesets.getLength(); i++) {
 			Element tilesetE = (Element) tilesets.item(i);
-			gids.add(Integer.parseInt(tilesetE.getAttribute("firstgid"))); //This is an offset value
-			
+			gids.add(Integer.parseInt(tilesetE.getAttribute("firstgid"))); // This is an offset value
+
 			String path = tilesetE.getAttribute("source");
-			
-			//Trim the path to remove folders
-			for (int j=path.length()-1; j>=0; j--) {
+
+			// Trim the path to remove folders
+			for (int j = path.length() - 1; j >= 0; j--) {
 				if (path.charAt(j) == '/') {
-					path = path.substring(j+1, path.length());
+					path = path.substring(j + 1, path.length());
 					break;
 				}
 			}
-			
+
 			tSetNames.add(path);
 		}
-		
+
 		NodeList layers = doc.getElementsByTagName("layer");
 		HashMap<String, Tile[][]> grids = new HashMap<>();
-		
-		for (int i=0; i<layers.getLength(); i++) {
+
+		for (int i = 0; i < layers.getLength(); i++) {
 			Element layer = (Element) layers.item(i);
 			String name = layer.getAttribute("name");
-			
+
 			Tile[][] tGrid = null;
 			try {
 				tGrid = loadTileGridFromLayer(layer, tileMap, gids, tSetNames);
@@ -149,72 +148,69 @@ public class Serializer {
 				e.printStackTrace();
 				System.exit(1);
 			}
-			
+
 			grids.put(name, tGrid);
 		}
-		
+
 		return grids;
 	}
-	
-	public static Tile[][] loadTileGridFromLayer(Element layerE, HashMap<String, HashMap<Integer, Tile>> tileMap, 
+
+	public static Tile[][] loadTileGridFromLayer(Element layerE, HashMap<String, HashMap<Integer, Tile>> tileMap,
 			ArrayList<Integer> gids, ArrayList<String> tSetNames) throws Exception {
-		
-		System.out.println(tileMap);
-		
+
 		int w = Integer.parseInt(layerE.getAttribute("width"));
 		int h = Integer.parseInt(layerE.getAttribute("height"));
-		
-		//Decode data
+
+		// Decode data
 		Element dataE = retrieveElement(layerE, "data");
 		String d = trim(dataE.getTextContent());
-		
-		//Base 64 decode
+
+		// Base 64 decode
 		byte[] bytes = Base64.getDecoder().decode(d);
-		
+
 		IntBuffer intBuff = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
 		int[] intArr = new int[intBuff.remaining()];
 		intBuff.get(intArr);
-		
-		//Now put in the tiles
+
+		// Now put in the tiles
 		Tile[][] grid = new Tile[w][h];
-		
-		for (int i=0; i<h; i++) {
-			for (int j=0; j<w; j++) {
-				int index = i*w + j;
-				
-				//Invert y only
+
+		for (int i = 0; i < h; i++) {
+			for (int j = 0; j < w; j++) {
+				int index = i * w + j;
+
+				// Invert y only
 				int x = j;
-				int y = h-i-1;
-				
+				int y = h - i - 1;
+
 				int id = intArr[index];
 				if (id == 0) {
 					grid[x][y] = null;
 					continue;
 				}
-				
-				//Get the right tileset data
-				int a = gids.size()-1;
-				for (int k=0; k<gids.size(); k++) {
+
+				// Get the right tileset data
+				int a = gids.size() - 1;
+				for (int k = 0; k < gids.size(); k++) {
 					if (id < gids.get(k)) {
-						a=k-1;
+						a = k - 1;
 						break;
 					}
 				}
-				
+
 				int offset = gids.get(a);
 				HashMap<Integer, Tile> tSet = tileMap.get(tSetNames.get(a));
-				
-				System.out.println(tSetNames.get(a));
-				
-				Tile t = tSet.get(id-offset);
+
+				Tile t = tSet.get(id - offset);
 				grid[x][y] = t.clone();
 			}
 		}
-		
+
 		return grid;
 	}
-	
-	public static HashMap<Integer, Entity> loadEntityHash(String fileDir, String fileName, GeneralRenderer renderer) throws NumberFormatException, IOException{
+
+	public static HashMap<Integer, Entity> loadEntityHash(String fileDir, String fileName, GeneralRenderer renderer)
+			throws NumberFormatException, IOException {
 		BufferedReader charFile = null;
 		try {
 			charFile = new BufferedReader(new FileReader(fileDir + fileName));
@@ -224,7 +220,7 @@ public class Serializer {
 		}
 		int enemies = Integer.parseInt(charFile.readLine().split(":")[1]);
 		HashMap<Integer, Entity> enemyHash = new HashMap<Integer, Entity>();
-		for(int i = 0; i < enemies; i++) {
+		for (int i = 0; i < enemies; i++) {
 			String[] enemy = charFile.readLine().split(":");
 			String name = enemy[0].split(",")[1];
 			int ID = Integer.parseInt(enemy[1].split(",")[1]);
@@ -232,73 +228,67 @@ public class Serializer {
 			float ST = Float.parseFloat(enemy[3].split(",")[1]);
 			float HPR = Float.parseFloat(enemy[4].split(",")[1]);
 			float STR = Float.parseFloat(enemy[5].split(",")[1]);
-			if(name.equals("Player")){
+			if (name.equals("Player")) {
 				enemyHash.put(i, new Player(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
-			}
-			else if(name.equals("Floater")){
+			} else if (name.equals("Floater")) {
 				enemyHash.put(i, new FloaterEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
-			}
-			else if(name.equals("Bouncer")){
+			} else if (name.equals("Bouncer")) {
 				enemyHash.put(i, new ShardSlimeEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
-			}
-			else if(name.equals("Button")){
-				enemyHash.put(i, new Button(ID, null, renderer, name, Integer.parseInt(enemy[6].split(",")[1]), Integer.parseInt(enemy[7].split(",")[1]), Float.parseFloat(enemy[8].split(",")[1]), null));
-			}
-			else if(name.equals("Crawler")) {
+			} else if (name.equals("Button")) {
+				enemyHash.put(i, new Button(ID, null, renderer, name, Integer.parseInt(enemy[6].split(",")[1]),
+						Integer.parseInt(enemy[7].split(",")[1]), Float.parseFloat(enemy[8].split(",")[1]), null));
+			} else if (name.equals("Crawler")) {
 				enemyHash.put(i, new CrawlerEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
-			}
-			else {
+			} else {
 				System.err.println("error, wrong enemy name");
 			}
 		}
 		return enemyHash;
-		
+
 	}
-	
-	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash, int tileSize){
+
+	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash, int tileSize) {
 		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
+		@SuppressWarnings("unused")
 		int width = Integer.parseInt(layerE.getAttribute("width"));
 		int height = Integer.parseInt(layerE.getAttribute("height"));
-		
+
 		Element layerO = (Element) doc.getElementsByTagName("objectgroup").item(0);
 		NodeList objects = (layerO).getElementsByTagName("object");
 		int entitynum = objects.getLength();
 		ArrayList<Entity> entities = new ArrayList<Entity>();
-		
-		for(int i = 0; i < entitynum; i++) {
+
+		for (int i = 0; i < entitynum; i++) {
 			Element entity = (Element) objects.item(i);
 			int ID = Integer.parseInt((entity).getAttribute("type"));
-			
+
 			float xPos = Float.parseFloat((entity).getAttribute("x")) / GameManager.tileSpriteSize;
 			float yPos = Float.parseFloat((entity).getAttribute("y")) / GameManager.tileSpriteSize;
 
-			
 			yPos += Float.parseFloat((entity).getAttribute("height")) / GameManager.tileSpriteSize;
 			yPos = height - yPos;
-			
+
 			Entity e;
 			if (entityHash.get(ID) instanceof Player) {
 				e = entityHash.get(ID).createNew(xPos * GameManager.tileSize, yPos * GameManager.tileSize);
 				GameManager.player = (Player) e;
-			}
-			else if(entityHash.get(ID) instanceof Interactive) {
-				e = ((Button)entityHash.get(ID)).createNew(xPos * GameManager.tileSize, yPos * GameManager.tileSize, GameManager.player);
-			}
-			else {
+			} else if (entityHash.get(ID) instanceof Interactive) {
+				e = ((Button) entityHash.get(ID)).createNew(xPos * GameManager.tileSize, yPos * GameManager.tileSize,
+						GameManager.player);
+			} else {
 				e = entityHash.get(ID).createNew(xPos * GameManager.tileSize, yPos * GameManager.tileSize);
 			}
-			
+
 			entities.add(e);
 		}
 		return entities;
-		
+
 	}
-	
-	
+
 	private static String trim(String str) {
 		BufferedReader br = new BufferedReader(new StringReader(str));
 		StringBuffer out = new StringBuffer();
-		
+
 		try {
 			String l;
 			while ((l = br.readLine()) != null) {
@@ -307,12 +297,13 @@ public class Serializer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return out.toString();
 	}
-	
+
 	/**
 	 * Loads the progress (chapter number, level number, and room)
+	 * 
 	 * @param filename
 	 * @return {chapter num 0-3, level num, room number}
 	 */
@@ -338,18 +329,17 @@ public class Serializer {
 			e.printStackTrace();
 		}
 		return progress;
-		
+
 	}
 
 	/**
 	 * TODO when accessory game mechanics created
+	 * 
 	 * @param filename
 	 * @return
 	 */
 	public HashMap<Integer, Accessory> loadAccessoryHash(String filename) {
-		
-		
-		
+
 		return null;
 
 	}
@@ -395,13 +385,14 @@ public class Serializer {
 		return data;
 
 	}
+
 	/**
 	 * 
 	 * @param entityData
 	 */
 	public ArrayList<Entity> loadEntityData(String entityData) {
 		ArrayList<Entity> entities = new ArrayList<Entity>();
-		
+
 		return entities;
 	}
 

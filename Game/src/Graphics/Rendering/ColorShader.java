@@ -1,6 +1,6 @@
 package Graphics.Rendering;
 
-import static org.lwjgl.opengl.GL21.*;
+import static org.lwjgl.opengl.GL20.glBindAttribLocation;
 
 public class ColorShader extends Shader{
 

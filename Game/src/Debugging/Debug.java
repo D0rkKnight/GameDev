@@ -8,7 +8,6 @@ import GameController.GameManager;
 import GameController.Map;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.ColorShader;
-import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Shader;
 import Tiles.Tile;
 import Utility.Transformation;

@@ -10,10 +10,10 @@ import Entities.Framework.Interactive;
 import GameController.Input;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
-import Wrappers.Color;
-import Utility.Timer;
-import Utility.TimerCallback;
 import Utility.Transformation;
+import Utility.Timers.Timer;
+import Utility.Timers.TimerCallback;
+import Wrappers.Color;
 
 public class Button extends Entity implements Interactive {
 	public int state;

@@ -7,10 +7,7 @@ import static org.lwjgl.opengl.GL11.glVertex2f;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 
-import GameController.Camera;
 import Graphics.Rendering.Shader;
 import Wrappers.Color;
 

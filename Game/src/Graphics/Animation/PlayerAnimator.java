@@ -1,10 +1,7 @@
 package Graphics.Animation;
 
-import org.joml.Matrix4f;
-
 import Entities.Player;
 import Graphics.Rendering.GeneralRenderer;
-import Utility.Arithmetic;
 
 /**
  * Dunno how good this implementation is, it can probably be generalized to other combatants

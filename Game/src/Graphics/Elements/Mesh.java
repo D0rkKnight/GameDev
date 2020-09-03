@@ -1,12 +1,10 @@
 package Graphics.Elements;
 
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
 
 import Graphics.Rendering.Renderer;
-import Graphics.Rendering.Renderer.Attribute;
 
 /**
  * Simply holds data for renderers.

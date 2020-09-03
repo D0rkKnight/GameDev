@@ -22,7 +22,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import Graphics.Elements.Mesh;
-import Graphics.Rendering.Renderer.Attribute;
 import Utility.Transformation;
 
 public abstract class Renderer implements Cloneable{

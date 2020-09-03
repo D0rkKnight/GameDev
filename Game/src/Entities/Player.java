@@ -1,8 +1,5 @@
 package Entities;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -25,9 +22,9 @@ import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteSheet;
 import Utility.Arithmetic;
-import Utility.Timer;
-import Utility.TimerCallback;
 import Utility.Transformation;
+import Utility.Timers.Timer;
+import Utility.Timers.TimerCallback;
 import Wrappers.Color;
 import Wrappers.Stats;
 

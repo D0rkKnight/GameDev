@@ -1,8 +1,8 @@
 package Graphics.Animation;
 
 import Graphics.Rendering.GeneralRenderer;
-import Utility.Timer;
-import Utility.TimerCallback;
+import Utility.Timers.Timer;
+import Utility.Timers.TimerCallback;
 
 public class Animator {
 	

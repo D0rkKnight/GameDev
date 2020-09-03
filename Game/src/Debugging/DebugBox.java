@@ -1,11 +1,13 @@
 package Debugging;
 
-import static org.lwjgl.opengl.GL21.*;
+import static org.lwjgl.opengl.GL11.GL_LINES;
+import static org.lwjgl.opengl.GL11.glBegin;
+import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glVertex2f;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
-import GameController.Camera;
 import Graphics.Rendering.Shader;
 import Wrappers.Color;
 
