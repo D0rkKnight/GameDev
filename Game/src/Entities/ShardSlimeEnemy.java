@@ -4,9 +4,10 @@ import org.joml.Vector2f;
 
 import Collision.Hitbox;
 import Debugging.Debug;
+import Entities.Framework.Projectile;
 import GameController.GameManager;
-import Rendering.Renderer;
-import Rendering.GeneralRenderer;
+import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Renderer;
 import Wrappers.Stats;
 
 public class ShardSlimeEnemy extends BouncingEnemy{

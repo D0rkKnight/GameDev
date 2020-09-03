@@ -1,6 +1,6 @@
 package Debugging;
 
-import Rendering.Shader;
+import Graphics.Rendering.Shader;
 import Wrappers.Color;
 
 public abstract class DebugElement {

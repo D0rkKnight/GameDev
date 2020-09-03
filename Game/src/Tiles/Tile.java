@@ -4,13 +4,13 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
-import Collision.HammerShape;
+import Collision.HammerShapes.HammerShape;
 import Debugging.Debug;
 import Debugging.DebugVector;
 import GameController.GameManager;
 import GameController.Map;
-import Rendering.GeneralRenderer;
-import Rendering.Texture;
+import Graphics.Elements.Texture;
+import Graphics.Rendering.GeneralRenderer;
 import Utility.Transformation;
 import Utility.Vector;
 import Wrappers.Color;

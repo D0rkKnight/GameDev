@@ -1,0 +1,46 @@
+package Graphics.Animation;
+
+import org.joml.Matrix4f;
+
+import Entities.Player;
+import Graphics.Rendering.GeneralRenderer;
+import Utility.Arithmetic;
+
+/**
+ * Dunno how good this implementation is, it can probably be generalized to other combatants
+ * I don't feel like designing a general solution quite yet though
+ * TODO
+ * @author Hanzen Shou
+ *
+ */
+
+public class PlayerAnimator extends Animator {
+	
+	private Player player;
+	
+	public static final int ANIM_ACCEL = 1;
+	public static final int ANIM_MOVING = 2;
+	
+	public PlayerAnimator(Animation[] anims, int fps, GeneralRenderer rend, Player player) {
+		super(anims, fps, rend);
+		this.player = player;
+		
+		anims[ANIM_ACCEL].setCb(new AnimationCallback() {
+			
+			public void onLoopEnd() {
+				switchAnim(ANIM_MOVING);
+			}
+			
+		});
+	}
+	
+	public void update() {
+		super.update();
+		
+		if (player.pData.grounded && Math.abs(player.pData.velo.x) > 0 && currentAnimId == ANIM_IDLE) {
+			switchAnim(ANIM_ACCEL);
+		}
+		
+		else if (player.pData.grounded && Math.abs(player.pData.velo.x) == 0 && currentAnimId != ANIM_IDLE) switchAnim(ANIM_IDLE);
+	}
+}

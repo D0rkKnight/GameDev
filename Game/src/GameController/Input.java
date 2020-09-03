@@ -26,6 +26,8 @@ import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 
+import Graphics.Rendering.Drawer;
+
 /*
  * Input is a helper class to player and serves as a buffer for GM to write to and Player to read from.
  */

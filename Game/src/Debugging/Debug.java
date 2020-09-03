@@ -6,10 +6,10 @@ import org.joml.Vector2f;
 
 import GameController.GameManager;
 import GameController.Map;
-import Rendering.ColorShader;
-import Rendering.Shader;
-import Rendering.GeneralRenderer;
-import Rendering.Texture;
+import Graphics.Elements.Texture;
+import Graphics.Rendering.ColorShader;
+import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Tiles.Tile;
 import Utility.Transformation;
 import Utility.Vector;
@@ -39,7 +39,7 @@ public class Debug {
 		debugElements = new ArrayList<DebugElement>();
 		
 		debugShader = new ColorShader("shader");
-		debugTex = new Texture("assets/debugTex.png");
+		debugTex = new Texture("assets/Sprites/debugTex.png");
 		
 		trans = new Transformation(new Vector2f(0, 0), Transformation.MATRIX_MODE_WORLD);
 	}

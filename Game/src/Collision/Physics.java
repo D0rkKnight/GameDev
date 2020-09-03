@@ -4,11 +4,13 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
+import Collision.Behaviors.PhysicsCollisionBehavior;
+import Collision.HammerShapes.HammerShape;
 import Debugging.Debug;
 import Debugging.DebugBox;
 import Debugging.DebugPolygon;
-import Entities.Entity;
-import Entities.PhysicsEntity;
+import Entities.Framework.Entity;
+import Entities.Framework.PhysicsEntity;
 import GameController.GameManager;
 import Tiles.Tile;
 import Utility.Arithmetic;
@@ -17,6 +19,8 @@ import Utility.Vector;
 import Wrappers.Color;
 
 public abstract class Physics {
+	
+	public static final float NUDGE_CONSTANT = 0.1f;
 	
 	public static void calculateDeltas(PhysicsEntity e, Tile[][] grid) {
 		
@@ -149,7 +153,7 @@ public abstract class Physics {
 			delta.sub(new Vector2f (moveDir).mul(dist));
 			
 			//Nudging should only move you as far as you can move.
-			float nudge = Math.min(GameManager.NUDGE_CONSTANT, deltaMove.length());
+			float nudge = Math.min(NUDGE_CONSTANT, deltaMove.length());
 			delta.sub(new Vector2f (moveDir).mul(nudge));
 			
 			//Rotate normal such that it is running along edge

@@ -1,25 +1,35 @@
 package Entities;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.joml.Math;
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
-import Collision.HammerShape;
 import Collision.Hitbox;
-import Collision.PhysicsCollisionBehaviorStepUp;
-import Collision.PhysicsCollisionBehaviorWallCling;
+import Collision.Behaviors.PhysicsCollisionBehaviorStepUp;
+import Collision.Behaviors.PhysicsCollisionBehaviorWallCling;
+import Collision.HammerShapes.HammerShape;
 import Debugging.Debug;
+import Entities.Framework.Combatant;
+import Entities.Framework.Entity;
+import Entities.Framework.Melee;
+import Entities.Framework.Projectile;
 import GameController.GameManager;
 import GameController.Input;
-import Rendering.Animation;
-import Rendering.Animator;
-import Rendering.GeneralRenderer;
-import Rendering.Texture;
+import Graphics.Animation.Animation;
+import Graphics.Animation.Animator;
+import Graphics.Animation.PlayerAnimator;
+import Graphics.Elements.Texture;
+import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.SpriteSheet;
 import Utility.Arithmetic;
+import Utility.Timer;
+import Utility.TimerCallback;
 import Utility.Transformation;
 import Wrappers.Color;
 import Wrappers.Stats;
-import Wrappers.Timer;
-import Wrappers.TimerCallback;
 
 public class Player extends Combatant{
 	
@@ -52,26 +62,28 @@ public class Player extends Combatant{
 		super(ID, position, renderer, name, stats);
 		
 		//Configure the renderer real quick
-		dim = new Vector2f(15f, 60f);
-		
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0, 0));
+		((GeneralRenderer) this.renderer).init(new Transformation(position), new Vector2f(96, 96), HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0, 0));
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 		
 		//Configure hitbox
+		dim = new Vector2f(15f, 60f);
 		hitbox = new Hitbox(this, dim.x, dim.y);
 		
 		jumpSpeed = 1f;
 		
 		dashSpeed = 2f;
-		dashDuration = 50;
+		dashDuration = 80;
 		movementMode = MOVEMENT_MODE_CONTROLLED;
 		
-		
 		//Configure animation stuff
-		Animation[] anims = new Animation[1];
-		Texture[] animSheet = Texture.unpackSpritesheet("Assets/ChargingSlime.png", 32, 32);
-		anims[0] = new Animation(animSheet);
-		anim = new Animator(anims, 24, (GeneralRenderer) this.renderer);
+		SpriteSheet animSheet = Texture.unpackSpritesheet("Assets/Sprites/Ilyia_idle-running_proto.png", 96, 96);
+		Animation[] anims = new Animation[3];
+		anims[Animator.ANIM_IDLE] = new Animation(animSheet.getRow(0, 4));
+		anims[PlayerAnimator.ANIM_ACCEL] = new Animation(animSheet.getRow(1, 12));
+		anims[PlayerAnimator.ANIM_MOVING] = new Animation(animSheet.getRow(2, 8));
+		rendOffset.set(-35, 0);
+		
+		anim = new PlayerAnimator(anims, 12, (GeneralRenderer) this.renderer, this);
 		
 		//Alignment
 		alignment = ALIGNMENT_PLAYER;
@@ -114,16 +126,16 @@ public class Player extends Combatant{
 		GeneralRenderer sprRend = (GeneralRenderer) renderer;
 		switch (movementMode) {
 		case MOVEMENT_MODE_CONTROLLED: //walking
-			sprRend.updateColors(new Color(1, 0, 0));
+			sprRend.updateColors(new Color(1, 0, 0, 1));
 			controlledMovement();
 			break;
 		case MOVEMENT_MODE_IS_DASHING: //dashing, a bit spaghetti here TODO
-			sprRend.updateColors(new Color(1, 1, 1));
+			sprRend.updateColors(new Color(1, 1, 1, 1));
 			dashingMovement();
 			break;
 		case MOVEMENT_MODE_DECEL:
-			sprRend.updateColors(new Color(0, 0, 1));
-			knockbackMovement();
+			sprRend.updateColors(new Color(0, 0, 1, 1));
+			decelMovement();
 			break;
 		default:
 			System.err.println("Movement mode not set.");
@@ -218,7 +230,6 @@ public class Player extends Combatant{
 		}
 		//Bring entity back to normal
 		if(movementMode == MOVEMENT_MODE_CONTROLLED && justDashed) {
-			System.out.println("trig");
 			pData.velo.y *= 0.2; //TODO hardcode for dash deacc
 			pData.velo.x *= 0.8;
 			justDashed = false;
@@ -285,7 +296,7 @@ public class Player extends Combatant{
 	 * I'm assuming that knockbackSpeed was set to not 0 upon being hit
 	 * also assuming that hit function added velo already, this function just does deacceleration
 	 */
-	private void knockbackMovement() {
+	private void decelMovement() {
 		//automatic deacceleration
 		float decelConst = Math.min(accelConst * decelMulti, Math.abs(pData.velo.x) - xCap) * -Arithmetic.sign(pData.velo.x);
 		//effect of movement
@@ -293,10 +304,7 @@ public class Player extends Combatant{
 		
 		
 		if(pData.grounded) {
-			System.out.println("grounded");
 			decelConst *= 1.4;
-			System.out.println("xvelo: " + pData.velo.x);
-			System.out.println("decelConst: " + decelConst);
 		}
 		pData.velo.x += decelConst;
 		hasGravity = true;
@@ -352,7 +360,7 @@ public class Player extends Combatant{
 			Vector2f centerD = new Vector2f(-dim.x/2, 15);
 			Vector2f sideD = new Vector2f(30, 0).mul(sideFacing);
 			
-			meleeEntity.position.set(position).add(centerD).add(sideD);;
+			meleeEntity.getPosition().set(position).add(centerD).add(sideD);;
 		}
 	}
 
@@ -360,6 +368,16 @@ public class Player extends Combatant{
 	protected void calcFrame() {
 		//Just a simple animation update, nothing spicy.
 		anim.update();
+		
+		//Scale to the side facing
+		if (sideFacing != 0) {
+			Matrix4f scale = transform.scale;
+			
+			//These are applied bottom row to top row
+			scale.identity().translate(anim.currentAnim.w/2, 0, 0);
+			scale.scale(sideFacing, 1, 1);
+			scale.translate(-anim.currentAnim.w/2, 0, 0);
+		}
 	}
 
 	public void onTileCollision() {

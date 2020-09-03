@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
-import Collision.PhysicsCollisionBehavior;
+import Collision.Behaviors.PhysicsCollisionBehavior;
 
 public class PhysicsData {
 	public boolean grounded;

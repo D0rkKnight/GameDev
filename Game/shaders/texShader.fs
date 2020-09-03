@@ -18,4 +18,5 @@ void main() {
 	//Use a more aggressive blend
     float blend = 0.5;
 	fragColor = texCol + (vertexColor * blend);
+	fragColor.a = texCol.a;
 }

@@ -3,7 +3,8 @@ package GameController;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
-import Entities.Entity;
+import Entities.Framework.Entity;
+import Graphics.Rendering.Drawer;
 import Utility.Arithmetic;
 
 public class Camera {

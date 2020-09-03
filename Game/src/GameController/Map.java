@@ -7,10 +7,10 @@ import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 
-import Collision.HammerShape;
+import Collision.HammerShapes.HammerShape;
 import Debugging.Debug;
 import Debugging.DebugVector;
-import Entities.Entity;
+import Entities.Framework.Entity;
 import Tiles.Tile;
 import Utility.Arithmetic;
 import Utility.Vector;
@@ -276,8 +276,6 @@ public class Map {
 			//Store to a comp edge
 			compEdges[i] = new CompEdge(edgeSegs);
 		}
-		
-		System.out.println("Total edge blocks: "+compEdges.length);
 	}
 	
 	private ArrayList<GridAlignedEdge> findValidConnections(Vector2i p, Tile[][] grid) {

@@ -17,20 +17,21 @@ import org.w3c.dom.Document;
 
 import Accessories.Accessory;
 import Collision.Collidable;
-import Collision.HammerRightTriangle;
-import Collision.HammerShape;
-import Collision.HammerSquare;
 import Collision.Hitbox;
 import Collision.Physics;
+import Collision.HammerShapes.HammerRightTriangle;
+import Collision.HammerShapes.HammerShape;
+import Collision.HammerShapes.HammerSquare;
 import Debugging.Debug;
-import Entities.Entity;
-import Entities.PhysicsEntity;
 import Entities.Player;
-import Rendering.GeneralRenderer;
-import Rendering.SpriteShader;
-import Rendering.Texture;
-import Rendering.WaveShader;
-import Rendering.WavyRenderer;
+import Entities.Framework.Entity;
+import Entities.Framework.PhysicsEntity;
+import Graphics.Elements.Texture;
+import Graphics.Rendering.Drawer;
+import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.SpriteShader;
+import Graphics.Rendering.WaveShader;
+import Graphics.Rendering.WavyRenderer;
 import Tiles.Tile;
 import UI.UI;
 
@@ -88,16 +89,6 @@ public class GameManager {
 	
 	public static final int tileSize = 8;
 	public static final int tileSpriteSize = 4;
-
-	public static final int MOVE_AXIS_X = 0;
-	public static final int MOVE_AXIS_Y = 1;
-	public static final float NUDGE_CONSTANT = 0.1f;
-	
-	public static final int CORNER_NONE = 0;
-	public static final int CORNER_UL = 1;
-	public static final int CORNER_BL = 2;
-	public static final int CORNER_UR = 3;
-	public static final int CORNER_BR = 4;
 	
 	public static final String GRID_SET = "set";
 	public static final String GRID_COLL = "collision";
@@ -162,9 +153,9 @@ public class GameManager {
 	private void initTiles() {
 		tileLookup = new HashMap<>();
 		
-		initTileSet("assets/Maps/", "ground.tsx", tileLookup);
-		initTileSet("assets/Maps/", "set.tsx", tileLookup);
-		initTileSet("assets/Maps/", "coll.tsx", tileLookup);
+		initTileSet("assets/Maps/Tilesets/", "ground.tsx", tileLookup);
+		initTileSet("assets/Maps/Tilesets/", "set.tsx", tileLookup);
+		initTileSet("assets/Maps/Tilesets/", "coll.tsx", tileLookup);
 	}
 	
 	private void initTileSet(String fileDir, String fileName, HashMap<String, HashMap<Integer, Tile>> masterTSet) {
@@ -187,7 +178,6 @@ public class GameManager {
 		}
 		HashMap<String, Tile[][]> mapData = null;
 		try {
-			//assets/TestMap64.tmx
 			mapData = Serializer.loadTileGrids(mapFile, tileLookup);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

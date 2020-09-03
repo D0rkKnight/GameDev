@@ -2,7 +2,7 @@ package Utility;
 
 import org.joml.Vector2f;
 
-import Collision.HammerShape;
+import Collision.HammerShapes.HammerShape;
 import GameController.GameManager;
 
 public abstract class Geometry {

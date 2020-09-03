@@ -4,7 +4,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
-import Entities.Entity;
+import Collision.HammerShapes.HammerShape;
+import Entities.Framework.Entity;
 import GameController.GameManager;
 import Utility.Transformation;
 

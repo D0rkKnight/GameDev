@@ -3,7 +3,9 @@ package Entities;
 import org.joml.Vector2f;
 
 import Collision.Hitbox;
-import Rendering.Renderer;
+import Entities.Framework.Enemy;
+import Entities.Framework.Entity;
+import Graphics.Rendering.Renderer;
 import Utility.Pathfinding;
 import Wrappers.Stats;
 

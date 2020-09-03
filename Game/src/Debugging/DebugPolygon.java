@@ -8,7 +8,7 @@ import static org.lwjgl.opengl.GL11.glVertex2f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
-import Rendering.Shader;
+import Graphics.Rendering.Shader;
 import Utility.Transformation;
 import Wrappers.Color;
 

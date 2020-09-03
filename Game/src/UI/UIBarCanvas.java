@@ -2,7 +2,7 @@ package UI;
 
 import org.joml.Vector2f;
 
-import Rendering.Renderer;
+import Graphics.Rendering.Renderer;
 import Wrappers.Color;
 
 public class UIBarCanvas extends UICanvas{

@@ -3,14 +3,16 @@ package Entities;
 import org.joml.Math;
 import org.joml.Vector2f;
 
-import Collision.HammerShape;
+import Collision.HammerShapes.HammerShape;
 import Debugging.Debug;
+import Entities.Framework.Entity;
+import Entities.Framework.Interactive;
 import GameController.Input;
+import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Renderer;
 import Wrappers.Color;
-import Wrappers.Timer;
-import Wrappers.TimerCallback;
-import Rendering.GeneralRenderer;
-import Rendering.Renderer;
+import Utility.Timer;
+import Utility.TimerCallback;
 import Utility.Transformation;
 
 public class Button extends Entity implements Interactive {
@@ -52,7 +54,6 @@ public class Button extends Entity implements Interactive {
 		}
 		
 		if(state == 1) {
-			System.out.println("buttonon");
 		}
 		
 		if (mouseHovered() && Input.primaryButtonDown && getMouseDistance() <= activationDistance) {
@@ -78,7 +79,6 @@ public class Button extends Entity implements Interactive {
 	public void interact() {
 		state = 1;
 		changed = true;
-		System.out.println("interact");
 		onTimer = new Timer(timeOn, new TimerCallback() {
 			@Override
 			public void invoke(Timer timer) {
@@ -108,7 +108,7 @@ public class Button extends Entity implements Interactive {
 			}
 			return false;
 		} catch (NullPointerException E) {
-			System.out.println("Nullpointer Error in Button, First cycle?");
+			System.err.println("Nullpointer Error in Button, First cycle?");
 			return false;
 		}
 	}

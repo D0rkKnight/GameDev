@@ -2,11 +2,11 @@ package UI;
 
 import org.joml.Vector2f;
 
-import Collision.HammerShape;
+import Collision.HammerShapes.HammerShape;
 import Debugging.Debug;
-import Rendering.Renderer;
+import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Renderer;
 import Utility.Transformation;
-import Rendering.GeneralRenderer;
 import Wrappers.Color;
 
 public class UIBoxElement extends UIDrawElement{

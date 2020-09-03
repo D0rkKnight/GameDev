@@ -1,23 +1,24 @@
 package Entities;
 import org.joml.Vector2f;
 
-import Collision.HammerShape;
 import Collision.Hitbox;
-import Collision.PhysicsCollisionBehavior;
-import Collision.PhysicsCollisionBehaviorDeflect;
+import Collision.Behaviors.PhysicsCollisionBehavior;
+import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
+import Collision.HammerShapes.HammerShape;
 import Debugging.Debug;
+import Entities.Framework.Enemy;
 import GameController.GameManager;
-import Rendering.Renderer;
-import Rendering.GeneralRenderer;
+import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Renderer;
 import Tiles.Tile;
 import Utility.Arithmetic;
 import Utility.Pathfinding;
+import Utility.Timer;
+import Utility.TimerCallback;
 import Utility.Transformation;
 import Utility.Vector;
 import Wrappers.Color;
 import Wrappers.Stats;
-import Wrappers.Timer;
-import Wrappers.TimerCallback;
 
 /**
  * Hips and hops
@@ -63,7 +64,7 @@ public abstract class BouncingEnemy extends Enemy{
 			hasGravity = true;
 			gravity();
 			
-			ai.calculatePath(position, target.position, grid); 
+			ai.calculatePath(position, target.getPosition(), grid); 
 			
 			// TODO Auto-generated method stub
 			// Point towards the player and move

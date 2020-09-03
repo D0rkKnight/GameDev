@@ -2,10 +2,10 @@ package UI;
 
 import org.joml.Vector2f;
 
-import Collision.HammerShape;
+import Collision.HammerShapes.HammerShape;
 import GameController.GameManager;
-import Rendering.Renderer;
-import Rendering.GeneralRenderer;
+import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Renderer;
 import Wrappers.Color;
 
 public class UIBarElement extends UIBoxElement{

@@ -1,7 +1,9 @@
 package Wrappers;
 
-import Entities.Entity;
-import Rendering.GeneralRenderer;
+import Entities.Framework.Entity;
+import Graphics.Rendering.GeneralRenderer;
+import Utility.Timer;
+import Utility.TimerCallback;
 
 public class FlickerTimer extends Timer {
 

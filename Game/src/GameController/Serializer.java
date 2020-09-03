@@ -27,16 +27,16 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import Accessories.Accessory;
-import Collision.HammerShape;
+import Collision.HammerShapes.HammerShape;
 import Entities.Button;
 import Entities.CrawlerEnemy;
-import Entities.Entity;
 import Entities.FloaterEnemy;
-import Entities.Interactive;
 import Entities.Player;
 import Entities.ShardSlimeEnemy;
-import Rendering.GeneralRenderer;
-import Rendering.Texture;
+import Entities.Framework.Entity;
+import Entities.Framework.Interactive;
+import Graphics.Elements.Texture;
+import Graphics.Rendering.GeneralRenderer;
 import Tiles.Tile;
 import Wrappers.Stats;
 
@@ -76,7 +76,7 @@ public class Serializer {
 		int th = Integer.parseInt(tilesetE.getAttribute("tileheight"));
 		
 		String src = srcE.getAttribute("source");
-		Texture[] tileSheet = Texture.unpackSpritesheet(fdir+src, tw, th);
+		Texture[] tileSheet = Texture.unpackSpritesheet(fdir+src, tw, th).texs;
 		
 		for (int i=0; i<nList.getLength(); i++) {
 			Element e = (Element) nList.item(i);
@@ -120,7 +120,18 @@ public class Serializer {
 		for (int i=0; i<tilesets.getLength(); i++) {
 			Element tilesetE = (Element) tilesets.item(i);
 			gids.add(Integer.parseInt(tilesetE.getAttribute("firstgid"))); //This is an offset value
-			tSetNames.add(tilesetE.getAttribute("source"));
+			
+			String path = tilesetE.getAttribute("source");
+			
+			//Trim the path to remove folders
+			for (int j=path.length()-1; j>=0; j--) {
+				if (path.charAt(j) == '/') {
+					path = path.substring(j+1, path.length());
+					break;
+				}
+			}
+			
+			tSetNames.add(path);
 		}
 		
 		NodeList layers = doc.getElementsByTagName("layer");
@@ -148,14 +159,13 @@ public class Serializer {
 	public static Tile[][] loadTileGridFromLayer(Element layerE, HashMap<String, HashMap<Integer, Tile>> tileMap, 
 			ArrayList<Integer> gids, ArrayList<String> tSetNames) throws Exception {
 		
+		System.out.println(tileMap);
 		
 		int w = Integer.parseInt(layerE.getAttribute("width"));
 		int h = Integer.parseInt(layerE.getAttribute("height"));
 		
 		//Decode data
 		Element dataE = retrieveElement(layerE, "data");
-		String encoding = dataE.getAttribute("encoding");
-		String compression = dataE.getAttribute("compression");
 		String d = trim(dataE.getTextContent());
 		
 		//Base 64 decode
@@ -191,10 +201,10 @@ public class Serializer {
 					}
 				}
 				
-				//System.out.println(gids.get(1));
-				
 				int offset = gids.get(a);
 				HashMap<Integer, Tile> tSet = tileMap.get(tSetNames.get(a));
+				
+				System.out.println(tSetNames.get(a));
 				
 				Tile t = tSet.get(id-offset);
 				grid[x][y] = t.clone();
@@ -238,7 +248,7 @@ public class Serializer {
 				enemyHash.put(i, new CrawlerEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
 			}
 			else {
-				System.out.println("error, wrong enemy name");
+				System.err.println("error, wrong enemy name");
 			}
 		}
 		return enemyHash;
@@ -257,7 +267,6 @@ public class Serializer {
 		
 		for(int i = 0; i < entitynum; i++) {
 			Element entity = (Element) objects.item(i);
-			System.out.println(tileSize);
 			int ID = Integer.parseInt((entity).getAttribute("type"));
 			
 			float xPos = Float.parseFloat((entity).getAttribute("x")) / GameManager.tileSpriteSize;
@@ -266,7 +275,6 @@ public class Serializer {
 			
 			yPos += Float.parseFloat((entity).getAttribute("height")) / GameManager.tileSpriteSize;
 			yPos = height - yPos;
-			System.out.println(entityHash.size() + "s");
 			
 			Entity e;
 			if (entityHash.get(ID) instanceof Player) {

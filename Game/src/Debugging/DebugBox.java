@@ -6,7 +6,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import GameController.Camera;
-import Rendering.Shader;
+import Graphics.Rendering.Shader;
 import Wrappers.Color;
 
 public class DebugBox extends DebugElement {

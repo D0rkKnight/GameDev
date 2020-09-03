@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="256" height="128" tilewidth="4" tileheight="4" infinite="0" nextlayerid="3623" nextobjectid="8">
- <tileset firstgid="1" source="set.tsx"/>
- <tileset firstgid="65" source="ground.tsx"/>
- <tileset firstgid="129" source="coll.tsx"/>
+ <tileset firstgid="1" source="Tilesets/set.tsx"/>
+ <tileset firstgid="65" source="Tilesets/ground.tsx"/>
+ <tileset firstgid="129" source="Tilesets/coll.tsx"/>
  <objectgroup id="3618" name="Objects">
   <object id="1" name="Player" type="0" x="120" y="200" width="7" height="28"/>
   <object id="7" name="Crawler" type="4" x="69.25" y="135" width="16" height="16"/>
