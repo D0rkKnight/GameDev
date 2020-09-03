@@ -85,7 +85,7 @@ public class GameManager {
 	public static final int tileSpriteSize = 4;
 
 	public static final String GRID_SET = "set";
-	public static final String GRID_COLL = "collision";
+	public static final String GRID_COLL = "ground";
 	public static final String GRID_GROUND = "ground";
 
 	/*

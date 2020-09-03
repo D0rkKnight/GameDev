@@ -1,3 +1,4 @@
+Rules/rules0.tmx
 Rules/rules1.tmx
 Rules/rules2.tmx
 Rules/rules3.tmx

@@ -27,13 +27,13 @@
  </tile>
  <tile id="4">
   <properties>
-   <property name="HammerShape" type="int" value="0"/>
+   <property name="HammerShape" type="int" value="2"/>
    <property name="filler" type="bool" value="false"/>
   </properties>
  </tile>
  <tile id="5">
   <properties>
-   <property name="HammerShape" type="int" value="0"/>
+   <property name="HammerShape" type="int" value="1"/>
    <property name="filler" type="bool" value="false"/>
   </properties>
  </tile>
@@ -63,13 +63,13 @@
  </tile>
  <tile id="12">
   <properties>
-   <property name="HammerShape" type="int" value="0"/>
+   <property name="HammerShape" type="int" value="4"/>
    <property name="filler" type="bool" value="false"/>
   </properties>
  </tile>
  <tile id="13">
   <properties>
-   <property name="HammerShape" type="int" value="0"/>
+   <property name="HammerShape" type="int" value="3"/>
    <property name="filler" type="bool" value="false"/>
   </properties>
  </tile>

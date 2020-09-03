@@ -62,7 +62,7 @@ public class CrawlerEnemy extends Enemy {
 				System.exit(1);
 			}
 
-			this.position.set(new Vector2f(attachedSegment.edge.v1).mul(GameManager.tileSize));
+			this.position.set(new Vector2f(attachedSegment.v1).mul(GameManager.tileSize));
 		}
 	}
 
@@ -79,7 +79,7 @@ public class CrawlerEnemy extends Enemy {
 		if (attachedSegment.nextSeg != null) {
 			attachedSegment = attachedSegment.nextSeg; // Do this in a smarter way
 
-			position.set(new Vector2f(attachedSegment.edge.v1).mul(GameManager.tileSize));
+			position.set(new Vector2f(attachedSegment.v1).mul(GameManager.tileSize));
 			position.add(anchorOffset);
 
 			// Do a little hack and rotate around a point. Don't forget that these are done
