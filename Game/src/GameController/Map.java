@@ -108,17 +108,15 @@ public class Map {
 			}
 
 		// Little area around the border where the lattice is not checked
-//		for (int i = 1; i < tilesW; i++) {
-//			for (int j = 1; j < tilesT; j++) {
-//				if (!traversed[i][j].isEmpty())
-//					continue;
-//
-//				populateEdgesFromPoint(i, j, grid, id, traversed, tilesW, tilesT, edgeArr);
-//				id++;
-//			}
-//		}
+		for (int i = 1; i < tilesW; i++) {
+			for (int j = 1; j < tilesT; j++) {
+				if (!traversed[i][j].isEmpty())
+					continue;
 
-		populateEdgesFromPoint(20, 30, grid, id, traversed, tilesW, tilesT, edgeArr);
+				populateEdgesFromPoint(i, j, grid, id, traversed, tilesW, tilesT, edgeArr);
+				id++;
+			}
+		}
 
 		compEdges = edgeArr;
 
@@ -160,7 +158,6 @@ public class Map {
 		// Edges can be dealt with in whatever order
 		for (CompEdgeSegment e : edges) {
 			edgeStack.add(e);
-			System.out.println(e.v1);
 		}
 
 		if (edgeStack.isEmpty())
