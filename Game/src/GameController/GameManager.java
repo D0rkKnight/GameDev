@@ -6,6 +6,8 @@ import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
+import static org.lwjgl.opengl.GL11.glGetError;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,24 +34,6 @@ import UI.UI;
 
 public class GameManager {
 
-	// The frame and canvas
-	private static long deltaTime = 0;
-	private static long currTime = 0;
-	private static long lastTime = 0;
-	private static long startTime;
-
-	// Helper variable for frame walking
-	public static boolean waitingForFrameWalk = true;
-
-	/**
-	 * Configuration and debug
-	 */
-	public static float timeScale = 1;
-	public static boolean frameWalk = false;
-	public static float frameDelta = 10f;
-	public static boolean showCollisions = false;
-	public static boolean debugElementsEnabled = false;
-
 	// Rendering stuff
 	public static GeneralRenderer renderer;
 	public static SpriteShader shader;
@@ -60,12 +44,12 @@ public class GameManager {
 	public static Map currmap;
 
 	// Lookup table for different kinds of tiles
-	private HashMap<String, HashMap<Integer, Tile>> tileLookup;
+	private static HashMap<String, HashMap<Integer, Tile>> tileLookup;
 	// Lookup table for different kinds of accessories
 //	private HashMap<Integer, Accessory> accessoryLookup;
 	// Lookup table for hammershapes
 	public static HashMap<Integer, HammerShape> hammerLookup;
-	private HashMap<Integer, Entity> entityHash;
+	private static HashMap<Integer, Entity> entityHash;
 
 	// current progression of player ingame
 //	private int chapter; // chapter, determines plot events
@@ -118,22 +102,18 @@ public class GameManager {
 		shader = new SpriteShader("texShader");
 		renderer = new GeneralRenderer(shader);
 
+		entities = new ArrayList<>();
+		entityWaitingList = new ArrayList<>();
+		entityClearList = new ArrayList<>();
 		initCollision();
 		initTiles();
 		initEntityHash("assets/Hashfiles/", "EntitiesTest.txt");
-		initMap("assets/Maps/", "test.tmx");// also should initialize entities
+
+		initMap("assets/Maps/", "test.tmx"); // also should initialize entities
 
 		UI.init();
-		initTime();
+		Time.initTime();
 	}
-
-//	private void loadProgression() {
-//
-//	}
-//
-//	private void loadState() {
-//
-//	}
 
 	/*
 	 * Loads and constructs tiles based off of external file, then logs in
@@ -157,7 +137,7 @@ public class GameManager {
 		}
 	}
 
-	private void initMap(String fileDir, String fileName) {
+	private static void initMap(String fileDir, String fileName) {
 		Document mapFile = null;
 		try {
 			mapFile = Serializer.readDoc(fileDir, fileName);
@@ -165,6 +145,7 @@ public class GameManager {
 			System.err.println("File not found");
 			e.printStackTrace();
 		}
+
 		HashMap<String, Tile[][]> mapData = null;
 		try {
 			mapData = Serializer.loadTileGrids(mapFile, tileLookup);
@@ -180,10 +161,19 @@ public class GameManager {
 		Drawer.initTileChunks(currmap.grids.get("ground"));
 	}
 
-//	private void finishArea() { // called when character finishes a major area, updates level and chapter of
-//								// character
-//
-//	}
+	public static void switchMap(String fileDir, String fileName) {
+		Debug.clearElements();
+
+		// Dump entities
+		for (Entity e : entities)
+			if (!(e instanceof Player))
+				entityClearList.add(e);
+		entityWaitingList.clear();
+		updateEntityList();
+
+		initMap(fileDir, fileName);
+
+	}
 
 	private void initEntityHash(String fileDir, String fileName) {
 		try {
@@ -197,18 +187,19 @@ public class GameManager {
 		}
 	}
 
-	private void initEntities(Document mapFile) {
-		entities = new ArrayList<>();
-		entityWaitingList = new ArrayList<>();
-		entityClearList = new ArrayList<>();
+	private static void initEntities(Document mapFile) {
 
 		ArrayList<Entity> entitytemp = Serializer.loadEntities(mapFile, entityHash, tileSize);
+		System.out.println(entitytemp.size());
 		for (Entity e : entitytemp) {
 			subscribeEntity(e);
 		}
 
 		initPlayer();
+	}
 
+	private static void initPlayer() {
+		Camera.main.attach(player);
 	}
 
 	private void initCollision() {
@@ -252,19 +243,25 @@ public class GameManager {
 		}
 	}
 
-	private void initPlayer() {
-		Camera.main.attach(player);
-	}
-
 	/*
 	 * Game loop that handles rendering and stuff
 	 */
 	private void loop() {
+
 		// Into the rendering loop we go
 		// Remember the lambda callback we attached to key presses? This is where the
 		// function returns.
 		while (!glfwWindowShouldClose(Drawer.window)) {
-			updateTime();
+
+			// An error in drawer...
+			int err;
+			if ((err = glGetError()) != GL_NO_ERROR) {
+				System.out.println(err);
+				new Exception("OpenGL ERROR").printStackTrace();
+				System.exit(1);
+			}
+
+			Time.updateTime();
 
 			// Drawing stuff
 			update();
@@ -276,49 +273,17 @@ public class GameManager {
 			glfwPollEvents();
 
 			// Frame walking debug tools
-			if (frameWalk) {
-				while (waitingForFrameWalk) {
+			if (Debug.frameWalk) {
+				while (Debug.waitingForFrameWalk) {
 					// Input.update(); //No need to wipe stuff
 					glfwPollEvents();
 
 					if (glfwWindowShouldClose(Drawer.window))
 						break;
 				}
-				waitingForFrameWalk = true;
+				Debug.waitingForFrameWalk = true;
 			}
 		}
-	}
-
-	private void initTime() {
-		currTime = System.nanoTime() / 1000000;
-		lastTime = currTime;
-
-		startTime = currTime;
-	}
-
-	private void updateTime() {
-		lastTime = currTime;
-		currTime = System.nanoTime() / 1000000;
-
-		deltaTime = currTime - lastTime;
-		deltaTime = Math.max(1, deltaTime);
-
-	}
-
-	public static long deltaT() {
-		if (frameWalk) {
-			return (long) frameDelta;
-		}
-
-		return (long) (deltaTime * timeScale);
-	}
-
-	public static long getFrameTime() {
-		return currTime;
-	}
-
-	public static long timeSinceStart() {
-		return (currTime - startTime);
 	}
 
 	/**
@@ -376,7 +341,7 @@ public class GameManager {
 		Camera.main.update();
 	}
 
-	public void updateEntityList() {
+	public static void updateEntityList() {
 		// Dump entity waiting list into entity list
 		for (Entity e : entityWaitingList) {
 			entities.add(e);

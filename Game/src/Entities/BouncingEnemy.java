@@ -9,6 +9,7 @@ import Collision.HammerShapes.HammerShape;
 import Debugging.Debug;
 import Entities.Framework.Enemy;
 import GameController.GameManager;
+import GameController.Time;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
 import Tiles.Tile;
@@ -77,10 +78,10 @@ public abstract class BouncingEnemy extends Enemy {
 			float movespeed = 0.03f;
 			float deltaX = 0f;
 			if (dir != null) {
-				deltaX = moveDir * movespeed * GameManager.deltaT();
+				deltaX = moveDir * movespeed * Time.deltaT();
 			}
 			if (dir != null && pData.grounded && bounceReady) {
-				pData.velo = new Vector2f(deltaX, 0.03f * GameManager.deltaT());
+				pData.velo = new Vector2f(deltaX, 0.03f * Time.deltaT());
 				onBounce();
 
 				bounceReady = false;

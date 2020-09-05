@@ -18,6 +18,7 @@ import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
+import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 import static org.lwjgl.opengl.GL11.GL_RGB;
 import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
@@ -29,6 +30,7 @@ import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glGenTextures;
+import static org.lwjgl.opengl.GL11.glGetError;
 import static org.lwjgl.opengl.GL11.glTexImage2D;
 import static org.lwjgl.opengl.GL11.glTexParameteri;
 import static org.lwjgl.opengl.GL20.glDrawBuffers;
@@ -69,89 +71,96 @@ import Wrappers.Color;
  */
 public class Drawer {
 	public static long window;
-	
+
 	public static int drawBuff;
 	public static int drawTex;
 	private static DrawBufferRenderer fBuffRend;
 	private static GeneralRenderer chunkRend;
-	
+
 	private static int[][] tileChunkBuffers;
 	private static Texture[][] tileChunkTexs;
 	public static final int CHUNK_SIZE = 16;
-	
+
 	public static void draw(Map map, ArrayList<Entity> entities) {
-		//Draw to framebuffer please
+		// Draw to framebuffer please
 		glBindFramebuffer(GL_FRAMEBUFFER, Drawer.drawBuff);
-		
+
 		// Clear frame buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  		
-  		//Get clipping bounds
-  		Camera cam = Camera.main;
-  		Vector2f cPos = cam.pos;
-  		Vector2f cDims = cam.viewport;
-  		int txMin = (int) (cPos.x - (cDims.x/2));
-  		int txMax = (int) (cPos.x + (cDims.x/2));
-  		int tyMin = (int) (cPos.y - (cDims.y/2));
-  		int tyMax = (int) (cPos.y + (cDims.y/2));
-  		
-  		txMin /= GameManager.tileSize * CHUNK_SIZE;
-  		txMax /= GameManager.tileSize * CHUNK_SIZE;
-  		tyMin /= GameManager.tileSize * CHUNK_SIZE;
-  		tyMax /= GameManager.tileSize * CHUNK_SIZE;
-  		
-  		txMax ++;
-  		tyMax ++;
-  		
-  		int chunkGridW = tileChunkTexs.length;
-  		int chunkGridH = tileChunkTexs[0].length;
-  		
-  		txMin = Math.max(txMin, 0);
-  		txMax = Math.min(txMax, chunkGridW);
-  		tyMin = Math.max(tyMin, 0);
-  		tyMax = Math.min(tyMax, chunkGridH);
-  		
-  		//Draw all of the textures
-  		for (int i=txMin; i<txMax; i++) {
-  			for (int j=tyMin; j<tyMax; j++) {
-  				Texture tex = tileChunkTexs[i][j];
-  				
-  				chunkRend.spr = tex;
-  				
-  				Vector2f pos = new Vector2f(i, j).mul(GameManager.tileSize).mul(CHUNK_SIZE);
-  				chunkRend.transform.pos.set(pos);
-  				chunkRend.transform.pos.add(0, GameManager.tileSize * CHUNK_SIZE);
-  				
-  				chunkRend.transform.scale.identity().scale(1, -1, 1);
-  				
-  				chunkRend.render();
-  			}
-  		}
-  		
-  		for (Entity ent : entities) {
-  			ent.render();
-  		}
-  		
-  		//UI elements
-  		UI.render();
-  		
-  		/**
-  		 * Now draw the texture to the screen as a quad
-  		 */
-  		if (!fBuffRend.hasInit) {
-  			fBuffRend.init(new Transformation(new Vector2f(0, Camera.main.viewport.y), Transformation.MATRIX_MODE_SCREEN), 
-  					Camera.main.viewport, HammerShape.HAMMER_SHAPE_SQUARE, new Color(0, 0, 0, 0));
-  			fBuffRend.spr = new Texture(drawTex);
-  		}
-  		
-  		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  		fBuffRend.render();
-  		
-  		//Overlay debug elements
-  		Debug.renderDebug();
-  		
-  		
-  		//Yeesh that was hard.
+
+		// Get clipping bounds
+		Camera cam = Camera.main;
+		Vector2f cPos = cam.pos;
+		Vector2f cDims = cam.viewport;
+		int txMin = (int) (cPos.x - (cDims.x / 2));
+		int txMax = (int) (cPos.x + (cDims.x / 2));
+		int tyMin = (int) (cPos.y - (cDims.y / 2));
+		int tyMax = (int) (cPos.y + (cDims.y / 2));
+
+		txMin /= GameManager.tileSize * CHUNK_SIZE;
+		txMax /= GameManager.tileSize * CHUNK_SIZE;
+		tyMin /= GameManager.tileSize * CHUNK_SIZE;
+		tyMax /= GameManager.tileSize * CHUNK_SIZE;
+
+		txMax++;
+		tyMax++;
+
+		int chunkGridW = tileChunkTexs.length;
+		int chunkGridH = tileChunkTexs[0].length;
+
+		txMin = Math.max(txMin, 0);
+		txMax = Math.min(txMax, chunkGridW);
+		tyMin = Math.max(tyMin, 0);
+		tyMax = Math.min(tyMax, chunkGridH);
+
+		// Draw all of the textures
+		for (int i = txMin; i < txMax; i++) {
+			for (int j = tyMin; j < tyMax; j++) {
+				Texture tex = tileChunkTexs[i][j];
+
+				chunkRend.spr = tex;
+
+				Vector2f pos = new Vector2f(i, j).mul(GameManager.tileSize).mul(CHUNK_SIZE);
+				chunkRend.transform.pos.set(pos);
+				chunkRend.transform.pos.add(0, GameManager.tileSize * CHUNK_SIZE);
+
+				chunkRend.transform.scale.identity().scale(1, -1, 1);
+
+				chunkRend.render();
+			}
+		}
+
+		for (Entity ent : entities) {
+			ent.render();
+		}
+
+		// UI elements
+		UI.render();
+
+		/**
+		 * Now draw the texture to the screen as a quad
+		 */
+		if (!fBuffRend.hasInit) {
+			fBuffRend.init(
+					new Transformation(new Vector2f(0, Camera.main.viewport.y), Transformation.MATRIX_MODE_SCREEN),
+					Camera.main.viewport, HammerShape.HAMMER_SHAPE_SQUARE, new Color(0, 0, 0, 0));
+			fBuffRend.spr = new Texture(drawTex);
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		fBuffRend.render();
+
+		int err;
+		if ((err = glGetError()) != GL_NO_ERROR) {
+			System.out.println(err);
+			new Exception("OpenGL ERROR").printStackTrace();
+			System.exit(1);
+		}
+
+		// Overlay debug elements
+		Debug.renderDebug();
+
+		// Yeesh that was hard.
 //  		ByteBuffer pixels = BufferUtils.createByteBuffer(20*20*4);
 //  		glReadPixels(0, 0, 20, 20, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 //  		
@@ -159,8 +168,7 @@ public class Drawer {
 //		pixels.get(arr);
 //		
 //		for(byte b:arr) System.err.println(b);
-  		
-  		
+
 //  		glBindFramebuffer(GL_FRAMEBUFFER, Drawer.drawBuff);
 //  		fBuffRend.spr.bind();
 //  		//This has been quite the experience.
@@ -171,18 +179,18 @@ public class Drawer {
 //  		pixels.get(arr);
 //  		
 //  		for(byte b:arr) System.err.println(b);
-  		
-  		// Cache the buffer, load the one cached last frame.
-  		// VSync affects this
+
+		// Cache the buffer, load the one cached last frame.
+		// VSync affects this
 		glfwSwapBuffers(Drawer.window);
 	}
-	
+
 	public static void initGraphics() {
 		initOpenGL();
-		
+
 		initDrawBuffer();
 	}
-	
+
 	private static void initOpenGL() {
 		// Error callback
 		GLFWErrorCallback.createPrint(System.err).set();
@@ -207,9 +215,8 @@ public class Drawer {
 			throw new RuntimeException("Failed to create GLFW window");
 		}
 
-		
 		Vector2f r = GetWindowSize();
-			// Get resolution of primary monitor
+		// Get resolution of primary monitor
 		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
 		// Set pos
@@ -227,130 +234,132 @@ public class Drawer {
 		// Creating the context to which all graphics operations will be executed upon
 		GL.createCapabilities();
 		glEnable(GL_TEXTURE_2D);
-		
+
 		// Set clear color
 		glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
 	}
-	
+
 	private static void initDrawBuffer() {
 		/**
 		 * Draw buffer configuration
 		 */
-		
+
 		drawBuff = glGenFramebuffers();
 		glBindFramebuffer(GL_FRAMEBUFFER, drawBuff);
-		
+
 		drawTex = glGenTextures();
-		
+
 		glBindTexture(GL_TEXTURE_2D, drawTex);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1280, 720, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-		
+
 		// Poor filtering. Needed !
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		
-		//Bind texture to active frame buffer (not the same thing as "drawBuff", it is GL_COLOR_ATTACHMENT0 in this case. It's just a static buffer.)
+
+		// Bind texture to active frame buffer (not the same thing as "drawBuff", it is
+		// GL_COLOR_ATTACHMENT0 in this case. It's just a static buffer.)
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, drawTex, 0);
-		
-		//Configure that color0 is to be drawn to by shaders.
+
+		// Configure that color0 is to be drawn to by shaders.
 		glDrawBuffers(GL_COLOR_ATTACHMENT0);
-		
+
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 			System.err.println("Error!!!");
 		}
-		
-		//Reset to the regular buffer
+
+		// Reset to the regular buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		
-		
-		
-		//Now set up the renderer that deals with this.
+
+		// Now set up the renderer that deals with this.
 		Shader shader = new SpriteShader("texShader");
 		fBuffRend = new DrawBufferRenderer(shader);
 	}
-	
+
 	public static void initTileChunks(Tile[][] grid) {
-		int w=grid.length;
-		int h=grid[0].length;
-		
-		if (w%CHUNK_SIZE != 0 || h%CHUNK_SIZE != 0) {
+		int w = grid.length;
+		int h = grid[0].length;
+
+		if (w % CHUNK_SIZE != 0 || h % CHUNK_SIZE != 0) {
 			new Exception("Bad size!").printStackTrace();
 		}
-		
-		tileChunkBuffers = new int[w/CHUNK_SIZE][h/CHUNK_SIZE];
+
+		tileChunkBuffers = new int[w / CHUNK_SIZE][h / CHUNK_SIZE];
 		tileChunkTexs = new Texture[tileChunkBuffers.length][tileChunkBuffers[0].length];
-		
-		for (int i=0; i<tileChunkBuffers.length; i++) {
-			for (int j=0; j<tileChunkBuffers[0].length; j++) {
-				//Gen the buffer
+
+		for (int i = 0; i < tileChunkBuffers.length; i++) {
+			for (int j = 0; j < tileChunkBuffers[0].length; j++) {
+				// Gen the buffer
 				int buff = glGenFramebuffers();
 				tileChunkBuffers[i][j] = buff;
 				glBindFramebuffer(GL_FRAMEBUFFER, buff);
-				
+
 				int tex = glGenTextures();
-				
+
 				glBindTexture(GL_TEXTURE_2D, tex);
-				
+
 				int chunkDims = CHUNK_SIZE * GameManager.tileSize;
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, chunkDims, chunkDims, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-				
+
 				tileChunkTexs[i][j] = new Texture(tex, chunkDims, chunkDims);
-				
+
 				// Poor filtering. Needed !
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				
-				//Bind texture to active frame buffer (not the same thing as "drawBuff", it is GL_COLOR_ATTACHMENT0 in this case. It's just a static buffer.)
+
+				// Bind texture to active frame buffer (not the same thing as "drawBuff", it is
+				// GL_COLOR_ATTACHMENT0 in this case. It's just a static buffer.)
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
-				
-				//Configure that color0 is to be drawn to by shaders.
+
+				// Configure that color0 is to be drawn to by shaders.
 				glDrawBuffers(GL_COLOR_ATTACHMENT0);
-				
+
 				if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 					System.err.println("Error!!!");
 				}
-				
+
 				// Clear frame buffer, sets background color
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				
-				//Now iterate over every tile in this grid that lies within the chunk
-				for (int a=i*CHUNK_SIZE; a<(i+1)*CHUNK_SIZE; a++) {
-					for (int b=j*CHUNK_SIZE; b<(j+1)*CHUNK_SIZE; b++) {
+
+				// Now iterate over every tile in this grid that lies within the chunk
+				for (int a = i * CHUNK_SIZE; a < (i + 1) * CHUNK_SIZE; a++) {
+					for (int b = j * CHUNK_SIZE; b < (j + 1) * CHUNK_SIZE; b++) {
 						Tile t = grid[a][b];
-						if (t == null) continue;
-						
+						if (t == null)
+							continue;
+
 						Transformation oldTrans = t.renderer.transform;
-						
-						Transformation newTrans = new Transformation(new Vector2f(oldTrans.pos), Transformation.MATRIX_MODE_STATIC);
+
+						Transformation newTrans = new Transformation(new Vector2f(oldTrans.pos),
+								Transformation.MATRIX_MODE_STATIC);
 						t.renderer.transform = newTrans;
-						
+
 						float offsetX = i * GameManager.tileSize * CHUNK_SIZE;
 						float offsetY = j * GameManager.tileSize * CHUNK_SIZE;
-						
+
 						Vector2f camOffset = new Vector2f(Camera.main.viewport).div(2);
-						newTrans.view.setTranslation(-offsetX-camOffset.x, -offsetY-camOffset.y, 0);
-						
-						float x = a*GameManager.tileSize;
-						float y = b*GameManager.tileSize;
+						newTrans.view.setTranslation(-offsetX - camOffset.x, -offsetY - camOffset.y, 0);
+
+						float x = a * GameManager.tileSize;
+						float y = b * GameManager.tileSize;
 						t.render(new Vector2f(x, y), GameManager.tileSize);
-						
+
 						t.renderer.transform = oldTrans;
 					}
 				}
 			}
 		}
-		
-		//Free the frame buffer
+
+		// Free the frame buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		
-		//Setting up the renderer
+
+		// Setting up the renderer
 		chunkRend = new GeneralRenderer(new SpriteShader("texShader"));
-		
+
 		float dim = GameManager.tileSize * CHUNK_SIZE;
-		chunkRend.init(new Transformation(new Vector2f(), Transformation.MATRIX_MODE_WORLD), new Vector2f(dim, dim), 
+		chunkRend.init(new Transformation(new Vector2f(), Transformation.MATRIX_MODE_WORLD), new Vector2f(dim, dim),
 				HammerShape.HAMMER_SHAPE_SQUARE, new Color());
 	}
-	
+
 	public static Vector2f GetWindowSize() {
 		// A wack process required to move the window. Why this is necessary, I'm not
 		// entirely clear on.
@@ -359,7 +368,7 @@ public class Drawer {
 		// this allocates the memory in a manner that C recognizes.
 		// Read more on MemoryStack as a solution to interfacing problems between the
 		// two languages.
-		
+
 		try (MemoryStack stack = stackPush()) {
 			IntBuffer pWidth = stack.mallocInt(1);
 			IntBuffer pHeight = stack.mallocInt(1);

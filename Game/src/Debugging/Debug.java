@@ -1,5 +1,8 @@
 package Debugging;
 
+import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
+import static org.lwjgl.opengl.GL11.glGetError;
+
 import java.util.ArrayList;
 
 import org.joml.Vector2f;
@@ -18,22 +21,27 @@ public class Debug {
 
 	private static ArrayList<DebugElement> debugElements;
 	private static Shader debugShader;
-
 	public static Texture debugTex;
-
 	public static Transformation trans;
 
 	public static boolean drawEdges;
-
 	public static boolean logIssues;
 
-	private static void config() {
-		GameManager.timeScale = 1f;
-		GameManager.frameWalk = false;
-		GameManager.frameDelta = 20f;
+	public static float timeScale = 1;
+	public static boolean frameWalk = false;
+	public static float frameDelta = 10f;
+	public static boolean waitingForFrameWalk = true; // Helper var for frame walking
 
-		GameManager.showCollisions = false;
-		GameManager.debugElementsEnabled = true;
+	public static boolean showCollisions = false;
+	public static boolean debugElementsEnabled = false;
+
+	private static void config() {
+		timeScale = 1f;
+		frameWalk = false;
+		frameDelta = 20f;
+
+		showCollisions = false;
+		debugElementsEnabled = true;
 		drawEdges = false;
 		logIssues = true;
 	}
@@ -53,7 +61,7 @@ public class Debug {
 		// Render vectors
 		ArrayList<DebugElement> clearList = new ArrayList<DebugElement>();
 		for (DebugElement e : debugElements) {
-			if (GameManager.debugElementsEnabled)
+			if (debugElementsEnabled)
 				e.render(debugShader);
 			e.lifespan--;
 			if (e.lifespan <= 0)
@@ -111,5 +119,18 @@ public class Debug {
 
 	public static void highlightRect(Vector2f pos, Vector2f dims, Color col) {
 		highlightRect(pos, dims, col, 1);
+	}
+
+	public static void poll() {
+		int err;
+		if ((err = glGetError()) != GL_NO_ERROR) {
+			System.out.println(err);
+			new Exception("OpenGL ERROR").printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	public static void clearElements() {
+		debugElements.clear();
 	}
 }

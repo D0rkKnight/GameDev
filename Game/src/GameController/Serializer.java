@@ -280,12 +280,16 @@ public class Serializer {
 
 			float newX = xPos * GameManager.tileSize;
 			float newY = yPos * GameManager.tileSize;
+
+			boolean addEnt = true;
+
 			if (e instanceof Player) {
 				if (GameManager.player == null) {
 					e = entityHash.get(ID).createNew(newX, newY);
 					GameManager.player = (Player) e;
 				} else {
 					GameManager.player.getPosition().set(newX, newY);
+					addEnt = false;
 				}
 			} else if (e instanceof Interactive) {
 				e = ((Button) entityHash.get(ID)).createNew(newX, yPos * newY, GameManager.player);
@@ -293,7 +297,8 @@ public class Serializer {
 				e = entityHash.get(ID).createNew(newX, newY);
 			}
 
-			entities.add(e);
+			if (addEnt)
+				entities.add(e);
 		}
 		return entities;
 
