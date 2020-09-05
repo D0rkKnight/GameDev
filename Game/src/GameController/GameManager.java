@@ -6,8 +6,6 @@ import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
-import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
-import static org.lwjgl.opengl.GL11.glGetError;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -150,7 +148,6 @@ public class GameManager {
 		try {
 			mapData = Serializer.loadTileGrids(mapFile, tileLookup);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			System.err.println("map error");
 			e.printStackTrace();
 		}
@@ -163,11 +160,13 @@ public class GameManager {
 
 	public static void switchMap(String fileDir, String fileName) {
 		Debug.clearElements();
+		Drawer.freeMemory(); // This is a hack, the chunk buffers should NOT be freed like this.
+		// TODO
 
 		// Dump entities
 		for (Entity e : entities)
 			if (!(e instanceof Player))
-				entityClearList.add(e);
+				unsubscribeEntity(e);
 		entityWaitingList.clear();
 		updateEntityList();
 
@@ -190,7 +189,6 @@ public class GameManager {
 	private static void initEntities(Document mapFile) {
 
 		ArrayList<Entity> entitytemp = Serializer.loadEntities(mapFile, entityHash, tileSize);
-		System.out.println(entitytemp.size());
 		for (Entity e : entitytemp) {
 			subscribeEntity(e);
 		}
@@ -252,15 +250,6 @@ public class GameManager {
 		// Remember the lambda callback we attached to key presses? This is where the
 		// function returns.
 		while (!glfwWindowShouldClose(Drawer.window)) {
-
-			// An error in drawer...
-			int err;
-			if ((err = glGetError()) != GL_NO_ERROR) {
-				System.out.println(err);
-				new Exception("OpenGL ERROR").printStackTrace();
-				System.exit(1);
-			}
-
 			Time.updateTime();
 
 			// Drawing stuff

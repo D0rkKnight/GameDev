@@ -73,7 +73,7 @@ public class Serializer {
 		int th = Integer.parseInt(tilesetE.getAttribute("tileheight"));
 
 		String src = srcE.getAttribute("source");
-		Texture[] tileSheet = Texture.unpackSpritesheet(fdir + src, tw, th).texs;
+		Texture[] tileSheet = Texture.getSprSheet(fdir + src, tw, th).texs;
 
 		for (int i = 0; i < nList.getLength(); i++) {
 			Element e = (Element) nList.item(i);

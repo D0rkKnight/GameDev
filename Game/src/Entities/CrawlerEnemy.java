@@ -33,7 +33,7 @@ public class CrawlerEnemy extends Enemy {
 		dim = new Vector2f(96f, 96f);
 		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE,
 				new Color());
-		((GeneralRenderer) this.renderer).spr = new Texture("assets/Sprites/circle_saw.png");
+		((GeneralRenderer) this.renderer).spr = Texture.getTex("assets/Sprites/circle_saw.png");
 
 		// Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);

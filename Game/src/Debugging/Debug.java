@@ -52,7 +52,7 @@ public class Debug {
 		debugElements = new ArrayList<DebugElement>();
 
 		debugShader = new ColorShader("shader");
-		debugTex = new Texture("assets/Sprites/debugTex.png");
+		debugTex = Texture.getTex("assets/Sprites/debugTex.png");
 
 		trans = new Transformation(new Vector2f(0, 0), Transformation.MATRIX_MODE_WORLD);
 	}
@@ -124,7 +124,7 @@ public class Debug {
 	public static void poll() {
 		int err;
 		if ((err = glGetError()) != GL_NO_ERROR) {
-			System.out.println(err);
+			System.err.println(err);
 			new Exception("OpenGL ERROR").printStackTrace();
 			System.exit(1);
 		}

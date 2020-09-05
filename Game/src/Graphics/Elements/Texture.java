@@ -23,6 +23,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
@@ -33,10 +34,23 @@ import Graphics.Rendering.SpriteSheet;
 public class Texture {
 	private int id;
 	public int width;
-	public int height;
+	public int height; // All these values should be final
 
+	private static HashMap<String, Texture> textureCache;
+	private static HashMap<String, SpriteSheet> sprSheetCache;
+
+	static {
+		textureCache = new HashMap<>();
+		sprSheetCache = new HashMap<>();
+	}
+
+	/**
+	 * Create texture object from already generated texture
+	 * 
+	 * @param id
+	 */
 	public Texture(int id) {
-		this.id = id;
+		this(id, 0, 0);
 		System.err.println("Width and height not set!");
 	}
 
@@ -46,7 +60,22 @@ public class Texture {
 		this.height = h;
 	}
 
-	public Texture(ByteBuffer pixels, int w, int h) {
+	/**
+	 * Load new texture from file/data
+	 */
+	public static Texture getTex(String url) {
+		Texture t;
+
+		if (!textureCache.containsKey(url)) {
+			t = new Texture(url);
+			textureCache.put(url, t);
+		} else
+			t = textureCache.get(url);
+
+		return t;
+	}
+
+	private Texture(ByteBuffer pixels, int w, int h) {
 		this.width = w;
 		this.height = h;
 		genThisTex(pixels);
@@ -54,7 +83,7 @@ public class Texture {
 		integrityCheck();
 	}
 
-	public Texture(String url) {
+	private Texture(String url) {
 		BufferedImage bi;
 		try {
 			bi = ImageIO.read(new File(url));
@@ -131,6 +160,26 @@ public class Texture {
 		glBindTexture(GL_TEXTURE_2D, id);
 	}
 
+	public static SpriteSheet getSprSheet(String url, int tw, int th) {
+		SpriteSheet sprSheet;
+		if (!sprSheetCache.containsKey(url)) {
+			// Generate new spritesheet
+			sprSheet = unpackSpritesheet(url, tw, th);
+			sprSheetCache.put(url, sprSheet);
+		} else {
+
+			// Pull from cache
+			sprSheet = sprSheetCache.get(url);
+
+			if (sprSheet.tw != tw || sprSheet.th != th) {
+				new Exception("Sprite sheet already loaded but with different dimensions").printStackTrace();
+				System.exit(1);
+			}
+		}
+
+		return sprSheet;
+	}
+
 	/**
 	 * Take a spritesheet and turn it into a 1D array of textures.s
 	 * 
@@ -141,7 +190,7 @@ public class Texture {
 	 * @param th: height of 1 tile
 	 * @return
 	 */
-	public static SpriteSheet unpackSpritesheet(String url, int tw, int th) {
+	private static SpriteSheet unpackSpritesheet(String url, int tw, int th) {
 		BufferedImage bi = null;
 		try {
 			bi = ImageIO.read(new File(url));
@@ -166,7 +215,7 @@ public class Texture {
 			}
 		}
 
-		return new SpriteSheet(out, tilesWide, tilesTall);
+		return new SpriteSheet(out, tilesWide, tilesTall, tw, th);
 	}
 
 	public int getId() {

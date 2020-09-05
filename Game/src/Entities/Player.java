@@ -74,7 +74,7 @@ public class Player extends Combatant {
 		movementMode = MOVEMENT_MODE_CONTROLLED;
 
 		// Configure animation stuff
-		SpriteSheet animSheet = Texture.unpackSpritesheet("Assets/Sprites/Ilyia_idle-running_proto.png", 96, 96);
+		SpriteSheet animSheet = Texture.getSprSheet("Assets/Sprites/Ilyia_idle-running_proto.png", 96, 96);
 		Animation[] anims = new Animation[3];
 		anims[Animator.ANIM_IDLE] = new Animation(animSheet.getRow(0, 4));
 		anims[PlayerAnimator.ANIM_ACCEL] = new Animation(animSheet.getRow(1, 12));

@@ -17,30 +17,12 @@ import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_NEAREST;
-import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
-import static org.lwjgl.opengl.GL11.GL_RGB;
-import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
-import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glGenTextures;
-import static org.lwjgl.opengl.GL11.glGetError;
-import static org.lwjgl.opengl.GL11.glTexImage2D;
-import static org.lwjgl.opengl.GL11.glTexParameteri;
-import static org.lwjgl.opengl.GL20.glDrawBuffers;
-import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
-import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_COMPLETE;
 import static org.lwjgl.opengl.GL30.glBindFramebuffer;
-import static org.lwjgl.opengl.GL30.glCheckFramebufferStatus;
-import static org.lwjgl.opengl.GL30.glFramebufferTexture2D;
-import static org.lwjgl.opengl.GL30.glGenFramebuffers;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -60,6 +42,7 @@ import GameController.Camera;
 import GameController.GameManager;
 import GameController.Input;
 import GameController.Map;
+import Graphics.Elements.DrawBuffer;
 import Graphics.Elements.Texture;
 import Tiles.Tile;
 import UI.UI;
@@ -72,18 +55,17 @@ import Wrappers.Color;
 public class Drawer {
 	public static long window;
 
-	public static int drawBuff;
-	public static int drawTex;
+	public static DrawBuffer drawBuff;
 	private static DrawBufferRenderer fBuffRend;
 	private static GeneralRenderer chunkRend;
+	private static Tile[][] chunkRendGrid;
 
-	private static int[][] tileChunkBuffers;
-	private static Texture[][] tileChunkTexs;
+	private static DrawBuffer[] tileChunkDrawBuffers;
 	public static final int CHUNK_SIZE = 16;
 
 	public static void draw(Map map, ArrayList<Entity> entities) {
 		// Draw to framebuffer please
-		glBindFramebuffer(GL_FRAMEBUFFER, Drawer.drawBuff);
+		glBindFramebuffer(GL_FRAMEBUFFER, drawBuff.fbuff);
 
 		// Clear frame buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -105,8 +87,8 @@ public class Drawer {
 		txMax++;
 		tyMax++;
 
-		int chunkGridW = tileChunkTexs.length;
-		int chunkGridH = tileChunkTexs[0].length;
+		int chunkGridW = chunkRendGrid.length / CHUNK_SIZE;
+		int chunkGridH = chunkRendGrid[0].length / CHUNK_SIZE;
 
 		txMin = Math.max(txMin, 0);
 		txMax = Math.min(txMax, chunkGridW);
@@ -116,7 +98,7 @@ public class Drawer {
 		// Draw all of the textures
 		for (int i = txMin; i < txMax; i++) {
 			for (int j = tyMin; j < tyMax; j++) {
-				Texture tex = tileChunkTexs[i][j];
+				Texture tex = tileChunkDrawBuffers[i + (j * chunkGridW)].tex;
 
 				chunkRend.spr = tex;
 
@@ -144,18 +126,11 @@ public class Drawer {
 			fBuffRend.init(
 					new Transformation(new Vector2f(0, Camera.main.viewport.y), Transformation.MATRIX_MODE_SCREEN),
 					Camera.main.viewport, HammerShape.HAMMER_SHAPE_SQUARE, new Color(0, 0, 0, 0));
-			fBuffRend.spr = new Texture(drawTex);
+			fBuffRend.spr = drawBuff.tex;
 		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		fBuffRend.render();
-
-		int err;
-		if ((err = glGetError()) != GL_NO_ERROR) {
-			System.out.println(err);
-			new Exception("OpenGL ERROR").printStackTrace();
-			System.exit(1);
-		}
 
 		// Overlay debug elements
 		Debug.renderDebug();
@@ -243,29 +218,7 @@ public class Drawer {
 		/**
 		 * Draw buffer configuration
 		 */
-
-		drawBuff = glGenFramebuffers();
-		glBindFramebuffer(GL_FRAMEBUFFER, drawBuff);
-
-		drawTex = glGenTextures();
-
-		glBindTexture(GL_TEXTURE_2D, drawTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1280, 720, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-		// Poor filtering. Needed !
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-		// Bind texture to active frame buffer (not the same thing as "drawBuff", it is
-		// GL_COLOR_ATTACHMENT0 in this case. It's just a static buffer.)
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, drawTex, 0);
-
-		// Configure that color0 is to be drawn to by shaders.
-		glDrawBuffers(GL_COLOR_ATTACHMENT0);
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-			System.err.println("Error!!!");
-		}
+		drawBuff = DrawBuffer.genEmptyBuffer(1280, 720);
 
 		// Reset to the regular buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -275,55 +228,45 @@ public class Drawer {
 		fBuffRend = new DrawBufferRenderer(shader);
 	}
 
-	public static void initTileChunks(Tile[][] grid) {
-		int w = grid.length;
-		int h = grid[0].length;
+	public static void initTileChunks(Tile[][] g) {
+		chunkRendGrid = g;
+
+		int w = chunkRendGrid.length;
+		int h = chunkRendGrid[0].length;
 
 		if (w % CHUNK_SIZE != 0 || h % CHUNK_SIZE != 0) {
 			new Exception("Bad size!").printStackTrace();
 		}
 
-		tileChunkBuffers = new int[w / CHUNK_SIZE][h / CHUNK_SIZE];
-		tileChunkTexs = new Texture[tileChunkBuffers.length][tileChunkBuffers[0].length];
+		int cw = w / CHUNK_SIZE;
+		int ch = h / CHUNK_SIZE;
 
-		for (int i = 0; i < tileChunkBuffers.length; i++) {
-			for (int j = 0; j < tileChunkBuffers[0].length; j++) {
-				// Gen the buffer
-				int buff = glGenFramebuffers();
-				tileChunkBuffers[i][j] = buff;
-				glBindFramebuffer(GL_FRAMEBUFFER, buff);
+		DrawBuffer[] newTCDBuff = new DrawBuffer[cw * ch];
 
-				int tex = glGenTextures();
+		for (int i = 0; i < cw; i++) {
+			for (int j = 0; j < ch; j++) {
+				int index = i + (j * cw);
+				DrawBuffer dBuff;
 
-				glBindTexture(GL_TEXTURE_2D, tex);
-
-				int chunkDims = CHUNK_SIZE * GameManager.tileSize;
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, chunkDims, chunkDims, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-				tileChunkTexs[i][j] = new Texture(tex, chunkDims, chunkDims);
-
-				// Poor filtering. Needed !
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-				// Bind texture to active frame buffer (not the same thing as "drawBuff", it is
-				// GL_COLOR_ATTACHMENT0 in this case. It's just a static buffer.)
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
-
-				// Configure that color0 is to be drawn to by shaders.
-				glDrawBuffers(GL_COLOR_ATTACHMENT0);
-
-				if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-					System.err.println("Error!!!");
+				// Don't create new buffers if it's not necessary
+				if (tileChunkDrawBuffers != null && index < tileChunkDrawBuffers.length) {
+					dBuff = tileChunkDrawBuffers[index];
+					if (dBuff == null) {
+						new Exception("Draw Buffer Array has empty index?").printStackTrace();
+						System.exit(1);
+					}
+				} else {
+					int chunkDims = CHUNK_SIZE * GameManager.tileSize;
+					dBuff = DrawBuffer.genEmptyBuffer(chunkDims, chunkDims);
 				}
 
-				// Clear frame buffer, sets background color
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				newTCDBuff[index] = dBuff;
+				glBindFramebuffer(GL_FRAMEBUFFER, dBuff.fbuff);
 
 				// Now iterate over every tile in this grid that lies within the chunk
 				for (int a = i * CHUNK_SIZE; a < (i + 1) * CHUNK_SIZE; a++) {
 					for (int b = j * CHUNK_SIZE; b < (j + 1) * CHUNK_SIZE; b++) {
-						Tile t = grid[a][b];
+						Tile t = chunkRendGrid[a][b];
 						if (t == null)
 							continue;
 
@@ -349,6 +292,9 @@ public class Drawer {
 			}
 		}
 
+		// Assign back to TCDBuff
+		tileChunkDrawBuffers = newTCDBuff;
+
 		// Free the frame buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -358,6 +304,11 @@ public class Drawer {
 		float dim = GameManager.tileSize * CHUNK_SIZE;
 		chunkRend.init(new Transformation(new Vector2f(), Transformation.MATRIX_MODE_WORLD), new Vector2f(dim, dim),
 				HammerShape.HAMMER_SHAPE_SQUARE, new Color());
+	}
+
+	public static void freeMemory() {
+		// TODO Auto-generated method stub
+
 	}
 
 	public static Vector2f GetWindowSize() {
