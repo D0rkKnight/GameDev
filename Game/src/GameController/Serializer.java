@@ -19,6 +19,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.joml.Vector2f;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -264,20 +265,20 @@ public class Serializer {
 			Entity newE = null;
 
 			if (readMode == READ_MODE_COMBATANT) {
-				System.out.println(activeDataHash);
 				float HP = rhFloat("HP");
 				float ST = rhFloat("Stamina");
 				float HPR = rhFloat("HPregen");
 				float STR = rhFloat("StaminaRegen");
+				Stats stats = new Stats(HP, ST, HPR, STR);
 
 				if (name.equals("Player")) {
-					newE = new Player(ID, null, renderer, name, new Stats(HP, ST, HPR, STR));
+					newE = new Player(ID, null, renderer, name, stats);
 				} else if (name.equals("Floater")) {
-					newE = new FloaterEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR));
+					newE = new FloaterEnemy(ID, null, renderer, name, stats);
 				} else if (name.equals("Bouncer")) {
-					newE = new ShardSlimeEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR));
+					newE = new ShardSlimeEnemy(ID, null, renderer, name, stats);
 				} else if (name.equals("Crawler")) {
-					newE = new CrawlerEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR));
+					newE = new CrawlerEnemy(ID, null, renderer, name, stats);
 				}
 			}
 
@@ -293,7 +294,7 @@ public class Serializer {
 
 			else if (readMode == READ_MODE_STATIC) {
 				if (name.equals("Entrance")) {
-					newE = new Entrance(ID, null, renderer, name);
+					newE = new Entrance(ID, null, renderer, name, new Vector2f(30, 30));
 				}
 			}
 
@@ -322,7 +323,7 @@ public class Serializer {
 
 	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash, int tileSize) {
 		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
-		@SuppressWarnings("unused")
+
 		int width = Integer.parseInt(layerE.getAttribute("width"));
 		int height = Integer.parseInt(layerE.getAttribute("height"));
 
@@ -335,36 +336,47 @@ public class Serializer {
 			Element entity = (Element) objects.item(i);
 			int ID = Integer.parseInt((entity).getAttribute("type"));
 
-			float xPos = Float.parseFloat((entity).getAttribute("x")) / GameManager.tileSpriteSize;
-			float yPos = Float.parseFloat((entity).getAttribute("y")) / GameManager.tileSpriteSize;
+			// Loading data in tile cords
+			float eTileW = Float.parseFloat((entity).getAttribute("width")) / GameManager.tileSpriteSize;
+			float eTileH = Float.parseFloat((entity).getAttribute("height")) / GameManager.tileSpriteSize;
 
-			yPos += Float.parseFloat((entity).getAttribute("height")) / GameManager.tileSpriteSize;
-			yPos = height - yPos;
+			float xTPos = Float.parseFloat((entity).getAttribute("x")) / GameManager.tileSpriteSize;
+			float yTPos = Float.parseFloat((entity).getAttribute("y")) / GameManager.tileSpriteSize;
 
-			Entity e = entityHash.get(ID);
+			yTPos += eTileH;
+			yTPos = height - yTPos;
 
-			if (i == 0 && !(e instanceof Player)) {
+			Entity baseE = entityHash.get(ID);
+			Entity e = null;
+
+			if (i == 0 && !(baseE instanceof Player)) {
 				new Exception("Player not first in entity queue.").printStackTrace();
 				System.exit(1);
 			}
 
-			float newX = xPos * GameManager.tileSize;
-			float newY = yPos * GameManager.tileSize;
+			// Converting to world cords
+			float newX = xTPos * GameManager.tileSize;
+			float newY = yTPos * GameManager.tileSize;
+			float newW = eTileW * GameManager.tileSize;
+			float newH = eTileH * GameManager.tileSize;
 
 			boolean addEnt = true;
 
-			if (e instanceof Player) {
+			if (baseE instanceof Player) {
 				if (GameManager.player == null) {
-					e = entityHash.get(ID).createNew(newX, newY);
+					e = baseE.createNew(newX, newY);
 					GameManager.player = (Player) e;
 				} else {
 					GameManager.player.getPosition().set(newX, newY);
 					addEnt = false;
 				}
-			} else if (e instanceof Interactive) {
-				e = ((Button) entityHash.get(ID)).createNew(newX, yPos * newY, GameManager.player);
+			} else if (baseE instanceof Interactive) {
+				e = ((Button) baseE).createNew(newX, yTPos * newY, GameManager.player);
+			} else if (baseE instanceof Entrance) {
+
+				e = ((Entrance) baseE).createNew(newX, newY, newW, newH);
 			} else {
-				e = entityHash.get(ID).createNew(newX, newY);
+				e = baseE.createNew(newX, newY);
 			}
 
 			if (addEnt)
