@@ -206,7 +206,7 @@ public class GameManager {
 		for (Entity e : entitytemp) {
 			subscribeEntity(e);
 		}
-		player = (Player) entityWaitingList.get(0);
+
 		initPlayer();
 
 	}
@@ -326,16 +326,7 @@ public class GameManager {
 	 */
 	private void update() {
 
-		// Dump entity waiting list into entity list
-		for (Entity e : entityWaitingList) {
-			entities.add(e);
-		}
-		entityWaitingList.clear();
-
-		// Filter deleted entities out
-		for (Entity e : entityClearList) {
-			entities.remove(e);
-		}
+		updateEntityList();
 
 		// Each entity makes decisions
 		for (Entity ent : entities) {
@@ -385,4 +376,17 @@ public class GameManager {
 		Camera.main.update();
 	}
 
+	public void updateEntityList() {
+		// Dump entity waiting list into entity list
+		for (Entity e : entityWaitingList) {
+			entities.add(e);
+		}
+		entityWaitingList.clear();
+
+		// Filter deleted entities out
+		for (Entity e : entityClearList) {
+			entities.remove(e);
+		}
+		entityClearList.clear();
+	}
 }

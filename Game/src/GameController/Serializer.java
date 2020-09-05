@@ -223,11 +223,14 @@ public class Serializer {
 		for (int i = 0; i < enemies; i++) {
 			String[] enemy = charFile.readLine().split(":");
 			String name = enemy[0].split(",")[1];
+
 			int ID = Integer.parseInt(enemy[1].split(",")[1]);
 			float HP = Float.parseFloat(enemy[2].split(",")[1]);
 			float ST = Float.parseFloat(enemy[3].split(",")[1]);
 			float HPR = Float.parseFloat(enemy[4].split(",")[1]);
 			float STR = Float.parseFloat(enemy[5].split(",")[1]);
+
+			// TODO: Please, a more extendable solution
 			if (name.equals("Player")) {
 				enemyHash.put(i, new Player(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
 			} else if (name.equals("Floater")) {
@@ -268,15 +271,26 @@ public class Serializer {
 			yPos += Float.parseFloat((entity).getAttribute("height")) / GameManager.tileSpriteSize;
 			yPos = height - yPos;
 
-			Entity e;
-			if (entityHash.get(ID) instanceof Player) {
-				e = entityHash.get(ID).createNew(xPos * GameManager.tileSize, yPos * GameManager.tileSize);
-				GameManager.player = (Player) e;
-			} else if (entityHash.get(ID) instanceof Interactive) {
-				e = ((Button) entityHash.get(ID)).createNew(xPos * GameManager.tileSize, yPos * GameManager.tileSize,
-						GameManager.player);
+			Entity e = entityHash.get(ID);
+
+			if (i == 0 && !(e instanceof Player)) {
+				new Exception("Player not first in entity queue.").printStackTrace();
+				System.exit(1);
+			}
+
+			float newX = xPos * GameManager.tileSize;
+			float newY = yPos * GameManager.tileSize;
+			if (e instanceof Player) {
+				if (GameManager.player == null) {
+					e = entityHash.get(ID).createNew(newX, newY);
+					GameManager.player = (Player) e;
+				} else {
+					GameManager.player.getPosition().set(newX, newY);
+				}
+			} else if (e instanceof Interactive) {
+				e = ((Button) entityHash.get(ID)).createNew(newX, yPos * newY, GameManager.player);
 			} else {
-				e = entityHash.get(ID).createNew(xPos * GameManager.tileSize, yPos * GameManager.tileSize);
+				e = entityHash.get(ID).createNew(newX, newY);
 			}
 
 			entities.add(e);
