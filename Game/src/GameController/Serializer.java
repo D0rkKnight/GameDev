@@ -32,6 +32,7 @@ import Entities.FloaterEnemy;
 import Entities.Player;
 import Entities.ShardSlimeEnemy;
 import Entities.Framework.Entity;
+import Entities.Framework.Entrance;
 import Entities.Framework.Interactive;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
@@ -209,6 +210,14 @@ public class Serializer {
 		return grid;
 	}
 
+	private static final int READ_MODE_NONE = 0;
+	private static final int READ_MODE_COMBATANT = 1;
+	private static final int READ_MODE_INTERACTABLE = 2;
+	private static final int READ_MODE_STATIC = 3;
+
+	private static int readMode = READ_MODE_NONE;
+	private static HashMap<String, String> activeDataHash;
+
 	public static HashMap<Integer, Entity> loadEntityHash(String fileDir, String fileName, GeneralRenderer renderer)
 			throws NumberFormatException, IOException {
 		BufferedReader charFile = null;
@@ -218,36 +227,97 @@ public class Serializer {
 			System.err.println("File not found");
 			e.printStackTrace();
 		}
-		int enemies = Integer.parseInt(charFile.readLine().split(":")[1]);
-		HashMap<Integer, Entity> enemyHash = new HashMap<Integer, Entity>();
-		for (int i = 0; i < enemies; i++) {
-			String[] enemy = charFile.readLine().split(":");
-			String name = enemy[0].split(",")[1];
 
-			int ID = Integer.parseInt(enemy[1].split(",")[1]);
-			float HP = Float.parseFloat(enemy[2].split(",")[1]);
-			float ST = Float.parseFloat(enemy[3].split(",")[1]);
-			float HPR = Float.parseFloat(enemy[4].split(",")[1]);
-			float STR = Float.parseFloat(enemy[5].split(",")[1]);
+		HashMap<Integer, Entity> entityHash = new HashMap<Integer, Entity>();
 
-			// TODO: Please, a more extendable solution
-			if (name.equals("Player")) {
-				enemyHash.put(i, new Player(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
-			} else if (name.equals("Floater")) {
-				enemyHash.put(i, new FloaterEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
-			} else if (name.equals("Bouncer")) {
-				enemyHash.put(i, new ShardSlimeEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
-			} else if (name.equals("Button")) {
-				enemyHash.put(i, new Button(ID, null, renderer, name, Integer.parseInt(enemy[6].split(",")[1]),
-						Integer.parseInt(enemy[7].split(",")[1]), Float.parseFloat(enemy[8].split(",")[1]), null));
-			} else if (name.equals("Crawler")) {
-				enemyHash.put(i, new CrawlerEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR)));
-			} else {
-				System.err.println("error, wrong enemy name");
+		String line;
+		while ((line = charFile.readLine()) != null) {
+			if (line.isEmpty())
+				continue;
+
+			if (line.contains("COMBATANTS")) {
+				readMode = READ_MODE_COMBATANT;
+				continue;
+			} else if (line.contains("INTERACTABLES")) {
+				readMode = READ_MODE_INTERACTABLE;
+				continue;
+			} else if (line.contains("STATIC")) {
+				readMode = READ_MODE_STATIC;
+				continue;
 			}
-		}
-		return enemyHash;
 
+			if (readMode == READ_MODE_NONE) {
+				new Exception("Read mode not specified at start of file").printStackTrace();
+				System.exit(1);
+			}
+
+			// Format the data
+			String[] enemy = line.split(":");
+			activeDataHash = new HashMap<>();
+			for (String str : enemy) {
+				String[] splitStr = str.split(",");
+				activeDataHash.put(splitStr[0], splitStr[1]);
+			}
+
+			String name = activeDataHash.get("Name");
+			int ID = Integer.parseInt(activeDataHash.get("ID"));
+			Entity newE = null;
+
+			if (readMode == READ_MODE_COMBATANT) {
+				System.out.println(activeDataHash);
+				float HP = rhFloat("HP");
+				float ST = rhFloat("Stamina");
+				float HPR = rhFloat("HPregen");
+				float STR = rhFloat("StaminaRegen");
+
+				if (name.equals("Player")) {
+					newE = new Player(ID, null, renderer, name, new Stats(HP, ST, HPR, STR));
+				} else if (name.equals("Floater")) {
+					newE = new FloaterEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR));
+				} else if (name.equals("Bouncer")) {
+					newE = new ShardSlimeEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR));
+				} else if (name.equals("Crawler")) {
+					newE = new CrawlerEnemy(ID, null, renderer, name, new Stats(HP, ST, HPR, STR));
+				}
+			}
+
+			else if (readMode == READ_MODE_INTERACTABLE) {
+				int STATE = rhInt("State");
+				int TIME_ON = rhInt("TimeOn");
+				float ACT_DIST = rhFloat("ActivationDistance");
+
+				if (name.equals("Button")) {
+					newE = new Button(ID, null, renderer, name, STATE, TIME_ON, ACT_DIST, null);
+				}
+			}
+
+			else if (readMode == READ_MODE_STATIC) {
+				if (name.equals("Entrance")) {
+					newE = new Entrance(ID, null, renderer, name);
+				}
+			}
+
+			if (newE == null) {
+				new Exception("Enemy cannot be found").printStackTrace();
+				System.exit(1);
+			}
+
+			entityHash.put(ID, newE);
+		}
+		return entityHash;
+
+	}
+
+	private static int rhInt(String str) {
+		return Integer.parseInt(activeDataHash.get(str));
+	}
+
+	private static float rhFloat(String str) {
+		return Float.parseFloat(activeDataHash.get(str));
+	}
+
+	private static String rhStr(String str) {
+		return activeDataHash.get(str);
 	}
 
 	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash, int tileSize) {
