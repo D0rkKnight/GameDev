@@ -23,6 +23,7 @@ public class Melee extends Entity implements Collidable {
 	Entity owner;
 	int alignment;
 	Vector2f kbDir;
+	Vector2f offset;
 	
 	ArrayList<Entity> hitEntities;
 	
@@ -30,7 +31,7 @@ public class Melee extends Entity implements Collidable {
 
 	public Melee(int ID, Vector2f position, Renderer renderer, String name, Entity owner, Vector2f kbDir) {
 		super(ID, position, renderer, name);
-		
+		offset = new Vector2f(owner.position.x - position.x, owner.position.y - position.y);
 		this.owner = owner;
 		if (owner instanceof PhysicsEntity) alignment = ((PhysicsEntity) owner).alignment;
 		else System.err.println("Attack owned by non physic entity?");
@@ -52,7 +53,7 @@ public class Melee extends Entity implements Collidable {
 
 	@Override
 	public void calculate() {
-		// TODO Auto-generated method stub
+		controlledMovement();
 		
 	}
 
@@ -64,7 +65,8 @@ public class Melee extends Entity implements Collidable {
 
 	@Override
 	public void controlledMovement() {
-		// TODO Auto-generated method stub
+		position.x = owner.position.x - offset.x;
+		position.y = owner.position.y - offset.y;
 		
 	}
 

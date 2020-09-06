@@ -181,7 +181,7 @@ public class Player extends Combatant {
 
 		// Melee
 		if (Input.meleeAction && meleeTimer == null) {
-			melee();
+			melee(Input.mouseWorldPos);
 		}
 
 		// Update timers
@@ -341,11 +341,17 @@ public class Player extends Combatant {
 		GameManager.subscribeEntity(proj);
 	}
 
-	private void melee() {
+	private void melee(Vector2f firePos) {
+		int meleedis = 50;//hardcode TODO
 		Vector2f kbDir = new Vector2f(sideFacing, 0);
-		meleeEntity = new Melee(1, new Vector2f(position), GameManager.renderer, "Melee", this, kbDir);
+		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32));
+		Vector2f dir = new Vector2f(firePos).sub(pos).normalize();
+		Vector2f mPos = new Vector2f(dir.x * meleedis + position.x, dir.y * meleedis 
+				+ position.y);
+		meleeEntity = new Melee(1, mPos, GameManager.renderer, "Melee", this, kbDir);
 		GameManager.subscribeEntity(meleeEntity);
-
+		//float angle = Math.tan(new Vector2f(firePos).sub(pos).y / new Vector2f(firePos).sub(pos).x);
+		//meleeEntity.transform.rot.rotateLocalY(angle);
 		meleeTimer = new Timer(200, new TimerCallback() {
 
 			@Override
@@ -364,14 +370,14 @@ public class Player extends Combatant {
 		super.pushMovement();
 
 		// Dragging melee box along, after collision has been resolved.
-		if (meleeEntity != null) {
+		//if (meleeEntity != null) {
 			// Update melee entity (drag it along with the character)
-			Vector2f centerD = new Vector2f(-dim.x / 2, 15);
-			Vector2f sideD = new Vector2f(30, 0).mul(sideFacing);
+			//Vector2f centerD = new Vector2f(-dim.x / 2, 15);
+			//Vector2f sideD = new Vector2f(30, 0).mul(sideFacing);
 
-			meleeEntity.getPosition().set(position).add(centerD).add(sideD);
+			//meleeEntity.getPosition().set(position).add(centerD).add(sideD);
 			;
-		}
+		//}
 	}
 
 	@Override
