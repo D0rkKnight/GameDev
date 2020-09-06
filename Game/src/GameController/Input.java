@@ -9,7 +9,6 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_L;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_LAST;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LAST;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
@@ -148,11 +147,6 @@ public class Input {
 			moveY++;
 		if (keyStates[GLFW_KEY_S])
 			moveY--;
-
-		// Testing
-		if (action == GLFW_PRESS && key == GLFW_KEY_SPACE) {
-			GameManager.switchMap("assets/Maps/", "test2.tmx");
-		}
 	}
 
 	public static void updateMouse(long window, int button, int action, int mods) {

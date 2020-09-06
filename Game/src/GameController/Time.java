@@ -9,15 +9,14 @@ public class Time {
 	private static long startTime;
 
 	public static void initTime() {
-		currTime = System.nanoTime() / 1000000;
-		lastTime = currTime;
+		reset();
 
 		startTime = currTime;
 	}
 
 	public static void updateTime() {
 		lastTime = currTime;
-		currTime = System.nanoTime() / 1000000;
+		currTime = getT();
 
 		deltaTime = currTime - lastTime;
 		deltaTime = Math.max(1, deltaTime);
@@ -38,5 +37,14 @@ public class Time {
 
 	public static long timeSinceStart() {
 		return (currTime - startTime);
+	}
+
+	public static void reset() {
+		currTime = getT();
+		lastTime = currTime;
+	}
+
+	private static long getT() {
+		return System.nanoTime() / 1000000;
 	}
 }

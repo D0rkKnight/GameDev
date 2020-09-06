@@ -160,8 +160,6 @@ public class GameManager {
 
 	public static void switchMap(String fileDir, String fileName) {
 		Debug.clearElements();
-		Drawer.freeMemory(); // This is a hack, the chunk buffers should NOT be freed like this.
-		// TODO
 
 		// Dump entities
 		for (Entity e : entities)
@@ -171,7 +169,7 @@ public class GameManager {
 		updateEntityList();
 
 		initMap(fileDir, fileName);
-
+		Time.reset();
 	}
 
 	private void initEntityHash(String fileDir, String fileName) {
