@@ -345,16 +345,22 @@ public class Player extends Combatant {
 		int meleedis = 50;// hardcode TODO
 		Vector2f kbDir = new Vector2f(sideFacing, 0);
 
-		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32));
+		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32)); // Hardcoded fun
+		pos.sub(16, 16); // TODO: Fix hardcode
+
 		Vector2f dir = new Vector2f(firePos).sub(pos).normalize();
+		Vector2f dist = new Vector2f(dir).mul(meleedis);
 
-		Vector2f mPos = new Vector2f(dir.x * meleedis + position.x, dir.y * meleedis + position.y);
-
+		Vector2f mPos = new Vector2f(pos).add(dist);
 		meleeEntity = new Melee(1, mPos, GameManager.renderer, "Melee", this, kbDir);
 		GameManager.subscribeEntity(meleeEntity);
 
-		float angle = Math.tan(new Vector2f(firePos).sub(pos).y / new Vector2f(firePos).sub(pos).x);
-		meleeEntity.transform.rot.rotateLocalY(angle);
+		float angle = Math.atan2(dir.y, dir.x);
+		Matrix4f rot = meleeEntity.transform.rot;
+
+		rot.translate(meleeEntity.dim.x / 2, meleeEntity.dim.y / 2, 0);
+		rot.rotateZ(angle);
+		rot.translate(-meleeEntity.dim.x / 2, -meleeEntity.dim.y / 2, 0);
 
 		meleeTimer = new Timer(200, new TimerCallback() {
 
