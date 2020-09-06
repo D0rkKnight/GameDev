@@ -11,6 +11,8 @@ import GameController.GameManager;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
 import Utility.Transformation;
+import Utility.Timers.Timer;
+import Utility.Timers.TimerCallback;
 import Wrappers.Color;
 
 public class Entrance extends Entity implements Collidable {
@@ -32,7 +34,19 @@ public class Entrance extends Entity implements Collidable {
 	@Override
 	public void onHit(Hitbox otherHb) {
 		if (otherHb.owner instanceof Player) {
-			GameManager.switchMap("assets/Maps/", "test2.tmx");
+			GameManager.roomChanging = true;
+			System.out.println("Timer created for roomchange");
+			GameManager.switchTimer = new Timer(200, new TimerCallback() {
+
+				@Override
+				public void invoke(Timer timer) {
+					System.out.println("Switch maps");
+
+					GameManager.switchMap("assets/Maps/", "test2.tmx");
+					GameManager.switchTimer = null;
+				}
+			});
+
 		}
 	}
 
@@ -64,6 +78,12 @@ public class Entrance extends Entity implements Collidable {
 
 	public Entrance createNew(float xPos, float yPos, float width, float height) {
 		return new Entrance(ID, new Vector2f(xPos, yPos), renderer, name, new Vector2f(width, height));
+	}
+
+	@Override
+	public void calculate() {
+		// nothing to do for now TODO sprites
+
 	}
 
 }

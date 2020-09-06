@@ -53,8 +53,7 @@ public abstract class Entity implements CanBeCloned {
 		}
 	}
 
-	public void calculate() {
-	}
+	public abstract void calculate();
 
 	public void updateChildren() {
 		renderer.transform.pos.set(position).add(rendOffset);

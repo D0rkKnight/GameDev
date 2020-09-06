@@ -29,6 +29,7 @@ import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
 import Tiles.Tile;
 import UI.UI;
+import Utility.Timers.Timer;
 
 public class GameManager {
 
@@ -62,6 +63,10 @@ public class GameManager {
 	static private ArrayList<Hitbox> coll;
 
 	public static Player player;
+	
+	//If room is changing (all entities continue to move/freeze in place)
+	public static boolean roomChanging = false;
+	public static Timer switchTimer;
 
 	public static final int tileSize = 8;
 	public static final int tileSpriteSize = 4;
@@ -243,7 +248,7 @@ public class GameManager {
 	 * Game loop that handles rendering and stuff
 	 */
 	private void loop() {
-
+		
 		// Into the rendering loop we go
 		// Remember the lambda callback we attached to key presses? This is where the
 		// function returns.
@@ -326,6 +331,11 @@ public class GameManager {
 		}
 
 		Camera.main.update();
+		System.out.println("Checking");
+		if(switchTimer != null) {
+			System.out.println("Updating");
+			switchTimer.update();
+		}
 	}
 
 	public static void updateEntityList() {
