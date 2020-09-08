@@ -287,6 +287,7 @@ public class GameManager {
 		}
 
 		Camera.main.update();
+		
 		if (switchTimer != null) {
 			switchTimer.update();
 		}

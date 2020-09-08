@@ -123,9 +123,9 @@ public class Player extends Combatant {
 	@Override
 	public void calculate() {
 		super.calculate();
-
-		determineMovementMode(); // determine what movement mode and execute it
-
+		if(!GameManager.roomChanging) {
+			determineMovementMode(); // determine what movement mode and execute it
+		}
 		GeneralRenderer sprRend = (GeneralRenderer) renderer;
 		switch (movementMode) {
 		case MOVEMENT_MODE_CONTROLLED: // walking
@@ -235,7 +235,7 @@ public class Player extends Combatant {
 		}
 		// Bring entity back to normal
 		if (movementMode == MOVEMENT_MODE_CONTROLLED && justDashed) {
-			pData.velo.y *= 0.2; // TODO hardcode for dash deacc
+			pData.velo.y *= 0.4; // TODO hardcode for dash deacc
 			pData.velo.x *= 0.8;
 			justDashed = false;
 			decelMode(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
