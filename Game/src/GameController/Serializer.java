@@ -294,7 +294,8 @@ public class Serializer {
 
 			else if (readMode == READ_MODE_STATIC) {
 				if (name.equals("Entrance")) {
-					newE = new Entrance(ID, null, renderer, name, new Vector2f(30, 30));
+					// Without configuration, the default value of every entrance id is -1.
+					newE = new Entrance(ID, null, renderer, name, new Vector2f(30, 30), -1);
 				}
 			}
 
@@ -321,6 +322,7 @@ public class Serializer {
 		return activeDataHash.get(str);
 	}
 
+	// TODO: Rewrite this function
 	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash, int tileSize) {
 		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
 
@@ -334,6 +336,22 @@ public class Serializer {
 
 		for (int i = 0; i < entitynum; i++) {
 			Element entity = (Element) objects.item(i);
+
+			HashMap<String, String> propVals = new HashMap<>();
+			Element propPar = retrieveElement(entity, "properties");
+
+			if (propPar != null) {
+				// Write to a hashmap
+				NodeList propList = propPar.getElementsByTagName("property");
+				for (int j = 0; j < propList.getLength(); j++) {
+					Element ele = (Element) propList.item(j);
+					String name = ele.getAttribute("name");
+					String val = ele.getAttribute("value");
+
+					propVals.put(name, val);
+				}
+			}
+
 			int ID = Integer.parseInt((entity).getAttribute("type"));
 
 			// Loading data in tile cords
@@ -367,14 +385,13 @@ public class Serializer {
 					e = baseE.createNew(newX, newY);
 					GameManager.player = (Player) e;
 				} else {
-					GameManager.player.getPosition().set(newX, newY);
 					addEnt = false;
 				}
 			} else if (baseE instanceof Interactive) {
 				e = ((Button) baseE).createNew(newX, yTPos * newY, GameManager.player);
 			} else if (baseE instanceof Entrance) {
-
-				e = ((Entrance) baseE).createNew(newX, newY, newW, newH);
+				int entId = Integer.parseInt(propVals.get("entrId"));
+				e = ((Entrance) baseE).createNew(newX, newY, newW, newH, entId);
 			} else {
 				e = baseE.createNew(newX, newY);
 			}

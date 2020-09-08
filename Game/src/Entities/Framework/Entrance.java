@@ -8,6 +8,7 @@ import Collision.HammerShapes.HammerShape;
 import Debugging.Debug;
 import Entities.Player;
 import GameController.GameManager;
+import GameController.World;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
 import Utility.Transformation;
@@ -19,7 +20,15 @@ public class Entrance extends Entity implements Collidable {
 
 	private Hitbox hb;
 
-	public Entrance(int ID, Vector2f position, Renderer renderer, String name, Vector2f dims) {
+	private boolean hasBeenConnected = false;
+	public int entranceId;
+	private int targetMap;
+	private int targetEntranceId;
+
+	public boolean isActive = true;
+	private int exclusionRadius = 100;
+
+	public Entrance(int ID, Vector2f position, Renderer renderer, String name, Vector2f dims, int entranceId) {
 		super(ID, position, renderer, name);
 
 		dim = dims;
@@ -29,21 +38,33 @@ public class Entrance extends Entity implements Collidable {
 
 		// Configure hitbox
 		hb = new Hitbox(this, dim.x, dim.y);
+
+		this.entranceId = entranceId;
+	}
+
+	public void setData(int targetMap, int targetEntranceId) {
+		this.targetMap = targetMap;
+		this.targetEntranceId = targetEntranceId;
+
+		hasBeenConnected = true;
 	}
 
 	@Override
 	public void onHit(Hitbox otherHb) {
-		if (otherHb.owner instanceof Player) {
+		if (otherHb.owner instanceof Player && isActive && !GameManager.roomChanging) {
+			if (!hasBeenConnected) {
+				new Exception("Entrance not yet configured.").printStackTrace();
+				System.exit(1);
+			}
+
 			GameManager.roomChanging = true;
-			System.out.println("Timer created for roomchange");
 			GameManager.switchTimer = new Timer(200, new TimerCallback() {
 
 				@Override
 				public void invoke(Timer timer) {
-					System.out.println("Switch maps");
-
-					GameManager.switchMap("assets/Maps/", "test2.tmx");
+					World.switchMap(targetMap, targetEntranceId);
 					GameManager.switchTimer = null;
+					GameManager.roomChanging = false;
 				}
 			});
 
@@ -73,17 +94,21 @@ public class Entrance extends Entity implements Collidable {
 
 	@Override
 	public Entrance createNew(float xPos, float yPos) {
-		return createNew(xPos, yPos, 30, 30);
+		return createNew(xPos, yPos, 30, 30, -1);
 	}
 
-	public Entrance createNew(float xPos, float yPos, float width, float height) {
-		return new Entrance(ID, new Vector2f(xPos, yPos), renderer, name, new Vector2f(width, height));
+	public Entrance createNew(float xPos, float yPos, float width, float height, int entranceId) {
+		return new Entrance(ID, new Vector2f(xPos, yPos), renderer, name, new Vector2f(width, height), entranceId);
 	}
 
 	@Override
 	public void calculate() {
-		// nothing to do for now TODO sprites
+		// Check that the player has moved out of its radius before activating again
+		if (!isActive) {
+			float distToPlayer = new Vector2f(GameManager.player.getPosition()).distance(position);
 
+			if (distToPlayer > exclusionRadius)
+				isActive = true;
+		}
 	}
-
 }

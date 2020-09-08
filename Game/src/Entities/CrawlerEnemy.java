@@ -11,6 +11,7 @@ import Entities.Framework.Combatant;
 import Entities.Framework.Enemy;
 import GameController.GameManager;
 import GameController.Map;
+import GameController.World;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
@@ -44,7 +45,7 @@ public class CrawlerEnemy extends Enemy {
 		if (position != null) {
 			Vector2i tPos = new Vector2i((int) position.x / GameManager.tileSize,
 					(int) position.y / GameManager.tileSize);
-			Tile[][] collGrid = GameManager.currmap.grids.get(GameManager.GRID_COLL);
+			Tile[][] collGrid = World.currmap.grids.get(GameManager.GRID_COLL);
 			for (int i = tPos.y; i >= 0; i--) {
 				Tile t = collGrid[tPos.x][i];
 				if (t == null)

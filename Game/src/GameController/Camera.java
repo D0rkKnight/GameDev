@@ -46,7 +46,7 @@ public class Camera {
 		pos.y = Arithmetic.lerp(pos.y, tPos.y, moveSpeed);
 		
 		//Limit the viewport by its bounds
-		Map map = GameManager.currmap;
+		Map map = World.currmap;
 		float w = map.w;
 		float h = map.h;
 		

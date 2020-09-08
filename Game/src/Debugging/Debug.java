@@ -9,6 +9,7 @@ import org.joml.Vector2f;
 
 import GameController.GameManager;
 import GameController.Map;
+import GameController.World;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.ColorShader;
 import Graphics.Rendering.Shader;
@@ -75,7 +76,7 @@ public class Debug {
 
 		// Draw some coll debug
 		if (drawEdges) {
-			Tile[][] ts = GameManager.currmap.grids.get(GameManager.GRID_COLL);
+			Tile[][] ts = World.currmap.grids.get(GameManager.GRID_COLL);
 			for (Tile[] tarr : ts)
 				for (Tile t : tarr) {
 					if (t == null)

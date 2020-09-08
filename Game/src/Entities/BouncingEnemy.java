@@ -8,8 +8,8 @@ import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
 import Collision.HammerShapes.HammerShape;
 import Debugging.Debug;
 import Entities.Framework.Enemy;
-import GameController.GameManager;
 import GameController.Time;
+import GameController.World;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
 import Tiles.Tile;
@@ -64,7 +64,7 @@ public abstract class BouncingEnemy extends Enemy {
 	public void calculate() {
 		super.calculate();
 
-		Tile[][] grid = GameManager.currmap.grids.get("coll");
+		Tile[][] grid = World.currmap.grids.get("coll");
 
 		if (target != null) {
 			hasGravity = true;

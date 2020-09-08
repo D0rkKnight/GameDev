@@ -263,6 +263,9 @@ public class Drawer {
 				newTCDBuff[index] = dBuff;
 				glBindFramebuffer(GL_FRAMEBUFFER, dBuff.fbuff);
 
+				// Clear the buffer
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 				// Now iterate over every tile in this grid that lies within the chunk
 				for (int a = i * CHUNK_SIZE; a < (i + 1) * CHUNK_SIZE; a++) {
 					for (int b = j * CHUNK_SIZE; b < (j + 1) * CHUNK_SIZE; b++) {

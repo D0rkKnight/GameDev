@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.w3c.dom.Document;
-
 import Collision.Collidable;
 import Collision.Hitbox;
 import Collision.Physics;
@@ -38,17 +36,13 @@ public class GameManager {
 	public static SpriteShader shader;
 	public static Texture[] tileSpritesheet;
 
-	// Storage for tiles
-//	private ArrayList<Map> maps;
-	public static Map currmap;
-
 	// Lookup table for different kinds of tiles
-	private static HashMap<String, HashMap<Integer, Tile>> tileLookup;
+	static HashMap<String, HashMap<Integer, Tile>> tileLookup;
 	// Lookup table for different kinds of accessories
 //	private HashMap<Integer, Accessory> accessoryLookup;
 	// Lookup table for hammershapes
 	public static HashMap<Integer, HammerShape> hammerLookup;
-	private static HashMap<Integer, Entity> entityHash;
+	static HashMap<Integer, Entity> entityHash;
 
 	// current progression of player ingame
 //	private int chapter; // chapter, determines plot events
@@ -57,14 +51,14 @@ public class GameManager {
 //	private int room; // specific room within each level
 
 	// Entity positions in current room
-	static private ArrayList<Entity> entities;
-	static private ArrayList<Entity> entityWaitingList;
+	static ArrayList<Entity> entities;
+	static ArrayList<Entity> entityWaitingList;
 	static private ArrayList<Entity> entityClearList;
 	static private ArrayList<Hitbox> coll;
 
 	public static Player player;
-	
-	//If room is changing (all entities continue to move/freeze in place)
+
+	// If room is changing (all entities continue to move/freeze in place)
 	public static boolean roomChanging = false;
 	public static Timer switchTimer;
 
@@ -108,11 +102,13 @@ public class GameManager {
 		entities = new ArrayList<>();
 		entityWaitingList = new ArrayList<>();
 		entityClearList = new ArrayList<>();
+
 		initCollision();
 		initTiles();
 		initEntityHash("assets/Hashfiles/", "EntitiesTest.txt");
 
-		initMap("assets/Maps/", "test.tmx"); // also should initialize entities
+		World.init(); // also should initialize entities
+		initPlayer();
 
 		UI.init();
 		Time.initTime();
@@ -140,43 +136,6 @@ public class GameManager {
 		}
 	}
 
-	private static void initMap(String fileDir, String fileName) {
-		Document mapFile = null;
-		try {
-			mapFile = Serializer.readDoc(fileDir, fileName);
-		} catch (Exception e) {
-			System.err.println("File not found");
-			e.printStackTrace();
-		}
-
-		HashMap<String, Tile[][]> mapData = null;
-		try {
-			mapData = Serializer.loadTileGrids(mapFile, tileLookup);
-		} catch (Exception e) {
-			System.err.println("map error");
-			e.printStackTrace();
-		}
-
-		currmap = new Map(mapData, null, null, null);// TODO
-		initEntities(mapFile);
-
-		Drawer.initTileChunks(currmap.grids.get("ground"));
-	}
-
-	public static void switchMap(String fileDir, String fileName) {
-		Debug.clearElements();
-
-		// Dump entities
-		for (Entity e : entities)
-			if (!(e instanceof Player))
-				unsubscribeEntity(e);
-		entityWaitingList.clear();
-		updateEntityList();
-
-		initMap(fileDir, fileName);
-		Time.reset();
-	}
-
 	private void initEntityHash(String fileDir, String fileName) {
 		try {
 			entityHash = Serializer.loadEntityHash(fileDir, fileName, renderer);
@@ -187,20 +146,6 @@ public class GameManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	private static void initEntities(Document mapFile) {
-
-		ArrayList<Entity> entitytemp = Serializer.loadEntities(mapFile, entityHash, tileSize);
-		for (Entity e : entitytemp) {
-			subscribeEntity(e);
-		}
-
-		initPlayer();
-	}
-
-	private static void initPlayer() {
-		Camera.main.attach(player);
 	}
 
 	private void initCollision() {
@@ -216,6 +161,17 @@ public class GameManager {
 
 		for (HammerShape h : cache)
 			hammerLookup.put(h.shapeId, h);
+	}
+
+	static void initPlayer() {
+		Camera.main.attach(player);
+	}
+
+	// Simply subscribes an array of entities.
+	public static void loadEntities(ArrayList<Entity> eArr) {
+		for (Entity e : eArr) {
+			GameManager.subscribeEntity(e);
+		}
 	}
 
 	public static void subscribeEntity(Entity e) {
@@ -248,7 +204,7 @@ public class GameManager {
 	 * Game loop that handles rendering and stuff
 	 */
 	private void loop() {
-		
+
 		// Into the rendering loop we go
 		// Remember the lambda callback we attached to key presses? This is where the
 		// function returns.
@@ -257,7 +213,7 @@ public class GameManager {
 
 			// Drawing stuff
 			update();
-			Drawer.draw(currmap, entities);
+			Drawer.draw(World.currmap, entities);
 
 			// Event listening stuff. Key callback is invoked here.
 			// Do wipe input before going in
@@ -295,7 +251,7 @@ public class GameManager {
 		// ________________________________________________________
 
 		// Push in collision deltas
-		Tile[][] grid = currmap.grids.get(GRID_COLL);
+		Tile[][] grid = World.currmap.grids.get(GRID_COLL);
 
 		for (int i = 0; i < coll.size(); i++) {
 			Hitbox c = coll.get(i);
@@ -331,9 +287,7 @@ public class GameManager {
 		}
 
 		Camera.main.update();
-		System.out.println("Checking");
-		if(switchTimer != null) {
-			System.out.println("Updating");
+		if (switchTimer != null) {
 			switchTimer.update();
 		}
 	}

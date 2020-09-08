@@ -6,7 +6,11 @@
  <objectgroup id="3618" name="Objects">
   <object id="1" name="Player" type="0" x="120" y="200" width="7" height="28"/>
   <object id="7" name="Crawler" type="4" x="570.583" y="131.834" width="16" height="16"/>
-  <object id="8" name="Entrance" type="5" x="912" y="204" width="16" height="44"/>
+  <object id="8" name="Entrance" type="5" x="912" y="204" width="16" height="44">
+   <properties>
+    <property name="entrId" type="int" value="0"/>
+   </properties>
+  </object>
  </objectgroup>
  <layer id="1" name="set" width="256" height="128" opacity="0.2">
   <properties>

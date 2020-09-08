@@ -62,12 +62,6 @@ public class Melee extends Entity implements Collidable {
 		controlledMovement();
 
 		transform.genModel();
-
-		System.out.println("Translation: ");
-		System.out.println(transform.trans);
-
-		System.out.println("Rot: ");
-		System.out.println(transform.rot);
 	}
 
 	@Override

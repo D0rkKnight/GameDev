@@ -7,15 +7,15 @@ import java.util.LinkedList;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
+import org.w3c.dom.Document;
 
 import Collision.HammerShapes.HammerShape;
 import Debugging.Debug;
-import Debugging.DebugVector;
 import Entities.Framework.Entity;
+import Entities.Framework.Entrance;
 import Tiles.Tile;
 import Utility.Arithmetic;
 import Utility.Vector;
-import Wrappers.Color;
 
 public class Map {
 	public HashMap<String, Tile[][]> grids; // [x][y]
@@ -23,25 +23,14 @@ public class Map {
 	public float h;
 
 	public ArrayList<CompEdge> compEdges;
+	private Document file;
 
-	/*
-	 * entrance coordinates, contains list of positions [topleft, topright, botleft,
-	 * botright]
-	 */
-	private Vector2f[][] entrances;
-	/*
-	 * entrance info, contains list of entrance info [entranceID,
-	 * entrancethatitlinkstoID]
-	 */
-	private int[][] entranceInfo;
-	/*
-	 * list of entities in the room. does not include player, accessed by
-	 * GameManager to determine collisions
-	 */
-	private ArrayList<Entity> entities;
+	public HashMap<Integer, int[]> entranceLinks;
 
-	public Map(HashMap<String, Tile[][]> mapData, Vector2f[][] entrances, int[][] entranceInfo,
-			ArrayList<Entity> entities) {
+	public Map(HashMap<String, Tile[][]> mapData, Document file) {
+		this.file = file;
+		entranceLinks = new HashMap<>();
+
 		// Init tiles
 		for (Tile[][] g : mapData.values()) {
 			for (int i = 0; i < g.length; i++)
@@ -58,35 +47,30 @@ public class Map {
 		w = grids.get(GameManager.GRID_SET).length * GameManager.tileSize;
 		h = grids.get(GameManager.GRID_SET)[0].length * GameManager.tileSize;
 
-		this.setEntrances(entrances);
-		this.setEntranceInfo(entranceInfo);
-		this.setEntities(entities);
-
 		generateEdges(grids.get(GameManager.GRID_COLL));
 	}
 
-	public Vector2f[][] getEntrances() {
-		return entrances;
+	public void setEntranceLink(int start, int[] end) {
+		entranceLinks.put(start, end);
 	}
 
-	private void setEntrances(Vector2f[][] entrances) {
-		this.entrances = entrances;
-	}
+	/**
+	 * Gets a list of entities and configures the entrances.
+	 * 
+	 * @return
+	 */
+	public ArrayList<Entity> retrieveEntities() {
+		ArrayList<Entity> out = Serializer.loadEntities(file, GameManager.entityHash, GameManager.tileSize);
 
-	public int[][] getEntranceInfo() {
-		return entranceInfo;
-	}
+		for (Entity e : out) {
+			if (e instanceof Entrance) {
+				Entrance eEnt = (Entrance) e;
+				int[] dest = entranceLinks.get(eEnt.entranceId);
+				eEnt.setData(dest[0], dest[1]);
+			}
+		}
 
-	private void setEntranceInfo(int[][] entranceInfo) {
-		this.entranceInfo = entranceInfo;
-	}
-
-	public ArrayList<Entity> getEntities() {
-		return entities;
-	}
-
-	public void setEntities(ArrayList<Entity> entities) {
-		this.entities = entities;
+		return out;
 	}
 
 	private void generateEdges(Tile[][] grid) {
@@ -121,22 +105,22 @@ public class Map {
 		compEdges = edgeArr;
 
 		// -------------------- KEEP FOR FUTURE DEBUGGING ----------------------------
-		float group = 1f;
-		for (CompEdge ce : compEdges) {
-			float counter = (float) Math.random();
-			for (CompEdgeSegment e : ce.edgeSegs) {
-				Vector2f dir = new Vector2f(e.v2).sub(e.v1.x, e.v1.y);
-				Debug.enqueueElement(new DebugVector(new Vector2f(e.v1).mul(GameManager.tileSize), dir,
-						GameManager.tileSize, 10000));
-
-				// Draw normals too!
-				Vector2f nOrigin = Vector.lerp(new Vector2f(e.v1), new Vector2f(e.v2), 0.5f).mul(GameManager.tileSize);
-				Debug.enqueueElement(new DebugVector(nOrigin, e.normal, GameManager.tileSize,
-						new Color(group, counter, 1 - group, 1), 10000));
-				counter *= 0.990;
-			}
-			group = (float) Math.random();
-		}
+//		float group = 1f;
+//		for (CompEdge ce : compEdges) {
+//			float counter = (float) Math.random();
+//			for (CompEdgeSegment e : ce.edgeSegs) {
+//				Vector2f dir = new Vector2f(e.v2).sub(e.v1.x, e.v1.y);
+//				Debug.enqueueElement(new DebugVector(new Vector2f(e.v1).mul(GameManager.tileSize), dir,
+//						GameManager.tileSize, 10000));
+//
+//				// Draw normals too!
+//				Vector2f nOrigin = Vector.lerp(new Vector2f(e.v1), new Vector2f(e.v2), 0.5f).mul(GameManager.tileSize);
+//				Debug.enqueueElement(new DebugVector(nOrigin, e.normal, GameManager.tileSize,
+//						new Color(group, counter, 1 - group, 1), 10000));
+//				counter *= 0.990;
+//			}
+//			group = (float) Math.random();
+//		}
 	}
 
 	private void populateEdgesFromPoint(int i, int j, Tile[][] grid, int id, ArrayList<Integer>[][] traversed,
@@ -180,6 +164,12 @@ public class Map {
 				compositeEdge.addFirst(revEdge);
 			}
 
+			// If it's on the edge, don't calculate any more edges from this point.
+			Vector2i v2 = currEdge.v2;
+			if (v2.x == 0 || v2.x == tilesW || v2.y == 0 || v2.y == tilesT) {
+				continue;
+			}
+
 			edges = findValidConnections(currEdge.v2, grid);
 
 			// Reject the vector pointing back
@@ -198,14 +188,6 @@ public class Map {
 			}
 			if (!backpathCleared)
 				new Exception("Back path not cleared!").printStackTrace();
-
-			// Clear out edges on the border
-			for (int a = edges.size() - 1; a >= 0; a--) {
-				Vector2i v2 = edges.get(a).v2;
-				if (v2.x == 0 || v2.x == tilesW || v2.y == 0 || v2.y == tilesT) {
-					edges.remove(a);
-				}
-			}
 
 			if (!edges.isEmpty()) {
 
