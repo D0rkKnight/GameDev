@@ -20,6 +20,7 @@ import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetMouseButtonCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
+import static org.lwjgl.opengl.GL11.glViewport;
 
 import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
@@ -27,7 +28,7 @@ import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 
 import Debugging.Debug;
-import Graphics.Rendering.Drawer;
+import Graphics.Drawer;
 
 /*
  * Input is a helper class to player and serves as a buffer for GM to write to and Player to read from.
@@ -178,5 +179,7 @@ public class Input {
 
 	public static void updateWindowSize(int width, int height) {
 		windowDims = new Vector2f(width, height);
+		Camera.main.viewport.set(windowDims);
+		glViewport(0, 0, width, height);
 	}
 }

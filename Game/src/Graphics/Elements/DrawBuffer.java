@@ -3,7 +3,6 @@ package Graphics.Elements;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
-import static org.lwjgl.opengl.GL11.GL_RGB;
 import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
@@ -42,7 +41,7 @@ public class DrawBuffer {
 
 		glBindTexture(GL_TEXTURE_2D, texId);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, pixelsW, pixelsT, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pixelsW, pixelsT, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 		Texture texObj = new Texture(texId, pixelsW, pixelsT);
 
 		// Poor filtering. Needed !

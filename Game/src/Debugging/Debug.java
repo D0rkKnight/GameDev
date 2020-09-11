@@ -10,6 +10,7 @@ import org.joml.Vector2f;
 import GameController.GameManager;
 import GameController.Map;
 import GameController.World;
+import Graphics.Drawer;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.ColorShader;
 import Graphics.Rendering.Shader;
@@ -21,7 +22,7 @@ import Wrappers.Color;
 public class Debug {
 
 	private static ArrayList<DebugElement> debugElements;
-	private static Shader debugShader;
+	public static Shader debugShader;
 	public static Texture debugTex;
 	public static Transformation trans;
 
@@ -36,7 +37,7 @@ public class Debug {
 	public static boolean showCollisions = false;
 	public static boolean debugElementsEnabled = false;
 
-	private static void config() {
+	public static void config() {
 		timeScale = 1f;
 		frameWalk = false;
 		frameDelta = 20f;
@@ -45,11 +46,11 @@ public class Debug {
 		debugElementsEnabled = true;
 		drawEdges = false;
 		logIssues = true;
+
+		Drawer.windowResizeable = false;
 	}
 
 	public static void init() {
-		config();
-
 		debugElements = new ArrayList<DebugElement>();
 
 		debugShader = new ColorShader("shader");

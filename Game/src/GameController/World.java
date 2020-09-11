@@ -9,7 +9,7 @@ import Debugging.Debug;
 import Entities.Player;
 import Entities.Framework.Entity;
 import Entities.Framework.Entrance;
-import Graphics.Rendering.Drawer;
+import Graphics.Drawer;
 import Tiles.Tile;
 
 public class World {
@@ -21,15 +21,16 @@ public class World {
 	public static void init() {
 		maps = new HashMap<>();
 
-		Map map0 = genMap("assets/Maps/", "test.tmx");
-		map0.setEntranceLink(0, new int[] { 1, 0 }); // Entrance 0 is to exit 0 of map 1
+		Map map0 = genMap("assets/Maps/", "test3.tmx");
+		// map0.setEntranceLink(0, new int[] { 1, 0 }); // Entrance 0 is to exit 0 of
+		// map 1
 
 		maps.put(0, map0);
-
-		Map map1 = genMap("assets/Maps/", "test2.tmx");
-		map1.setEntranceLink(0, new int[] { 0, 0 });
-
-		maps.put(1, map1);
+//
+//		Map map1 = genMap("assets/Maps/", "test2.tmx");
+//		map1.setEntranceLink(0, new int[] { 0, 0 });
+//
+//		maps.put(1, map1);
 
 		currmap = maps.get(0);
 		loadMap(currmap);
@@ -63,8 +64,14 @@ public class World {
 	}
 
 	private static ArrayList<Entity> loadMap(Map map) {
+		// TODO: Edge tiles not showing because not baked into chunks.
+
 		// Tile chunks
-		Drawer.initTileChunks(map.grids.get("ground"));
+		String[] rlBG = new String[] { GameManager.GRID_BG, GameManager.GRID_GROUND };
+		Drawer.genTileChunkLayer(map.grids, rlBG, Drawer.LAYER_BG);
+
+		String[] rlFG = new String[] { GameManager.GRID_FG };
+		Drawer.genTileChunkLayer(map.grids, rlFG, Drawer.LAYER_FG);
 
 		// Load entities
 		ArrayList<Entity> ents = map.retrieveEntities();
@@ -97,7 +104,8 @@ public class World {
 			}
 		}
 
-		// Reset time once operations are done
+		// Reset time & snap camera once operations are done
 		Time.reset();
+		Camera.main.snapToTarget(GameManager.player.getPosition());
 	}
 }

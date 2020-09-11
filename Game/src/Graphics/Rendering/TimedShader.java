@@ -1,8 +1,8 @@
 package Graphics.Rendering;
 
-public class WaveShader extends SpriteShader {
+public class TimedShader extends SpriteShader {
 
-	public WaveShader(String filename) {
+	public TimedShader(String filename) {
 		super(filename);
 		// TODO Auto-generated constructor stub
 	}

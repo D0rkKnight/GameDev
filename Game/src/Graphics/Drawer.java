@@ -1,4 +1,4 @@
-package Graphics.Rendering;
+package Graphics;
 
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
 import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
@@ -28,6 +28,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -44,6 +45,11 @@ import GameController.Input;
 import GameController.Map;
 import Graphics.Elements.DrawBuffer;
 import Graphics.Elements.Texture;
+import Graphics.Elements.TileRenderLayer;
+import Graphics.Rendering.DrawBufferRenderer;
+import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
+import Graphics.Rendering.SpriteShader;
 import Tiles.Tile;
 import UI.UI;
 import Utility.Transformation;
@@ -58,9 +64,12 @@ public class Drawer {
 	public static DrawBuffer drawBuff;
 	private static DrawBufferRenderer fBuffRend;
 	private static GeneralRenderer chunkRend;
-	private static Tile[][] chunkRendGrid;
+	private static HashMap<Integer, TileRenderLayer> tLayers;
 
-	private static DrawBuffer[] tileChunkDrawBuffers;
+	public static final int LAYER_BG = 0;
+	public static final int LAYER_FG = 1;
+
+	public static boolean windowResizeable = false; // Set in debug
 	public static final int CHUNK_SIZE = 16;
 
 	public static void draw(Map map, ArrayList<Entity> entities) {
@@ -87,34 +96,25 @@ public class Drawer {
 		txMax++;
 		tyMax++;
 
-		int chunkGridW = chunkRendGrid.length / CHUNK_SIZE;
-		int chunkGridH = chunkRendGrid[0].length / CHUNK_SIZE;
+		Tile[][] tArr = tLayers.get(LAYER_BG).chunkRendGrid.get(0);
+		int chunkGridW = tArr.length / CHUNK_SIZE;
+		int chunkGridH = tArr[0].length / CHUNK_SIZE;
 
 		txMin = Math.max(txMin, 0);
 		txMax = Math.min(txMax, chunkGridW);
 		tyMin = Math.max(tyMin, 0);
 		tyMax = Math.min(tyMax, chunkGridH);
 
-		// Draw all of the textures
-		for (int i = txMin; i < txMax; i++) {
-			for (int j = tyMin; j < tyMax; j++) {
-				Texture tex = tileChunkDrawBuffers[i + (j * chunkGridW)].tex;
-
-				chunkRend.spr = tex;
-
-				Vector2f pos = new Vector2f(i, j).mul(GameManager.tileSize).mul(CHUNK_SIZE);
-				chunkRend.transform.pos.set(pos);
-				chunkRend.transform.pos.add(0, GameManager.tileSize * CHUNK_SIZE);
-
-				chunkRend.transform.scale.identity().scale(1, -1, 1);
-
-				chunkRend.render();
-			}
-		}
+		if (tLayers.get(LAYER_BG) != null)
+			drawRegion(tLayers.get(LAYER_BG), txMin, txMax, tyMin, tyMax, chunkGridW);
 
 		for (Entity ent : entities) {
 			ent.render();
 		}
+
+		// Now draw on top
+		if (tLayers.get(LAYER_FG) != null)
+			drawRegion(tLayers.get(LAYER_FG), txMin, txMax, tyMin, tyMax, chunkGridW);
 
 		// UI elements
 		UI.render();
@@ -132,7 +132,6 @@ public class Drawer {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		fBuffRend.render();
 
-		// Overlay debug elements
 		Debug.renderDebug();
 
 		// Yeesh that was hard.
@@ -164,6 +163,7 @@ public class Drawer {
 		initOpenGL();
 
 		initDrawBuffer();
+		initTileChunks();
 	}
 
 	private static void initOpenGL() {
@@ -177,7 +177,10 @@ public class Drawer {
 
 		// Configure GLFW
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Hidden after creation
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);// Window will be resizeable
+		if (windowResizeable)
+			glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);// Window will not be resizeable.
+		else
+			glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		// Create the window!
 		// Note: NULL is a constant that denotes the null value in OpenGL. Not the same
@@ -228,90 +231,46 @@ public class Drawer {
 		fBuffRend = new DrawBufferRenderer(shader);
 	}
 
-	public static void initTileChunks(Tile[][] g) {
-		chunkRendGrid = g;
-
-		int w = chunkRendGrid.length;
-		int h = chunkRendGrid[0].length;
-
-		if (w % CHUNK_SIZE != 0 || h % CHUNK_SIZE != 0) {
-			new Exception("Bad size!").printStackTrace();
-		}
-
-		int cw = w / CHUNK_SIZE;
-		int ch = h / CHUNK_SIZE;
-
-		DrawBuffer[] newTCDBuff = new DrawBuffer[cw * ch];
-
-		for (int i = 0; i < cw; i++) {
-			for (int j = 0; j < ch; j++) {
-				int index = i + (j * cw);
-				DrawBuffer dBuff;
-
-				// Don't create new buffers if it's not necessary
-				if (tileChunkDrawBuffers != null && index < tileChunkDrawBuffers.length) {
-					dBuff = tileChunkDrawBuffers[index];
-					if (dBuff == null) {
-						new Exception("Draw Buffer Array has empty index?").printStackTrace();
-						System.exit(1);
-					}
-				} else {
-					int chunkDims = CHUNK_SIZE * GameManager.tileSize;
-					dBuff = DrawBuffer.genEmptyBuffer(chunkDims, chunkDims);
-				}
-
-				newTCDBuff[index] = dBuff;
-				glBindFramebuffer(GL_FRAMEBUFFER, dBuff.fbuff);
-
-				// Clear the buffer
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-				// Now iterate over every tile in this grid that lies within the chunk
-				for (int a = i * CHUNK_SIZE; a < (i + 1) * CHUNK_SIZE; a++) {
-					for (int b = j * CHUNK_SIZE; b < (j + 1) * CHUNK_SIZE; b++) {
-						Tile t = chunkRendGrid[a][b];
-						if (t == null)
-							continue;
-
-						Transformation oldTrans = t.renderer.transform;
-
-						Transformation newTrans = new Transformation(new Vector2f(oldTrans.pos),
-								Transformation.MATRIX_MODE_STATIC);
-						t.renderer.transform = newTrans;
-
-						float offsetX = i * GameManager.tileSize * CHUNK_SIZE;
-						float offsetY = j * GameManager.tileSize * CHUNK_SIZE;
-
-						Vector2f camOffset = new Vector2f(Camera.main.viewport).div(2);
-						newTrans.view.setTranslation(-offsetX - camOffset.x, -offsetY - camOffset.y, 0);
-
-						float x = a * GameManager.tileSize;
-						float y = b * GameManager.tileSize;
-						t.render(new Vector2f(x, y), GameManager.tileSize);
-
-						t.renderer.transform = oldTrans;
-					}
-				}
-			}
-		}
-
-		// Assign back to TCDBuff
-		tileChunkDrawBuffers = newTCDBuff;
-
-		// Free the frame buffer
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	public static void initTileChunks() {
+		tLayers = new HashMap<>();
 
 		// Setting up the renderer
 		chunkRend = new GeneralRenderer(new SpriteShader("texShader"));
 
-		float dim = GameManager.tileSize * CHUNK_SIZE;
+		float dim = GameManager.tileSize * Drawer.CHUNK_SIZE;
 		chunkRend.init(new Transformation(new Vector2f(), Transformation.MATRIX_MODE_WORLD), new Vector2f(dim, dim),
 				HammerShape.HAMMER_SHAPE_SQUARE, new Color());
 	}
 
-	public static void freeMemory() {
-		// TODO Auto-generated method stub
+	public static void genTileChunkLayer(HashMap<String, Tile[][]> g, String[] renderedLayers, int targetLayer) {
+		TileRenderLayer trl;
+		if (tLayers.get(targetLayer) == null) {
+			trl = new TileRenderLayer();
+			tLayers.put(targetLayer, trl);
+		} else {
+			trl = tLayers.get(targetLayer);
+		}
 
+		trl.populateChunks(g, renderedLayers);
+	}
+
+	private static void drawRegion(TileRenderLayer layer, int xMin, int xMax, int yMin, int yMax, int chunkGridW) {
+		// Draw all of the textures
+		for (int i = xMin; i < xMax; i++) {
+			for (int j = yMin; j < yMax; j++) {
+				Texture tex = layer.tileChunkDrawBuffers[i + (j * chunkGridW)].tex;
+
+				chunkRend.spr = tex;
+
+				Vector2f pos = new Vector2f(i, j).mul(GameManager.tileSize).mul(CHUNK_SIZE);
+				chunkRend.transform.pos.set(pos);
+				chunkRend.transform.pos.add(0, GameManager.tileSize * CHUNK_SIZE);
+
+				chunkRend.transform.scale.identity().scale(1, -1, 1);
+
+				chunkRend.render();
+			}
+		}
 	}
 
 	public static Vector2f GetWindowSize() {

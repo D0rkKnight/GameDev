@@ -36,6 +36,7 @@ public class DebugVector extends DebugElement {
 
 	@Override
 	public void render(Shader shader) {
+		shader.bind();
 		Matrix4f mvp = Debug.trans.genMVP();
 
 		shader.setUniform("MVP", mvp);

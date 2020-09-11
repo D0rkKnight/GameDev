@@ -21,8 +21,8 @@ import Debugging.Debug;
 import Entities.Player;
 import Entities.Framework.Entity;
 import Entities.Framework.PhysicsEntity;
+import Graphics.Drawer;
 import Graphics.Elements.Texture;
-import Graphics.Rendering.Drawer;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
 import Tiles.Tile;
@@ -62,12 +62,15 @@ public class GameManager {
 	public static boolean roomChanging = false;
 	public static Timer switchTimer;
 
-	public static final int tileSize = 8;
-	public static final int tileSpriteSize = 4;
+	public static final int tileSize = 16;
+	public static final int tileSpriteSize = 8;
 
-	public static final String GRID_SET = "set";
-	public static final String GRID_COLL = "ground";
+	// TODO: Write error checks for these
+	public static final String GRID_SET = "ground";
+	public static final String GRID_COLL = "collision";
 	public static final String GRID_GROUND = "ground";
+	public static final String GRID_BG = "background";
+	public static final String GRID_FG = "foreground";
 
 	/*
 	 * Creates components before entering loop
@@ -86,6 +89,9 @@ public class GameManager {
 	}
 
 	private void init() {
+		Debug.config();
+		initCollision();
+
 		Drawer.initGraphics();
 		Input.initInput();
 		Debug.init();
@@ -103,7 +109,6 @@ public class GameManager {
 		entityWaitingList = new ArrayList<>();
 		entityClearList = new ArrayList<>();
 
-		initCollision();
 		initTiles();
 		initEntityHash("assets/Hashfiles/", "EntitiesTest.txt");
 
@@ -121,9 +126,8 @@ public class GameManager {
 	private void initTiles() {
 		tileLookup = new HashMap<>();
 
-		initTileSet("assets/Maps/Tilesets/", "ground.tsx", tileLookup);
-		initTileSet("assets/Maps/Tilesets/", "set.tsx", tileLookup);
-		initTileSet("assets/Maps/Tilesets/", "coll.tsx", tileLookup);
+		initTileSet("assets/Maps/Tilesets/Forest/", "forestTSet.tsx", tileLookup);
+		initTileSet("assets/Maps/Tilesets/", "coll8x8.tsx", tileLookup);
 	}
 
 	private void initTileSet(String fileDir, String fileName, HashMap<String, HashMap<Integer, Tile>> masterTSet) {
@@ -208,6 +212,7 @@ public class GameManager {
 		// Into the rendering loop we go
 		// Remember the lambda callback we attached to key presses? This is where the
 		// function returns.
+
 		while (!glfwWindowShouldClose(Drawer.window)) {
 			Time.updateTime();
 
@@ -287,7 +292,7 @@ public class GameManager {
 		}
 
 		Camera.main.update();
-		
+
 		if (switchTimer != null) {
 			switchTimer.update();
 		}

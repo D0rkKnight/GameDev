@@ -98,9 +98,11 @@ public class Serializer {
 				}
 			}
 
+			// TODO: Implement load errors
+
 			// Check that properties were retrieved properly
 			if (hs == null)
-				throw new Exception("Hammershape not found!");
+				new Exception("Hammershape not found!").printStackTrace();
 
 			// Create and submit tile
 			int id = Integer.parseInt(e.getAttribute("id"));
@@ -199,6 +201,11 @@ public class Serializer {
 						break;
 					}
 				}
+
+				// TODO: Write in loading errors
+				// Errors include:
+				// Can't find tileset
+				// Tileset is empty (because no properties were set)
 
 				int offset = gids.get(a);
 				HashMap<Integer, Tile> tSet = tileMap.get(tSetNames.get(a));

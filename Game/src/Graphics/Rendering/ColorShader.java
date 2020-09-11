@@ -2,7 +2,7 @@ package Graphics.Rendering;
 
 import static org.lwjgl.opengl.GL20.glBindAttribLocation;
 
-public class ColorShader extends Shader{
+public class ColorShader extends Shader {
 
 	public ColorShader(String filename) {
 		super(filename);
@@ -23,6 +23,7 @@ public class ColorShader extends Shader{
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 

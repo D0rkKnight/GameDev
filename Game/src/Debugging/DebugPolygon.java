@@ -23,7 +23,6 @@ public class DebugPolygon extends DebugElement {
 
 	@Override
 	public void render(Shader shader) {
-
 		Matrix4f mvp = Debug.trans.genMVP();
 		shader.setUniform("MVP", mvp);
 		shader.setUniform("Color", col);
