@@ -82,17 +82,6 @@ public class Entrance extends Entity implements Collidable {
 	}
 
 	@Override
-	protected void calcFrame() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controlledMovement() {
-
-	}
-
-	@Override
 	public Entrance createNew(float xPos, float yPos) {
 		return createNew(xPos, yPos, 30, 30, -1);
 	}

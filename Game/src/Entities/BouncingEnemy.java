@@ -72,7 +72,6 @@ public abstract class BouncingEnemy extends Enemy {
 
 			ai.calculatePath(position, target.getPosition(), grid);
 
-			// TODO Auto-generated method stub
 			// Point towards the player and move
 			Vector2f dir = Vector.dirTo(position, ai.nextNode());
 			float movespeed = 0.03f;
@@ -92,7 +91,6 @@ public abstract class BouncingEnemy extends Enemy {
 
 						@Override
 						public void invoke(Timer timer) {
-							// TODO Auto-generated method stub
 							bounceReady = true;
 						}
 

@@ -20,6 +20,8 @@ import Wrappers.Color;
 public abstract class Physics {
 
 	public static final float NUDGE_CONSTANT = 0.1f;
+	public static final int X = 0;
+	public static final int Y = 1;
 
 	public static void calculateDeltas(PhysicsEntity e, Tile[][] grid) {
 
@@ -53,18 +55,18 @@ public abstract class Physics {
 		// Axises of movement, in order of movement done.
 		// Components are stacked onto deltaTemp before being pushed fully to moveDelta.
 		Vector2f[] axises = new Vector2f[2];
-		axises[0] = e.pData.xDir;
+		axises[X] = e.pData.xDir;
 
 		// This is now definitely pointed in the right diVector2fion,
 		// but I have no clue why it's pointed opposite to the velo deflection tangent.
-		axises[1] = e.pData.yDir;
+		axises[Y] = e.pData.yDir;
 
 		// This is pointed in the right diVector2fion now, now split deltaMove and cache
 		// it.
 		Vector2f[] deltaComponents = new Vector2f[axises.length];
 		float dt = Time.deltaT();
-		deltaComponents[0] = new Vector2f(axises[0].x * velo.x, axises[0].y * velo.x);
-		deltaComponents[1] = new Vector2f(axises[1].x * velo.y, axises[1].y * velo.y);
+		deltaComponents[X] = new Vector2f(axises[X].x * velo.x, axises[X].y * velo.x);
+		deltaComponents[Y] = new Vector2f(axises[Y].x * velo.y, axises[Y].y * velo.y);
 
 		// Scale against time
 		for (Vector2f v : deltaComponents) {
@@ -197,8 +199,8 @@ public abstract class Physics {
 			float maxMoveDist = 0;
 
 			for (int[] p : tilesHit) {
-				int x = p[0];
-				int y = p[1];
+				int x = p[X];
+				int y = p[Y];
 
 				Tile t = grid[x][y];
 
@@ -269,7 +271,9 @@ public abstract class Physics {
 
 				Tile t = grid[x][y];
 				if (t != null) {
-					int[] o = new int[] { x, y };
+					int[] o = new int[2];
+					o[X] = x;
+					o[Y] = y;
 					hits.add(o);
 
 					tileHit = true;
@@ -318,7 +322,10 @@ public abstract class Physics {
 		Vector2f[] c1Points = c1.genWorldVerts();
 		Vector2f[] c2Points = c2.genWorldVerts();
 
-		// Todo: inch this
+		// TODO: Inch this. But this'll need some projection shenanigans. Oh, here we
+		// can just use the start and end point sets. SAO will need to be extended to
+		// accept that. That optimization will be usable in the player loop too.
+
 		if (Geometry.separateAxisCheck(c1Points, c2Points, null, null, null)) {
 			c1.hitBy(c2);
 			c2.hitBy(c1);

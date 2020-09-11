@@ -22,8 +22,8 @@ public class Switch extends Entity implements Interactive {
 	public Timer onTimer;
 	Player player;
 
-	public Switch(int ID, Vector2f position, Renderer renderer, String name, int state, int statenum, float activationDistance,
-			Player player) {
+	public Switch(int ID, Vector2f position, Renderer renderer, String name, int state, int statenum,
+			float activationDistance, Player player) {
 		super(ID, position, renderer, name);
 		this.state = state;
 		this.activationDistance = activationDistance;
@@ -36,6 +36,8 @@ public class Switch extends Entity implements Interactive {
 		rendTemp.spr = Debug.debugTex;
 		renderer = rendTemp;
 	}
+
+	@Override
 	public Switch createNew(float xPos, float yPos) {
 		return new Switch(ID, new Vector2f(xPos, yPos), renderer, name, state, statenum, activationDistance, player);
 	}
@@ -45,7 +47,6 @@ public class Switch extends Entity implements Interactive {
 		if (onTimer != null) {
 			onTimer.update();
 		}
-		
 
 		if (mouseHovered() && Input.primaryButtonDown && getMouseDistance() <= activationDistance) {
 			interact();
@@ -55,21 +56,9 @@ public class Switch extends Entity implements Interactive {
 	}
 
 	@Override
-	protected void calcFrame() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controlledMovement() {
-		// buttons don't move silly
-
-	}
-
-	@Override
 	public void interact() {
 		state++;
-		if(state >= statenum) {
+		if (state >= statenum) {
 			state = 0;
 		}
 		changed = true;

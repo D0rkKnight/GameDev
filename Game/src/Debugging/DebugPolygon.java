@@ -30,7 +30,6 @@ public class DebugPolygon extends DebugElement {
 		// Bind shader
 		shader.bind();
 
-		// TODO: Update this deprecated code
 		glBegin(GL_LINES);
 		for (int i = 0; i < verts.length; i++) {
 			Vector2f p1 = verts[i];

@@ -8,6 +8,7 @@ import Collision.HammerShapes.HammerShape;
 import GameController.GameManager;
 import GameController.Map;
 import Graphics.Elements.Texture;
+import Graphics.Elements.TileGFX;
 import Graphics.Rendering.GeneralRenderer;
 import Utility.Transformation;
 import Wrappers.Color;
@@ -25,9 +26,11 @@ public class Tile implements Cloneable {
 										// loaded in maps)
 
 	public ArrayList<Map.CompEdgeSegment> edgeSegs;
+	public ArrayList<TileGFX> tGFX; // Is shared between all tiles clones.
 
 	public Tile(GeneralRenderer renderer, Texture tex, HammerShape hs) {
 		this.hammerState = hs;
+		this.tGFX = new ArrayList<TileGFX>();
 
 		// Create shallow copy
 		try {
@@ -42,7 +45,7 @@ public class Tile implements Cloneable {
 	// Use a clone function instead of this dumbass init function
 	public void init(Vector2f pos, Vector2f rect) {
 		if (hammerState == null) {
-			System.err.println("Hammer state not specified, capitulating to default.");
+			// System.err.println("Hammer state not specified, capitulating to default.");
 			hammerState = GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE);
 		}
 
@@ -66,6 +69,11 @@ public class Tile implements Cloneable {
 		return hammerState;
 	}
 
+	public void addGFX(String gfxName) {
+		tGFX.add(new TileGFX(gfxName));
+	}
+
+	// TODO: Remove this cursed clone function
 	@Override
 	public Tile clone() throws CloneNotSupportedException {
 		Tile t = (Tile) super.clone();

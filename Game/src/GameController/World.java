@@ -22,15 +22,15 @@ public class World {
 		maps = new HashMap<>();
 
 		Map map0 = genMap("assets/Maps/", "test3.tmx");
-		// map0.setEntranceLink(0, new int[] { 1, 0 }); // Entrance 0 is to exit 0 of
+		map0.setEntranceLink(0, new int[] { 1, 0 }); // Entrance 0 is to exit 0 of
 		// map 1
 
 		maps.put(0, map0);
-//
-//		Map map1 = genMap("assets/Maps/", "test2.tmx");
-//		map1.setEntranceLink(0, new int[] { 0, 0 });
-//
-//		maps.put(1, map1);
+
+		Map map1 = genMap("assets/Maps/", "test4.tmx");
+		map1.setEntranceLink(0, new int[] { 0, 0 });
+
+		maps.put(1, map1);
 
 		currmap = maps.get(0);
 		loadMap(currmap);
@@ -64,14 +64,31 @@ public class World {
 	}
 
 	private static ArrayList<Entity> loadMap(Map map) {
-		// TODO: Edge tiles not showing because not baked into chunks.
+		// TODO: Deal with all the todos
+		// TODO: Layers within BG and FG aren't ordered, because HashMaps aren't
+		// ordered.
+
+		// FG_... means foreground.
+		// Grab foreground and background layers
+		ArrayList<String> rlBG = new ArrayList<>();
+		ArrayList<String> rlFG = new ArrayList<>();
+
+		for (String key : map.grids.keySet()) {
+			String[] parts = key.split("_");
+			String head = parts[0].toLowerCase();
+
+			// Ground also goes to the background.
+			if (head.equals("bg") || head.equals("ground"))
+				rlBG.add(key);
+			if (head.contentEquals("fg"))
+				rlFG.add(key);
+		}
 
 		// Tile chunks
-		String[] rlBG = new String[] { GameManager.GRID_BG, GameManager.GRID_GROUND };
 		Drawer.genTileChunkLayer(map.grids, rlBG, Drawer.LAYER_BG);
-
-		String[] rlFG = new String[] { GameManager.GRID_FG };
 		Drawer.genTileChunkLayer(map.grids, rlFG, Drawer.LAYER_FG);
+
+		Drawer.bakeGFX();
 
 		// Load entities
 		ArrayList<Entity> ents = map.retrieveEntities();
@@ -82,6 +99,7 @@ public class World {
 
 	public static void switchMap(int mapId, int entranceId) {
 		Debug.clearElements();
+		Drawer.clearScreenBuffer(); // This gets called before the draw call anyways
 
 		// Dump entities
 		for (Entity e : GameManager.entities)

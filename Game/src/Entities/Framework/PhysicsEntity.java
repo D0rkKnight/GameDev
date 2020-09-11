@@ -207,4 +207,9 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	public void setHb(Hitbox hb) {
 		hitbox = hb;
 	}
+
+	@Override
+	public void onHit(Hitbox otherHb) {
+
+	}
 }

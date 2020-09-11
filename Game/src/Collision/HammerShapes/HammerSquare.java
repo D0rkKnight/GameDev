@@ -9,7 +9,6 @@ public class HammerSquare extends HammerShape {
 		vertices = new Vector2f[] { br, ur, ul, bl };
 		genNormals();
 
-		// TODO: Polygon triangulation algorithm? Probably unecessary.
 		triangulatedVertices = new Vector2f[] { ul, bl, br, br, ur, ul };
 	}
 }

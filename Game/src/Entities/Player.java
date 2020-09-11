@@ -103,27 +103,9 @@ public class Player extends Combatant {
 	}
 
 	@Override
-	public void onHit(Hitbox hb) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void attack() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void die() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void calculate() {
 		super.calculate();
-		if(!GameManager.roomChanging) {
+		if (!GameManager.roomChanging) {
 			determineMovementMode(); // determine what movement mode and execute it
 		}
 		GeneralRenderer sprRend = (GeneralRenderer) renderer;

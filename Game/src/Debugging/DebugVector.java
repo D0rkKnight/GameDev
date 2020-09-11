@@ -50,7 +50,6 @@ public class DebugVector extends DebugElement {
 		// Bind shader
 		shader.bind();
 
-		// TODO: Update this deprecated code
 		glBegin(GL_LINES);
 		glVertex2f(start.x, start.y);
 		glVertex2f(end.x, end.y);

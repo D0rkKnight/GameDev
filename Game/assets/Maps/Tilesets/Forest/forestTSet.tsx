@@ -649,6 +649,7 @@
  <tile id="129">
   <properties>
    <property name="Filler" type="int" value="0"/>
+   <property name="GFX" value="Warp"/>
   </properties>
  </tile>
  <tile id="130">

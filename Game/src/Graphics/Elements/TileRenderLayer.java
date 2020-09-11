@@ -16,20 +16,34 @@ import GameController.GameManager;
 import Graphics.Drawer;
 import Tiles.Tile;
 import Utility.Transformation;
+import Wrappers.Color;
 
 public class TileRenderLayer {
 	public ArrayList<Tile[][]> chunkRendGrid;
-	public DrawBuffer[] tileChunkDrawBuffers;
+
+	private ArrayList<DrawBuffer> masterBufferList;
+	public DrawBuffer[] usedDrawBuffers;
+	public boolean isActive = false;
 
 	public TileRenderLayer() {
 		chunkRendGrid = new ArrayList<>();
+
+		masterBufferList = new ArrayList<>();
 	}
 
-	public void populateChunks(HashMap<String, Tile[][]> g, String[] renderedLayers) {
+	public void populateChunks(HashMap<String, Tile[][]> g, ArrayList<String> renderedLayers) {
 		chunkRendGrid.clear();
 
 		for (String str : renderedLayers) {
 			chunkRendGrid.add(g.get(str));
+		}
+
+		if (chunkRendGrid.isEmpty()) {
+			// Clear the chunks instead.
+			isActive = false;
+			return;
+		} else {
+			isActive = true;
 		}
 
 		Tile[][] tArr = chunkRendGrid.get(0);
@@ -37,43 +51,44 @@ public class TileRenderLayer {
 		int w = tArr.length;
 		int h = tArr[0].length;
 
-		if (w % Drawer.CHUNK_SIZE != 0 || h % Drawer.CHUNK_SIZE != 0) {
-			new Exception("Bad size!").printStackTrace();
-		}
+//		if (w % Drawer.CHUNK_SIZE != 0 || h % Drawer.CHUNK_SIZE != 0) {
+//			new Exception("Bad size!").printStackTrace();
+//		}
 
-		int cw = w / Drawer.CHUNK_SIZE;
-		int ch = h / Drawer.CHUNK_SIZE;
+		int cw = (int) Math.ceil(((float) w) / Drawer.CHUNK_SIZE);
+		int ch = (int) Math.ceil(((float) h) / Drawer.CHUNK_SIZE);
 
 		// TODO: There's still some leakage if the draw buffer is resized smaller.
-		DrawBuffer[] newTCDBuff = new DrawBuffer[cw * ch];
+		usedDrawBuffers = new DrawBuffer[cw * ch];
+
+		// Populate master buffer list up to necessary size
+		int chunkDims = Drawer.CHUNK_SIZE * GameManager.tileSize;
+		while (masterBufferList.size() < cw * ch)
+			masterBufferList.add(DrawBuffer.genEmptyBuffer(chunkDims, chunkDims));
 
 		for (int i = 0; i < cw; i++) {
 			for (int j = 0; j < ch; j++) {
 				int index = i + (j * cw);
-				DrawBuffer dBuff;
 
-				// Don't create new buffers if it's not necessary
-				if (tileChunkDrawBuffers != null && index < tileChunkDrawBuffers.length) {
-					dBuff = tileChunkDrawBuffers[index];
-					if (dBuff == null) {
-						new Exception("Draw Buffer Array has empty index?").printStackTrace();
-						System.exit(1);
-					}
-				} else {
-					int chunkDims = Drawer.CHUNK_SIZE * GameManager.tileSize;
-					dBuff = DrawBuffer.genEmptyBuffer(chunkDims, chunkDims);
-				}
+				// Now pull from the master list to piece together the necessary buffers for
+				// this map.
+				DrawBuffer dBuff = masterBufferList.get(index);
 
-				newTCDBuff[index] = dBuff;
+				usedDrawBuffers[index] = dBuff;
 				glBindFramebuffer(GL_FRAMEBUFFER, dBuff.fbuff);
 
 				// Clear the buffer
+				Color.setGLClear(new Color(0, 0, 0, 0)); // Completely transparent
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 				// Now iterate over every tile in this grid that lies within the chunk
 				for (Tile[][] layer : chunkRendGrid) {
-					for (int a = i * Drawer.CHUNK_SIZE; a < (i + 1) * Drawer.CHUNK_SIZE; a++) {
-						for (int b = j * Drawer.CHUNK_SIZE; b < (j + 1) * Drawer.CHUNK_SIZE; b++) {
+
+					int aMax = Math.min((i + 1) * Drawer.CHUNK_SIZE, w);
+					for (int a = i * Drawer.CHUNK_SIZE; a < aMax; a++) {
+
+						int bMax = Math.min((j + 1) * Drawer.CHUNK_SIZE, h);
+						for (int b = j * Drawer.CHUNK_SIZE; b < bMax; b++) {
 							Tile t = layer[a][b];
 							if (t == null)
 								continue;
@@ -100,9 +115,6 @@ public class TileRenderLayer {
 				}
 			}
 		}
-
-		// Assign back to TCDBuff
-		tileChunkDrawBuffers = newTCDBuff;
 
 		// Free the frame buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

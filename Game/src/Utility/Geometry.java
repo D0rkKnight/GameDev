@@ -94,8 +94,6 @@ public abstract class Geometry {
 					}
 
 					else {
-						System.err.println("ERROR: distance is zero");
-
 						// This is like the same thing as not colliding
 						return false;
 					}

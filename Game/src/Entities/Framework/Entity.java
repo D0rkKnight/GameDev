@@ -63,12 +63,16 @@ public abstract class Entity implements CanBeCloned {
 		renderer.transform.scale.set(transform.scale);
 	}
 
-	protected abstract void calcFrame();
+	protected void calcFrame() {
+
+	}
 
 	/**
 	 * Applies AI / controls
 	 */
-	public abstract void controlledMovement();
+	public void controlledMovement() {
+
+	}
 
 	public Vector2f getPosition() {
 		return position;

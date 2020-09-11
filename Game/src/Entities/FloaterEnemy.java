@@ -51,24 +51,6 @@ public class FloaterEnemy extends Enemy {
 	}
 
 	@Override
-	public void onHit(Hitbox otherHb) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void attack() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void die() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void calculate() {
 		super.calculate();
 
@@ -77,7 +59,6 @@ public class FloaterEnemy extends Enemy {
 		if (target != null) {
 			ai.calculatePath(position, target.getPosition(), grid);
 
-			// TODO Auto-generated method stub
 			// Point towards the player and move
 			Vector2f dir = Vector.dirTo(position, ai.nextNode());
 			float movespeed = 0.01f;
@@ -91,17 +72,4 @@ public class FloaterEnemy extends Enemy {
 			findTarget();
 		}
 	}
-
-	@Override
-	protected void calcFrame() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controlledMovement() {
-		// TODO Auto-generated method stub
-
-	}
-
 }

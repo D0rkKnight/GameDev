@@ -65,12 +65,6 @@ public class Melee extends Entity implements Collidable {
 	}
 
 	@Override
-	protected void calcFrame() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void controlledMovement() {
 		position.x = owner.position.x - offset.x;
 		position.y = owner.position.y - offset.y;

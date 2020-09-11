@@ -84,6 +84,7 @@ public class Serializer {
 
 			// Grab properties
 			HammerShape hs = null;
+			ArrayList<String> gfxs = new ArrayList<>();
 			for (int j = 0; j < propList.getLength(); j++) {
 				Element propE = (Element) propList.item(j);
 
@@ -96,19 +97,26 @@ public class Serializer {
 
 					hs = hsMap.get(valInt);
 				}
+
+				if (name.equals("GFX")) {
+					gfxs.add(val);
+				}
 			}
 
 			// TODO: Implement load errors
 
 			// Check that properties were retrieved properly
-			if (hs == null)
-				new Exception("Hammershape not found!").printStackTrace();
+//			if (hs == null)
+//				new Exception("Hammershape not found!").printStackTrace();
 
 			// Create and submit tile
 			int id = Integer.parseInt(e.getAttribute("id"));
 			Texture tex = tileSheet[id];
 
 			Tile t = new Tile(rend, tex, hs);
+			for (String gfxName : gfxs)
+				t.addGFX(gfxName);
+
 			tileMap.put(id, t);
 		}
 	}
@@ -325,6 +333,7 @@ public class Serializer {
 		return Float.parseFloat(activeDataHash.get(str));
 	}
 
+	@SuppressWarnings("unused")
 	private static String rhStr(String str) {
 		return activeDataHash.get(str);
 	}
@@ -333,6 +342,7 @@ public class Serializer {
 	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash, int tileSize) {
 		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
 
+		@SuppressWarnings("unused")
 		int width = Integer.parseInt(layerE.getAttribute("width"));
 		int height = Integer.parseInt(layerE.getAttribute("height"));
 
@@ -373,11 +383,6 @@ public class Serializer {
 
 			Entity baseE = entityHash.get(ID);
 			Entity e = null;
-
-			if (i == 0 && !(baseE instanceof Player)) {
-				new Exception("Player not first in entity queue.").printStackTrace();
-				System.exit(1);
-			}
 
 			// Converting to world cords
 			float newX = xTPos * GameManager.tileSize;

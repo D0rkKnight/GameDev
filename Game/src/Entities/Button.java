@@ -32,47 +32,38 @@ public class Button extends Entity implements Interactive {
 		this.player = player;
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE, new Color());
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE,
+				new Color());
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 	}
-	
+
 	private Button(Button b, float xPos, float yPos, Player player) {
 		this(b.ID, new Vector2f(xPos, yPos), b.renderer, b.name, b.state, b.timeOn, b.activationDistance, player);
 	}
-	
+
 	public Button createNew(float xPos, float yPos, Player player) {
 		return new Button(this, xPos, yPos, player);
 	}
+
+	@Override
 	public Button createNew(float xPos, float yPos) {
 		return createNew(xPos, yPos, player);
 	}
 
 	@Override
 	public void calculate() {
-		if(onTimer != null) {
+		if (onTimer != null) {
 			onTimer.update();
 		}
-		
-		if(state == 1) {
+
+		if (state == 1) {
 		}
-		
+
 		if (mouseHovered() && Input.primaryButtonDown && getMouseDistance() <= activationDistance) {
 			interact();
 		}
 		calcFrame();
 		changed = false;
-	}
-
-	@Override
-	protected void calcFrame() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controlledMovement() {
-		// buttons don't move silly
-
 	}
 
 	@Override
@@ -85,7 +76,7 @@ public class Button extends Entity implements Interactive {
 				state = 0;
 				changed = true;
 				onTimer = null;
-				
+
 			}
 		});
 	}
@@ -94,7 +85,7 @@ public class Button extends Entity implements Interactive {
 	public float getMouseDistance() {
 		Vector2f playerpos = new Vector2f(player.getPosition());
 		playerpos.x += player.dim.x / 2;
-		playerpos.y += player.dim.y / 2;//center of player
+		playerpos.y += player.dim.y / 2;// center of player
 		return Math.sqrt((playerpos.x - position.x) * (playerpos.x - position.x)
 				+ (playerpos.y - position.y) * (playerpos.y - position.y));
 	}

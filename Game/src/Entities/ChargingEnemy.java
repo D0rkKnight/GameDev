@@ -2,7 +2,6 @@ package Entities;
 
 import org.joml.Vector2f;
 
-import Collision.Hitbox;
 import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
 import Graphics.Rendering.Renderer;
@@ -45,14 +44,7 @@ public class ChargingEnemy extends Enemy {
 	// damage is strictly from collider.
 	@Override
 	public void attack() {
-		// nothing for now
-
-	}
-
-	@Override
-	public void die() {
-		// TODO Auto-generated method stub
-
+		super.attack(); // Nothing in there but the behavior should be chained.
 	}
 
 	@Override
@@ -95,8 +87,6 @@ public class ChargingEnemy extends Enemy {
 
 	@Override
 	public void render() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -159,12 +149,6 @@ public class ChargingEnemy extends Enemy {
 				}
 			}
 		}
-
-	}
-
-	@Override
-	public void onHit(Hitbox otherHb) {
-		// TODO Auto-generated method stub
 
 	}
 }

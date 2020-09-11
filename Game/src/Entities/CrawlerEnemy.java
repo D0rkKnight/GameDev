@@ -28,7 +28,6 @@ public class CrawlerEnemy extends Enemy {
 
 	public CrawlerEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
-		// TODO Auto-generated constructor stub
 
 		// Configure the renderer real quick
 		dim = new Vector2f(96f, 96f);
@@ -69,7 +68,6 @@ public class CrawlerEnemy extends Enemy {
 
 	@Override
 	public Combatant createNew(float xPos, float yPos, Stats stats) {
-		// TODO Auto-generated method stub
 		return new CrawlerEnemy(ID, new Vector2f(xPos, yPos), renderer, name, stats);
 	}
 
@@ -98,35 +96,4 @@ public class CrawlerEnemy extends Enemy {
 			rot.translate(new Vector3f(anchorOffset, 0));
 		}
 	}
-
-	@Override
-	public void onHit(Hitbox otherHb) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void die() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void attack() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected void calcFrame() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void controlledMovement() {
-		// TODO Auto-generated method stub
-
-	}
-
 }

@@ -19,7 +19,6 @@ import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30.glBindFramebuffer;
@@ -45,6 +44,7 @@ import GameController.Input;
 import GameController.Map;
 import Graphics.Elements.DrawBuffer;
 import Graphics.Elements.Texture;
+import Graphics.Elements.TileGFX;
 import Graphics.Elements.TileRenderLayer;
 import Graphics.Rendering.DrawBufferRenderer;
 import Graphics.Rendering.GeneralRenderer;
@@ -72,11 +72,16 @@ public class Drawer {
 	public static boolean windowResizeable = false; // Set in debug
 	public static final int CHUNK_SIZE = 16;
 
+	public static Color clearCol;
+
+	private static HashMap<String, DrawBuffer> GFXBuffs;
+
 	public static void draw(Map map, ArrayList<Entity> entities) {
 		// Draw to framebuffer please
 		glBindFramebuffer(GL_FRAMEBUFFER, drawBuff.fbuff);
 
 		// Clear frame buffer
+		Color.setGLClear(clearCol);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Get clipping bounds
@@ -97,15 +102,16 @@ public class Drawer {
 		tyMax++;
 
 		Tile[][] tArr = tLayers.get(LAYER_BG).chunkRendGrid.get(0);
-		int chunkGridW = tArr.length / CHUNK_SIZE;
-		int chunkGridH = tArr[0].length / CHUNK_SIZE;
+		int chunkGridW = (int) Math.ceil(((double) tArr.length) / CHUNK_SIZE); // This does just raises the chunk width
+																				// up to accomodate for the remainder.
+		int chunkGridH = (int) Math.ceil(((double) tArr[0].length) / CHUNK_SIZE);
 
 		txMin = Math.max(txMin, 0);
 		txMax = Math.min(txMax, chunkGridW);
 		tyMin = Math.max(tyMin, 0);
 		tyMax = Math.min(tyMax, chunkGridH);
 
-		if (tLayers.get(LAYER_BG) != null)
+		if (tLayers.get(LAYER_BG) != null && tLayers.get(LAYER_BG).isActive)
 			drawRegion(tLayers.get(LAYER_BG), txMin, txMax, tyMin, tyMax, chunkGridW);
 
 		for (Entity ent : entities) {
@@ -113,7 +119,7 @@ public class Drawer {
 		}
 
 		// Now draw on top
-		if (tLayers.get(LAYER_FG) != null)
+		if (tLayers.get(LAYER_FG) != null && tLayers.get(LAYER_FG).isActive)
 			drawRegion(tLayers.get(LAYER_FG), txMin, txMax, tyMin, tyMax, chunkGridW);
 
 		// UI elements
@@ -160,6 +166,9 @@ public class Drawer {
 	}
 
 	public static void initGraphics() {
+		clearCol = new Color(0.5f, 0.5f, 0.5f, 1);
+		GFXBuffs = new HashMap<>();
+
 		initOpenGL();
 
 		initDrawBuffer();
@@ -214,7 +223,7 @@ public class Drawer {
 		glEnable(GL_TEXTURE_2D);
 
 		// Set clear color
-		glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
+		Color.setGLClear(clearCol);
 	}
 
 	private static void initDrawBuffer() {
@@ -242,7 +251,8 @@ public class Drawer {
 				HammerShape.HAMMER_SHAPE_SQUARE, new Color());
 	}
 
-	public static void genTileChunkLayer(HashMap<String, Tile[][]> g, String[] renderedLayers, int targetLayer) {
+	public static void genTileChunkLayer(HashMap<String, Tile[][]> g, ArrayList<String> renderedLayers,
+			int targetLayer) {
 		TileRenderLayer trl;
 		if (tLayers.get(targetLayer) == null) {
 			trl = new TileRenderLayer();
@@ -258,7 +268,7 @@ public class Drawer {
 		// Draw all of the textures
 		for (int i = xMin; i < xMax; i++) {
 			for (int j = yMin; j < yMax; j++) {
-				Texture tex = layer.tileChunkDrawBuffers[i + (j * chunkGridW)].tex;
+				Texture tex = layer.usedDrawBuffers[i + (j * chunkGridW)].tex;
 
 				chunkRend.spr = tex;
 
@@ -293,5 +303,56 @@ public class Drawer {
 		}
 		// Another benefit: garbage collection is avoided because the stack is
 		// popped and reclaimed immediately after the try block.
+	}
+
+	public static void clearScreenBuffer() {
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// Clear both buffers
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glfwSwapBuffers(Drawer.window);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
+	public static void bakeGFX() {
+		for (int key : tLayers.keySet()) {
+			TileRenderLayer tl = tLayers.get(key);
+
+			if (!tl.isActive)
+				continue;
+
+			ArrayList<Tile[][]> tGrid = tl.chunkRendGrid;
+
+			Tile[][] base = tGrid.get(0);
+			int pixelW = base.length * GameManager.tileSize;
+			int pixelH = base[0].length * GameManager.tileSize;
+
+			for (Tile[][] grid : tGrid) {
+				for (Tile[] tArr : grid) {
+					for (Tile t : tArr) {
+						if (t == null)
+							continue;
+
+						for (TileGFX gfx : t.tGFX) {
+
+							gfx.writeToBuffer(pixelW, pixelH);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public static DrawBuffer requestGFXLayer(String name, int buffW, int buffH) {
+		DrawBuffer dBuff;
+
+		if (GFXBuffs.containsKey(name))
+			dBuff = GFXBuffs.get(name);
+		else {
+			dBuff = DrawBuffer.genEmptyBuffer(buffW, buffH);
+			GFXBuffs.put(name, dBuff);
+		}
+
+		return dBuff;
 	}
 }

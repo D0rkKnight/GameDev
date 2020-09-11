@@ -13,7 +13,7 @@ import Wrappers.Stats;
 public abstract class Combatant extends PhysicsEntity {
 	public Stats stats;
 	protected Timer hurtTimer;
-	
+
 	public Combatant(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name);
 		this.stats = stats;
@@ -31,39 +31,45 @@ public abstract class Combatant extends PhysicsEntity {
 	public void hit(int damage) {
 		stats.health -= damage;
 		checkForDeath();
-		
+
 		GeneralRenderer sprRen = (GeneralRenderer) renderer;
 		sprRen.updateColors(new Color(1, 0, 0));
-		
-		hurtTimer = new FlickerTimer(500, 50, new Color(1,1,1), new Color(1, 0, 0), this, new TimerCallback() {
+
+		hurtTimer = new FlickerTimer(500, 50, new Color(1, 1, 1), new Color(1, 0, 0), this, new TimerCallback() {
 			@Override
 			public void invoke(Timer timer) {
-				// TODO Auto-generated method stub
-				hurtTimer = null; //Color reset is handled
+				hurtTimer = null; // Color reset is handled
 			}
 		});
 	}
-	
-	//TODO: Figure out how to work this out
+
+	// Don't make these abstract
 	// just sets stats.isDying to true
-	public abstract void die();
-	
-	public void checkForDeath() {
-		if (stats.health <= 0) Destroy();
+	public void die() {
+
 	}
-	
+
+	public void checkForDeath() {
+		if (stats.health <= 0)
+			Destroy();
+	}
+
+	@Override
 	public void calculate() {
-		if (hurtTimer != null) hurtTimer.update();
+		if (hurtTimer != null)
+			hurtTimer.update();
 		regen();
 	}
-	
+
 	public void regen() {
 		stats.health = Math.min(stats.health + stats.healthRegen, stats.maxHealth);
 		stats.stamina = Math.min(stats.stamina + stats.staminaRegen, stats.maxStamina);
 	}
-	
-	public abstract void attack();
-	
+
+	public void attack() {
+
+	}
+
 	public static int getOpposingAlignment(int align) {
 		switch (align) {
 		case ALIGNMENT_PLAYER:
@@ -71,12 +77,14 @@ public abstract class Combatant extends PhysicsEntity {
 		case ALIGNMENT_ENEMY:
 			return ALIGNMENT_PLAYER;
 		}
-		
+
 		return -1;
 	}
-	
+
+	@Override
 	public Combatant createNew(float xPos, float yPos) {
 		return createNew(xPos, yPos, new Stats(stats));
 	}
+
 	public abstract Combatant createNew(float xPos, float yPos, Stats stats);
 }
