@@ -1,15 +1,20 @@
 package Graphics.Rendering;
 
+/**
+ * Pretty much does nothing TODO: Organize these some time
+ * 
+ * @author Hanzen Shou
+ *
+ */
+
 public class SimpleShader extends Shader {
 
 	public SimpleShader(String filename) {
 		super(filename);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	protected void bindAttributes() {
-		// TODO Auto-generated method stub
 
 	}
 

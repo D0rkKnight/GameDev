@@ -43,13 +43,16 @@ import GameController.GameManager;
 import GameController.Input;
 import GameController.Map;
 import Graphics.Elements.DrawBuffer;
-import Graphics.Elements.Texture;
+import Graphics.Elements.DrawOrderElement;
+import Graphics.Elements.DrawOrderTileLayer;
 import Graphics.Elements.TileGFX;
 import Graphics.Elements.TileRenderLayer;
 import Graphics.Rendering.DrawBufferRenderer;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
+import Graphics.Rendering.TimedRenderer;
+import Graphics.Rendering.TimedShader;
 import Tiles.Tile;
 import UI.UI;
 import Utility.Transformation;
@@ -64,17 +67,25 @@ public class Drawer {
 	public static DrawBuffer drawBuff;
 	private static DrawBufferRenderer fBuffRend;
 	private static GeneralRenderer chunkRend;
-	private static HashMap<Integer, TileRenderLayer> tLayers;
+	private static HashMap<String, TileRenderLayer> tLayers;
 
-	public static final int LAYER_BG = 0;
-	public static final int LAYER_FG = 1;
+	public static final String LAYER_BG = "BG";
+	public static final String LAYER_FG = "FG";
+	public static final String LAYER_GROUND = "GROUND";
+
+	public static final int BG_Z = -50;
+	public static final int FG_Z = 50;
+	public static final int BG_GROUND = 0;
 
 	public static boolean windowResizeable = false; // Set in debug
 	public static final int CHUNK_SIZE = 16;
 
 	public static Color clearCol;
 
-	private static HashMap<String, DrawBuffer> GFXBuffs;
+	private static HashMap<String, TileRenderLayer> GFXLayers;
+	private static HashMap<String, GeneralRenderer> GFXRends;
+
+	private static ArrayList<DrawOrderElement> drawOrder;
 
 	public static void draw(Map map, ArrayList<Entity> entities) {
 		// Draw to framebuffer please
@@ -101,7 +112,8 @@ public class Drawer {
 		txMax++;
 		tyMax++;
 
-		Tile[][] tArr = tLayers.get(LAYER_BG).chunkRendGrid.get(0);
+		// TODO: Layer width and height should be set elsewhere
+		Tile[][] tArr = tLayers.get(LAYER_GROUND).chunkRendGrid.get(0);
 		int chunkGridW = (int) Math.ceil(((double) tArr.length) / CHUNK_SIZE); // This does just raises the chunk width
 																				// up to accomodate for the remainder.
 		int chunkGridH = (int) Math.ceil(((double) tArr[0].length) / CHUNK_SIZE);
@@ -111,16 +123,15 @@ public class Drawer {
 		tyMin = Math.max(tyMin, 0);
 		tyMax = Math.min(tyMax, chunkGridH);
 
-		if (tLayers.get(LAYER_BG) != null && tLayers.get(LAYER_BG).isActive)
-			drawRegion(tLayers.get(LAYER_BG), txMin, txMax, tyMin, tyMax, chunkGridW);
+		for (DrawOrderElement doe : drawOrder) {
+			if (doe instanceof DrawOrderTileLayer) {
+				((DrawOrderTileLayer) doe).tryRender(txMin, txMax, tyMin, tyMax, chunkGridW);
+			}
+		}
 
 		for (Entity ent : entities) {
 			ent.render();
 		}
-
-		// Now draw on top
-		if (tLayers.get(LAYER_FG) != null && tLayers.get(LAYER_FG).isActive)
-			drawRegion(tLayers.get(LAYER_FG), txMin, txMax, tyMin, tyMax, chunkGridW);
 
 		// UI elements
 		UI.render();
@@ -166,11 +177,22 @@ public class Drawer {
 	}
 
 	public static void initGraphics() {
+		// Setup
 		clearCol = new Color(0.5f, 0.5f, 0.5f, 1);
-		GFXBuffs = new HashMap<>();
-
 		initOpenGL();
 
+		// Creating graphical framework
+		GFXLayers = new HashMap<>();
+		GFXRends = new HashMap<>();
+		drawOrder = new ArrayList<>();
+
+		Shader warpShade = new TimedShader("vortex");
+		GeneralRenderer warpRend = new TimedRenderer(warpShade);
+		warpRend.init(new Transformation(), new Vector2f(CHUNK_SIZE * GameManager.tileSize),
+				HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 1, 0, 1));
+		GFXRends.put("Warp", warpRend);
+
+		// Creating graphical elements
 		initDrawBuffer();
 		initTileChunks();
 	}
@@ -230,14 +252,14 @@ public class Drawer {
 		/**
 		 * Draw buffer configuration
 		 */
-		drawBuff = DrawBuffer.genEmptyBuffer(1280, 720);
-
-		// Reset to the regular buffer
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		// Now set up the renderer that deals with this.
 		Shader shader = new SpriteShader("texShader");
 		fBuffRend = new DrawBufferRenderer(shader);
+		drawBuff = DrawBuffer.genEmptyBuffer(1280, 720, fBuffRend);
+
+		// Reset to the regular buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	public static void initTileChunks() {
@@ -252,35 +274,20 @@ public class Drawer {
 	}
 
 	public static void genTileChunkLayer(HashMap<String, Tile[][]> g, ArrayList<String> renderedLayers,
-			int targetLayer) {
+			String targetLayer, int z) {
 		TileRenderLayer trl;
 		if (tLayers.get(targetLayer) == null) {
 			trl = new TileRenderLayer();
 			tLayers.put(targetLayer, trl);
+
+			insertDrawOrderElement(new DrawOrderTileLayer(z, trl));
 		} else {
 			trl = tLayers.get(targetLayer);
 		}
 
-		trl.populateChunks(g, renderedLayers);
-	}
-
-	private static void drawRegion(TileRenderLayer layer, int xMin, int xMax, int yMin, int yMax, int chunkGridW) {
-		// Draw all of the textures
-		for (int i = xMin; i < xMax; i++) {
-			for (int j = yMin; j < yMax; j++) {
-				Texture tex = layer.usedDrawBuffers[i + (j * chunkGridW)].tex;
-
-				chunkRend.spr = tex;
-
-				Vector2f pos = new Vector2f(i, j).mul(GameManager.tileSize).mul(CHUNK_SIZE);
-				chunkRend.transform.pos.set(pos);
-				chunkRend.transform.pos.add(0, GameManager.tileSize * CHUNK_SIZE);
-
-				chunkRend.transform.scale.identity().scale(1, -1, 1);
-
-				chunkRend.render();
-			}
-		}
+		trl.populateChunks(g, renderedLayers, chunkRend);
+		if (!renderedLayers.isEmpty())
+			trl.isActive = true;
 	}
 
 	public static Vector2f GetWindowSize() {
@@ -315,44 +322,90 @@ public class Drawer {
 	}
 
 	public static void bakeGFX() {
-		for (int key : tLayers.keySet()) {
+		// Clear GFX
+		for (String key : GFXLayers.keySet()) {
+			GFXLayers.get(key).clearGrids();
+		}
+
+		for (String key : tLayers.keySet()) {
 			TileRenderLayer tl = tLayers.get(key);
 
 			if (!tl.isActive)
 				continue;
 
-			ArrayList<Tile[][]> tGrid = tl.chunkRendGrid;
+			ArrayList<Tile[][]> grids = tl.chunkRendGrid;
 
-			Tile[][] base = tGrid.get(0);
-			int pixelW = base.length * GameManager.tileSize;
-			int pixelH = base[0].length * GameManager.tileSize;
+			TileRenderLayer gfxLayer;
+			HashMap<String, Tile[][]> gridCache = new HashMap<>();
 
-			for (Tile[][] grid : tGrid) {
-				for (Tile[] tArr : grid) {
-					for (Tile t : tArr) {
+			for (Tile[][] g : grids) {
+				for (int i = 0; i < g.length; i++) {
+					for (int j = 0; j < g[0].length; j++) {
+						Tile t = g[i][j];
 						if (t == null)
 							continue;
 
 						for (TileGFX gfx : t.tGFX) {
+							// Load tiles into chunk render grid
 
-							gfx.writeToBuffer(pixelW, pixelH);
+							// Generate new layer
+							if (!GFXLayers.containsKey(gfx.name)) {
+								gfxLayer = new TileRenderLayer();
+
+								GFXLayers.put(gfx.name, gfxLayer);
+
+								// TODO: Set z layer dynamically
+								insertDrawOrderElement(new DrawOrderTileLayer(-3, gfxLayer));
+							}
+
+							// Generate new cache
+							if (!gridCache.containsKey(gfx.name)) {
+								gridCache.put(gfx.name, new Tile[g.length][g[0].length]);
+							}
+
+							// Stick the tile into a layer
+							gridCache.get(gfx.name)[i][j] = t;
 						}
 					}
 				}
 			}
+
+			// Now load the grid caches into the draw layers.
+			for (String cacheKey : gridCache.keySet()) {
+				Tile[][] g = gridCache.get(cacheKey);
+				TileRenderLayer gfxL = GFXLayers.get(cacheKey);
+
+				// Grids are now in
+				gfxL.appendSingleGrid(g);
+
+				// Now draw to the GFXLayer!
+				gfxL.drawChunks(GFXRends.get(cacheKey));
+
+				// And enable it
+				gfxL.isActive = true;
+			}
 		}
 	}
 
-	public static DrawBuffer requestGFXLayer(String name, int buffW, int buffH) {
-		DrawBuffer dBuff;
-
-		if (GFXBuffs.containsKey(name))
-			dBuff = GFXBuffs.get(name);
-		else {
-			dBuff = DrawBuffer.genEmptyBuffer(buffW, buffH);
-			GFXBuffs.put(name, dBuff);
+	private static void insertDrawOrderElement(DrawOrderElement doe) {
+		for (int i = 0; i < drawOrder.size(); i++) {
+			if (doe.z < drawOrder.get(i).z) {
+				drawOrder.add(i, doe);
+				return;
+			}
 		}
 
-		return dBuff;
+		// Add onto end
+		drawOrder.add(doe);
+	}
+
+	public static void disableTCLayers() {
+		for (String key : tLayers.keySet()) {
+			tLayers.get(key).isActive = false;
+		}
+
+		for (String key : GFXLayers.keySet()) {
+			GFXLayers.get(key).isActive = false;
+		}
 	}
 }

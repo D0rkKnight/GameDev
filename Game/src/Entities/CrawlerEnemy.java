@@ -64,6 +64,9 @@ public class CrawlerEnemy extends Enemy {
 
 			this.position.set(new Vector2f(attachedSegment.v1).mul(GameManager.tileSize));
 		}
+
+		baseInvulnState = true;
+		isInvuln = baseInvulnState;
 	}
 
 	@Override

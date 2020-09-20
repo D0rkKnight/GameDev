@@ -13,6 +13,10 @@ import Wrappers.Stats;
 public abstract class Combatant extends PhysicsEntity {
 	public Stats stats;
 	protected Timer hurtTimer;
+	private Timer invulnTimer;
+	protected boolean isInvuln = false;
+	protected boolean baseInvulnState = false;
+	protected int baseInvulnLength = 10;
 
 	public Combatant(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name);
@@ -58,6 +62,8 @@ public abstract class Combatant extends PhysicsEntity {
 	public void calculate() {
 		if (hurtTimer != null)
 			hurtTimer.update();
+		if (invulnTimer != null)
+			invulnTimer.update();
 		regen();
 	}
 
@@ -79,6 +85,26 @@ public abstract class Combatant extends PhysicsEntity {
 		}
 
 		return -1;
+	}
+
+	public void invuln(int len) {
+		isInvuln = true;
+		invulnTimer = new Timer(len, new TimerCallback() {
+
+			@Override
+			public void invoke(Timer timer) {
+				isInvuln = baseInvulnState;
+				invulnTimer = null;
+			}
+		});
+	}
+
+	public void invuln() {
+		invuln(baseInvulnLength);
+	}
+
+	public boolean isInvuln() {
+		return isInvuln;
 	}
 
 	@Override

@@ -19,7 +19,6 @@ public class PhysicsCollisionBehaviorDeflect extends PhysicsCollisionBehavior {
 	public void onColl(Vector2f rawPos, Vector2f deltaMove, Vector2f velo, PhysicsEntity e, Tile[][] grid,
 			Vector2f moveAxis, Vector2f[] axises, Vector2f moveDir, Vector2f tangent, Vector2f delta) {
 		if (!e.pData.grounded) {
-			// TODO: Maybe this should just force perpendicular axises?
 			// Project velocity onto tangent axis (Tangent points left)
 			float tanSpeed = velo.dot(tangent);
 

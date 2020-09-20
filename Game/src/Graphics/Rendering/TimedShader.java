@@ -4,12 +4,12 @@ public class TimedShader extends SpriteShader {
 
 	public TimedShader(String filename) {
 		super(filename);
-		// TODO Auto-generated constructor stub
 	}
 
+	@Override
 	protected void initUniforms() throws Exception {
 		super.initUniforms();
-		
+
 		createUniform("Time");
 	}
 }

@@ -3,7 +3,6 @@ package Entities;
 import org.joml.Vector2f;
 
 import Collision.Hitbox;
-import Collision.Behaviors.PhysicsCollisionBehavior;
 import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
 import Collision.HammerShapes.HammerShape;
 import Debugging.Debug;
@@ -56,7 +55,6 @@ public abstract class BouncingEnemy extends Enemy {
 	protected void initPhysicsCollBehavior() {
 		super.initPhysicsCollBehavior();
 
-		PhysicsCollisionBehavior.removeBehavior(collBehaviorList, "groundMove");
 		collBehaviorList.add(new PhysicsCollisionBehaviorDeflect());
 	}
 
@@ -82,7 +80,6 @@ public abstract class BouncingEnemy extends Enemy {
 			if (dir != null && pData.grounded && bounceReady) {
 				pData.velo = new Vector2f(deltaX, 0.03f * Time.deltaT());
 				onBounce();
-
 				bounceReady = false;
 
 			} else if (pData.grounded) {

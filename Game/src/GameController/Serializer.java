@@ -49,7 +49,6 @@ public class Serializer {
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			doc = builder.parse(new File(fdir + fname));
 		} catch (ParserConfigurationException | SAXException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -156,7 +155,6 @@ public class Serializer {
 			try {
 				tGrid = loadTileGridFromLayer(layer, tileMap, gids, tSetNames);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.exit(1);
 			}
@@ -452,10 +450,8 @@ public class Serializer {
 			progress[1] = Integer.parseInt(progressFile.readLine());
 			progress[2] = Integer.parseInt(progressFile.readLine());
 		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return progress;
@@ -506,10 +502,8 @@ public class Serializer {
 				data.add(Integer.parseInt(ID));
 			}
 		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return data;
@@ -534,7 +528,6 @@ public class Serializer {
 		try {
 			img = ImageIO.read(new File(path));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

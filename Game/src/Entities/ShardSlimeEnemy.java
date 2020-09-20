@@ -13,7 +13,6 @@ public class ShardSlimeEnemy extends BouncingEnemy {
 
 	public ShardSlimeEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -23,7 +22,6 @@ public class ShardSlimeEnemy extends BouncingEnemy {
 
 	@Override
 	public void onLanding() {
-		// TODO Auto-generated method stub
 		for (int i = 0; i < 5; i++) {
 			Vector2f pos = new Vector2f(position).add(new Vector2f(8, 10));
 

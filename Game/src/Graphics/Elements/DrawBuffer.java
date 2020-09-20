@@ -22,16 +22,27 @@ import static org.lwjgl.opengl.GL30.glCheckFramebufferStatus;
 import static org.lwjgl.opengl.GL30.glFramebufferTexture2D;
 import static org.lwjgl.opengl.GL30.glGenFramebuffers;
 
+import org.joml.Vector2f;
+
+import GameController.GameManager;
+import Graphics.Drawer;
+import Graphics.Rendering.GeneralRenderer;
+
 public class DrawBuffer {
 	public int fbuff;
 	public Texture tex;
+	public boolean isActive = false;
 
-	public DrawBuffer(int fbuff, Texture tex) {
+	public GeneralRenderer rend;
+
+	public DrawBuffer(int fbuff, Texture tex, GeneralRenderer rend) {
 		this.fbuff = fbuff;
 		this.tex = tex;
+
+		this.rend = rend;
 	}
 
-	public static DrawBuffer genEmptyBuffer(int pixelsW, int pixelsT) {
+	public static DrawBuffer genEmptyBuffer(int pixelsW, int pixelsT, GeneralRenderer newRend) {
 		// Gen the buffer
 		int buff = glGenFramebuffers();
 
@@ -62,6 +73,17 @@ public class DrawBuffer {
 		// Clear frame buffer, sets background color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		return new DrawBuffer(buff, texObj);
+		return new DrawBuffer(buff, texObj, newRend);
+	}
+
+	public void renderAt(Vector2f pos) {
+		rend.spr = tex;
+
+		rend.transform.pos.set(pos);
+		rend.transform.pos.add(0, GameManager.tileSize * Drawer.CHUNK_SIZE);
+
+		rend.transform.scale.identity().scale(1, -1, 1);
+
+		rend.render();
 	}
 }

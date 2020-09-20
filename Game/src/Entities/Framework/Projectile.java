@@ -13,7 +13,6 @@ public class Projectile extends PhysicsEntity {
 
 	public Projectile(int ID, Vector2f position, Renderer renderer, String name) {
 		super(ID, position, renderer, name);
-		// TODO Auto-generated constructor stub
 
 		// Configure renderer (this is a hack)
 		dim = new Vector2f(8f, 8f);
@@ -45,10 +44,13 @@ public class Projectile extends PhysicsEntity {
 				if (e instanceof Combatant) {
 					Combatant c = (Combatant) e;
 
-					Vector2f kb = new Vector2f(pData.velo).mul(0.2f);
-					c.knockback(kb, 0.5f, 1f);
+					if (!c.isInvuln()) {
+						Vector2f kb = new Vector2f(pData.velo).mul(0.2f);
+						c.knockback(kb, 0.5f, 1f);
 
-					c.hit(10);
+						c.hit(10);
+						c.invuln();
+					}
 				}
 
 				// DESTROY

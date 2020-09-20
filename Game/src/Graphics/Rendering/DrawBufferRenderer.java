@@ -6,7 +6,6 @@ public class DrawBufferRenderer extends GeneralRenderer {
 
 	public DrawBufferRenderer(Shader shader) {
 		super(shader);
-		// TODO Auto-generated constructor stub
 	}
 
 	// This class exists only to flip the uvs.

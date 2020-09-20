@@ -76,6 +76,8 @@ public class Camera {
 		pos.x = x;
 		pos.y = y;
 
+		pos.round(); // This fixes the cracks between tile chunks.
+
 		// Update matrices
 		updateMatrices();
 

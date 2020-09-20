@@ -20,7 +20,7 @@ public abstract class Entity implements CanBeCloned {
 	protected int ID;
 	protected Vector2f position;
 	protected Sprites sprites;
-	protected static float gravity = 5f; // TODO: Don't forget to fix this
+	protected static float gravity = 5f;
 
 	public Renderer renderer;
 	public Vector2f rendOffset;
@@ -48,7 +48,6 @@ public abstract class Entity implements CanBeCloned {
 		try {
 			this.renderer = renderer.clone();
 		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

@@ -87,6 +87,8 @@ public class Player extends Combatant {
 		alignment = ALIGNMENT_PLAYER;
 
 		sideFacing = 1;
+
+		baseInvulnLength = 1000;
 	}
 
 	@Override
@@ -105,26 +107,32 @@ public class Player extends Combatant {
 	@Override
 	public void calculate() {
 		super.calculate();
+
 		if (!GameManager.roomChanging) {
 			determineMovementMode(); // determine what movement mode and execute it
 		}
-		GeneralRenderer sprRend = (GeneralRenderer) renderer;
+
+		Color baseCol = null;
 		switch (movementMode) {
 		case MOVEMENT_MODE_CONTROLLED: // walking
-			sprRend.updateColors(new Color(1, 0, 0, 1));
+			baseCol = new Color(1, 0, 0, 1);
 			controlledMovement();
 			break;
 		case MOVEMENT_MODE_IS_DASHING: // dashing, a bit spaghetti here TODO
-			sprRend.updateColors(new Color(1, 1, 1, 1));
+			baseCol = new Color(1, 1, 1, 1);
 			dashingMovement();
 			break;
 		case MOVEMENT_MODE_DECEL:
-			sprRend.updateColors(new Color(0, 0, 1, 1));
+			baseCol = new Color(0, 0, 1, 1);
 			decelMovement();
 			break;
 		default:
 			System.err.println("Movement mode not set.");
 		}
+
+		GeneralRenderer sprRend = (GeneralRenderer) renderer;
+		if (hurtTimer == null)
+			sprRend.updateColors(baseCol);
 
 		// Gravity
 		if (hasGravity) {
@@ -262,7 +270,6 @@ public class Player extends Combatant {
 
 				@Override
 				public void invoke(Timer timer) {
-					// TODO Auto-generated method stub
 					canJump = false;
 					jumpGraceTimer = null;
 				}
@@ -375,7 +382,7 @@ public class Player extends Combatant {
 
 	@Override
 	public void onTileCollision() {
-		// TODO Auto-generated method stub
 
 	}
+
 }

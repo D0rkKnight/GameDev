@@ -14,6 +14,7 @@ import org.joml.Vector2f;
 import GameController.Camera;
 import GameController.GameManager;
 import Graphics.Drawer;
+import Graphics.Rendering.GeneralRenderer;
 import Tiles.Tile;
 import Utility.Transformation;
 import Wrappers.Color;
@@ -31,29 +32,35 @@ public class TileRenderLayer {
 		masterBufferList = new ArrayList<>();
 	}
 
-	public void populateChunks(HashMap<String, Tile[][]> g, ArrayList<String> renderedLayers) {
-		chunkRendGrid.clear();
+	public void populateChunks(HashMap<String, Tile[][]> g, ArrayList<String> renderedLayers, GeneralRenderer rend) {
+		loadLayers(g, renderedLayers);
+		if (isActive)
+			drawChunks(rend);
+	}
+
+	public void loadLayers(HashMap<String, Tile[][]> g, ArrayList<String> renderedLayers) {
+		clearGrids();
+		isActive = false;
 
 		for (String str : renderedLayers) {
-			chunkRendGrid.add(g.get(str));
+			appendSingleGrid(g.get(str));
 		}
+	}
 
-		if (chunkRendGrid.isEmpty()) {
-			// Clear the chunks instead.
-			isActive = false;
-			return;
-		} else {
-			isActive = true;
-		}
+	public void appendSingleGrid(Tile[][] grid) {
+		chunkRendGrid.add(grid);
+		isActive = true;
+	}
 
+	public void clearGrids() {
+		chunkRendGrid.clear();
+	}
+
+	public void drawChunks(GeneralRenderer rend) {
 		Tile[][] tArr = chunkRendGrid.get(0);
 
 		int w = tArr.length;
 		int h = tArr[0].length;
-
-//		if (w % Drawer.CHUNK_SIZE != 0 || h % Drawer.CHUNK_SIZE != 0) {
-//			new Exception("Bad size!").printStackTrace();
-//		}
 
 		int cw = (int) Math.ceil(((float) w) / Drawer.CHUNK_SIZE);
 		int ch = (int) Math.ceil(((float) h) / Drawer.CHUNK_SIZE);
@@ -64,7 +71,7 @@ public class TileRenderLayer {
 		// Populate master buffer list up to necessary size
 		int chunkDims = Drawer.CHUNK_SIZE * GameManager.tileSize;
 		while (masterBufferList.size() < cw * ch)
-			masterBufferList.add(DrawBuffer.genEmptyBuffer(chunkDims, chunkDims));
+			masterBufferList.add(DrawBuffer.genEmptyBuffer(chunkDims, chunkDims, rend));
 
 		for (int i = 0; i < cw; i++) {
 			for (int j = 0; j < ch; j++) {
@@ -103,11 +110,15 @@ public class TileRenderLayer {
 							float offsetY = j * GameManager.tileSize * Drawer.CHUNK_SIZE;
 
 							Vector2f camOffset = new Vector2f(Camera.main.viewport).div(2);
+
+							// Need to center the image so that the texture is drawn to from the bottom left
 							newTrans.view.setTranslation(-offsetX - camOffset.x, -offsetY - camOffset.y, 0);
 
 							float x = a * GameManager.tileSize;
 							float y = b * GameManager.tileSize;
+
 							t.render(new Vector2f(x, y), GameManager.tileSize);
+							dBuff.isActive = true; // Draw buffer gets activated
 
 							t.renderer.transform = oldTrans;
 						}

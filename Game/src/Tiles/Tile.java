@@ -37,7 +37,6 @@ public class Tile implements Cloneable {
 			this.renderer = renderer.clone();
 			this.renderer.spr = tex;
 		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

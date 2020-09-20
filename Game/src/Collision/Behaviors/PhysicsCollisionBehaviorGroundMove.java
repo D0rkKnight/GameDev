@@ -17,7 +17,7 @@ public class PhysicsCollisionBehaviorGroundMove extends PhysicsCollisionBehavior
 			Vector2f moveAxis, Vector2f[] axises, Vector2f moveDir, Vector2f tangent, Vector2f delta) {
 
 		Vector2f tangentDir = new Vector2f(tangent).normalize();
-		Vector2f up = axises[Physics.Y]; // TODO: use axis X and axis Y constants here
+		Vector2f up = axises[Physics.Y];
 		Vector2f right = axises[Physics.X];
 
 		float horValue = tangentDir.dot(up);

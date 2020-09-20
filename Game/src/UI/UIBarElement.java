@@ -8,23 +8,24 @@ import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
 import Wrappers.Color;
 
-public class UIBarElement extends UIBoxElement{
-	
+public class UIBarElement extends UIBoxElement {
+
 	public float fillRatio;
-	
+
 	public UIBarElement(Renderer rend, Vector2f pos, Vector2f dims, Color col) {
 		super(rend, pos, dims, col);
 		fillRatio = 1.0f;
-		// TODO Auto-generated constructor stub
 	}
-	
+
+	@Override
 	public void update() {
-		
-		//Buffer vertex changes to renderer
+
+		// Buffer vertex changes to renderer
 		if (rend instanceof GeneralRenderer) {
-			Vector2f fillDims = new Vector2f(dims.x*fillRatio, dims.y);
-			Vector2f[] verts = GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE).getRenderVertices(fillDims);
-			
+			Vector2f fillDims = new Vector2f(dims.x * fillRatio, dims.y);
+			Vector2f[] verts = GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE)
+					.getRenderVertices(fillDims);
+
 			((GeneralRenderer) rend).updateVertices(verts);
 
 		} else {

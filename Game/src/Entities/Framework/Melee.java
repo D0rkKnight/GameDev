@@ -87,10 +87,12 @@ public class Melee extends Entity implements Collidable {
 				if (e instanceof Combatant) {
 					Combatant c = (Combatant) e;
 
-					Vector2f kb = new Vector2f(kbDir).mul(2);
-					c.knockback(kb, 0.5f, 1f);
+					if (!c.isInvuln()) {
+						Vector2f kb = new Vector2f(kbDir).mul(2);
+						c.knockback(kb, 0.5f, 1f);
 
-					c.hit(10);
+						c.hit(10);
+					}
 				}
 
 				hitEntities.add(e);
@@ -100,13 +102,11 @@ public class Melee extends Entity implements Collidable {
 
 	@Override
 	public Hitbox getHb() {
-		// TODO Auto-generated method stub
 		return hitbox;
 	}
 
 	@Override
 	public void setHb(Hitbox hb) {
-		// TODO Auto-generated method stub
 		hitbox = hb;
 	}
 

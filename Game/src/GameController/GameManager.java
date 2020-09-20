@@ -99,9 +99,6 @@ public class GameManager {
 		// Init camera
 		new Camera();
 
-		// Init renderer
-		// TODO: We have to make a renderer factory in order for this to, like, work.
-
 		shader = new SpriteShader("texShader");
 		renderer = new GeneralRenderer(shader);
 
@@ -144,10 +141,8 @@ public class GameManager {
 		try {
 			entityHash = Serializer.loadEntityHash(fileDir, fileName, renderer);
 		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

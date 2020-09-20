@@ -72,21 +72,27 @@ public class World {
 		// Grab foreground and background layers
 		ArrayList<String> rlBG = new ArrayList<>();
 		ArrayList<String> rlFG = new ArrayList<>();
+		ArrayList<String> rlGround = new ArrayList<>();
 
 		for (String key : map.grids.keySet()) {
 			String[] parts = key.split("_");
 			String head = parts[0].toLowerCase();
 
 			// Ground also goes to the background.
-			if (head.equals("bg") || head.equals("ground"))
+			if (head.equals("bg"))
 				rlBG.add(key);
-			if (head.contentEquals("fg"))
+			if (head.equals("ground"))
+				rlGround.add(key);
+			if (head.equals("fg"))
 				rlFG.add(key);
 		}
 
+		Drawer.disableTCLayers();
+
 		// Tile chunks
-		Drawer.genTileChunkLayer(map.grids, rlBG, Drawer.LAYER_BG);
-		Drawer.genTileChunkLayer(map.grids, rlFG, Drawer.LAYER_FG);
+		Drawer.genTileChunkLayer(map.grids, rlBG, Drawer.LAYER_BG, Drawer.BG_Z);
+		Drawer.genTileChunkLayer(map.grids, rlGround, Drawer.LAYER_GROUND, Drawer.BG_GROUND);
+		Drawer.genTileChunkLayer(map.grids, rlFG, Drawer.LAYER_FG, Drawer.FG_Z);
 
 		Drawer.bakeGFX();
 
