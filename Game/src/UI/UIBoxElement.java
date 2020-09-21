@@ -13,6 +13,10 @@ public class UIBoxElement extends UIDrawElement {
 
 	Vector2f dims;
 
+	public static final int ANCHOR_UL = 0;
+	public static final int ANCHOR_BL = 1;
+	public static final int ANCHOR_MID = 2;
+
 	public UIBoxElement(Renderer rend, Vector2f pos, Vector2f dims, Color col) {
 		super(rend, pos);
 
@@ -25,4 +29,20 @@ public class UIBoxElement extends UIDrawElement {
 		}
 	}
 
+	public void setAnchor(int anchorId) {
+		switch (anchorId) {
+		case ANCHOR_BL:
+			offset.zero();
+			break;
+		case ANCHOR_UL:
+			offset.set(0, dims.y);
+			break;
+		case ANCHOR_MID:
+			offset.set(-dims.x / 2, dims.y / 2);
+			break;
+		default:
+			new Exception("Anchor not recognized").printStackTrace();
+			break;
+		}
+	}
 }

@@ -19,6 +19,7 @@ public class UIBarElement extends UIBoxElement {
 
 	@Override
 	public void update() {
+		super.update();
 
 		// Buffer vertex changes to renderer
 		if (rend instanceof GeneralRenderer) {

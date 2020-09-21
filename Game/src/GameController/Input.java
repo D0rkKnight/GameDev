@@ -18,7 +18,6 @@ import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import static org.lwjgl.glfw.GLFW.glfwSetCursorPosCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetMouseButtonCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
 import static org.lwjgl.opengl.GL11.glViewport;
 
@@ -110,7 +109,12 @@ public class Input {
 
 		// Individual press and release stuff
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-			glfwSetWindowShouldClose(window, true); // Later detected in rendering loop
+			// glfwSetWindowShouldClose(window, true); // Later detected in rendering loop
+			if (GameManager.getGameState() != GameManager.GAME_STATE_PAUSED) {
+				GameManager.setGameState(GameManager.GAME_STATE_PAUSED);
+			} else {
+				GameManager.setGameState(GameManager.GAME_STATE_RUNNING);
+			}
 		}
 		// Frame walking
 		if (Debug.frameWalk && key == frameWalkKey && action == GLFW_PRESS) {

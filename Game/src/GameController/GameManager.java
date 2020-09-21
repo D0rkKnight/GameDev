@@ -72,6 +72,10 @@ public class GameManager {
 	public static final String GRID_BG = "background";
 	public static final String GRID_FG = "foreground";
 
+	private static int gameState;
+	public static final int GAME_STATE_RUNNING = 0;
+	public static final int GAME_STATE_PAUSED = 1;
+
 	/*
 	 * Creates components before entering loop
 	 */
@@ -89,6 +93,8 @@ public class GameManager {
 	}
 
 	private void init() {
+		gameState = GAME_STATE_RUNNING;
+
 		Debug.config();
 		initCollision();
 
@@ -211,26 +217,61 @@ public class GameManager {
 		while (!glfwWindowShouldClose(Drawer.window)) {
 			Time.updateTime();
 
-			// Drawing stuff
-			update();
-			Drawer.draw(World.currmap, entities);
-
 			// Event listening stuff. Key callback is invoked here.
 			// Do wipe input before going in
 			Input.update();
 			glfwPollEvents();
 
-			// Frame walking debug tools
-			if (Debug.frameWalk) {
-				while (Debug.waitingForFrameWalk) {
-					// Input.update(); //No need to wipe stuff
-					glfwPollEvents();
-
-					if (glfwWindowShouldClose(Drawer.window))
-						break;
-				}
-				Debug.waitingForFrameWalk = true;
+			switch (gameState) {
+			case GAME_STATE_RUNNING:
+				GS_running();
+				break;
+			case GAME_STATE_PAUSED:
+				GS_paused();
+				break;
 			}
+		}
+	}
+
+	public void GS_running() {
+		// Drawing stuff
+		update();
+		Drawer.draw(World.currmap, entities);
+
+		// Frame walking debug tools
+		if (Debug.frameWalk) {
+			while (Debug.waitingForFrameWalk) {
+				// Input.update(); //No need to wipe stuff
+				glfwPollEvents();
+
+				if (glfwWindowShouldClose(Drawer.window))
+					break;
+			}
+			Debug.waitingForFrameWalk = true;
+		}
+	}
+
+	private void GS_paused() {
+		// Continue drawing
+		Drawer.draw(World.currmap, entities);
+	}
+
+	public static int getGameState() {
+		return gameState;
+	}
+
+	public static void setGameState(int gameState) {
+		GameManager.gameState = gameState;
+
+		switch (gameState) {
+		case GAME_STATE_RUNNING:
+			UI.changeCanvas(UI.CANVAS_RUNNING);
+			Time.endPause();
+			break;
+		case GAME_STATE_PAUSED:
+			UI.changeCanvas(UI.CANVAS_PAUSED);
+			Time.beginPause();
+			break;
 		}
 	}
 

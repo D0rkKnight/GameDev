@@ -19,8 +19,12 @@ public class UIDrawElement extends UIElement {
 	}
 
 	@Override
-	public void render() {
-		rend.transform.pos = pos;
+	public void render(Vector2f relativeTo) {
+		super.render(relativeTo);
+
+		Vector2f newPos = new Vector2f(pos).add(offset).add(relativeTo);
+
+		rend.transform.pos = newPos;
 		rend.render();
 	}
 

@@ -6,7 +6,7 @@ import org.joml.Vector2f;
 
 public class UICanvas extends UIElement {
 
-	ArrayList<UIElement> children;
+	protected ArrayList<UIElement> children;
 
 	public UICanvas(Vector2f pos) {
 		super(pos);
@@ -14,10 +14,13 @@ public class UICanvas extends UIElement {
 	}
 
 	@Override
-	public void render() {
-		super.render();
+	public void render(Vector2f relativeTo) {
+		super.render(relativeTo);
+
+		Vector2f newRelative = new Vector2f(pos).add(relativeTo);
+
 		for (UIElement c : children)
-			c.render();
+			c.render(newRelative);
 	}
 
 	@Override
@@ -25,5 +28,13 @@ public class UICanvas extends UIElement {
 		super.update();
 		for (UIElement c : children)
 			c.update();
+	}
+
+	public void addElement(UIElement e) {
+		children.add(e);
+	}
+
+	public void remElement(UIElement e) {
+		children.remove(e);
 	}
 }

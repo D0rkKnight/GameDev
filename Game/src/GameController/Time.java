@@ -3,10 +3,16 @@ package GameController;
 import Debugging.Debug;
 
 public class Time {
+	// TODO: Split into multiple timer tracks
+
 	private static long deltaTime = 0;
 	private static long currTime = 0;
 	private static long lastTime = 0;
 	private static long startTime;
+
+	private static long pauseTime = 0;
+	private static long pauseBuffer = 0;
+	private static boolean isPaused = false;
 
 	public static void initTime() {
 		reset();
@@ -35,8 +41,13 @@ public class Time {
 		return currTime;
 	}
 
+	// Ignores time when game is paused
 	public static long timeSinceStart() {
-		return (currTime - startTime);
+		if (!isPaused)
+			return (currTime - startTime - pauseBuffer);
+		else {
+			return (pauseTime - startTime - pauseBuffer);
+		}
 	}
 
 	public static void reset() {
@@ -46,5 +57,15 @@ public class Time {
 
 	private static long getT() {
 		return System.nanoTime() / 1000000;
+	}
+
+	public static void beginPause() {
+		pauseTime = getT();
+		isPaused = true;
+	}
+
+	public static void endPause() {
+		pauseBuffer += currTime - pauseTime;
+		isPaused = false;
 	}
 }
