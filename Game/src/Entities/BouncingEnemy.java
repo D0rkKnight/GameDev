@@ -33,7 +33,7 @@ public abstract class BouncingEnemy extends Enemy {
 	boolean bounceReady;
 	int moveDir;
 
-	public BouncingEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
+	public BouncingEnemy(String ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
 
 		// Configure the renderer real quick

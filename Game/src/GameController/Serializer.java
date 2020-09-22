@@ -22,6 +22,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.joml.Vector2f;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -35,6 +37,7 @@ import Entities.ShardSlimeEnemy;
 import Entities.Framework.Entity;
 import Entities.Framework.Entrance;
 import Entities.Framework.Interactive;
+import Entities.Framework.Prop;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
 import Tiles.Tile;
@@ -42,12 +45,12 @@ import Wrappers.Stats;
 
 public class Serializer {
 
-	public static Document readDoc(String fdir, String fname) throws Exception {
+	public static Document readDoc(File f) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		Document doc = null;
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			doc = builder.parse(new File(fdir + fname));
+			doc = builder.parse(f);
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			e.printStackTrace();
 		}
@@ -55,6 +58,10 @@ public class Serializer {
 		doc.getDocumentElement().normalize();
 
 		return doc;
+	}
+
+	public static Document readDoc(String fdir, String fname) throws Exception {
+		return readDoc(new File(fdir + fname));
 	}
 
 	private static Element retrieveElement(Element e, String name) {
@@ -228,11 +235,13 @@ public class Serializer {
 	private static final int READ_MODE_COMBATANT = 1;
 	private static final int READ_MODE_INTERACTABLE = 2;
 	private static final int READ_MODE_STATIC = 3;
+	private static final int READ_MODE_PROP = 4;
 
 	private static int readMode = READ_MODE_NONE;
 	private static HashMap<String, String> activeDataHash;
 
-	public static HashMap<Integer, Entity> loadEntityHash(String fileDir, String fileName, GeneralRenderer renderer)
+	// TODO: Load from templates, rather than the text file.
+	public static HashMap<String, Entity> loadEntityHash(String fileDir, String fileName, GeneralRenderer renderer)
 			throws NumberFormatException, IOException {
 		BufferedReader charFile = null;
 		try {
@@ -242,7 +251,7 @@ public class Serializer {
 			e.printStackTrace();
 		}
 
-		HashMap<Integer, Entity> entityHash = new HashMap<Integer, Entity>();
+		HashMap<String, Entity> entityHash = new HashMap<String, Entity>();
 
 		String line;
 		while ((line = charFile.readLine()) != null) {
@@ -257,6 +266,9 @@ public class Serializer {
 				continue;
 			} else if (line.contains("STATIC")) {
 				readMode = READ_MODE_STATIC;
+				continue;
+			} else if (line.contains("PROPS")) {
+				readMode = READ_MODE_PROP;
 				continue;
 			}
 
@@ -273,8 +285,7 @@ public class Serializer {
 				activeDataHash.put(splitStr[0], splitStr[1]);
 			}
 
-			String name = activeDataHash.get("Name");
-			int ID = Integer.parseInt(activeDataHash.get("ID"));
+			String ID = activeDataHash.get("ID");
 			Entity newE = null;
 
 			if (readMode == READ_MODE_COMBATANT) {
@@ -284,14 +295,14 @@ public class Serializer {
 				float STR = rhFloat("StaminaRegen");
 				Stats stats = new Stats(HP, ST, HPR, STR);
 
-				if (name.equals("Player")) {
-					newE = new Player(ID, null, renderer, name, stats);
-				} else if (name.equals("Floater")) {
-					newE = new FloaterEnemy(ID, null, renderer, name, stats);
-				} else if (name.equals("Bouncer")) {
-					newE = new ShardSlimeEnemy(ID, null, renderer, name, stats);
-				} else if (name.equals("Crawler")) {
-					newE = new CrawlerEnemy(ID, null, renderer, name, stats);
+				if (ID.equals("PLAYER")) {
+					newE = new Player(ID, null, renderer, ID, stats);
+				} else if (ID.equals("FLOATER")) {
+					newE = new FloaterEnemy(ID, null, renderer, ID, stats);
+				} else if (ID.equals("BOUNCER")) {
+					newE = new ShardSlimeEnemy(ID, null, renderer, ID, stats);
+				} else if (ID.equals("CRAWLER")) {
+					newE = new CrawlerEnemy(ID, null, renderer, ID, stats);
 				}
 			}
 
@@ -300,15 +311,22 @@ public class Serializer {
 				int TIME_ON = rhInt("TimeOn");
 				float ACT_DIST = rhFloat("ActivationDistance");
 
-				if (name.equals("Button")) {
-					newE = new Button(ID, null, renderer, name, STATE, TIME_ON, ACT_DIST, null);
+				if (ID.equals("BUTTON")) {
+					newE = new Button(ID, null, renderer, ID, STATE, TIME_ON, ACT_DIST, null);
 				}
 			}
 
 			else if (readMode == READ_MODE_STATIC) {
-				if (name.equals("Entrance")) {
+				if (ID.equals("ENTRANCE")) {
 					// Without configuration, the default value of every entrance id is -1.
-					newE = new Entrance(ID, null, renderer, name, new Vector2f(30, 30), -1);
+					newE = new Entrance(ID, null, renderer, ID, new Vector2f(30, 30), -1);
+				}
+			}
+
+			else if (readMode == READ_MODE_PROP) {
+				if (ID.equals("PROP")) {
+
+					newE = new Prop(ID, null, renderer, ID);
 				}
 			}
 
@@ -319,8 +337,11 @@ public class Serializer {
 
 			entityHash.put(ID, newE);
 		}
-		return entityHash;
 
+		// Also load templates
+		loadTemplates("assets/Maps/Templates");
+
+		return entityHash;
 	}
 
 	private static int rhInt(String str) {
@@ -337,7 +358,7 @@ public class Serializer {
 	}
 
 	// TODO: Rewrite this function
-	public static ArrayList<Entity> loadEntities(Document doc, HashMap<Integer, Entity> entityHash, int tileSize) {
+	public static ArrayList<Entity> loadEntities(Document doc, HashMap<String, Entity> entityHash, int tileSize) {
 		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
 
 		@SuppressWarnings("unused")
@@ -367,14 +388,46 @@ public class Serializer {
 				}
 			}
 
-			int ID = Integer.parseInt((entity).getAttribute("type"));
+			String ID;
+			float eTileW;
+			float eTileH;
+			float xTPos;
+			float yTPos;
+			String template = entity.getAttribute("template");
 
-			// Loading data in tile cords
-			float eTileW = Float.parseFloat((entity).getAttribute("width")) / GameManager.tileSpriteSize;
-			float eTileH = Float.parseFloat((entity).getAttribute("height")) / GameManager.tileSpriteSize;
+			xTPos = Float.parseFloat((entity).getAttribute("x")) / GameManager.tileSpriteSize;
+			yTPos = Float.parseFloat((entity).getAttribute("y")) / GameManager.tileSpriteSize;
 
-			float xTPos = Float.parseFloat((entity).getAttribute("x")) / GameManager.tileSpriteSize;
-			float yTPos = Float.parseFloat((entity).getAttribute("y")) / GameManager.tileSpriteSize;
+			if (!template.isEmpty()) {
+				String path = template;
+
+				// Trim the path to remove folders
+				for (int j = path.length() - 1; j >= 0; j--) {
+					if (path.charAt(j) == '/') {
+						path = path.substring(j + 1, path.length());
+						break;
+					}
+				}
+
+				path = path.substring(0, path.length() - 3);
+				System.out.println(path);
+
+				// Load data from template
+				Template t = templates.get(path);
+
+				ID = t.properties.get("type");
+				eTileW = Float.parseFloat(t.properties.get("width")) / GameManager.tileSpriteSize;
+				eTileH = Float.parseFloat(t.properties.get("height")) / GameManager.tileSpriteSize;
+			}
+
+			else {
+				// Load data from what is given
+				ID = (entity).getAttribute("type");
+
+				// Loading data in tile cords
+				eTileW = Float.parseFloat((entity).getAttribute("width")) / GameManager.tileSpriteSize;
+				eTileH = Float.parseFloat((entity).getAttribute("height")) / GameManager.tileSpriteSize;
+			}
 
 			yTPos += eTileH;
 			yTPos = height - yTPos;
@@ -411,6 +464,33 @@ public class Serializer {
 		}
 		return entities;
 
+	}
+
+	static HashMap<String, Template> templates;
+
+	private static void loadTemplates(String fDir) {
+		templates = new HashMap<String, Template>();
+		File dir = new File(fDir);
+
+		File[] files = dir.listFiles();
+
+		for (File f : files) {
+			Document doc = readDoc(f);
+
+			Element template = (Element) doc.getElementsByTagName("template").item(0);
+
+			Element obj = (Element) template.getElementsByTagName("object").item(0);
+
+			// Just dump the info in
+			NamedNodeMap attribList = obj.getAttributes();
+			HashMap<String, String> data = new HashMap<String, String>();
+			for (int i = 0; i < attribList.getLength(); i++) {
+				Node n = attribList.item(i);
+				data.put(n.getNodeName(), n.getNodeValue());
+			}
+
+			templates.put(obj.getAttribute("name"), new Template(data));
+		}
 	}
 
 	private static String trim(String str) {

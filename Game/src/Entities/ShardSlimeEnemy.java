@@ -11,7 +11,7 @@ import Wrappers.Stats;
 
 public class ShardSlimeEnemy extends BouncingEnemy {
 
-	public ShardSlimeEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
+	public ShardSlimeEnemy(String ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
 	}
 
@@ -25,7 +25,8 @@ public class ShardSlimeEnemy extends BouncingEnemy {
 		for (int i = 0; i < 5; i++) {
 			Vector2f pos = new Vector2f(position).add(new Vector2f(8, 10));
 
-			Projectile proj = new Projectile(0, pos, GameManager.renderer, "Bullet"); // initializes bullet entity
+			// TODO: Retrieve this from the lookup
+			Projectile proj = new Projectile("SHARD", pos, GameManager.renderer, "Bullet"); // initializes bullet entity
 
 			GeneralRenderer rend = (GeneralRenderer) proj.renderer;
 			rend.spr = Debug.debugTex;

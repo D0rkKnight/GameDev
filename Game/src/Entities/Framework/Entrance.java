@@ -28,7 +28,7 @@ public class Entrance extends Entity implements Collidable {
 	public boolean isActive = true;
 	private int exclusionRadius = 100;
 
-	public Entrance(int ID, Vector2f position, Renderer renderer, String name, Vector2f dims, int entranceId) {
+	public Entrance(String ID, Vector2f position, Renderer renderer, String name, Vector2f dims, int entranceId) {
 		super(ID, position, renderer, name);
 
 		dim = dims;

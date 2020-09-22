@@ -42,7 +42,7 @@ public class GameManager {
 //	private HashMap<Integer, Accessory> accessoryLookup;
 	// Lookup table for hammershapes
 	public static HashMap<Integer, HammerShape> hammerLookup;
-	static HashMap<Integer, Entity> entityHash;
+	static HashMap<String, Entity> entityHash;
 
 	// current progression of player ingame
 //	private int chapter; // chapter, determines plot events

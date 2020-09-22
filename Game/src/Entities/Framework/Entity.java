@@ -17,7 +17,7 @@ import Utility.Transformation;
  *
  */
 public abstract class Entity implements CanBeCloned {
-	protected int ID;
+	protected String ID;
 	protected Vector2f position;
 	protected Sprites sprites;
 	protected static float gravity = 5f;
@@ -25,7 +25,7 @@ public abstract class Entity implements CanBeCloned {
 	public Renderer renderer;
 	public Vector2f rendOffset;
 
-	public String name;
+	public String name; // TODO: Let createNew specify the name of the entity
 	public Vector2f dim;
 	protected int animationGroups;
 	protected int currentGroup;
@@ -35,7 +35,7 @@ public abstract class Entity implements CanBeCloned {
 	// For local transformations. Position/translation is added later.
 	public Transformation transform;
 
-	public Entity(int ID, Vector2f position, Renderer renderer, String name) {
+	public Entity(String ID, Vector2f position, Renderer renderer, String name) {
 		this.ID = ID;
 		if (position != null) {
 			this.position = new Vector2f(position);

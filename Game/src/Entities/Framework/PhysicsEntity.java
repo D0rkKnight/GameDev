@@ -51,7 +51,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 
 	public Hitbox hitbox;
 
-	public PhysicsEntity(int ID, Vector2f position, Renderer renderer, String name) {
+	public PhysicsEntity(String ID, Vector2f position, Renderer renderer, String name) {
 		super(ID, position, renderer, name);
 
 		pData = new PhysicsData();

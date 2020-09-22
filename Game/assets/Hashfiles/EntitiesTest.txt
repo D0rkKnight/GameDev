@@ -1,18 +1,24 @@
 COMBATANTS
 
-Name,Player:ID,0:HP,100:Stamina,100:HPregen,0.5:StaminaRegen,1
-Name,Floater:ID,1:HP,100:Stamina,100:HPregen,0:StaminaRegen,0
-Name,Bouncer:ID,2:HP,100:Stamina,100:HPregen,0:StaminaRegen,0
-Name,Crawler:ID,4:HP,100:Stamina,100:HPregen,0:StaminaRegen,0
+Name,Player:ID,PLAYER:HP,100:Stamina,100:HPregen,0.5:StaminaRegen,1
+Name,Floater:ID,FLOATER:HP,100:Stamina,100:HPregen,0:StaminaRegen,0
+Name,Bouncer:ID,BOUNCER:HP,100:Stamina,100:HPregen,0:StaminaRegen,0
+Name,Crawler:ID,CRAWLER:HP,100:Stamina,100:HPregen,0:StaminaRegen,0
 
 
 
 INTERACTABLES
 
-Name,Button:ID,3:State,0:TimeOn,1000:ActivationDistance,10000
+Name,Button:ID,BUTTON:State,0:TimeOn,1000:ActivationDistance,10000
 
 
 
 STATIC
 
-Name,Entrance:ID,5
+Name,Entrance:ID,ENTRANCE
+
+
+
+PROPS
+
+Name,Grass:ID,PROP

@@ -1,0 +1,34 @@
+package Entities.Framework;
+
+import org.joml.Vector2f;
+
+import Collision.HammerShapes.HammerShape;
+import Debugging.Debug;
+import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Renderer;
+import Utility.Transformation;
+import Wrappers.Color;
+
+public class Prop extends Entity {
+
+	public Prop(String ID, Vector2f position, Renderer renderer, String name) {
+		super(ID, position, renderer, name);
+
+		// Configure the renderer real quick
+		((GeneralRenderer) this.renderer).init(new Transformation(position), new Vector2f(32, 32),
+				HammerShape.HAMMER_SHAPE_SQUARE, new Color(0, 0, 0, 0));
+		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
+	}
+
+	@Override
+	public void calculate() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public Entity createNew(float xPos, float yPos) {
+		return new Prop(ID, new Vector2f(xPos, yPos), renderer, name);
+	}
+
+}

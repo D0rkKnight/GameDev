@@ -132,7 +132,7 @@ public abstract class Physics {
 	 * 
 	 * IMPORTANT: Returned deltas may not be aligned with move axis.
 	 * 
-	 * @param pos
+	 * @param relPos
 	 * @param delta
 	 * @param e
 	 * @return Whether or not the entity collided when attempting to move

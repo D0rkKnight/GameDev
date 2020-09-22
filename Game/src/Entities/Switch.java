@@ -22,7 +22,7 @@ public class Switch extends Entity implements Interactive {
 	public Timer onTimer;
 	Player player;
 
-	public Switch(int ID, Vector2f position, Renderer renderer, String name, int state, int statenum,
+	public Switch(String ID, Vector2f position, Renderer renderer, String name, int state, int statenum,
 			float activationDistance, Player player) {
 		super(ID, position, renderer, name);
 		this.state = state;

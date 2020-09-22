@@ -1,5 +1,7 @@
 package UI;
 
+import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -7,6 +9,7 @@ import org.joml.Vector2f;
 
 import GameController.Camera;
 import GameController.GameManager;
+import Graphics.Drawer;
 import Wrappers.Color;
 import Wrappers.Stats;
 
@@ -32,13 +35,13 @@ public class UI {
 		canvases = new HashMap<>();
 
 		// Initializing the running game state
-		runningState = new UICanvas(new Vector2f());
+		runningState = new UICanvas(new Vector2f(), Camera.main.viewport);
 
 		Stats pStats = GameManager.player.stats;
 		healthBar = new UIBarCanvas(GameManager.renderer, new Vector2f(10, 10), new Vector2f(200, 20),
 				new Color(0.3f, 0.3f, 1, 1));
 		healthBar.setAnchor(UIBoxElement.ANCHOR_UL);
-		healthBar.setCb(() -> {
+		healthBar.setUpdateCb(() -> {
 			healthBar.bar.fillRatio = (pStats.health) / (pStats.maxHealth);
 		});
 		runningState.addElement(healthBar);
@@ -46,7 +49,7 @@ public class UI {
 		staminaBar = new UIBarCanvas(GameManager.renderer, new Vector2f(10, 35), new Vector2f(200, 20),
 				new Color(0.3f, 1, 1, 1));
 		staminaBar.setAnchor(UIBoxElement.ANCHOR_UL);
-		staminaBar.setCb(() -> {
+		staminaBar.setUpdateCb(() -> {
 			staminaBar.bar.fillRatio = (pStats.stamina) / (pStats.maxStamina);
 		});
 		runningState.addElement(staminaBar);
@@ -54,22 +57,22 @@ public class UI {
 		canvases.put(CANVAS_RUNNING, runningState);
 
 		// Initialize paused game state
-		pausedState = new UICanvas(new Vector2f());
+		pausedState = new UICanvas(new Vector2f(), Camera.main.viewport);
 
-		UIBoxElement box = new UIBoxElement(GameManager.renderer, new Vector2f(), new Vector2f(300, 400),
-				new Color(0.5f, 0.5f, 0.5f, 1));
-		box.setAnchor(UIBoxElement.ANCHOR_UL);
+		UIBoxElement box = new UIBoxElement(GameManager.renderer, new Vector2f(Camera.main.viewport).div(2),
+				new Vector2f(300, 400), new Color(0.5f, 0.5f, 0.5f, 1));
+		box.setAnchor(UIBoxElement.ANCHOR_MID);
 
-		UICanvas menuArea = new UICanvas(new Vector2f(Camera.main.viewport).div(2).sub(new Vector2f(box.dims).div(2)));
-		pausedState.addElement(menuArea);
+		pausedState.addElement(box);
 
-		menuArea.addElement(box);
-
-		UIBoxElement exitButton = new UIBoxElement(GameManager.renderer, new Vector2f(20, 20), new Vector2f(200, 50),
-				new Color(0f, 0f, 0f, 1));
+		UIButtonElement exitButton = new UIButtonElement(GameManager.renderer, new Vector2f(20, 20),
+				new Vector2f(200, 50), new Color(0f, 0f, 0f, 1));
+		exitButton.setClickCb(() -> {
+			glfwSetWindowShouldClose(Drawer.window, true);
+		});
 		exitButton.setAnchor(UIBoxElement.ANCHOR_UL);
 
-		menuArea.addElement(exitButton);
+		box.addElement(exitButton);
 
 		canvases.put(CANVAS_PAUSED, pausedState);
 

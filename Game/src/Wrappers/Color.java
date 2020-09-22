@@ -29,6 +29,13 @@ public class Color {
 		a = 0;
 	}
 
+	public Color(Color col) {
+		r = col.r;
+		g = col.g;
+		b = col.b;
+		a = col.a;
+	}
+
 	public static void setGLClear(Color col) {
 		glClearColor(col.r, col.g, col.b, col.a);
 	}

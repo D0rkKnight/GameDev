@@ -5,8 +5,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import Collision.Hitbox;
-import Collision.Behaviors.PhysicsCollisionBehaviorStepUp;
-import Collision.Behaviors.PhysicsCollisionBehaviorWallCling;
 import Collision.HammerShapes.HammerShape;
 import Debugging.Debug;
 import Entities.Framework.Combatant;
@@ -55,7 +53,7 @@ public class Player extends Combatant {
 
 	private int sideFacing;
 
-	public Player(int ID, Vector2f position, GeneralRenderer renderer, String name, Stats stats) {
+	public Player(String ID, Vector2f position, GeneralRenderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
 
 		// Configure the renderer real quick
@@ -100,8 +98,8 @@ public class Player extends Combatant {
 	protected void initPhysicsCollBehavior() {
 		super.initPhysicsCollBehavior();
 
-		collBehaviorList.add(new PhysicsCollisionBehaviorStepUp());
-		collBehaviorList.add(new PhysicsCollisionBehaviorWallCling());
+		// collBehaviorList.add(new PhysicsCollisionBehaviorStepUp());
+		// collBehaviorList.add(new PhysicsCollisionBehaviorWallCling());
 	}
 
 	@Override
@@ -316,7 +314,8 @@ public class Player extends Combatant {
 
 		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32));
 
-		Projectile proj = new Projectile(0, pos, GameManager.renderer, "Bullet"); // initializes bullet entity
+		Projectile proj = new Projectile("PROJECTILE", pos, GameManager.renderer, "Bullet"); // initializes bullet
+																								// entity
 
 		GeneralRenderer rend = (GeneralRenderer) proj.renderer;
 		rend.spr = Debug.debugTex;
@@ -341,7 +340,9 @@ public class Player extends Combatant {
 		Vector2f dist = new Vector2f(dir).mul(meleedis);
 
 		Vector2f mPos = new Vector2f(pos).add(dist);
-		meleeEntity = new Melee(1, mPos, GameManager.renderer, "Melee", this, kbDir);
+
+		// TODO: Retrieve this from the lookup
+		meleeEntity = new Melee("MELEE", mPos, GameManager.renderer, "Melee", this, kbDir);
 		GameManager.subscribeEntity(meleeEntity);
 
 		float angle = Math.atan2(dir.y, dir.x);

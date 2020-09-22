@@ -18,7 +18,7 @@ public abstract class Combatant extends PhysicsEntity {
 	protected boolean baseInvulnState = false;
 	protected int baseInvulnLength = 10;
 
-	public Combatant(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
+	public Combatant(String ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name);
 		this.stats = stats;
 	}

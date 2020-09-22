@@ -23,7 +23,7 @@ public class Button extends Entity implements Interactive {
 	Timer onTimer;
 	Player player;
 
-	public Button(int ID, Vector2f position, Renderer renderer, String name, int state, long timeOn,
+	public Button(String ID, Vector2f position, Renderer renderer, String name, int state, long timeOn,
 			float activationDistance, Player player) {
 		super(ID, position, renderer, name);
 		this.state = state;
@@ -37,12 +37,8 @@ public class Button extends Entity implements Interactive {
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 	}
 
-	private Button(Button b, float xPos, float yPos, Player player) {
-		this(b.ID, new Vector2f(xPos, yPos), b.renderer, b.name, b.state, b.timeOn, b.activationDistance, player);
-	}
-
 	public Button createNew(float xPos, float yPos, Player player) {
-		return new Button(this, xPos, yPos, player);
+		return new Button(ID, new Vector2f(xPos, yPos), renderer, name, state, timeOn, activationDistance, player);
 	}
 
 	@Override

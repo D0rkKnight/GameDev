@@ -30,7 +30,7 @@ public class Melee extends Entity implements Collidable {
 
 	protected Hitbox hitbox;
 
-	public Melee(int ID, Vector2f position, Renderer renderer, String name, Entity owner, Vector2f kbDir) {
+	public Melee(String ID, Vector2f position, Renderer renderer, String name, Entity owner, Vector2f kbDir) {
 		super(ID, position, renderer, name);
 		offset = new Vector2f(owner.position.x - position.x, owner.position.y - position.y);
 		this.owner = owner;

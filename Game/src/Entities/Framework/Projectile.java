@@ -11,7 +11,7 @@ import Wrappers.Color;
 
 public class Projectile extends PhysicsEntity {
 
-	public Projectile(int ID, Vector2f position, Renderer renderer, String name) {
+	public Projectile(String ID, Vector2f position, Renderer renderer, String name) {
 		super(ID, position, renderer, name);
 
 		// Configure renderer (this is a hack)

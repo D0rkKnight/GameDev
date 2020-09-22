@@ -15,7 +15,7 @@ public abstract class Enemy extends Combatant {
 	protected Combatant target;
 	protected Pathfinding ai;
 
-	public Enemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
+	public Enemy(String ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
 
 		alignment = ALIGNMENT_ENEMY;

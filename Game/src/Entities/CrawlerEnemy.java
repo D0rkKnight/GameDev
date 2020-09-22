@@ -26,7 +26,7 @@ public class CrawlerEnemy extends Enemy {
 	public Vector2f anchorOffset; // This just offsets and rotates the model.
 	public float ang;
 
-	public CrawlerEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
+	public CrawlerEnemy(String ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
 
 		// Configure the renderer real quick

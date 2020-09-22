@@ -24,7 +24,7 @@ public class ChargingEnemy extends Enemy {
 	protected int cooldownNum = 0; // counter
 	protected float speed;
 
-	public ChargingEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats, boolean charging,
+	public ChargingEnemy(String ID, Vector2f position, Renderer renderer, String name, Stats stats, boolean charging,
 			int windupCycles, int cooldownCycles, float speed) {
 		super(ID, position, renderer, name, stats);
 		this.charging = charging;

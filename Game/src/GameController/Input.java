@@ -41,6 +41,9 @@ public class Input {
 
 	public static boolean primaryButtonDown;
 	public static boolean secondaryButtonDown;
+
+	public static boolean[] clickArr;
+
 	public static boolean meleeAction;
 
 	public static boolean dashAction; // Only active for one frame
@@ -56,6 +59,7 @@ public class Input {
 	static {
 		keyStates = new boolean[GLFW_KEY_LAST];
 		mouseStates = new boolean[GLFW_MOUSE_BUTTON_LAST];
+		clickArr = new boolean[GLFW_MOUSE_BUTTON_LAST];
 		mouseScreenPos = new Vector2f(0, 0);
 	}
 
@@ -98,6 +102,9 @@ public class Input {
 		dashAction = false;
 		knockbackTest = false;
 		meleeAction = false;
+
+		for (int i = 0; i < clickArr.length; i++)
+			clickArr[i] = false;
 	}
 
 	public static void updateKeys(long window, int key, int scancode, int action, int mods) {
@@ -137,7 +144,6 @@ public class Input {
 				knockbackTest = true;
 				break;
 			}
-
 		}
 
 		// Player movement!
@@ -163,13 +169,12 @@ public class Input {
 		primaryButtonDown = mouseStates[GLFW_MOUSE_BUTTON_LEFT];
 		secondaryButtonDown = mouseStates[GLFW_MOUSE_BUTTON_RIGHT];
 
-		if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_RIGHT) {
-			meleeAction = true;
-		}
+		if (action == GLFW_PRESS)
+			clickArr[button] = true;
+
+		meleeAction = clickArr[GLFW_MOUSE_BUTTON_RIGHT];
 	}
 
-	// TODO: I'm fairly certain the input on these isn't x and y. Look into it
-	// tOmMoRoW.
 	public static void updateCursor(double xPos, double yPos) {
 		mouseScreenPos = new Vector2f((float) xPos, (float) yPos);
 

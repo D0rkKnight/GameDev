@@ -21,7 +21,7 @@ import Wrappers.Stats;
 
 public class FloaterEnemy extends Enemy {
 
-	public FloaterEnemy(int ID, Vector2f position, Renderer renderer, String name, Stats stats) {
+	public FloaterEnemy(String ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
 
 		// Configure the renderer real quick

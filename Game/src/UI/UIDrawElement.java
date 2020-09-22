@@ -8,8 +8,8 @@ public class UIDrawElement extends UIElement {
 
 	Renderer rend;
 
-	public UIDrawElement(Renderer rend, Vector2f pos) {
-		super(pos);
+	public UIDrawElement(Renderer rend, Vector2f pos, Vector2f dims) {
+		super(pos, dims);
 
 		try {
 			this.rend = rend.clone();
@@ -19,13 +19,14 @@ public class UIDrawElement extends UIElement {
 	}
 
 	@Override
-	public void render(Vector2f relativeTo) {
-		super.render(relativeTo);
+	public void render() {
+		// Render yourself first
+		rend.transform.pos.set(sPos);
+		rend.transform.pos.add(0, dims.y); // 4th quadrant
+		rend.render(); // Remember the view matrix flips the coordinates
 
-		Vector2f newPos = new Vector2f(pos).add(offset).add(relativeTo);
-
-		rend.transform.pos = newPos;
-		rend.render();
+		// Render children next
+		super.render();
 	}
 
 }

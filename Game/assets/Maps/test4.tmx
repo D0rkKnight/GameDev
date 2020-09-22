@@ -18,18 +18,18 @@
   </data>
  </layer>
  <objectgroup id="3" name="Objects">
-  <object id="1" name="Entrance" type="5" x="16" y="32" width="31" height="136">
+  <object id="1" name="Entrance" type="ENTRANCE" x="16" y="32" width="31" height="136">
    <properties>
     <property name="entrId" type="int" value="0"/>
    </properties>
   </object>
-  <object id="2" name="Slime1" type="2" x="472" y="128" width="32" height="32"/>
-  <object id="3" name="Slime2" type="2" x="312" y="360" width="32" height="32"/>
-  <object id="4" name="Floater1" type="1" x="120" y="320" width="32" height="32"/>
-  <object id="5" name="Floater2" type="1" x="584" y="328" width="32" height="32"/>
-  <object id="6" name="Crawler1" type="4" x="128" y="368" width="32" height="32"/>
-  <object id="7" name="Crawler2" type="4" x="248" y="528" width="32" height="32"/>
-  <object id="8" name="Crawler3" type="4" x="392" y="520" width="32" height="32"/>
-  <object id="9" name="Crawler4" type="4" x="544" y="520" width="32" height="32"/>
+  <object id="2" name="Slime1" type="BOUNCER" x="472" y="128" width="32" height="32"/>
+  <object id="3" name="Slime2" type="BOUNCER" x="312" y="360" width="32" height="32"/>
+  <object id="4" name="Floater1" type="FLOATER" x="120" y="320" width="32" height="32"/>
+  <object id="5" name="Floater2" type="FLOATER" x="584" y="328" width="32" height="32"/>
+  <object id="6" name="Crawler1" type="CRAWLER" x="128" y="368" width="32" height="32"/>
+  <object id="7" name="Crawler2" type="CRAWLER" x="248" y="528" width="32" height="32"/>
+  <object id="8" name="Crawler3" type="CRAWLER" x="392" y="520" width="32" height="32"/>
+  <object id="9" name="Crawler4" type="CRAWLER" x="544" y="520" width="32" height="32"/>
  </objectgroup>
 </map>
