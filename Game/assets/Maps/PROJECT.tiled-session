@@ -3,21 +3,22 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "test4.tmx",
+    "activeFile": "test3.tmx",
     "automapping.whileDrawing": true,
     "expandedProjectPaths": [
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master",
+        "Templates",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/dungeon",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules",
-        ".",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules/cave",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave/rules",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/orthogonal_height_type",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master",
         "C:/Users/Hanzen Shou/Documents/GitBash/GameDev/Game/assets",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/grassland"
+        ".",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave/rules",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules/cave",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/orthogonal_height_type",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/grassland",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -361,19 +362,19 @@
             }
         },
         "test3.tmx": {
-            "scale": 1,
+            "scale": 0.75,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 594,
-                "y": 436
+                "x": 481.3333333333333,
+                "y": 804
             }
         },
         "test4.tmx": {
             "scale": 1.5,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 380.66666666666663,
-                "y": 564
+                "x": 399.66666666666663,
+                "y": 400
             }
         },
         "tset1.tsx": {
@@ -398,11 +399,11 @@
     "project": "PROJECT.tiled-project",
     "property.type": "string",
     "recentFiles": [
-        "test2.tmx",
-        "test3.tmx",
         "Tilesets/coll8x8.tsx",
         "Tilesets/Forest/forestTSet.tsx",
         "test4.tmx",
+        "test3.tmx",
+        "test2.tmx",
         "Tilesets/coll.tsx",
         "Rules/coll8x8.tsx",
         "test.tmx",

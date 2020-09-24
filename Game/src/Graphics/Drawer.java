@@ -44,6 +44,7 @@ import GameController.Input;
 import GameController.Map;
 import Graphics.Elements.DrawBuffer;
 import Graphics.Elements.DrawOrderElement;
+import Graphics.Elements.DrawOrderEntities;
 import Graphics.Elements.DrawOrderTileLayer;
 import Graphics.Elements.TileGFX;
 import Graphics.Elements.TileRenderLayer;
@@ -127,10 +128,10 @@ public class Drawer {
 			if (doe instanceof DrawOrderTileLayer) {
 				((DrawOrderTileLayer) doe).tryRender(txMin, txMax, tyMin, tyMax, chunkGridW);
 			}
-		}
 
-		for (Entity ent : entities) {
-			ent.render();
+			if (doe instanceof DrawOrderEntities) {
+				((DrawOrderEntities) doe).tryRender(entities);
+			}
 		}
 
 		// UI elements
@@ -185,6 +186,8 @@ public class Drawer {
 		GFXLayers = new HashMap<>();
 		GFXRends = new HashMap<>();
 		drawOrder = new ArrayList<>();
+
+		insertDrawOrderElement(new DrawOrderEntities(0));
 
 		Shader warpShade = new TimedShader("vortex");
 		GeneralRenderer warpRend = new TimedRenderer(warpShade);

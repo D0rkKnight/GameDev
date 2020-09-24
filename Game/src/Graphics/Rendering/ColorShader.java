@@ -23,5 +23,4 @@ public class ColorShader extends Shader {
 			System.exit(1);
 		}
 	}
-
 }

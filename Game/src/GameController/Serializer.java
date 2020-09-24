@@ -1,6 +1,5 @@
 package GameController;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 
-import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -40,6 +38,8 @@ import Entities.Framework.Interactive;
 import Entities.Framework.Prop;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.GrassRenderer;
+import Graphics.Rendering.GrassShader;
 import Tiles.Tile;
 import Wrappers.Stats;
 
@@ -127,6 +127,20 @@ public class Serializer {
 		}
 	}
 
+	public static String shearFileDirectory(String path) {
+		String out = "";
+
+		// Trim the path to remove folders
+		for (int j = path.length() - 1; j >= 0; j--) {
+			if (path.charAt(j) == '/') {
+				out = path.substring(j + 1, path.length());
+				break;
+			}
+		}
+
+		return out;
+	}
+
 	public static HashMap<String, Tile[][]> loadTileGrids(Document doc,
 			HashMap<String, HashMap<Integer, Tile>> tileMap) {
 		// Grab all gids
@@ -139,14 +153,7 @@ public class Serializer {
 			gids.add(Integer.parseInt(tilesetE.getAttribute("firstgid"))); // This is an offset value
 
 			String path = tilesetE.getAttribute("source");
-
-			// Trim the path to remove folders
-			for (int j = path.length() - 1; j >= 0; j--) {
-				if (path.charAt(j) == '/') {
-					path = path.substring(j + 1, path.length());
-					break;
-				}
-			}
+			path = shearFileDirectory(path);
 
 			tSetNames.add(path);
 		}
@@ -325,8 +332,10 @@ public class Serializer {
 
 			else if (readMode == READ_MODE_PROP) {
 				if (ID.equals("PROP")) {
+					// New renderer, bois
+					GrassRenderer propRend = new GrassRenderer(new GrassShader("grassShader"));
 
-					newE = new Prop(ID, null, renderer, ID);
+					newE = new Prop(ID, null, propRend, ID);
 				}
 			}
 
@@ -399,15 +408,7 @@ public class Serializer {
 			yTPos = Float.parseFloat((entity).getAttribute("y")) / GameManager.tileSpriteSize;
 
 			if (!template.isEmpty()) {
-				String path = template;
-
-				// Trim the path to remove folders
-				for (int j = path.length() - 1; j >= 0; j--) {
-					if (path.charAt(j) == '/') {
-						path = path.substring(j + 1, path.length());
-						break;
-					}
-				}
+				String path = shearFileDirectory(template);
 
 				path = path.substring(0, path.length() - 3);
 				System.out.println(path);
@@ -598,19 +599,5 @@ public class Serializer {
 		ArrayList<Entity> entities = new ArrayList<Entity>();
 
 		return entities;
-	}
-
-	/*
-	 * Wrapper function for loading an image
-	 */
-	public BufferedImage loadImage(String path) {
-		BufferedImage img = null;
-		try {
-			img = ImageIO.read(new File(path));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return img;
 	}
 }

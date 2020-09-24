@@ -16,9 +16,9 @@ import GameController.Input;
 import Graphics.Animation.Animation;
 import Graphics.Animation.Animator;
 import Graphics.Animation.PlayerAnimator;
+import Graphics.Elements.SpriteSheet;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.SpriteSheet;
 import Utility.Arithmetic;
 import Utility.Transformation;
 import Utility.Timers.Timer;
@@ -44,8 +44,6 @@ public class Player extends Combatant {
 
 	private Timer meleeTimer;
 	private Melee meleeEntity;
-
-	private Animator anim;
 
 	private boolean canJump;
 	private long jumpGraceInterval = 100;
@@ -178,8 +176,6 @@ public class Player extends Combatant {
 		}
 		if (dashTimer != null)
 			dashTimer.update();
-
-		calcFrame();
 	}
 
 	private void determineMovementMode() {
@@ -366,9 +362,8 @@ public class Player extends Combatant {
 	}
 
 	@Override
-	protected void calcFrame() {
-		// Just a simple animation update, nothing spicy.
-		anim.update();
+	public void calcFrame() {
+		super.calcFrame();
 
 		// Scale to the side facing
 		if (sideFacing != 0) {

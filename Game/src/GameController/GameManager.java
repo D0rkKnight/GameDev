@@ -288,6 +288,11 @@ public class GameManager {
 			ent.updateChildren();
 		}
 
+		// Each entity generates its frame
+		for (Entity ent : entities) {
+			ent.calcFrame();
+		}
+
 		// Physics simulation step begin from here
 		// ________________________________________________________
 

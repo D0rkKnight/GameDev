@@ -1,0 +1,7 @@
+1. Rework shaders so attributes and uniforms are set in the renderer
+
+2. Make wavy grass that responds to nearby player movement
+
+3. Text
+
+4. Particles

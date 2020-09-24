@@ -3,8 +3,8 @@ package Entities.Framework;
 import org.joml.Vector2f;
 
 import GameController.GameManager;
+import Graphics.Animation.Animator;
 import Graphics.Elements.SpriteSheetSection;
-import Graphics.Elements.Sprites;
 import Graphics.Rendering.Renderer;
 import Utility.CanBeCloned;
 import Utility.Transformation;
@@ -19,7 +19,6 @@ import Utility.Transformation;
 public abstract class Entity implements CanBeCloned {
 	protected String ID;
 	protected Vector2f position;
-	protected Sprites sprites;
 	protected static float gravity = 5f;
 
 	public Renderer renderer;
@@ -31,6 +30,8 @@ public abstract class Entity implements CanBeCloned {
 	protected int currentGroup;
 	protected int currentFrame;
 	protected SpriteSheetSection[][] frames;
+
+	protected Animator anim;
 
 	// For local transformations. Position/translation is added later.
 	public Transformation transform;
@@ -62,8 +63,9 @@ public abstract class Entity implements CanBeCloned {
 		renderer.transform.scale.set(transform.scale);
 	}
 
-	protected void calcFrame() {
-
+	public void calcFrame() {
+		if (anim != null)
+			anim.update();
 	}
 
 	/**

@@ -1,8 +1,6 @@
-package Graphics.Rendering;
+package Graphics.Elements;
 
 import java.util.Arrays;
-
-import Graphics.Elements.Texture;
 
 public class SpriteSheet {
 	public int w;

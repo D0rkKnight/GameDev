@@ -51,7 +51,7 @@ public class ChargingEnemy extends Enemy {
 	public void calculate() {
 		super.calculate();
 
-		calcFrame();
+		genFrameId();
 		if (currentGroup == 3) { // winddown
 
 		} else if (charging) { // currently charging
@@ -89,15 +89,14 @@ public class ChargingEnemy extends Enemy {
 	public void render() {
 	}
 
-	@Override
 	/**
 	 * note that there should be 4 animation groups
 	 * 
 	 * 1: idle 2: windup 3: charging 4: cooldown
 	 * 
-	 * calcFrames also sets charging and windup to true/false;
+	 * genFrameId also sets charging and windup to true/false;
 	 */
-	protected void calcFrame() {
+	protected void genFrameId() {
 		if (charging) {
 			if (currentGroup == 2) { // charging
 				currentFrame++;

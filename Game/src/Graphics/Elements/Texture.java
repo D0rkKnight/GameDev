@@ -29,8 +29,6 @@ import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
 
-import Graphics.Rendering.SpriteSheet;
-
 public class Texture {
 	private int id;
 	public int width;
