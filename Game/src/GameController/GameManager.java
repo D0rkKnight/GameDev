@@ -267,11 +267,11 @@ public class GameManager {
 
 		switch (gameState) {
 		case RUNNING:
-			UI.changeCanvas(UI.CANVAS_RUNNING);
+			UI.changeCanvas(UI.CanvasEnum.RUNNING);
 			Time.endPause();
 			break;
 		case PAUSED:
-			UI.changeCanvas(UI.CANVAS_PAUSED);
+			UI.changeCanvas(UI.CanvasEnum.PAUSED);
 			Time.beginPause();
 			break;
 		}

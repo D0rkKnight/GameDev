@@ -6,19 +6,19 @@
     "activeFile": "test3.tmx",
     "automapping.whileDrawing": true,
     "expandedProjectPaths": [
+        "Templates",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/dungeon",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master",
         "C:/Users/Hanzen Shou/Documents/GitBash/GameDev/Game/assets",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave/rules",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World",
         ".",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/orthogonal_height_type",
-        "Templates",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/grassland",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/dungeon",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave/rules",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules/cave"
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules/cave",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/orthogonal_height_type",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/grassland",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -362,19 +362,19 @@
             }
         },
         "test3.tmx": {
-            "scale": 0.75,
-            "selectedLayer": 4,
+            "scale": 2,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 399.9999999999999,
-                "y": 400
+                "x": 381.5,
+                "y": 586.5
             }
         },
         "test4.tmx": {
             "scale": 1.5,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 399.66666666666663,
-                "y": 400
+                "x": 399.3333333333333,
+                "y": 492
             }
         },
         "tset1.tsx": {

@@ -14,13 +14,13 @@ import Wrappers.Color;
 import Wrappers.Stats;
 
 public class UI {
-	private static HashMap<Integer, UICanvas> canvases;
+	private static HashMap<CanvasEnum, UICanvas> canvases;
 
-	public static final int CANVAS_NONE = -1;
-	public static final int CANVAS_RUNNING = 0;
-	public static final int CANVAS_PAUSED = 1;
+	public static enum CanvasEnum {
+		NONE, RUNNING, PAUSED;
+	}
 
-	private static int currCanvas = CANVAS_NONE;
+	private static CanvasEnum currCanvas = CanvasEnum.NONE;
 
 	private static UICanvas runningState;
 	private static UIBarCanvas healthBar;
@@ -54,7 +54,7 @@ public class UI {
 		});
 		runningState.addElement(staminaBar);
 
-		canvases.put(CANVAS_RUNNING, runningState);
+		canvases.put(CanvasEnum.RUNNING, runningState);
 
 		// Initialize paused game state
 		pausedState = new UICanvas(new Vector2f(), Camera.main.viewport);
@@ -74,16 +74,16 @@ public class UI {
 
 		box.addElement(exitButton);
 
-		canvases.put(CANVAS_PAUSED, pausedState);
+		canvases.put(CanvasEnum.PAUSED, pausedState);
 
-		changeCanvas(CANVAS_RUNNING);
+		changeCanvas(CanvasEnum.RUNNING);
 	}
 
-	public static void changeCanvas(int newId) {
-		if (currCanvas != CANVAS_NONE)
+	public static void changeCanvas(CanvasEnum newId) {
+		if (currCanvas != CanvasEnum.NONE)
 			elements.remove(canvases.get(currCanvas));
 
-		if (newId != CANVAS_NONE)
+		if (newId != CanvasEnum.NONE)
 			elements.add(canvases.get(newId));
 
 		currCanvas = newId;
