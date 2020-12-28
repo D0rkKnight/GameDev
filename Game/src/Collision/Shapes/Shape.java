@@ -1,4 +1,4 @@
-package Collision.HammerShapes;
+package Collision.Shapes;
 
 import org.joml.Vector2f;
 
@@ -10,26 +10,39 @@ import Utility.Vector;
  * @author Hanzen Shou
  *
  */
-public abstract class HammerShape {
+public abstract class Shape {
 
-	public static enum HShapeEnum {
-		SQUARE, TRIANGLE_BL, TRIANGLE_BR, TRIANGLE_UL, TRIANGLE_UR, FINAL
+	// TODO: Rather than having these IDs refer to a hashmap, why don't we
+	// enumerate the shapes within the enumerator?
+
+	public static enum ShapeEnum {
+		//@formatter:off
+		SQUARE(new ShapeRect()), 
+		TRIANGLE_BL(new ShapeRightTriangle(0)),
+		TRIANGLE_BR(new ShapeRightTriangle(1)),
+		TRIANGLE_UL(new ShapeRightTriangle(3)),
+		TRIANGLE_UR(new ShapeRightTriangle(2)), 
+		FINAL(null);
+		//@formatter:on
+
+		public Shape v;
+
+		ShapeEnum(Shape v) {
+			this.v = v;
+		}
 	}
 
 	protected Vector2f bl;
 	protected Vector2f br;
 	protected Vector2f ul;
 	protected Vector2f ur;
-
-	public HShapeEnum shapeId;
 	public Vector2f[] vertices;
 	public Vector2f[] normals; // First edge is between 1st and 2nd points
 	protected Vector2f[] triangulatedVertices;
 
-	public HammerShape(HShapeEnum shapeId) {
+	public Shape() {
 		vertices = null;
 		triangulatedVertices = null;
-		this.shapeId = shapeId;
 
 		ul = new Vector2f(0, 1);
 		ur = new Vector2f(1, 1);

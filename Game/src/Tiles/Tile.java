@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
-import Collision.HammerShapes.HammerShape;
-import GameController.GameManager;
+import Collision.Shapes.Shape;
+import Collision.Shapes.Shape.ShapeEnum;
 import GameController.Map;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TileGFX;
@@ -22,13 +22,13 @@ import Wrappers.Color;
 public class Tile implements Cloneable {
 	protected Map map;
 	public GeneralRenderer renderer;
-	protected HammerShape hammerState; // NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when
-										// loaded in maps)
+	protected Shape.ShapeEnum hammerState; // NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when
+	// loaded in maps)
 
 	public ArrayList<Map.CompEdgeSegment> edgeSegs;
 	public ArrayList<TileGFX> tGFX; // Is shared between all tiles clones.
 
-	public Tile(GeneralRenderer renderer, Texture tex, HammerShape hs) {
+	public Tile(GeneralRenderer renderer, Texture tex, ShapeEnum hs) {
 		this.hammerState = hs;
 		this.tGFX = new ArrayList<TileGFX>();
 
@@ -45,13 +45,13 @@ public class Tile implements Cloneable {
 	public void init(Vector2f pos, Vector2f rect) {
 		if (hammerState == null) {
 			// System.err.println("Hammer state not specified, capitulating to default.");
-			hammerState = GameManager.hammerLookup.get(HammerShape.HShapeEnum.SQUARE);
+			hammerState = Shape.ShapeEnum.SQUARE;
 		}
 
 		// will be set later
 		edgeSegs = new ArrayList<>();
 
-		this.renderer.init(new Transformation(pos), rect, hammerState.shapeId, new Color());
+		this.renderer.init(new Transformation(pos), rect, hammerState, new Color());
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class Tile implements Cloneable {
 		renderer.render();
 	}
 
-	public HammerShape getHammerState() {
+	public ShapeEnum getHammerState() {
 		return hammerState;
 	}
 

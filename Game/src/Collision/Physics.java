@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 
 import Collision.Behaviors.PhysicsCollisionBehavior;
-import Collision.HammerShapes.HammerShape;
+import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Debugging.DebugPolygon;
 import Entities.Framework.PhysicsEntity;
@@ -209,7 +209,7 @@ public abstract class Physics {
 
 				Vector2f tempNormal = new Vector2f(0, 0);
 
-				Float d = getIntersection(t.getHammerState(), bl, ur, x, y, moveDir, tempNormal);
+				Float d = getIntersection(t.getHammerState().v, bl, ur, x, y, moveDir, tempNormal);
 				if (d != null) {
 					if (Math.abs(d) > Math.abs(maxMoveDist)) {
 						maxMoveDist = d;
@@ -286,8 +286,8 @@ public abstract class Physics {
 		return tileHit;
 	}
 
-	public static Float getIntersection(HammerShape shape, Vector2f bl, Vector2f ur, int tileX, int tileY,
-			Vector2f moveDir, Vector2f extNormal) {
+	public static Float getIntersection(Shape shape, Vector2f bl, Vector2f ur, int tileX, int tileY, Vector2f moveDir,
+			Vector2f extNormal) {
 		// ---------------- Uses the Separating Axis Theorem ----------------
 
 		// STEP 1: PREP DATA

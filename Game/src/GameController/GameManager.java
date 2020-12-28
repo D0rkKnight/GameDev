@@ -14,9 +14,6 @@ import java.util.HashMap;
 import Collision.Collidable;
 import Collision.Hitbox;
 import Collision.Physics;
-import Collision.HammerShapes.HammerRightTriangle;
-import Collision.HammerShapes.HammerShape;
-import Collision.HammerShapes.HammerSquare;
 import Debugging.Debug;
 import Entities.Player;
 import Entities.Framework.Entity;
@@ -40,8 +37,6 @@ public class GameManager {
 	static HashMap<String, HashMap<Integer, Tile>> tileLookup;
 	// Lookup table for different kinds of accessories
 //	private HashMap<Integer, Accessory> accessoryLookup;
-	// Lookup table for hammershapes
-	public static HashMap<HammerShape.HShapeEnum, HammerShape> hammerLookup;
 	static HashMap<String, Entity> entityHash;
 
 	// Entity positions in current room
@@ -97,8 +92,8 @@ public class GameManager {
 		gameState = GameState.RUNNING;
 
 		Debug.config();
-		initCollision();
-
+		
+		coll = new ArrayList<>();
 		Drawer.initGraphics();
 		Input.initInput();
 		Debug.init();
@@ -137,7 +132,7 @@ public class GameManager {
 	private void initTileSet(String fileDir, String fileName, HashMap<String, HashMap<Integer, Tile>> masterTSet) {
 		try {
 			HashMap<Integer, Tile> tSet = new HashMap<>();
-			Serializer.loadTileHash(fileDir, fileName, tSet, hammerLookup, renderer);
+			Serializer.loadTileHash(fileDir, fileName, tSet, renderer);
 			masterTSet.put(fileName, tSet);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -152,22 +147,6 @@ public class GameManager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private void initCollision() {
-		coll = new ArrayList<>();
-
-		// Generate hammer shapes
-		hammerLookup = new HashMap<>();
-		ArrayList<HammerShape> cache = new ArrayList<>();
-		cache.add(new HammerSquare());
-		cache.add(new HammerRightTriangle(HammerShape.HShapeEnum.TRIANGLE_BL));
-		cache.add(new HammerRightTriangle(HammerShape.HShapeEnum.TRIANGLE_BR));
-		cache.add(new HammerRightTriangle(HammerShape.HShapeEnum.TRIANGLE_UL));
-		cache.add(new HammerRightTriangle(HammerShape.HShapeEnum.TRIANGLE_UR));
-
-		for (HammerShape h : cache)
-			hammerLookup.put(h.shapeId, h);
 	}
 
 	static void initPlayer() {

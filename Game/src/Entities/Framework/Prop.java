@@ -2,7 +2,7 @@ package Entities.Framework;
 
 import org.joml.Vector2f;
 
-import Collision.HammerShapes.HammerShape;
+import Collision.Shapes.Shape;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
@@ -16,7 +16,7 @@ public class Prop extends Entity {
 
 		// Configure the renderer real quick
 		((GeneralRenderer) this.renderer).init(new Transformation(position), new Vector2f(32, 48),
-				HammerShape.HShapeEnum.SQUARE, new Color(0, 0, 0, 0));
+				Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0));
 		((GeneralRenderer) this.renderer).spr = Texture.getSprSheet("Assets/Sprites/props.png", 32, 48).texs[0];
 	}
 

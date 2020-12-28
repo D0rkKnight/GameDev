@@ -6,7 +6,7 @@ import org.joml.Vector2f;
 
 import Collision.Collidable;
 import Collision.Hitbox;
-import Collision.HammerShapes.HammerShape;
+import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
@@ -41,7 +41,7 @@ public class Melee extends Entity implements Collidable {
 
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HShapeEnum.SQUARE,
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE,
 				new Color());
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 

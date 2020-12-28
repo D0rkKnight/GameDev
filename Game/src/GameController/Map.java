@@ -9,7 +9,7 @@ import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.w3c.dom.Document;
 
-import Collision.HammerShapes.HammerShape;
+import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Entities.Framework.Entity;
 import Entities.Framework.Entrance;
@@ -305,7 +305,7 @@ public class Map {
 				if (t == null)
 					continue;
 
-				HammerShape shape = t.getHammerState();
+				Shape shape = t.getHammerState().v;
 				Vector2f pGrid = new Vector2f(i, j); // Position of the shape in grid cords
 
 				// Try to find point p in hammershape.

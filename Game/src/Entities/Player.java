@@ -5,7 +5,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import Collision.Hitbox;
-import Collision.HammerShapes.HammerShape;
+import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Entities.Framework.Combatant;
 import Entities.Framework.Entity;
@@ -57,7 +57,7 @@ public class Player extends Combatant {
 
 		// Configure the renderer real quick
 		((GeneralRenderer) this.renderer).init(new Transformation(position), new Vector2f(96, 96),
-				HammerShape.HShapeEnum.SQUARE, new Color(1, 0, 0, 0));
+				Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 
 		// Configure hitbox

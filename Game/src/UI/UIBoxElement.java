@@ -2,7 +2,7 @@ package UI;
 
 import org.joml.Vector2f;
 
-import Collision.HammerShapes.HammerShape;
+import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
@@ -17,7 +17,7 @@ public class UIBoxElement extends UIDrawElement {
 		if (rend instanceof GeneralRenderer) {
 			GeneralRenderer sprRend = (GeneralRenderer) this.rend;
 			sprRend.init(new Transformation(new Vector2f(), Transformation.MATRIX_MODE_SCREEN), dims,
-					HammerShape.HShapeEnum.SQUARE, col);
+					Shape.ShapeEnum.SQUARE, col);
 			sprRend.spr = Debug.debugTex;
 		}
 	}

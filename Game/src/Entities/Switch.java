@@ -3,7 +3,7 @@ package Entities;
 import org.joml.Math;
 import org.joml.Vector2f;
 
-import Collision.HammerShapes.HammerShape;
+import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Entities.Framework.Entity;
 import Entities.Framework.Interactive;
@@ -31,7 +31,7 @@ public class Switch extends Entity implements Interactive {
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
 		GeneralRenderer rendTemp = (GeneralRenderer) this.renderer; // Renderer has been duplicated by now
-		rendTemp.init(new Transformation(position), dim, HammerShape.HShapeEnum.SQUARE, new Color());
+		rendTemp.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 
 		rendTemp.spr = Debug.debugTex;
 		renderer = rendTemp;

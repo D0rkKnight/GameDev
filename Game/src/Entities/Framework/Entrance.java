@@ -4,7 +4,7 @@ import org.joml.Vector2f;
 
 import Collision.Collidable;
 import Collision.Hitbox;
-import Collision.HammerShapes.HammerShape;
+import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Entities.Player;
 import GameController.GameManager;
@@ -32,7 +32,7 @@ public class Entrance extends Entity implements Collidable {
 		super(ID, position, renderer, name);
 
 		dim = dims;
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HShapeEnum.SQUARE,
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE,
 				new Color());
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 

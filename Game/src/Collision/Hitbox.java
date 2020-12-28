@@ -4,9 +4,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
-import Collision.HammerShapes.HammerShape;
+import Collision.Shapes.Shape;
 import Entities.Framework.Entity;
-import GameController.GameManager;
 import Utility.Transformation;
 
 public class Hitbox {
@@ -15,15 +14,15 @@ public class Hitbox {
 	public float width;
 	public Entity owner;
 
-	public HammerShape shape;
+	public Shape shape;
 	public Transformation transform;
 	private Vector2f[] verts; // Encapsulated in genVerts
 
 	public Hitbox(Entity owner, float width, float height) {
-		this(owner, width, height, GameManager.hammerLookup.get(HammerShape.HShapeEnum.SQUARE));
+		this(owner, width, height, Shape.ShapeEnum.SQUARE.v);
 	}
 
-	public Hitbox(Entity owner, float width, float height, HammerShape shape) {
+	public Hitbox(Entity owner, float width, float height, Shape shape) {
 		this.height = height;
 		this.width = width;
 		this.owner = owner;

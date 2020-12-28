@@ -26,7 +26,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import Accessories.Accessory;
-import Collision.HammerShapes.HammerShape;
+import Collision.Shapes.Shape;
+import Collision.Shapes.Shape.ShapeEnum;
 import Entities.Button;
 import Entities.CrawlerEnemy;
 import Entities.FloaterEnemy;
@@ -68,8 +69,8 @@ public class Serializer {
 		return (Element) e.getElementsByTagName(name).item(0);
 	}
 
-	public static void loadTileHash(String fdir, String fname, HashMap<Integer, Tile> tileMap,
-			HashMap<HammerShape.HShapeEnum, HammerShape> hsMap, GeneralRenderer rend) throws Exception {
+	public static void loadTileHash(String fdir, String fname, HashMap<Integer, Tile> tileMap, GeneralRenderer rend)
+			throws Exception {
 
 		Document doc = readDoc(fdir, fname);
 		NodeList nList = doc.getElementsByTagName("tile");
@@ -89,27 +90,26 @@ public class Serializer {
 			NodeList propList = props.getElementsByTagName("property");
 
 			// Grab properties
-			HammerShape hs = null;
+			ShapeEnum hs = null;
 			ArrayList<String> gfxs = new ArrayList<>();
 			for (int j = 0; j < propList.getLength(); j++) {
 				Element propE = (Element) propList.item(j);
 
+				@SuppressWarnings("unused")
 				String type = propE.getAttribute("type");
 				String name = propE.getAttribute("name");
 				String val = propE.getAttribute("value");
 
 				if (name.equals("HammerShape")) {
-					HammerShape.HShapeEnum shape = HammerShape.HShapeEnum.SQUARE; // Assume to be a square
+					Shape.ShapeEnum shape = Shape.ShapeEnum.SQUARE; // Assume to be a square
 					if (val.equals("bl"))
-						shape = HammerShape.HShapeEnum.TRIANGLE_BL;
+						hs = Shape.ShapeEnum.TRIANGLE_BL;
 					else if (val.equals("br"))
-						shape = HammerShape.HShapeEnum.TRIANGLE_BR;
+						hs = Shape.ShapeEnum.TRIANGLE_BR;
 					else if (val.equals("ul"))
-						shape = HammerShape.HShapeEnum.TRIANGLE_UL;
+						hs = Shape.ShapeEnum.TRIANGLE_UL;
 					else if (val.equals("ur"))
-						shape = HammerShape.HShapeEnum.TRIANGLE_UR;
-
-					hs = hsMap.get(shape);
+						hs = Shape.ShapeEnum.TRIANGLE_UR;
 				}
 
 				if (name.equals("GFX")) {

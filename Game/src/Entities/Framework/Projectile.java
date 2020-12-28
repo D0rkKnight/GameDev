@@ -3,7 +3,7 @@ package Entities.Framework;
 import org.joml.Vector2f;
 
 import Collision.Hitbox;
-import Collision.HammerShapes.HammerShape;
+import Collision.Shapes.Shape;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
 import Utility.Transformation;
@@ -16,7 +16,7 @@ public class Projectile extends PhysicsEntity {
 
 		// Configure renderer (this is a hack)
 		dim = new Vector2f(8f, 8f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HShapeEnum.SQUARE,
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE,
 				new Color(1, 1, 0, 0));
 
 		// Configure hitbox

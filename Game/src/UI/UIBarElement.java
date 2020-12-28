@@ -2,8 +2,7 @@ package UI;
 
 import org.joml.Vector2f;
 
-import Collision.HammerShapes.HammerShape;
-import GameController.GameManager;
+import Collision.Shapes.Shape;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
 import Wrappers.Color;
@@ -24,8 +23,7 @@ public class UIBarElement extends UIBoxElement {
 		// Buffer vertex changes to renderer
 		if (rend instanceof GeneralRenderer) {
 			Vector2f fillDims = new Vector2f(dims.x * fillRatio, dims.y);
-			Vector2f[] verts = GameManager.hammerLookup.get(HammerShape.HShapeEnum.SQUARE)
-					.getRenderVertices(fillDims);
+			Vector2f[] verts = Shape.ShapeEnum.SQUARE.v.getRenderVertices(fillDims);
 
 			((GeneralRenderer) rend).updateVertices(verts);
 

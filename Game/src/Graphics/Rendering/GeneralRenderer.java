@@ -10,8 +10,7 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
-import Collision.HammerShapes.HammerShape;
-import GameController.GameManager;
+import Collision.Shapes.Shape;
 import Graphics.Elements.Texture;
 import Utility.Transformation;
 import Wrappers.Color;
@@ -40,8 +39,8 @@ public class GeneralRenderer extends Renderer implements Cloneable {
 		spr.bind();
 	}
 
-	public void init(Transformation transform, Vector2f dims, HammerShape.HShapeEnum shape, Color col) {
-		HammerShape hs = GameManager.hammerLookup.get(shape);
+	public void init(Transformation transform, Vector2f dims, Shape.ShapeEnum shape, Color col) {
+		Shape hs = shape.v;
 
 		Vector2f[] vertices = hs.getRenderVertices(dims);
 		Vector2f[] uvs = hs.getRenderUVs();

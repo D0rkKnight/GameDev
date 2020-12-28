@@ -4,7 +4,7 @@ import org.joml.Vector2f;
 
 import Collision.Hitbox;
 import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
-import Collision.HammerShapes.HammerShape;
+import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Entities.Framework.Enemy;
 import GameController.Time;
@@ -38,7 +38,7 @@ public abstract class BouncingEnemy extends Enemy {
 
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HShapeEnum.SQUARE,
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE,
 				new Color());
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 

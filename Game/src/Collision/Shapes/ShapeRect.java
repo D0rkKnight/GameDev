@@ -1,11 +1,11 @@
-package Collision.HammerShapes;
+package Collision.Shapes;
 
 import org.joml.Vector2f;
 
-public class HammerSquare extends HammerShape {
+public class ShapeRect extends Shape {
 
-	public HammerSquare() {
-		super(HShapeEnum.SQUARE);
+	public ShapeRect() {
+		super();
 		vertices = new Vector2f[] { br, ur, ul, bl };
 		genNormals();
 

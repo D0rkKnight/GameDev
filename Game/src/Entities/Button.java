@@ -3,7 +3,7 @@ package Entities;
 import org.joml.Math;
 import org.joml.Vector2f;
 
-import Collision.HammerShapes.HammerShape;
+import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Entities.Framework.Entity;
 import Entities.Framework.Interactive;
@@ -32,7 +32,7 @@ public class Button extends Entity implements Interactive {
 		this.player = player;
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HShapeEnum.SQUARE,
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE,
 				new Color());
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 	}
