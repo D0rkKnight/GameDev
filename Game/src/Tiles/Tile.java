@@ -45,7 +45,7 @@ public class Tile implements Cloneable {
 	public void init(Vector2f pos, Vector2f rect) {
 		if (hammerState == null) {
 			// System.err.println("Hammer state not specified, capitulating to default.");
-			hammerState = GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE);
+			hammerState = GameManager.hammerLookup.get(HammerShape.HShapeEnum.SQUARE);
 		}
 
 		// will be set later

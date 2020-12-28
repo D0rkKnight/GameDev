@@ -17,7 +17,7 @@ public class UIBoxElement extends UIDrawElement {
 		if (rend instanceof GeneralRenderer) {
 			GeneralRenderer sprRend = (GeneralRenderer) this.rend;
 			sprRend.init(new Transformation(new Vector2f(), Transformation.MATRIX_MODE_SCREEN), dims,
-					HammerShape.HAMMER_SHAPE_SQUARE, col);
+					HammerShape.HShapeEnum.SQUARE, col);
 			sprRend.spr = Debug.debugTex;
 		}
 	}

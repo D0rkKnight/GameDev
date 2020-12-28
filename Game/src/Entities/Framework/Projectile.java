@@ -16,7 +16,7 @@ public class Projectile extends PhysicsEntity {
 
 		// Configure renderer (this is a hack)
 		dim = new Vector2f(8f, 8f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE,
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HShapeEnum.SQUARE,
 				new Color(1, 1, 0, 0));
 
 		// Configure hitbox
@@ -35,7 +35,7 @@ public class Projectile extends PhysicsEntity {
 		Object e = otherHb.owner;
 
 		// Hit an enemy
-		int oppAlign = Combatant.getOpposingAlignment(alignment);
+		Alignment oppAlign = Combatant.getOpposingAlignment(alignment);
 
 		if (e instanceof PhysicsEntity) {
 			if (((PhysicsEntity) e).alignment == oppAlign) {

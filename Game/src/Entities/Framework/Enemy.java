@@ -18,7 +18,7 @@ public abstract class Enemy extends Combatant {
 	public Enemy(String ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
 
-		alignment = ALIGNMENT_ENEMY;
+		alignment = Alignment.ENEMY;
 		findTarget();
 	}
 

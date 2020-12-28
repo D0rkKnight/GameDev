@@ -10,6 +10,7 @@ import Debugging.Debug;
 import Entities.Framework.Combatant;
 import Entities.Framework.Entity;
 import Entities.Framework.Melee;
+import Entities.Framework.PhysicsEntity;
 import Entities.Framework.Projectile;
 import GameController.GameManager;
 import GameController.Input;
@@ -56,7 +57,7 @@ public class Player extends Combatant {
 
 		// Configure the renderer real quick
 		((GeneralRenderer) this.renderer).init(new Transformation(position), new Vector2f(96, 96),
-				HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 0, 0, 0));
+				HammerShape.HShapeEnum.SQUARE, new Color(1, 0, 0, 0));
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 
 		// Configure hitbox
@@ -80,7 +81,7 @@ public class Player extends Combatant {
 		anim = new PlayerAnimator(anims, 12, (GeneralRenderer) this.renderer, this);
 
 		// Alignment
-		alignment = ALIGNMENT_PLAYER;
+		alignment = PhysicsEntity.Alignment.PLAYER;
 
 		sideFacing = 1;
 

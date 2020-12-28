@@ -6,19 +6,19 @@
     "activeFile": "test3.tmx",
     "automapping.whileDrawing": true,
     "expandedProjectPaths": [
-        "Templates",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/dungeon",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master",
         "C:/Users/Hanzen Shou/Documents/GitBash/GameDev/Game/assets",
-        ".",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave/rules",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules/cave",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World",
+        ".",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/orthogonal_height_type",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE",
+        "Templates",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/grassland",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World"
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/dungeon",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules/cave"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -365,8 +365,8 @@
             "scale": 0.75,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 481.3333333333333,
-                "y": 804
+                "x": 399.9999999999999,
+                "y": 400
             }
         },
         "test4.tmx": {

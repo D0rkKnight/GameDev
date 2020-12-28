@@ -26,7 +26,7 @@ public class FloaterEnemy extends Enemy {
 
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE,
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HShapeEnum.SQUARE,
 				new Color());
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 

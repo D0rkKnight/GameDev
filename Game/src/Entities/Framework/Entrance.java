@@ -32,7 +32,7 @@ public class Entrance extends Entity implements Collidable {
 		super(ID, position, renderer, name);
 
 		dim = dims;
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE,
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HShapeEnum.SQUARE,
 				new Color());
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 

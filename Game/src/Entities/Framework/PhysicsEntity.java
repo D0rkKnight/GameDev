@@ -21,10 +21,6 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	// flexibility.
 	public PhysicsData pData;
 	public Vector2f queuedTangent;
-	// public boolean wasGrounded; //Used exclusively to update physics events, DO
-	// NOT TAMPER WITH
-	// WAS TAMPERED WITH
-
 	public boolean hasGravity;
 
 	protected Vector2f knockbackDir; // for debug purposes, only shows initial knockback
@@ -40,10 +36,11 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	public static final int MOVEMENT_MODE_IS_DASHING = 2;
 	public static final int MOVEMENT_MODE_DECEL = 3;
 
-	public int alignment;
-	public static final int ALIGNMENT_NEUTRAL = 0;
-	public static final int ALIGNMENT_PLAYER = 1;
-	public static final int ALIGNMENT_ENEMY = 2;
+	public static enum Alignment {
+		NEUTRAL, PLAYER, ENEMY
+	}
+
+	public Alignment alignment;
 
 	// For now, presume that if one of these behaviors trigger, the following
 	// behavior are canceled.

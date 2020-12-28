@@ -16,7 +16,7 @@ public class Prop extends Entity {
 
 		// Configure the renderer real quick
 		((GeneralRenderer) this.renderer).init(new Transformation(position), new Vector2f(32, 48),
-				HammerShape.HAMMER_SHAPE_SQUARE, new Color(0, 0, 0, 0));
+				HammerShape.HShapeEnum.SQUARE, new Color(0, 0, 0, 0));
 		((GeneralRenderer) this.renderer).spr = Texture.getSprSheet("Assets/Sprites/props.png", 32, 48).texs[0];
 	}
 

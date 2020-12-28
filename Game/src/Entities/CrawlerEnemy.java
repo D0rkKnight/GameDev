@@ -31,7 +31,7 @@ public class CrawlerEnemy extends Enemy {
 
 		// Configure the renderer real quick
 		dim = new Vector2f(96f, 96f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE,
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HShapeEnum.SQUARE,
 				new Color());
 		((GeneralRenderer) this.renderer).spr = Texture.getTex("assets/Sprites/circle_saw.png");
 
@@ -44,7 +44,7 @@ public class CrawlerEnemy extends Enemy {
 		if (position != null) {
 			Vector2i tPos = new Vector2i((int) position.x / GameManager.tileSize,
 					(int) position.y / GameManager.tileSize);
-			Tile[][] collGrid = World.currmap.grids.get(GameManager.GRID_COLL);
+			Tile[][] collGrid = World.currmap.grids.get(GameManager.Grid.COLL.name);
 			for (int i = tPos.y; i >= 0; i--) {
 				Tile t = collGrid[tPos.x][i];
 				if (t == null)

@@ -41,14 +41,8 @@ public class GameManager {
 	// Lookup table for different kinds of accessories
 //	private HashMap<Integer, Accessory> accessoryLookup;
 	// Lookup table for hammershapes
-	public static HashMap<Integer, HammerShape> hammerLookup;
+	public static HashMap<HammerShape.HShapeEnum, HammerShape> hammerLookup;
 	static HashMap<String, Entity> entityHash;
-
-	// current progression of player ingame
-//	private int chapter; // chapter, determines plot events
-//	private int[] levelnums; // number of levels within each chapter - down to map design
-//	private int level; // level within each chapter (represents biomes
-//	private int room; // specific room within each level
 
 	// Entity positions in current room
 	static ArrayList<Entity> entities;
@@ -66,15 +60,22 @@ public class GameManager {
 	public static final int tileSpriteSize = 8;
 
 	// TODO: Write error checks for these
-	public static final String GRID_SET = "ground";
-	public static final String GRID_COLL = "collision";
-	public static final String GRID_GROUND = "ground";
-	public static final String GRID_BG = "background";
-	public static final String GRID_FG = "foreground";
+	public static enum Grid {
+		// Used to map between Tiled2D and the internal hashmap tracking data.
+		SET("ground"), COLL("collision"), GROUND("ground"), BG("background"), FG("foreground");
 
-	private static int gameState;
-	public static final int GAME_STATE_RUNNING = 0;
-	public static final int GAME_STATE_PAUSED = 1;
+		public final String name;
+
+		Grid(String name) {
+			this.name = name;
+		}
+	}
+
+	private static GameState gameState;
+
+	public static enum GameState {
+		RUNNING, PAUSED
+	}
 
 	/*
 	 * Creates components before entering loop
@@ -93,7 +94,7 @@ public class GameManager {
 	}
 
 	private void init() {
-		gameState = GAME_STATE_RUNNING;
+		gameState = GameState.RUNNING;
 
 		Debug.config();
 		initCollision();
@@ -160,9 +161,10 @@ public class GameManager {
 		hammerLookup = new HashMap<>();
 		ArrayList<HammerShape> cache = new ArrayList<>();
 		cache.add(new HammerSquare());
-
-		for (int i = HammerShape.HAMMER_SHAPE_TRIANGLE_BL; i <= HammerShape.HAMMER_SHAPE_TRIANGLE_UR; i++)
-			cache.add(new HammerRightTriangle(i));
+		cache.add(new HammerRightTriangle(HammerShape.HShapeEnum.TRIANGLE_BL));
+		cache.add(new HammerRightTriangle(HammerShape.HShapeEnum.TRIANGLE_BR));
+		cache.add(new HammerRightTriangle(HammerShape.HShapeEnum.TRIANGLE_UL));
+		cache.add(new HammerRightTriangle(HammerShape.HShapeEnum.TRIANGLE_UR));
 
 		for (HammerShape h : cache)
 			hammerLookup.put(h.shapeId, h);
@@ -223,10 +225,10 @@ public class GameManager {
 			glfwPollEvents();
 
 			switch (gameState) {
-			case GAME_STATE_RUNNING:
+			case RUNNING:
 				GS_running();
 				break;
-			case GAME_STATE_PAUSED:
+			case PAUSED:
 				GS_paused();
 				break;
 			}
@@ -256,19 +258,19 @@ public class GameManager {
 		Drawer.draw(World.currmap, entities);
 	}
 
-	public static int getGameState() {
+	public static GameState getGameState() {
 		return gameState;
 	}
 
-	public static void setGameState(int gameState) {
+	public static void setGameState(GameState gameState) {
 		GameManager.gameState = gameState;
 
 		switch (gameState) {
-		case GAME_STATE_RUNNING:
+		case RUNNING:
 			UI.changeCanvas(UI.CANVAS_RUNNING);
 			Time.endPause();
 			break;
-		case GAME_STATE_PAUSED:
+		case PAUSED:
 			UI.changeCanvas(UI.CANVAS_PAUSED);
 			Time.beginPause();
 			break;
@@ -297,7 +299,7 @@ public class GameManager {
 		// ________________________________________________________
 
 		// Push in collision deltas
-		Tile[][] grid = World.currmap.grids.get(GRID_COLL);
+		Tile[][] grid = World.currmap.grids.get(Grid.COLL.name);
 
 		for (int i = 0; i < coll.size(); i++) {
 			Hitbox c = coll.get(i);

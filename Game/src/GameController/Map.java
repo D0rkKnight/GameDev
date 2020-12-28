@@ -44,10 +44,10 @@ public class Map {
 		}
 
 		grids = mapData;
-		w = grids.get(GameManager.GRID_SET).length * GameManager.tileSize;
-		h = grids.get(GameManager.GRID_SET)[0].length * GameManager.tileSize;
+		w = grids.get(GameManager.Grid.SET.name).length * GameManager.tileSize;
+		h = grids.get(GameManager.Grid.SET.name)[0].length * GameManager.tileSize;
 
-		generateEdges(grids.get(GameManager.GRID_COLL));
+		generateEdges(grids.get(GameManager.Grid.COLL.name));
 	}
 
 	public void setEntranceLink(int start, int[] end) {

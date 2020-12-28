@@ -24,7 +24,7 @@ public class UIBarElement extends UIBoxElement {
 		// Buffer vertex changes to renderer
 		if (rend instanceof GeneralRenderer) {
 			Vector2f fillDims = new Vector2f(dims.x * fillRatio, dims.y);
-			Vector2f[] verts = GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE)
+			Vector2f[] verts = GameManager.hammerLookup.get(HammerShape.HShapeEnum.SQUARE)
 					.getRenderVertices(fillDims);
 
 			((GeneralRenderer) rend).updateVertices(verts);

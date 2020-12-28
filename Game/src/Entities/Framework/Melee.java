@@ -22,7 +22,7 @@ import Wrappers.Color;
 public class Melee extends Entity implements Collidable {
 
 	Entity owner;
-	int alignment;
+	PhysicsEntity.Alignment alignment;
 	Vector2f kbDir;
 	Vector2f offset;
 
@@ -41,7 +41,7 @@ public class Melee extends Entity implements Collidable {
 
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HAMMER_SHAPE_SQUARE,
+		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, HammerShape.HShapeEnum.SQUARE,
 				new Color());
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 
@@ -77,7 +77,7 @@ public class Melee extends Entity implements Collidable {
 		Entity e = otherHb.owner;
 
 		// Hit an enemy
-		int oppAlign = Combatant.getOpposingAlignment(alignment);
+		PhysicsEntity.Alignment oppAlign = Combatant.getOpposingAlignment(alignment);
 
 		// Can only hit each enemy once
 		if (e instanceof PhysicsEntity && !hitEntities.contains(e)) {

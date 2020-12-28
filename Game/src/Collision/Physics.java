@@ -20,6 +20,9 @@ import Wrappers.Color;
 public abstract class Physics {
 
 	public static final float NUDGE_CONSTANT = 0.1f;
+
+	// Don't use enumerators since these ints also specify array indices (and there
+	// are only 2 axises)
 	public static final int X = 0;
 	public static final int Y = 1;
 

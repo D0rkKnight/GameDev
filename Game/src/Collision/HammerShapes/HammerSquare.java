@@ -5,7 +5,7 @@ import org.joml.Vector2f;
 public class HammerSquare extends HammerShape {
 
 	public HammerSquare() {
-		super(HAMMER_SHAPE_SQUARE);
+		super(HShapeEnum.SQUARE);
 		vertices = new Vector2f[] { br, ur, ul, bl };
 		genNormals();
 

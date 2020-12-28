@@ -143,7 +143,7 @@ public class Drawer {
 		if (!fBuffRend.hasInit) {
 			fBuffRend.init(
 					new Transformation(new Vector2f(0, Camera.main.viewport.y), Transformation.MATRIX_MODE_SCREEN),
-					Camera.main.viewport, HammerShape.HAMMER_SHAPE_SQUARE, new Color(0, 0, 0, 0));
+					Camera.main.viewport, HammerShape.HShapeEnum.SQUARE, new Color(0, 0, 0, 0));
 			fBuffRend.spr = drawBuff.tex;
 		}
 
@@ -192,7 +192,7 @@ public class Drawer {
 		Shader warpShade = new TimedShader("vortex");
 		GeneralRenderer warpRend = new TimedRenderer(warpShade);
 		warpRend.init(new Transformation(), new Vector2f(CHUNK_SIZE * GameManager.tileSize),
-				HammerShape.HAMMER_SHAPE_SQUARE, new Color(1, 1, 0, 1));
+				HammerShape.HShapeEnum.SQUARE, new Color(1, 1, 0, 1));
 		GFXRends.put("Warp", warpRend);
 
 		// Creating graphical elements
@@ -273,7 +273,7 @@ public class Drawer {
 
 		float dim = GameManager.tileSize * Drawer.CHUNK_SIZE;
 		chunkRend.init(new Transformation(new Vector2f(), Transformation.MATRIX_MODE_WORLD), new Vector2f(dim, dim),
-				HammerShape.HAMMER_SHAPE_SQUARE, new Color());
+				HammerShape.HShapeEnum.SQUARE, new Color());
 	}
 
 	public static void genTileChunkLayer(HashMap<String, Tile[][]> g, ArrayList<String> renderedLayers,

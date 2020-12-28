@@ -76,15 +76,15 @@ public abstract class Combatant extends PhysicsEntity {
 
 	}
 
-	public static int getOpposingAlignment(int align) {
+	public static Alignment getOpposingAlignment(Alignment align) {
 		switch (align) {
-		case ALIGNMENT_PLAYER:
-			return ALIGNMENT_ENEMY;
-		case ALIGNMENT_ENEMY:
-			return ALIGNMENT_PLAYER;
+		case PLAYER:
+			return Alignment.ENEMY;
+		case ENEMY:
+			return Alignment.PLAYER;
+		default:
+			return null;
 		}
-
-		return -1;
 	}
 
 	public void invuln(int len) {

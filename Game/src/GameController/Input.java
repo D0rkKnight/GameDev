@@ -117,10 +117,10 @@ public class Input {
 		// Individual press and release stuff
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
 			// glfwSetWindowShouldClose(window, true); // Later detected in rendering loop
-			if (GameManager.getGameState() != GameManager.GAME_STATE_PAUSED) {
-				GameManager.setGameState(GameManager.GAME_STATE_PAUSED);
+			if (GameManager.getGameState() != GameManager.GameState.PAUSED) {
+				GameManager.setGameState(GameManager.GameState.PAUSED);
 			} else {
-				GameManager.setGameState(GameManager.GAME_STATE_RUNNING);
+				GameManager.setGameState(GameManager.GameState.RUNNING);
 			}
 		}
 		// Frame walking

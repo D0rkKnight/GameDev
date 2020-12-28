@@ -20,7 +20,7 @@ public class Hitbox {
 	private Vector2f[] verts; // Encapsulated in genVerts
 
 	public Hitbox(Entity owner, float width, float height) {
-		this(owner, width, height, GameManager.hammerLookup.get(HammerShape.HAMMER_SHAPE_SQUARE));
+		this(owner, width, height, GameManager.hammerLookup.get(HammerShape.HShapeEnum.SQUARE));
 	}
 
 	public Hitbox(Entity owner, float width, float height, HammerShape shape) {

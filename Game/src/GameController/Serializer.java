@@ -69,7 +69,7 @@ public class Serializer {
 	}
 
 	public static void loadTileHash(String fdir, String fname, HashMap<Integer, Tile> tileMap,
-			HashMap<Integer, HammerShape> hsMap, GeneralRenderer rend) throws Exception {
+			HashMap<HammerShape.HShapeEnum, HammerShape> hsMap, GeneralRenderer rend) throws Exception {
 
 		Document doc = readDoc(fdir, fname);
 		NodeList nList = doc.getElementsByTagName("tile");
@@ -98,10 +98,18 @@ public class Serializer {
 				String name = propE.getAttribute("name");
 				String val = propE.getAttribute("value");
 
-				if (name.equals("HammerShape") && type.equals("int")) {
-					int valInt = Integer.parseInt(val);
+				if (name.equals("HammerShape")) {
+					HammerShape.HShapeEnum shape = HammerShape.HShapeEnum.SQUARE; // Assume to be a square
+					if (val.equals("bl"))
+						shape = HammerShape.HShapeEnum.TRIANGLE_BL;
+					else if (val.equals("br"))
+						shape = HammerShape.HShapeEnum.TRIANGLE_BR;
+					else if (val.equals("ul"))
+						shape = HammerShape.HShapeEnum.TRIANGLE_UL;
+					else if (val.equals("ur"))
+						shape = HammerShape.HShapeEnum.TRIANGLE_UR;
 
-					hs = hsMap.get(valInt);
+					hs = hsMap.get(shape);
 				}
 
 				if (name.equals("GFX")) {

@@ -77,7 +77,7 @@ public class Debug {
 
 		// Draw some coll debug
 		if (drawEdges) {
-			Tile[][] ts = World.currmap.grids.get(GameManager.GRID_COLL);
+			Tile[][] ts = World.currmap.grids.get(GameManager.Grid.COLL.name);
 			for (Tile[] tarr : ts)
 				for (Tile t : tarr) {
 					if (t == null)

@@ -11,24 +11,22 @@ import Utility.Vector;
  *
  */
 public abstract class HammerShape {
-	public static final int HAMMER_SHAPE_SQUARE = 0;
-	public static final int HAMMER_SHAPE_TRIANGLE_BL = 1;
-	public static final int HAMMER_SHAPE_TRIANGLE_BR = 2;
-	public static final int HAMMER_SHAPE_TRIANGLE_UL = 3;
-	public static final int HAMMER_SHAPE_TRIANGLE_UR = 4;
-	public static final int HAMMER_SHAPE_FINAL = 5;
+
+	public static enum HShapeEnum {
+		SQUARE, TRIANGLE_BL, TRIANGLE_BR, TRIANGLE_UL, TRIANGLE_UR, FINAL
+	}
 
 	protected Vector2f bl;
 	protected Vector2f br;
 	protected Vector2f ul;
 	protected Vector2f ur;
 
-	public int shapeId;
+	public HShapeEnum shapeId;
 	public Vector2f[] vertices;
 	public Vector2f[] normals; // First edge is between 1st and 2nd points
 	protected Vector2f[] triangulatedVertices;
 
-	public HammerShape(int shapeId) {
+	public HammerShape(HShapeEnum shapeId) {
 		vertices = null;
 		triangulatedVertices = null;
 		this.shapeId = shapeId;
