@@ -68,21 +68,24 @@ public class Drawer {
 	public static DrawBuffer drawBuff;
 	private static DrawBufferRenderer fBuffRend;
 	private static GeneralRenderer chunkRend;
-	private static HashMap<String, TileRenderLayer> tLayers;
+	private static HashMap<LayerEnum, TileRenderLayer> tLayers;
 
-	public static final String LAYER_BG = "BG";
-	public static final String LAYER_FG = "FG";
-	public static final String LAYER_GROUND = "GROUND";
+	public static enum LayerEnum {
+		BG(-50), FG(50), GROUND(0);
 
-	public static final int BG_Z = -50;
-	public static final int FG_Z = 50;
-	public static final int BG_GROUND = 0;
+		public int z;
+
+		LayerEnum(int z) {
+			this.z = z;
+		}
+	}
 
 	public static boolean windowResizeable = false; // Set in debug
 	public static final int CHUNK_SIZE = 16;
 
 	public static Color clearCol;
 
+	// GFX layers are marked with strings so they can be dynamically generated
 	private static HashMap<String, TileRenderLayer> GFXLayers;
 	private static HashMap<String, GeneralRenderer> GFXRends;
 
@@ -114,7 +117,7 @@ public class Drawer {
 		tyMax++;
 
 		// TODO: Layer width and height should be set elsewhere
-		Tile[][] tArr = tLayers.get(LAYER_GROUND).chunkRendGrid.get(0);
+		Tile[][] tArr = tLayers.get(LayerEnum.GROUND).chunkRendGrid.get(0);
 		int chunkGridW = (int) Math.ceil(((double) tArr.length) / CHUNK_SIZE); // This does just raises the chunk width
 																				// up to accomodate for the remainder.
 		int chunkGridH = (int) Math.ceil(((double) tArr[0].length) / CHUNK_SIZE);
@@ -191,8 +194,8 @@ public class Drawer {
 
 		Shader warpShade = new TimedShader("vortex");
 		GeneralRenderer warpRend = new TimedRenderer(warpShade);
-		warpRend.init(new Transformation(), new Vector2f(CHUNK_SIZE * GameManager.tileSize),
-				Shape.ShapeEnum.SQUARE, new Color(1, 1, 0, 1));
+		warpRend.init(new Transformation(), new Vector2f(CHUNK_SIZE * GameManager.tileSize), Shape.ShapeEnum.SQUARE,
+				new Color(1, 1, 0, 1));
 		GFXRends.put("Warp", warpRend);
 
 		// Creating graphical elements
@@ -276,14 +279,23 @@ public class Drawer {
 				Shape.ShapeEnum.SQUARE, new Color());
 	}
 
+	/**
+	 * Bakes tiles into a set of chunks
+	 * 
+	 * @param g              the hash map holding all tiles
+	 * @param renderedLayers the layers within the hash map that should be baked
+	 * @param targetLayer    the name of the layer that is being baked to (BG, FG,
+	 *                       etc. etc.)
+	 * @param z              z value used to index layer in draw order
+	 */
 	public static void genTileChunkLayer(HashMap<String, Tile[][]> g, ArrayList<String> renderedLayers,
-			String targetLayer, int z) {
+			LayerEnum targetLayer) {
 		TileRenderLayer trl;
 		if (tLayers.get(targetLayer) == null) {
 			trl = new TileRenderLayer();
 			tLayers.put(targetLayer, trl);
 
-			insertDrawOrderElement(new DrawOrderTileLayer(z, trl));
+			insertDrawOrderElement(new DrawOrderTileLayer(targetLayer.z, trl));
 		} else {
 			trl = tLayers.get(targetLayer);
 		}
@@ -294,14 +306,7 @@ public class Drawer {
 	}
 
 	public static Vector2f GetWindowSize() {
-		// A wack process required to move the window. Why this is necessary, I'm not
-		// entirely clear on.
-		// Oh I think it's because the wrapped OpenGL function has to return multiple
-		// values so
-		// this allocates the memory in a manner that C recognizes.
-		// Read more on MemoryStack as a solution to interfacing problems between the
-		// two languages.
-
+		// Stack used because C++
 		try (MemoryStack stack = stackPush()) {
 			IntBuffer pWidth = stack.mallocInt(1);
 			IntBuffer pHeight = stack.mallocInt(1);
@@ -311,8 +316,6 @@ public class Drawer {
 
 			return new Vector2f(pWidth.get(0), pHeight.get(0));
 		}
-		// Another benefit: garbage collection is avoided because the stack is
-		// popped and reclaimed immediately after the try block.
 	}
 
 	public static void clearScreenBuffer() {
@@ -330,7 +333,7 @@ public class Drawer {
 			GFXLayers.get(key).clearGrids();
 		}
 
-		for (String key : tLayers.keySet()) {
+		for (LayerEnum key : tLayers.keySet()) {
 			TileRenderLayer tl = tLayers.get(key);
 
 			if (!tl.isActive)
@@ -403,7 +406,7 @@ public class Drawer {
 	}
 
 	public static void disableTCLayers() {
-		for (String key : tLayers.keySet()) {
+		for (LayerEnum key : tLayers.keySet()) {
 			tLayers.get(key).isActive = false;
 		}
 

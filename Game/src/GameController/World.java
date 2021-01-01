@@ -90,9 +90,9 @@ public class World {
 		Drawer.disableTCLayers();
 
 		// Tile chunks
-		Drawer.genTileChunkLayer(map.grids, rlBG, Drawer.LAYER_BG, Drawer.BG_Z);
-		Drawer.genTileChunkLayer(map.grids, rlGround, Drawer.LAYER_GROUND, Drawer.BG_GROUND);
-		Drawer.genTileChunkLayer(map.grids, rlFG, Drawer.LAYER_FG, Drawer.FG_Z);
+		Drawer.genTileChunkLayer(map.grids, rlBG, Drawer.LayerEnum.BG);
+		Drawer.genTileChunkLayer(map.grids, rlGround, Drawer.LayerEnum.GROUND);
+		Drawer.genTileChunkLayer(map.grids, rlFG, Drawer.LayerEnum.FG);
 
 		Drawer.bakeGFX();
 
