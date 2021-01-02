@@ -26,7 +26,7 @@ public class TextureAtlas {
 		float subW = tw / (float) tex.width * w;
 		float subH = th / (float) tex.height * h;
 
-		return new SubTexture(x / tilesWide, y / tilesTall, subW, subH);
+		return new SubTexture(tex, x / tilesWide, y / tilesTall, subW, subH);
 	}
 
 	public SubTexture[] genSubTexSet(int x1, int y1, int x2, int y2) {

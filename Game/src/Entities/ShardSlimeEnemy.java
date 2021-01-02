@@ -20,7 +20,7 @@ public class ShardSlimeEnemy extends BouncingEnemy {
 		super(ID, position, renderer, name, stats);
 
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("assets/Sprites/ChargingSlime.png"), 32, 32);
-		Animation a1 = new Animation(tAtlas.tex, tAtlas.genSubTexSet(0, 0, 16, 0));
+		Animation a1 = new Animation(tAtlas.genSubTexSet(0, 0, 16, 0));
 		anim = new Animator(new Animation[] { a1 }, 24, (GeneralRenderer) this.renderer, Shape.ShapeEnum.SQUARE.v);
 	}
 

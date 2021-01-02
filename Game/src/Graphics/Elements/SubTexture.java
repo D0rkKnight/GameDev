@@ -16,7 +16,10 @@ public class SubTexture {
 	public float w;
 	public float h;
 
-	public SubTexture(float x, float y, float w, float h) {
+	public Texture tex;
+
+	public SubTexture(Texture tex, float x, float y, float w, float h) {
+		this.tex = tex;
 		this.x = x;
 		this.y = y;
 		this.w = w;

@@ -1,24 +1,16 @@
 package Graphics.Animation;
 
 import Graphics.Elements.SubTexture;
-import Graphics.Elements.Texture;
 
 public class Animation {
 
 	private SubTexture[] frames;
-	public Texture baseTex;
-	public float w;
-	public float h;
 
 	private int currFrame;
 	private AnimationCallback cb; // These are configured by the animator, after construction
 
-	public Animation(Texture baseTex, SubTexture[] subTextures) {
-		this.baseTex = baseTex;
+	public Animation(SubTexture[] subTextures) {
 		this.frames = subTextures;
-
-		w = baseTex.width * subTextures[0].w;
-		h = baseTex.height * subTextures[0].h;
 	}
 
 	public SubTexture getFrame() {

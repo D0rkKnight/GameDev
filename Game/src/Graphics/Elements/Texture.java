@@ -35,11 +35,9 @@ public class Texture {
 	public int height; // All these values should be final
 
 	private static HashMap<String, Texture> textureCache;
-	private static HashMap<String, SpriteSheet> texAtlasCache;
 
 	static {
 		textureCache = new HashMap<>();
-		texAtlasCache = new HashMap<>();
 	}
 
 	/**
@@ -156,67 +154,6 @@ public class Texture {
 
 	public void bind() {
 		glBindTexture(GL_TEXTURE_2D, id);
-	}
-
-	// DEPRECATED, should never have to do this.
-	public static SpriteSheet getTexAtlas(String url, int tw, int th) {
-		SpriteSheet texAtlas;
-		if (!texAtlasCache.containsKey(url)) {
-			// Generate new spritesheet
-			texAtlas = unpackSpritesheet(url, tw, th);
-			texAtlasCache.put(url, texAtlas);
-		} else {
-
-			// Pull from cache
-			texAtlas = texAtlasCache.get(url);
-
-			if (texAtlas.tw != tw || texAtlas.th != th) {
-				new Exception("Sprite sheet already loaded but with different dimensions").printStackTrace();
-				System.exit(1);
-			}
-		}
-
-		return texAtlas;
-	}
-
-	/**
-	 * Take a spritesheet and turn it into a 1D array of textures.s
-	 * 
-	 * @param url
-	 * @param w:  pixel width
-	 * @param h:  pixel height
-	 * @param tw: width of 1 tile
-	 * @param th: height of 1 tile
-	 * @return
-	 */
-
-	// DEPRECATED. We should never have to do this.
-	private static SpriteSheet unpackSpritesheet(String url, int tw, int th) {
-		BufferedImage bi = null;
-		try {
-			bi = ImageIO.read(new File(url));
-		} catch (IOException e) {
-			System.err.println("URL " + url + " not recognized.");
-			e.printStackTrace();
-		}
-
-		int w = bi.getWidth();
-		int h = bi.getHeight();
-
-		int tilesWide = w / tw; // Note: this presumes the spritesheet's dimensions divides evenly.
-		int tilesTall = h / th;
-		Texture[] out = new Texture[tilesWide * tilesTall];
-
-		for (int i = 0; i < tilesTall; i++) {
-			for (int j = 0; j < tilesWide; j++) {
-				BufferedImage subImage = bi.getSubimage(j * tw, i * th, tw, th);
-				ByteBuffer subBuff = imageToBuffer(subImage, tw, th);
-
-				out[i * tilesWide + j] = new Texture(subBuff, tw, th);
-			}
-		}
-
-		return new SpriteSheet(out, tilesWide, tilesTall, tw, th);
 	}
 
 	public int getId() {

@@ -4,7 +4,6 @@ import org.joml.Vector2f;
 
 import GameController.GameManager;
 import Graphics.Animation.Animator;
-import Graphics.Elements.SpriteSheetSection;
 import Graphics.Rendering.Renderer;
 import Utility.CanBeCloned;
 import Utility.Transformation;
@@ -23,13 +22,13 @@ public abstract class Entity implements CanBeCloned {
 
 	public Renderer renderer;
 	public Vector2f rendOffset;
+	public Vector2f rendDims;
 
 	public String name; // TODO: Let createNew specify the name of the entity
 	public Vector2f dim;
 	protected int animationGroups;
 	protected int currentGroup;
 	protected int currentFrame;
-	protected SpriteSheetSection[][] frames;
 
 	protected Animator anim;
 

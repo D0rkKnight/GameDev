@@ -56,8 +56,9 @@ public class Player extends Combatant {
 		super(ID, position, renderer, name, stats);
 
 		// Configure the renderer real quick
-		((GeneralRenderer) this.renderer).init(new Transformation(position), new Vector2f(96, 96),
-				Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
+		rendDims = new Vector2f(96, 96);
+		((GeneralRenderer) this.renderer).init(new Transformation(position), rendDims, Shape.ShapeEnum.SQUARE,
+				new Color(1, 0, 0, 0));
 		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
 
 		// Configure hitbox
@@ -74,9 +75,9 @@ public class Player extends Combatant {
 		TextureAtlas animSheet = new TextureAtlas(Texture.getTex("Assets/Sprites/Ilyia_idle-running_proto.png"), 96,
 				96);
 		Animation[] anims = new Animation[3];
-		anims[Animator.ANIM_IDLE] = new Animation(animSheet.tex, animSheet.genSubTexSet(0, 0, 3, 0));
-		anims[PlayerAnimator.ANIM_ACCEL] = new Animation(animSheet.tex, animSheet.genSubTexSet(0, 1, 11, 1));
-		anims[PlayerAnimator.ANIM_MOVING] = new Animation(animSheet.tex, animSheet.genSubTexSet(0, 2, 7, 2));
+		anims[Animator.ANIM_IDLE] = new Animation(animSheet.genSubTexSet(0, 0, 3, 0));
+		anims[PlayerAnimator.ANIM_ACCEL] = new Animation(animSheet.genSubTexSet(0, 1, 11, 1));
+		anims[PlayerAnimator.ANIM_MOVING] = new Animation(animSheet.genSubTexSet(0, 2, 7, 2));
 		rendOffset.set(-35, 0);
 
 		anim = new PlayerAnimator(anims, 12, (GeneralRenderer) this.renderer, this, Shape.ShapeEnum.SQUARE.v);
@@ -372,9 +373,9 @@ public class Player extends Combatant {
 			Matrix4f scale = transform.scale;
 
 			// These are applied bottom row to top row
-			scale.identity().translate(anim.currentAnim.w / 2, 0, 0);
+			scale.identity().translate(rendDims.x / 2, 0, 0);
 			scale.scale(sideFacing, 1, 1);
-			scale.translate(-anim.currentAnim.w / 2, 0, 0);
+			scale.translate(-rendDims.x / 2, 0, 0);
 		}
 	}
 
