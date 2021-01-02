@@ -4,6 +4,7 @@ import org.joml.Vector2f;
 
 import Collision.Shapes.Shape;
 import Graphics.Elements.Texture;
+import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
 import Utility.Transformation;
@@ -15,9 +16,10 @@ public class Prop extends Entity {
 		super(ID, position, renderer, name);
 
 		// Configure the renderer real quick
+		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("Assets/Sprites/props.png"), 32, 48);
 		((GeneralRenderer) this.renderer).init(new Transformation(position), new Vector2f(32, 48),
-				Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0));
-		((GeneralRenderer) this.renderer).spr = Texture.getSprSheet("Assets/Sprites/props.png", 32, 48).texs[0];
+				Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0), tAtlas.genSubTex(0, 0));
+		((GeneralRenderer) this.renderer).spr = tAtlas.tex;
 	}
 
 	@Override

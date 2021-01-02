@@ -57,6 +57,8 @@ public class Debug {
 		debugTex = Texture.getTex("assets/Sprites/debugTex.png");
 
 		trans = new Transformation(new Vector2f(0, 0), Transformation.MATRIX_MODE_WORLD);
+
+		TestSpace.test();
 	}
 
 	public static void renderDebug() {

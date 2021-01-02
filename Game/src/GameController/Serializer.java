@@ -38,6 +38,7 @@ import Entities.Framework.Entrance;
 import Entities.Framework.Interactive;
 import Entities.Framework.Prop;
 import Graphics.Elements.Texture;
+import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.GrassRenderer;
 import Graphics.Rendering.GrassShader;
@@ -82,7 +83,7 @@ public class Serializer {
 		int th = Integer.parseInt(tilesetE.getAttribute("tileheight"));
 
 		String src = srcE.getAttribute("source");
-		Texture[] tileSheet = Texture.getSprSheet(fdir + src, tw, th).texs;
+		int tilesWide = Integer.parseInt(tilesetE.getAttribute("columns"));
 
 		for (int i = 0; i < nList.getLength(); i++) {
 			Element e = (Element) nList.item(i);
@@ -101,7 +102,6 @@ public class Serializer {
 				String val = propE.getAttribute("value");
 
 				if (name.equals("HammerShape")) {
-					Shape.ShapeEnum shape = Shape.ShapeEnum.SQUARE; // Assume to be a square
 					if (val.equals("bl"))
 						hs = Shape.ShapeEnum.TRIANGLE_BL;
 					else if (val.equals("br"))
@@ -117,17 +117,15 @@ public class Serializer {
 				}
 			}
 
-			// TODO: Implement load errors
-
-			// Check that properties were retrieved properly
-//			if (hs == null)
-//				new Exception("Hammershape not found!").printStackTrace();
-
 			// Create and submit tile
 			int id = Integer.parseInt(e.getAttribute("id"));
-			Texture tex = tileSheet[id];
+			TextureAtlas tileSheet = new TextureAtlas(Texture.getTex(fdir + src), tw, th);
 
-			Tile t = new Tile(rend, tex, hs);
+			// Creating the tile
+			int row = id / tilesWide;
+			int column = id % tilesWide;
+			Tile t = new Tile(rend, tileSheet.tex, hs, tileSheet.genSubTex(column, row));
+
 			for (String gfxName : gfxs)
 				t.addGFX(gfxName);
 
@@ -419,7 +417,6 @@ public class Serializer {
 				String path = shearFileDirectory(template);
 
 				path = path.substring(0, path.length() - 3);
-				System.out.println(path);
 
 				// Load data from template
 				Template t = templates.get(path);

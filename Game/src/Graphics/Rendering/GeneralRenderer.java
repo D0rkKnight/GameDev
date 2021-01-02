@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 
 import Collision.Shapes.Shape;
+import Graphics.Elements.SubTexture;
 import Graphics.Elements.Texture;
 import Utility.Transformation;
 import Wrappers.Color;
@@ -37,6 +38,16 @@ public class GeneralRenderer extends Renderer implements Cloneable {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		spr.bind();
+	}
+
+	// TODO: Testing, in development
+	public void init(Transformation transform, Vector2f dims, Shape.ShapeEnum shape, Color col, SubTexture subTex) {
+		Shape s = shape.v;
+
+		Vector2f[] vertices = s.getRenderVertices(dims);
+		Vector2f[] uvs = subTex.genSubUV(s);
+
+		init(transform, vertices, uvs, col);
 	}
 
 	public void init(Transformation transform, Vector2f dims, Shape.ShapeEnum shape, Color col) {
@@ -85,6 +96,10 @@ public class GeneralRenderer extends Renderer implements Cloneable {
 
 	public void updateColors(Color color) {
 		bufferSubData(genColors(color), 2);
+	}
+
+	public void updateUVs(Vector2f[] uv) {
+		bufferSubData(genUVs(uv), 1);
 	}
 
 	protected float[] genUVs(Vector2f[] uvs) {

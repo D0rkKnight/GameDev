@@ -2,12 +2,14 @@ package Entities;
 
 import org.joml.Vector2f;
 
+import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Entities.Framework.Projectile;
 import GameController.GameManager;
 import Graphics.Animation.Animation;
 import Graphics.Animation.Animator;
 import Graphics.Elements.Texture;
+import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
 import Wrappers.Stats;
@@ -17,8 +19,9 @@ public class ShardSlimeEnemy extends BouncingEnemy {
 	public ShardSlimeEnemy(String ID, Vector2f position, Renderer renderer, String name, Stats stats) {
 		super(ID, position, renderer, name, stats);
 
-		Animation a1 = new Animation(Texture.getSprSheet("assets/Sprites/ChargingSlime.png", 32, 32).getRow(0));
-		anim = new Animator(new Animation[] { a1 }, 24, (GeneralRenderer) this.renderer);
+		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("assets/Sprites/ChargingSlime.png"), 32, 32);
+		Animation a1 = new Animation(tAtlas.tex, tAtlas.genSubTexSet(0, 0, 16, 0));
+		anim = new Animator(new Animation[] { a1 }, 24, (GeneralRenderer) this.renderer, Shape.ShapeEnum.SQUARE.v);
 	}
 
 	@Override

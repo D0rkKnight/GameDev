@@ -7,6 +7,7 @@ import org.joml.Vector2f;
 import Collision.Shapes.Shape;
 import Collision.Shapes.Shape.ShapeEnum;
 import GameController.Map;
+import Graphics.Elements.SubTexture;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TileGFX;
 import Graphics.Rendering.GeneralRenderer;
@@ -22,15 +23,17 @@ import Wrappers.Color;
 public class Tile implements Cloneable {
 	protected Map map;
 	public GeneralRenderer renderer;
-	protected Shape.ShapeEnum hammerState; // NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when
+	protected Shape.ShapeEnum shape; // NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when
 	// loaded in maps)
+	protected SubTexture subTex;
 
 	public ArrayList<Map.CompEdgeSegment> edgeSegs;
 	public ArrayList<TileGFX> tGFX; // Is shared between all tiles clones.
 
-	public Tile(GeneralRenderer renderer, Texture tex, ShapeEnum hs) {
-		this.hammerState = hs;
+	public Tile(GeneralRenderer renderer, Texture tex, ShapeEnum hs, SubTexture subTex) {
+		this.shape = hs;
 		this.tGFX = new ArrayList<TileGFX>();
+		this.subTex = subTex;
 
 		// Create shallow copy
 		try {
@@ -41,17 +44,17 @@ public class Tile implements Cloneable {
 		}
 	}
 
-	// Use a clone function instead of this dumbass init function
+	// TODO: Use some kind of special constructor instead of this
 	public void init(Vector2f pos, Vector2f rect) {
-		if (hammerState == null) {
+		if (shape == null) {
 			// System.err.println("Hammer state not specified, capitulating to default.");
-			hammerState = Shape.ShapeEnum.SQUARE;
+			shape = Shape.ShapeEnum.SQUARE;
 		}
 
 		// will be set later
 		edgeSegs = new ArrayList<>();
 
-		this.renderer.init(new Transformation(pos), rect, hammerState, new Color());
+		this.renderer.init(new Transformation(pos), rect, shape, new Color(), subTex);
 	}
 
 	/**
@@ -65,7 +68,7 @@ public class Tile implements Cloneable {
 	}
 
 	public ShapeEnum getHammerState() {
-		return hammerState;
+		return shape;
 	}
 
 	public void addGFX(String gfxName) {

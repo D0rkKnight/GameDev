@@ -35,11 +35,11 @@ public class Texture {
 	public int height; // All these values should be final
 
 	private static HashMap<String, Texture> textureCache;
-	private static HashMap<String, SpriteSheet> sprSheetCache;
+	private static HashMap<String, SpriteSheet> texAtlasCache;
 
 	static {
 		textureCache = new HashMap<>();
-		sprSheetCache = new HashMap<>();
+		texAtlasCache = new HashMap<>();
 	}
 
 	/**
@@ -158,24 +158,25 @@ public class Texture {
 		glBindTexture(GL_TEXTURE_2D, id);
 	}
 
-	public static SpriteSheet getSprSheet(String url, int tw, int th) {
-		SpriteSheet sprSheet;
-		if (!sprSheetCache.containsKey(url)) {
+	// DEPRECATED, should never have to do this.
+	public static SpriteSheet getTexAtlas(String url, int tw, int th) {
+		SpriteSheet texAtlas;
+		if (!texAtlasCache.containsKey(url)) {
 			// Generate new spritesheet
-			sprSheet = unpackSpritesheet(url, tw, th);
-			sprSheetCache.put(url, sprSheet);
+			texAtlas = unpackSpritesheet(url, tw, th);
+			texAtlasCache.put(url, texAtlas);
 		} else {
 
 			// Pull from cache
-			sprSheet = sprSheetCache.get(url);
+			texAtlas = texAtlasCache.get(url);
 
-			if (sprSheet.tw != tw || sprSheet.th != th) {
+			if (texAtlas.tw != tw || texAtlas.th != th) {
 				new Exception("Sprite sheet already loaded but with different dimensions").printStackTrace();
 				System.exit(1);
 			}
 		}
 
-		return sprSheet;
+		return texAtlas;
 	}
 
 	/**
@@ -188,6 +189,8 @@ public class Texture {
 	 * @param th: height of 1 tile
 	 * @return
 	 */
+
+	// DEPRECATED. We should never have to do this.
 	private static SpriteSheet unpackSpritesheet(String url, int tw, int th) {
 		BufferedImage bi = null;
 		try {

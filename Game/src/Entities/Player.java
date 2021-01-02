@@ -17,8 +17,8 @@ import GameController.Input;
 import Graphics.Animation.Animation;
 import Graphics.Animation.Animator;
 import Graphics.Animation.PlayerAnimator;
-import Graphics.Elements.SpriteSheet;
 import Graphics.Elements.Texture;
+import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
 import Utility.Arithmetic;
 import Utility.Transformation;
@@ -71,14 +71,15 @@ public class Player extends Combatant {
 		movementMode = MOVEMENT_MODE_CONTROLLED;
 
 		// Configure animation stuff
-		SpriteSheet animSheet = Texture.getSprSheet("Assets/Sprites/Ilyia_idle-running_proto.png", 96, 96);
+		TextureAtlas animSheet = new TextureAtlas(Texture.getTex("Assets/Sprites/Ilyia_idle-running_proto.png"), 96,
+				96);
 		Animation[] anims = new Animation[3];
-		anims[Animator.ANIM_IDLE] = new Animation(animSheet.getRow(0, 4));
-		anims[PlayerAnimator.ANIM_ACCEL] = new Animation(animSheet.getRow(1, 12));
-		anims[PlayerAnimator.ANIM_MOVING] = new Animation(animSheet.getRow(2, 8));
+		anims[Animator.ANIM_IDLE] = new Animation(animSheet.tex, animSheet.genSubTexSet(0, 0, 3, 0));
+		anims[PlayerAnimator.ANIM_ACCEL] = new Animation(animSheet.tex, animSheet.genSubTexSet(0, 1, 11, 1));
+		anims[PlayerAnimator.ANIM_MOVING] = new Animation(animSheet.tex, animSheet.genSubTexSet(0, 2, 7, 2));
 		rendOffset.set(-35, 0);
 
-		anim = new PlayerAnimator(anims, 12, (GeneralRenderer) this.renderer, this);
+		anim = new PlayerAnimator(anims, 12, (GeneralRenderer) this.renderer, this, Shape.ShapeEnum.SQUARE.v);
 
 		// Alignment
 		alignment = PhysicsEntity.Alignment.PLAYER;

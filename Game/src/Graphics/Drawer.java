@@ -306,7 +306,7 @@ public class Drawer {
 	}
 
 	public static Vector2f GetWindowSize() {
-		// Stack used because C++
+		// Stack used because C++, runs on CPU or something.
 		try (MemoryStack stack = stackPush()) {
 			IntBuffer pWidth = stack.mallocInt(1);
 			IntBuffer pHeight = stack.mallocInt(1);
@@ -333,6 +333,7 @@ public class Drawer {
 			GFXLayers.get(key).clearGrids();
 		}
 
+		// Search through every tile layer for tiles that need to be baked
 		for (LayerEnum key : tLayers.keySet()) {
 			TileRenderLayer tl = tLayers.get(key);
 

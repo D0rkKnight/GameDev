@@ -1,5 +1,6 @@
 package Graphics.Animation;
 
+import Collision.Shapes.Shape;
 import Graphics.Rendering.GeneralRenderer;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
@@ -18,7 +19,14 @@ public class Animator {
 
 	public static final int ANIM_IDLE = 0;
 
-	public Animator(Animation[] anims, int fps, GeneralRenderer renderer) {
+	/**
+	 * 
+	 * @param anims
+	 * @param fps
+	 * @param renderer
+	 * @param shape    needed to generate UVs
+	 */
+	public Animator(Animation[] anims, int fps, GeneralRenderer renderer, Shape shape) {
 		this.fps = fps;
 		this.frameDelta = 1000 / fps;
 
@@ -33,7 +41,8 @@ public class Animator {
 			@Override
 			public void invoke(Timer timer) {
 				currentAnim.nextFrame();
-				rend.spr = currentAnim.getFrame();
+				rend.spr = currentAnim.baseTex;
+				rend.updateUVs(currentAnim.getFrame().genSubUV(shape));
 			}
 
 		};
