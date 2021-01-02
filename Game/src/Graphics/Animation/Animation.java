@@ -7,8 +7,8 @@ public class Animation {
 
 	private SubTexture[] frames;
 	public Texture baseTex;
-	public int w;
-	public int h;
+	public float w;
+	public float h;
 
 	private int currFrame;
 	private AnimationCallback cb; // These are configured by the animator, after construction
@@ -16,6 +16,9 @@ public class Animation {
 	public Animation(Texture baseTex, SubTexture[] subTextures) {
 		this.baseTex = baseTex;
 		this.frames = subTextures;
+
+		w = baseTex.width * subTextures[0].w;
+		h = baseTex.height * subTextures[0].h;
 	}
 
 	public SubTexture getFrame() {
