@@ -145,7 +145,7 @@ public class Drawer {
 		 */
 		if (!fBuffRend.hasInit) {
 			fBuffRend.init(
-					new Transformation(new Vector2f(0, Camera.main.viewport.y), Transformation.MATRIX_MODE_SCREEN),
+					new Transformation(new Vector2f(0, Camera.main.viewport.y), Transformation.MatrixMode.SCREEN),
 					Camera.main.viewport, Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0));
 			fBuffRend.spr = drawBuff.tex;
 		}
@@ -275,7 +275,7 @@ public class Drawer {
 		chunkRend = new GeneralRenderer(new SpriteShader("texShader"));
 
 		float dim = GameManager.tileSize * Drawer.CHUNK_SIZE;
-		chunkRend.init(new Transformation(new Vector2f(), Transformation.MATRIX_MODE_WORLD), new Vector2f(dim, dim),
+		chunkRend.init(new Transformation(new Vector2f(), Transformation.MatrixMode.WORLD), new Vector2f(dim, dim),
 				Shape.ShapeEnum.SQUARE, new Color());
 	}
 

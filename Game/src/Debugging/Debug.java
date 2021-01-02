@@ -56,7 +56,7 @@ public class Debug {
 		debugShader = new ColorShader("shader");
 		debugTex = Texture.getTex("assets/Sprites/debugTex.png");
 
-		trans = new Transformation(new Vector2f(0, 0), Transformation.MATRIX_MODE_WORLD);
+		trans = new Transformation(new Vector2f(0, 0), Transformation.MatrixMode.WORLD);
 
 		TestSpace.test();
 	}

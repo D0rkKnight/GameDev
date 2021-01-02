@@ -103,7 +103,7 @@ public class TileRenderLayer {
 							Transformation oldTrans = t.renderer.transform;
 
 							Transformation newTrans = new Transformation(new Vector2f(oldTrans.pos),
-									Transformation.MATRIX_MODE_STATIC);
+									Transformation.MatrixMode.STATIC);
 							t.renderer.transform = newTrans;
 
 							float offsetX = i * GameManager.tileSize * Drawer.CHUNK_SIZE;
