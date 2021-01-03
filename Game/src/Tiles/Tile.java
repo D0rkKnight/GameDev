@@ -8,7 +8,6 @@ import Collision.Shapes.Shape;
 import Collision.Shapes.Shape.ShapeEnum;
 import GameController.Map;
 import Graphics.Elements.SubTexture;
-import Graphics.Elements.Texture;
 import Graphics.Elements.TileGFX;
 import Graphics.Rendering.GeneralRenderer;
 import Utility.Transformation;
@@ -30,7 +29,7 @@ public class Tile implements Cloneable {
 	public ArrayList<Map.CompEdgeSegment> edgeSegs;
 	public ArrayList<TileGFX> tGFX; // Is shared between all tiles clones.
 
-	public Tile(GeneralRenderer renderer, Texture tex, ShapeEnum hs, SubTexture subTex) {
+	public Tile(GeneralRenderer renderer, ShapeEnum hs, SubTexture subTex) {
 		this.shape = hs;
 		this.tGFX = new ArrayList<TileGFX>();
 		this.subTex = subTex;
@@ -38,7 +37,7 @@ public class Tile implements Cloneable {
 		// Create shallow copy
 		try {
 			this.renderer = renderer.clone();
-			this.renderer.spr = tex;
+			this.renderer.spr = subTex.tex;
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}

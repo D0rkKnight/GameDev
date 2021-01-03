@@ -71,6 +71,7 @@ public class Texture {
 		return t;
 	}
 
+	@SuppressWarnings("unused")
 	private Texture(ByteBuffer pixels, int w, int h) {
 		this.width = w;
 		this.height = h;

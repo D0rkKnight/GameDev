@@ -70,6 +70,10 @@ public class Serializer {
 		return (Element) e.getElementsByTagName(name).item(0);
 	}
 
+	private static Element retrieveElement(Document doc, String name) {
+		return (Element) doc.getElementsByTagName(name).item(0);
+	}
+
 	public static void loadTileHash(String fdir, String fname, HashMap<Integer, Tile> tileMap, GeneralRenderer rend)
 			throws Exception {
 
@@ -77,17 +81,18 @@ public class Serializer {
 		NodeList nList = doc.getElementsByTagName("tile");
 
 		// Grab textures
-		Element tilesetE = (Element) doc.getElementsByTagName("tileset").item(0);
-		Element srcE = (Element) doc.getElementsByTagName("image").item(0);
+		Element tilesetE = retrieveElement(doc, "tileset");
+		Element srcE = retrieveElement(doc, "image");
 		int tw = Integer.parseInt(tilesetE.getAttribute("tilewidth"));
 		int th = Integer.parseInt(tilesetE.getAttribute("tileheight"));
+		int tilesWide = Integer.parseInt(tilesetE.getAttribute("columns"));
 
 		String src = srcE.getAttribute("source");
-		int tilesWide = Integer.parseInt(tilesetE.getAttribute("columns"));
+		TextureAtlas tileSheet = new TextureAtlas(Texture.getTex(fdir + src), tw, th);
 
 		for (int i = 0; i < nList.getLength(); i++) {
 			Element e = (Element) nList.item(i);
-			Element props = (Element) e.getElementsByTagName("properties").item(0);
+			Element props = retrieveElement(e, "properties");
 			NodeList propList = props.getElementsByTagName("property");
 
 			// Grab properties
@@ -119,12 +124,11 @@ public class Serializer {
 
 			// Create and submit tile
 			int id = Integer.parseInt(e.getAttribute("id"));
-			TextureAtlas tileSheet = new TextureAtlas(Texture.getTex(fdir + src), tw, th);
 
 			// Creating the tile
 			int row = id / tilesWide;
 			int column = id % tilesWide;
-			Tile t = new Tile(rend, tileSheet.tex, hs, tileSheet.genSubTex(column, row));
+			Tile t = new Tile(rend, hs, tileSheet.genSubTex(column, row));
 
 			for (String gfxName : gfxs)
 				t.addGFX(gfxName);
@@ -147,12 +151,19 @@ public class Serializer {
 		return out;
 	}
 
+	/**
+	 * 
+	 * @param doc
+	 * @param tileMap Tile data, organized by tile sets
+	 * @return
+	 */
 	public static HashMap<String, Tile[][]> loadTileGrids(Document doc,
 			HashMap<String, HashMap<Integer, Tile>> tileMap) {
 		// Grab all gids
 		ArrayList<Integer> gids = new ArrayList<>();
 		ArrayList<String> tSetNames = new ArrayList<>();
 
+		// Get list of tile sets that have been used, to access tileMap data
 		NodeList tilesets = doc.getElementsByTagName("tileset");
 		for (int i = 0; i < tilesets.getLength(); i++) {
 			Element tilesetE = (Element) tilesets.item(i);
@@ -164,6 +175,7 @@ public class Serializer {
 			tSetNames.add(path);
 		}
 
+		// Parse data and read grids
 		NodeList layers = doc.getElementsByTagName("layer");
 		HashMap<String, Tile[][]> grids = new HashMap<>();
 
@@ -185,6 +197,15 @@ public class Serializer {
 		return grids;
 	}
 
+	/**
+	 * 
+	 * @param layerE
+	 * @param tileMap
+	 * @param gids
+	 * @param tSetNames
+	 * @return
+	 * @throws Exception
+	 */
 	public static Tile[][] loadTileGridFromLayer(Element layerE, HashMap<String, HashMap<Integer, Tile>> tileMap,
 			ArrayList<Integer> gids, ArrayList<String> tSetNames) throws Exception {
 
@@ -244,13 +265,11 @@ public class Serializer {
 		return grid;
 	}
 
-	private static final int READ_MODE_NONE = 0;
-	private static final int READ_MODE_COMBATANT = 1;
-	private static final int READ_MODE_INTERACTABLE = 2;
-	private static final int READ_MODE_STATIC = 3;
-	private static final int READ_MODE_PROP = 4;
+	private static enum ReadMode {
+		NONE, COMBATANT, INTERACTABLE, STATIC, PROP
+	}
 
-	private static int readMode = READ_MODE_NONE;
+	private static ReadMode readMode = ReadMode.NONE;
 	private static HashMap<String, String> activeDataHash;
 
 	// TODO: Load from templates, rather than the text file.
@@ -272,20 +291,20 @@ public class Serializer {
 				continue;
 
 			if (line.contains("COMBATANTS")) {
-				readMode = READ_MODE_COMBATANT;
+				readMode = ReadMode.COMBATANT;
 				continue;
 			} else if (line.contains("INTERACTABLES")) {
-				readMode = READ_MODE_INTERACTABLE;
+				readMode = ReadMode.INTERACTABLE;
 				continue;
 			} else if (line.contains("STATIC")) {
-				readMode = READ_MODE_STATIC;
+				readMode = ReadMode.STATIC;
 				continue;
 			} else if (line.contains("PROPS")) {
-				readMode = READ_MODE_PROP;
+				readMode = ReadMode.PROP;
 				continue;
 			}
 
-			if (readMode == READ_MODE_NONE) {
+			if (readMode == ReadMode.NONE) {
 				new Exception("Read mode not specified at start of file").printStackTrace();
 				System.exit(1);
 			}
@@ -301,7 +320,7 @@ public class Serializer {
 			String ID = activeDataHash.get("ID");
 			Entity newE = null;
 
-			if (readMode == READ_MODE_COMBATANT) {
+			if (readMode == ReadMode.COMBATANT) {
 				float HP = rhFloat("HP");
 				float ST = rhFloat("Stamina");
 				float HPR = rhFloat("HPregen");
@@ -319,7 +338,7 @@ public class Serializer {
 				}
 			}
 
-			else if (readMode == READ_MODE_INTERACTABLE) {
+			else if (readMode == ReadMode.INTERACTABLE) {
 				int STATE = rhInt("State");
 				int TIME_ON = rhInt("TimeOn");
 				float ACT_DIST = rhFloat("ActivationDistance");
@@ -329,14 +348,14 @@ public class Serializer {
 				}
 			}
 
-			else if (readMode == READ_MODE_STATIC) {
+			else if (readMode == ReadMode.STATIC) {
 				if (ID.equals("ENTRANCE")) {
 					// Without configuration, the default value of every entrance id is -1.
 					newE = new Entrance(ID, null, renderer, ID, new Vector2f(30, 30), -1);
 				}
 			}
 
-			else if (readMode == READ_MODE_PROP) {
+			else if (readMode == ReadMode.PROP) {
 				if (ID.equals("PROP")) {
 					// New renderer, bois
 					GrassRenderer propRend = new GrassRenderer(new GrassShader("grassShader"));

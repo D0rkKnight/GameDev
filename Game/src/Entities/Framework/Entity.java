@@ -26,9 +26,6 @@ public abstract class Entity implements CanBeCloned {
 
 	public String name; // TODO: Let createNew specify the name of the entity
 	public Vector2f dim;
-	protected int animationGroups;
-	protected int currentGroup;
-	protected int currentFrame;
 
 	protected Animator anim;
 
