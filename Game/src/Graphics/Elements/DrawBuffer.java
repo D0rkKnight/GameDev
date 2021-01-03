@@ -22,10 +22,6 @@ import static org.lwjgl.opengl.GL30.glCheckFramebufferStatus;
 import static org.lwjgl.opengl.GL30.glFramebufferTexture2D;
 import static org.lwjgl.opengl.GL30.glGenFramebuffers;
 
-import org.joml.Vector2f;
-
-import GameController.GameManager;
-import Graphics.Drawer;
 import Graphics.Rendering.GeneralRenderer;
 
 public class DrawBuffer {
@@ -74,16 +70,5 @@ public class DrawBuffer {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		return new DrawBuffer(buff, texObj, newRend);
-	}
-
-	public void renderAt(Vector2f pos) {
-		rend.spr = tex;
-
-		rend.transform.pos.set(pos);
-		rend.transform.pos.add(0, GameManager.tileSize * Drawer.CHUNK_SIZE);
-
-		rend.transform.scale.identity().scale(1, -1, 1);
-
-		rend.render();
 	}
 }

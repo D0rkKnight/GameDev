@@ -367,16 +367,16 @@
             "scale": 2,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 259.5,
-                "y": 568
+                "x": 399.75,
+                "y": 399.5
             }
         },
         "test4.tmx": {
             "scale": 1.5,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 399.3333333333333,
-                "y": 492
+                "x": 399.66666666666663,
+                "y": 400
             }
         },
         "tset1.tsx": {

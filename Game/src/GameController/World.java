@@ -64,6 +64,7 @@ public class World {
 	}
 
 	private static ArrayList<Entity> loadMap(Map map) {
+
 		// TODO: Deal with all the todos
 		// TODO: Layers within BG and FG aren't ordered, because HashMaps aren't
 		// ordered.
@@ -86,18 +87,10 @@ public class World {
 			if (head.equals("fg"))
 				rlFG.add(key);
 		}
-
-		Drawer.disableTCLayers();
-
-		// Tile chunks
-		Drawer.genTileChunkLayer(map.grids, rlBG, Drawer.LayerEnum.BG);
-		Drawer.genTileChunkLayer(map.grids, rlGround, Drawer.LayerEnum.GROUND);
-		Drawer.genTileChunkLayer(map.grids, rlFG, Drawer.LayerEnum.FG);
-
 		// TESTING
 		Drawer.generateLayerVertexData(map.grids, rlBG, Drawer.LayerEnum.BG);
-
-		Drawer.bakeGFX();
+		Drawer.generateLayerVertexData(map.grids, rlGround, Drawer.LayerEnum.GROUND);
+		Drawer.generateLayerVertexData(map.grids, rlFG, Drawer.LayerEnum.FG);
 
 		// Load entities
 		ArrayList<Entity> ents = map.retrieveEntities();
@@ -109,6 +102,7 @@ public class World {
 	public static void switchMap(int mapId, int entranceId) {
 		Debug.clearElements();
 		Drawer.clearScreenBuffer(); // This gets called before the draw call anyways
+		Drawer.onSceneChange();
 
 		// Dump entities
 		for (Entity e : GameManager.entities)

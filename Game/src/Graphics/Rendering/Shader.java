@@ -39,7 +39,7 @@ import Wrappers.Color;
 
 /*
  * Only one copy of these should exist for every distinct shader.
- * TODO: Write vertex shader, write fragment shader, figure out how to pass in attributes and render.
+ * TODO: Retain a singleton design, like Texture. Should check against bank of shaders when trying to create a new one.
  */
 public abstract class Shader {
 	protected int program;

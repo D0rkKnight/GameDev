@@ -27,6 +27,9 @@ public class Tile implements Cloneable {
 	public SubTexture subTex;
 
 	public ArrayList<Map.CompEdgeSegment> edgeSegs;
+
+	// TODO: Why is this an array? Only 1 shader's effects is going to appear
+	// anyways
 	public ArrayList<TileGFX> tGFX; // Is shared between all tiles clones.
 
 	public Tile(GeneralRenderer renderer, ShapeEnum hs, SubTexture subTex) {
