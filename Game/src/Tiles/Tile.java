@@ -22,9 +22,9 @@ import Wrappers.Color;
 public class Tile implements Cloneable {
 	protected Map map;
 	public GeneralRenderer renderer;
-	protected Shape.ShapeEnum shape; // NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when
+	public Shape.ShapeEnum shape; // NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when
 	// loaded in maps)
-	protected SubTexture subTex;
+	public SubTexture subTex;
 
 	public ArrayList<Map.CompEdgeSegment> edgeSegs;
 	public ArrayList<TileGFX> tGFX; // Is shared between all tiles clones.

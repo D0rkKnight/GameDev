@@ -56,6 +56,8 @@ public class Player extends Combatant {
 		super(ID, position, renderer, name, stats);
 
 		// Configure the renderer real quick
+		// TODO: Seems like the renderer just wants to be defined within the entity and
+		// not given from outside...
 		rendDims = new Vector2f(96, 96);
 		((GeneralRenderer) this.renderer).init(new Transformation(position), rendDims, Shape.ShapeEnum.SQUARE,
 				new Color(1, 0, 0, 0));

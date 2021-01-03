@@ -94,6 +94,9 @@ public class World {
 		Drawer.genTileChunkLayer(map.grids, rlGround, Drawer.LayerEnum.GROUND);
 		Drawer.genTileChunkLayer(map.grids, rlFG, Drawer.LayerEnum.FG);
 
+		// TESTING
+		Drawer.generateLayerVertexData(map.grids, rlBG, Drawer.LayerEnum.BG);
+
 		Drawer.bakeGFX();
 
 		// Load entities

@@ -46,6 +46,8 @@ import Graphics.Elements.DrawBuffer;
 import Graphics.Elements.DrawOrderElement;
 import Graphics.Elements.DrawOrderEntities;
 import Graphics.Elements.DrawOrderTileLayer;
+import Graphics.Elements.SubTexture;
+import Graphics.Elements.Texture;
 import Graphics.Elements.TileGFX;
 import Graphics.Elements.TileRenderLayer;
 import Graphics.Rendering.DrawBufferRenderer;
@@ -91,6 +93,8 @@ public class Drawer {
 
 	private static ArrayList<DrawOrderElement> drawOrder;
 
+	public static GeneralRenderer TEST_RENDERER;
+
 	public static void draw(Map map, ArrayList<Entity> entities) {
 		// Draw to framebuffer please
 		glBindFramebuffer(GL_FRAMEBUFFER, drawBuff.fbuff);
@@ -127,9 +131,13 @@ public class Drawer {
 		tyMin = Math.max(tyMin, 0);
 		tyMax = Math.min(tyMax, chunkGridH);
 
+		// TESTING: Draw the temp renderer instead
+		TEST_RENDERER.render();
+
 		for (DrawOrderElement doe : drawOrder) {
 			if (doe instanceof DrawOrderTileLayer) {
-				((DrawOrderTileLayer) doe).tryRender(txMin, txMax, tyMin, tyMax, chunkGridW);
+				// TESTING: Do nothing instead
+				// ((DrawOrderTileLayer) doe).tryRender(txMin, txMax, tyMin, tyMax, chunkGridW);
 			}
 
 			if (doe instanceof DrawOrderEntities) {
@@ -414,5 +422,98 @@ public class Drawer {
 		for (String key : GFXLayers.keySet()) {
 			GFXLayers.get(key).isActive = false;
 		}
+	}
+
+	/**
+	 * Generates a list of texture-vertex array pairings for a single visual layer
+	 * of tiles
+	 * 
+	 * @param g              Hash map of all tile grids
+	 * @param renderedLayers Layers from hash map to render
+	 * @param targetLayer    Visual layer to draw to
+	 */
+	public static void generateLayerVertexData(HashMap<String, Tile[][]> g, ArrayList<String> renderedLayers,
+			LayerEnum targetLayer) {
+		// TODO: Probably should combine these two hashmaps
+		HashMap<Texture, ArrayList<Vector2f>> positionData = new HashMap<>();
+		HashMap<Texture, ArrayList<Vector2f>> UVData = new HashMap<>();
+
+		// Used to access data for testing
+		Texture tempTex = null;
+
+		// For every layer, create vertex data to be submitted to renderers
+		for (String str : renderedLayers) {
+			Tile[][] grid = g.get(str);
+
+			// Traverse grid
+			for (int i = 0; i < grid.length; i++) {
+				for (int j = 0; j < grid[0].length; j++) {
+					Tile t = grid[i][j];
+
+					SubTexture subTex = t.subTex;
+					Texture tex = subTex.tex;
+
+					tempTex = tex;
+
+					// Submit new member to pairing hash map if foreign
+					if (!positionData.containsKey(tex)) {
+						positionData.put(tex, new ArrayList<Vector2f>());
+					}
+					if (!UVData.containsKey(tex)) {
+						UVData.put(tex, new ArrayList<Vector2f>());
+					}
+
+					// Generate appropriate vertex position data (j<->x, i<->y)
+					Vector2f[] verts = t.shape.v.getRenderVertices(new Vector2f(GameManager.tileSize));
+					float xOffset = i * GameManager.tileSize;
+					float yOffset = j * GameManager.tileSize;
+
+					for (Vector2f v : verts) {
+						v.add(xOffset, yOffset);
+					}
+
+					// Submit vertex position data
+					for (Vector2f v : verts) {
+						positionData.get(tex).add(v);
+					}
+
+					// Generate appropriate UV data
+					Vector2f[] uvs = subTex.genSubUV(t.shape.v);
+					for (Vector2f uv : uvs)
+						UVData.get(tex).add(uv);
+				}
+			}
+		}
+
+		// Check data
+//		int i = 0;
+//		for (Texture tex : UVData.keySet()) {
+//			for (Vector2f v : UVData.get(tex)) {
+//				i++;
+//				System.out.println(v);
+//
+//				if (i > 100)
+//					break;
+//			}
+//
+//			System.out.println("NOT GOOD");
+//		}
+		ArrayList<Vector2f> posArr = positionData.get(tempTex);
+		Vector2f[] posOut = new Vector2f[posArr.size()];
+		for (int i = 0; i < posOut.length; i++) {
+			posOut[i] = posArr.get(i);
+		}
+
+		ArrayList<Vector2f> uvArr = UVData.get(tempTex);
+		Vector2f[] uvOut = new Vector2f[uvArr.size()];
+		for (int i = 0; i < uvOut.length; i++) {
+			uvOut[i] = uvArr.get(i);
+		}
+
+		// Add to a renderer and store that renderer
+		TEST_RENDERER = new GeneralRenderer(new SpriteShader("texShader"));
+		TEST_RENDERER.init(new Transformation(new Vector2f(), Transformation.MatrixMode.WORLD), posOut, uvOut,
+				new Color());
+		TEST_RENDERER.spr = tempTex;
 	}
 }
