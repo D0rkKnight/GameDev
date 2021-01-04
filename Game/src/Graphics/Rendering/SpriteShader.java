@@ -4,7 +4,7 @@ import static org.lwjgl.opengl.GL20.glBindAttribLocation;
 
 public class SpriteShader extends Shader {
 
-	public SpriteShader(String filename) {
+	protected SpriteShader(String filename) {
 		super(filename);
 	}
 
@@ -18,5 +18,11 @@ public class SpriteShader extends Shader {
 	@Override
 	protected void initUniforms() throws Exception {
 		createUniform("MVP");
+	}
+
+	public static SpriteShader genShader(String filename) {
+		return (SpriteShader) cacheShader(filename, (fname) -> {
+			return new SpriteShader(fname);
+		});
 	}
 }

@@ -358,7 +358,7 @@ public class Serializer {
 			else if (readMode == ReadMode.PROP) {
 				if (ID.equals("PROP")) {
 					// New renderer, bois
-					GrassRenderer propRend = new GrassRenderer(new GrassShader("grassShader"));
+					GrassRenderer propRend = new GrassRenderer(GrassShader.genShader("grassShader"));
 
 					newE = new Prop(ID, null, propRend, ID);
 				}

@@ -222,7 +222,7 @@ public class Drawer {
 		 */
 
 		// Now set up the renderer that deals with this.
-		Shader shader = new SpriteShader("texShader");
+		Shader shader = SpriteShader.genShader("texShader");
 		fBuffRend = new DrawBufferRenderer(shader);
 		drawBuff = DrawBuffer.genEmptyBuffer(1280, 720, fBuffRend);
 
@@ -359,14 +359,14 @@ public class Drawer {
 			// Add to a renderer and store that renderer
 			GeneralRenderer rend = null;
 			if (key.gfx.equals("None")) {
-				rend = new GeneralRenderer(new SpriteShader("texShader"));
+				rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
 				rend.init(new Transformation(new Vector2f(), Transformation.MatrixMode.WORLD), posOut, uvOut,
 						new Color());
 				rend.spr = key.tex;
 			}
 
 			else if (key.gfx.equals("Warp")) {
-				Shader warpShade = new TimedShader("vortex");
+				Shader warpShade = TimedShader.genShader("vortex");
 				rend = new TimedRenderer(warpShade);
 				rend.init(new Transformation(new Vector2f(), Transformation.MatrixMode.WORLD), posOut, uvOut,
 						new Color(1, 1, 0, 1));

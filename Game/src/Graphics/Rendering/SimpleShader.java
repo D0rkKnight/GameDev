@@ -9,7 +9,7 @@ package Graphics.Rendering;
 
 public class SimpleShader extends Shader {
 
-	public SimpleShader(String filename) {
+	protected SimpleShader(String filename) {
 		super(filename);
 	}
 
@@ -22,4 +22,9 @@ public class SimpleShader extends Shader {
 	protected void initUniforms() throws Exception {
 	}
 
+	public static SimpleShader genShader(String filename) {
+		return (SimpleShader) cacheShader(filename, (fname) -> {
+			return new SimpleShader(fname);
+		});
+	}
 }

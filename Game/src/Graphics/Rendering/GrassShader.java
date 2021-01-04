@@ -2,7 +2,7 @@ package Graphics.Rendering;
 
 public class GrassShader extends TimedShader {
 
-	public GrassShader(String filename) {
+	protected GrassShader(String filename) {
 		super(filename);
 	}
 
@@ -11,5 +11,11 @@ public class GrassShader extends TimedShader {
 		super.initUniforms();
 
 		createUniform("WPos");
+	}
+
+	public static GrassShader genShader(String filename) {
+		return (GrassShader) cacheShader(filename, (fname) -> {
+			return new GrassShader(fname);
+		});
 	}
 }

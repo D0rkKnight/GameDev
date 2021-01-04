@@ -92,7 +92,7 @@ public class GameManager {
 		gameState = GameState.RUNNING;
 
 		Debug.config();
-		
+
 		coll = new ArrayList<>();
 		Drawer.initGraphics();
 		Input.initInput();
@@ -101,7 +101,7 @@ public class GameManager {
 		// Init camera
 		new Camera();
 
-		shader = new SpriteShader("texShader");
+		shader = (SpriteShader) SpriteShader.genShader("texShader");
 		renderer = new GeneralRenderer(shader);
 
 		entities = new ArrayList<>();

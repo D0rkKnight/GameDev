@@ -47,8 +47,39 @@ public abstract class Shader {
 	private int fs;
 	protected Map<String, Integer> uniforms;
 
-	public Shader(String filename) {
+	private static HashMap<String, Shader> shaderCache; // Key: filename Value: Shader object
+
+	static {
+		shaderCache = new HashMap<>();
+	}
+
+	/**
+	 * Logs shader into cache system to prevent repeated compilations
+	 * 
+	 * @param fname
+	 * @param cons
+	 * @return
+	 */
+	protected static Shader cacheShader(String fname, ShaderCacheConstructor cons) {
+		if (shaderCache.containsKey(fname)) {
+			return shaderCache.get(fname);
+		} else {
+			Shader newShader = cons.invoke(fname);
+
+			shaderCache.put(fname, newShader);
+			return newShader;
+		}
+	}
+
+	public static Shader genShader(String filename) {
+		System.err.println("genShader() override not implemented");
+		return null;
+	}
+
+	protected Shader(String filename) {
 		program = glCreateProgram();
+		System.out.println(filename);
+		System.out.println(program);
 
 		// Vertex shader
 		vs = glCreateShader(GL_VERTEX_SHADER);
