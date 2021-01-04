@@ -31,18 +31,6 @@ public class Map {
 		this.file = file;
 		entranceLinks = new HashMap<>();
 
-		// Init tiles
-		for (Tile[][] g : mapData.values()) {
-			for (int i = 0; i < g.length; i++)
-				for (int j = 0; j < g[0].length; j++) {
-					Tile t = g[i][j];
-					if (t != null) {
-						t.init(new Vector2f(i * GameManager.tileSize, j * GameManager.tileSize),
-								new Vector2f(GameManager.tileSize, GameManager.tileSize));
-					}
-				}
-		}
-
 		grids = mapData;
 		w = grids.get(GameManager.Grid.SET.name).length * GameManager.tileSize;
 		h = grids.get(GameManager.Grid.SET.name)[0].length * GameManager.tileSize;

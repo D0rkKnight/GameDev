@@ -128,7 +128,8 @@ public class Serializer {
 			// Creating the tile
 			int row = id / tilesWide;
 			int column = id % tilesWide;
-			Tile t = new Tile(rend, hs, tileSheet.genSubTex(column, row));
+			Tile t = new Tile(rend, hs, tileSheet.genSubTex(column, row), new Vector2f(),
+					new Vector2f(GameManager.tileSize));
 
 			for (String gfxName : gfxs)
 				t.addGFX(gfxName);
@@ -258,7 +259,8 @@ public class Serializer {
 				HashMap<Integer, Tile> tSet = tileMap.get(tSetNames.get(a));
 
 				Tile t = tSet.get(id - offset);
-				grid[x][y] = t.clone();
+				grid[x][y] = new Tile(t, new Vector2f(i * GameManager.tileSize, j * GameManager.tileSize),
+						new Vector2f(GameManager.tileSize));
 			}
 		}
 

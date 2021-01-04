@@ -32,7 +32,7 @@ public class Tile implements Cloneable {
 	// anyways
 	public ArrayList<TileGFX> tGFX; // Is shared between all tiles clones.
 
-	public Tile(GeneralRenderer renderer, ShapeEnum hs, SubTexture subTex) {
+	public Tile(GeneralRenderer renderer, ShapeEnum hs, SubTexture subTex, Vector2f pos, Vector2f rect) {
 		this.shape = hs;
 		this.tGFX = new ArrayList<TileGFX>();
 		this.subTex = subTex;
@@ -44,10 +44,8 @@ public class Tile implements Cloneable {
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
-	}
 
-	// TODO: Use some kind of special constructor instead of this
-	public void init(Vector2f pos, Vector2f rect) {
+		// Enqueue data
 		if (shape == null) {
 			// System.err.println("Hammer state not specified, capitulating to default.");
 			shape = Shape.ShapeEnum.SQUARE;
@@ -57,6 +55,10 @@ public class Tile implements Cloneable {
 		edgeSegs = new ArrayList<>();
 
 		this.renderer.init(new Transformation(pos), rect, shape, new Color(), subTex);
+	}
+
+	public Tile(Tile t, Vector2f pos, Vector2f rect) {
+		this(t.renderer, t.shape, t.subTex, pos, rect);
 	}
 
 	/**
@@ -75,15 +77,5 @@ public class Tile implements Cloneable {
 
 	public void addGFX(String gfxName) {
 		tGFX.add(new TileGFX(gfxName));
-	}
-
-	// TODO: Remove this cursed clone function
-	@Override
-	public Tile clone() throws CloneNotSupportedException {
-		Tile t = (Tile) super.clone();
-		// New renderer please
-		t.renderer = this.renderer.clone();
-
-		return t;
 	}
 }
