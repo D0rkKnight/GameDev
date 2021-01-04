@@ -293,9 +293,7 @@ public class Drawer {
 
 					SubTexture subTex = t.subTex;
 					Texture tex = subTex.tex;
-					String gfxName = "None";
-					if (t.tGFX.size() > 0)
-						gfxName = t.tGFX.get(0).name;
+					String gfxName = t.tGFX.name;
 
 					VertexLayerKey key = new VertexLayerKey(tex, gfxName);
 

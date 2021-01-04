@@ -27,13 +27,9 @@ public class Tile implements Cloneable {
 	public SubTexture subTex;
 
 	public ArrayList<Map.CompEdgeSegment> edgeSegs;
+	public TileGFX tGFX; // Is shared between all tiles clones.
 
-	// TODO: Why is this an array? Only 1 shader's effects is going to appear
-	// anyways
-	public ArrayList<TileGFX> tGFX; // Is shared between all tiles clones.
-
-	public Tile(GeneralRenderer renderer, ShapeEnum hs, SubTexture subTex, ArrayList<TileGFX> tGFX, Vector2f pos,
-			Vector2f rect) {
+	public Tile(GeneralRenderer renderer, ShapeEnum hs, SubTexture subTex, TileGFX tGFX, Vector2f pos, Vector2f rect) {
 		this.shape = hs;
 		this.tGFX = tGFX;
 		this.subTex = subTex;
@@ -74,9 +70,5 @@ public class Tile implements Cloneable {
 
 	public ShapeEnum getHammerState() {
 		return shape;
-	}
-
-	public void addGFX(String gfxName) {
-		tGFX.add(new TileGFX(gfxName));
 	}
 }

@@ -98,7 +98,7 @@ public class Serializer {
 
 			// Grab properties
 			ShapeEnum hs = null;
-			ArrayList<String> gfxs = new ArrayList<>();
+			String gfxName = "None"; // Default name
 			for (int j = 0; j < propList.getLength(); j++) {
 				Element propE = (Element) propList.item(j);
 
@@ -119,7 +119,7 @@ public class Serializer {
 				}
 
 				if (name.equals("GFX")) {
-					gfxs.add(val);
+					gfxName = val;
 				}
 			}
 
@@ -129,9 +129,7 @@ public class Serializer {
 			// Creating the tile
 			int row = id / tilesWide;
 			int column = id % tilesWide;
-			ArrayList<TileGFX> tGFX = new ArrayList<>();
-			for (String gfxName : gfxs)
-				tGFX.add(new TileGFX(gfxName));
+			TileGFX tGFX = new TileGFX(gfxName);
 
 			Tile t = new Tile(rend, hs, tileSheet.genSubTex(column, row), tGFX, new Vector2f(),
 					new Vector2f(GameManager.tileSize));
