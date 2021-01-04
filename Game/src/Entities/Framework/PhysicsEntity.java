@@ -11,7 +11,6 @@ import Collision.Behaviors.PhysicsCollisionBehavior;
 import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
 import Collision.Behaviors.PhysicsCollisionBehaviorGroundMove;
 import GameController.Time;
-import Graphics.Rendering.Renderer;
 import Utility.Vector;
 import Wrappers.PhysicsData;
 
@@ -48,8 +47,8 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 
 	public Hitbox hitbox;
 
-	public PhysicsEntity(String ID, Vector2f position, Renderer renderer, String name) {
-		super(ID, position, renderer, name);
+	public PhysicsEntity(String ID, Vector2f position, String name) {
+		super(ID, position, name);
 
 		pData = new PhysicsData();
 		pData.moveDelta = new Vector2f(0, 0);

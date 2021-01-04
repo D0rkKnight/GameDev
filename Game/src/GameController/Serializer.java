@@ -41,8 +41,6 @@ import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Elements.TileGFX;
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.GrassRenderer;
-import Graphics.Rendering.GrassShader;
 import Tiles.Tile;
 import Wrappers.Stats;
 
@@ -330,13 +328,13 @@ public class Serializer {
 				Stats stats = new Stats(HP, ST, HPR, STR);
 
 				if (ID.equals("PLAYER")) {
-					newE = new Player(ID, null, renderer, ID, stats);
+					newE = new Player(ID, null, ID, stats);
 				} else if (ID.equals("FLOATER")) {
-					newE = new FloaterEnemy(ID, null, renderer, ID, stats);
+					newE = new FloaterEnemy(ID, null, ID, stats);
 				} else if (ID.equals("BOUNCER")) {
-					newE = new ShardSlimeEnemy(ID, null, renderer, ID, stats);
+					newE = new ShardSlimeEnemy(ID, null, ID, stats);
 				} else if (ID.equals("CRAWLER")) {
-					newE = new CrawlerEnemy(ID, null, renderer, ID, stats);
+					newE = new CrawlerEnemy(ID, null, ID, stats);
 				}
 			}
 
@@ -353,16 +351,13 @@ public class Serializer {
 			else if (readMode == ReadMode.STATIC) {
 				if (ID.equals("ENTRANCE")) {
 					// Without configuration, the default value of every entrance id is -1.
-					newE = new Entrance(ID, null, renderer, ID, new Vector2f(30, 30), -1);
+					newE = new Entrance(ID, null, ID, new Vector2f(30, 30), -1);
 				}
 			}
 
 			else if (readMode == ReadMode.PROP) {
 				if (ID.equals("PROP")) {
-					// New renderer, bois
-					GrassRenderer propRend = new GrassRenderer(GrassShader.genShader("grassShader"));
-
-					newE = new Prop(ID, null, propRend, ID);
+					newE = new Prop(ID, null, ID);
 				}
 			}
 

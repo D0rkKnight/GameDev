@@ -5,19 +5,20 @@ import org.joml.Vector2f;
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.Renderer;
+import Graphics.Rendering.SpriteShader;
 import Utility.Transformation;
 import Wrappers.Color;
 
 public class Projectile extends PhysicsEntity {
 
-	public Projectile(String ID, Vector2f position, Renderer renderer, String name) {
-		super(ID, position, renderer, name);
+	public Projectile(String ID, Vector2f position, String name) {
+		super(ID, position, name);
 
 		// Configure renderer (this is a hack)
 		dim = new Vector2f(8f, 8f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE,
-				new Color(1, 1, 0, 0));
+		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color(1, 1, 0, 0));
+		this.renderer = rend;
 
 		// Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
@@ -27,7 +28,7 @@ public class Projectile extends PhysicsEntity {
 
 	@Override
 	public Projectile createNew(float xPos, float yPos) {
-		return new Projectile(ID, new Vector2f(xPos, yPos), renderer, name);
+		return new Projectile(ID, new Vector2f(xPos, yPos), name);
 	}
 
 	@Override

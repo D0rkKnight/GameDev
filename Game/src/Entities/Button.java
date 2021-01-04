@@ -4,12 +4,12 @@ import org.joml.Math;
 import org.joml.Vector2f;
 
 import Collision.Shapes.Shape;
-import Debugging.Debug;
 import Entities.Framework.Entity;
 import Entities.Framework.Interactive;
 import GameController.Input;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Renderer;
+import Graphics.Rendering.SpriteShader;
 import Utility.Transformation;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
@@ -25,16 +25,17 @@ public class Button extends Entity implements Interactive {
 
 	public Button(String ID, Vector2f position, Renderer renderer, String name, int state, long timeOn,
 			float activationDistance, Player player) {
-		super(ID, position, renderer, name);
+		super(ID, position, name);
 		this.state = state;
 		this.timeOn = timeOn;
 		this.activationDistance = activationDistance;
 		this.player = player;
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE,
-				new Color());
-		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
+		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+		
+		this.renderer = rend;
 	}
 
 	public Button createNew(float xPos, float yPos, Player player) {

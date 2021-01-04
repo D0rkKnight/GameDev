@@ -42,6 +42,7 @@ public class Animator {
 			public void invoke(Timer timer) {
 				currentAnim.nextFrame();
 				rend.spr = currentAnim.getFrame().tex;
+				System.out.println(rend.spr.getId());
 				rend.updateUVs(currentAnim.getFrame().genSubUV(shape));
 			}
 

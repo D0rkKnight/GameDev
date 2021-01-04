@@ -14,7 +14,7 @@ import GameController.Map;
 import GameController.World;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.Renderer;
+import Graphics.Rendering.SpriteShader;
 import Tiles.Tile;
 import Utility.Transformation;
 import Wrappers.Color;
@@ -26,14 +26,15 @@ public class CrawlerEnemy extends Enemy {
 	public Vector2f anchorOffset; // This just offsets and rotates the model.
 	public float ang;
 
-	public CrawlerEnemy(String ID, Vector2f position, Renderer renderer, String name, Stats stats) {
-		super(ID, position, renderer, name, stats);
+	public CrawlerEnemy(String ID, Vector2f position, String name, Stats stats) {
+		super(ID, position, name, stats);
 
 		// Configure the renderer real quick
 		dim = new Vector2f(96f, 96f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE,
-				new Color());
-		((GeneralRenderer) this.renderer).spr = Texture.getTex("assets/Sprites/circle_saw.png");
+		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+		rend.spr = Texture.getTex("assets/Sprites/circle_saw.png");
+		this.renderer = rend;
 
 		// Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
@@ -71,7 +72,7 @@ public class CrawlerEnemy extends Enemy {
 
 	@Override
 	public Combatant createNew(float xPos, float yPos, Stats stats) {
-		return new CrawlerEnemy(ID, new Vector2f(xPos, yPos), renderer, name, stats);
+		return new CrawlerEnemy(ID, new Vector2f(xPos, yPos), name, stats);
 	}
 
 	@Override

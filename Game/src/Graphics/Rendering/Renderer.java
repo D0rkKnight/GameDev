@@ -75,11 +75,6 @@ public abstract class Renderer implements Cloneable {
 		disableVAOs();
 	}
 
-	@Override
-	public Renderer clone() throws CloneNotSupportedException {
-		return (Renderer) super.clone();
-	}
-
 	protected void init(Transformation transform) {
 		this.transform = transform;
 		hasInit = true;

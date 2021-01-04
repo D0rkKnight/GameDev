@@ -7,9 +7,8 @@ import org.joml.Vector2f;
 import Collision.Collidable;
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
-import Debugging.Debug;
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.Renderer;
+import Graphics.Rendering.SpriteShader;
 import Utility.Transformation;
 import Wrappers.Color;
 
@@ -30,8 +29,8 @@ public class Melee extends Entity implements Collidable {
 
 	protected Hitbox hitbox;
 
-	public Melee(String ID, Vector2f position, Renderer renderer, String name, Entity owner, Vector2f kbDir) {
-		super(ID, position, renderer, name);
+	public Melee(String ID, Vector2f position, String name, Entity owner, Vector2f kbDir) {
+		super(ID, position, name);
 		offset = new Vector2f(owner.position.x - position.x, owner.position.y - position.y);
 		this.owner = owner;
 		if (owner instanceof PhysicsEntity)
@@ -41,9 +40,10 @@ public class Melee extends Entity implements Collidable {
 
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE,
-				new Color());
-		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
+		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+
+		this.renderer = rend;
 
 		// Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
@@ -54,7 +54,7 @@ public class Melee extends Entity implements Collidable {
 
 	@Override
 	public Entity createNew(float xPos, float yPos) {
-		return new Melee(ID, new Vector2f(xPos, yPos), renderer, name, owner, new Vector2f(kbDir));
+		return new Melee(ID, new Vector2f(xPos, yPos), name, owner, new Vector2f(kbDir));
 	}
 
 	@Override

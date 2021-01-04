@@ -8,14 +8,8 @@ public class UIDrawElement extends UIElement {
 
 	Renderer rend;
 
-	public UIDrawElement(Renderer rend, Vector2f pos, Vector2f dims) {
+	public UIDrawElement(Vector2f pos, Vector2f dims) {
 		super(pos, dims);
-
-		try {
-			this.rend = rend.clone();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Override

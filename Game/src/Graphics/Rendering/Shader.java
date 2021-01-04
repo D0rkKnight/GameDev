@@ -78,8 +78,6 @@ public abstract class Shader {
 
 	protected Shader(String filename) {
 		program = glCreateProgram();
-		System.out.println(filename);
-		System.out.println(program);
 
 		// Vertex shader
 		vs = glCreateShader(GL_VERTEX_SHADER);

@@ -24,7 +24,7 @@ public class Switch extends Entity implements Interactive {
 
 	public Switch(String ID, Vector2f position, Renderer renderer, String name, int state, int statenum,
 			float activationDistance, Player player) {
-		super(ID, position, renderer, name);
+		super(ID, position, name);
 		this.state = state;
 		this.activationDistance = activationDistance;
 		this.player = player;

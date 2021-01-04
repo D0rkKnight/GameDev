@@ -93,11 +93,6 @@ public class Drawer {
 		Color.setGLClear(clearCol);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Get clipping bounds
-		Camera cam = Camera.main;
-		Vector2f cPos = cam.pos;
-		Vector2f cDims = cam.viewport;
-
 		for (DrawOrderElement doe : drawOrder) {
 			if (doe instanceof DrawOrderEntities) {
 				((DrawOrderEntities) doe).tryRender(entities);
@@ -339,7 +334,6 @@ public class Drawer {
 		doe.destroyOnSceneChange = true;
 
 		for (VertexLayerKey key : positionData.keySet()) {
-			System.out.println(key.gfx);
 
 			// Send data to renderer
 			ArrayList<Vector2f> posArr = positionData.get(key);

@@ -5,12 +5,11 @@ import org.joml.Vector2f;
 import Collision.Collidable;
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
-import Debugging.Debug;
 import Entities.Player;
 import GameController.GameManager;
 import GameController.World;
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.Renderer;
+import Graphics.Rendering.SpriteShader;
 import Utility.Transformation;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
@@ -28,13 +27,14 @@ public class Entrance extends Entity implements Collidable {
 	public boolean isActive = true;
 	private int exclusionRadius = 100;
 
-	public Entrance(String ID, Vector2f position, Renderer renderer, String name, Vector2f dims, int entranceId) {
-		super(ID, position, renderer, name);
+	public Entrance(String ID, Vector2f position, String name, Vector2f dims, int entranceId) {
+		super(ID, position, name);
 
 		dim = dims;
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE,
-				new Color());
-		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
+		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+
+		this.renderer = rend;
 
 		// Configure hitbox
 		hb = new Hitbox(this, dim.x, dim.y);
@@ -87,7 +87,7 @@ public class Entrance extends Entity implements Collidable {
 	}
 
 	public Entrance createNew(float xPos, float yPos, float width, float height, int entranceId) {
-		return new Entrance(ID, new Vector2f(xPos, yPos), renderer, name, new Vector2f(width, height), entranceId);
+		return new Entrance(ID, new Vector2f(xPos, yPos), name, new Vector2f(width, height), entranceId);
 	}
 
 	@Override

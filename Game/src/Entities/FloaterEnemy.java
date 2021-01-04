@@ -6,12 +6,11 @@ import Collision.Hitbox;
 import Collision.Behaviors.PhysicsCollisionBehavior;
 import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
 import Collision.Shapes.Shape;
-import Debugging.Debug;
 import Entities.Framework.Enemy;
 import GameController.Time;
 import GameController.World;
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.Renderer;
+import Graphics.Rendering.SpriteShader;
 import Tiles.Tile;
 import Utility.Pathfinding;
 import Utility.Transformation;
@@ -21,14 +20,15 @@ import Wrappers.Stats;
 
 public class FloaterEnemy extends Enemy {
 
-	public FloaterEnemy(String ID, Vector2f position, Renderer renderer, String name, Stats stats) {
-		super(ID, position, renderer, name, stats);
+	public FloaterEnemy(String ID, Vector2f position, String name, Stats stats) {
+		super(ID, position, name, stats);
 
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE,
-				new Color());
-		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
+		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+		
+		this.renderer = rend;
 
 		// Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
@@ -39,7 +39,7 @@ public class FloaterEnemy extends Enemy {
 
 	@Override
 	public FloaterEnemy createNew(float xPos, float yPos, Stats stats) {
-		return new FloaterEnemy(ID, new Vector2f(xPos, yPos), renderer, name, stats);
+		return new FloaterEnemy(ID, new Vector2f(xPos, yPos), name, stats);
 	}
 
 	@Override

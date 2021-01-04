@@ -6,7 +6,6 @@ import org.joml.Vector2f;
 
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
-import Debugging.Debug;
 import Entities.Framework.Combatant;
 import Entities.Framework.Entity;
 import Entities.Framework.Melee;
@@ -20,6 +19,7 @@ import Graphics.Animation.PlayerAnimator;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.SpriteShader;
 import Utility.Arithmetic;
 import Utility.Transformation;
 import Utility.Timers.Timer;
@@ -52,16 +52,17 @@ public class Player extends Combatant {
 
 	private int sideFacing;
 
-	public Player(String ID, Vector2f position, GeneralRenderer renderer, String name, Stats stats) {
-		super(ID, position, renderer, name, stats);
+	public Player(String ID, Vector2f position, String name, Stats stats) {
+		super(ID, position, name, stats);
 
 		// Configure the renderer real quick
 		// TODO: Seems like the renderer just wants to be defined within the entity and
 		// not given from outside...
 		rendDims = new Vector2f(96, 96);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), rendDims, Shape.ShapeEnum.SQUARE,
-				new Color(1, 0, 0, 0));
-		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
+		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		rend.init(new Transformation(position), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
+
+		this.renderer = rend;
 
 		// Configure hitbox
 		dim = new Vector2f(15f, 60f);
@@ -94,7 +95,7 @@ public class Player extends Combatant {
 
 	@Override
 	public Combatant createNew(float xPos, float yPos, Stats stats) {
-		return new Player(ID, new Vector2f(xPos, yPos), (GeneralRenderer) renderer, name, stats);
+		return new Player(ID, new Vector2f(xPos, yPos), name, stats);
 	}
 
 	@Override
@@ -315,11 +316,8 @@ public class Player extends Combatant {
 
 		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32));
 
-		Projectile proj = new Projectile("PROJECTILE", pos, GameManager.renderer, "Bullet"); // initializes bullet
-																								// entity
-
-		GeneralRenderer rend = (GeneralRenderer) proj.renderer;
-		rend.spr = Debug.debugTex;
+		Projectile proj = new Projectile("PROJECTILE", pos, "Bullet"); // initializes bullet
+																		// entity
 
 		Vector2f dir = new Vector2f(firePos).sub(pos).normalize();
 		Vector2f velo = new Vector2f(dir).mul(3);
@@ -343,7 +341,7 @@ public class Player extends Combatant {
 		Vector2f mPos = new Vector2f(pos).add(dist);
 
 		// TODO: Retrieve this from the lookup
-		meleeEntity = new Melee("MELEE", mPos, GameManager.renderer, "Melee", this, kbDir);
+		meleeEntity = new Melee("MELEE", mPos, "Melee", this, kbDir);
 		GameManager.subscribeEntity(meleeEntity);
 
 		float angle = Math.atan2(dir.y, dir.x);

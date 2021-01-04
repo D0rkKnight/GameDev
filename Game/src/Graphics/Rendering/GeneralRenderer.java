@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 
 import Collision.Shapes.Shape;
+import Debugging.Debug;
 import Graphics.Elements.SubTexture;
 import Graphics.Elements.Texture;
 import Utility.Transformation;
@@ -25,6 +26,7 @@ public class GeneralRenderer extends Renderer implements Cloneable {
 		spr = null;
 
 		hasBufferUpdate = false;
+		spr = Debug.debugTex;
 	}
 
 	@Override

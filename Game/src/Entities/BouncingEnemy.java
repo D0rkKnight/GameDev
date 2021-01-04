@@ -5,12 +5,11 @@ import org.joml.Vector2f;
 import Collision.Hitbox;
 import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
 import Collision.Shapes.Shape;
-import Debugging.Debug;
 import Entities.Framework.Enemy;
 import GameController.Time;
 import GameController.World;
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.Renderer;
+import Graphics.Rendering.SpriteShader;
 import Tiles.Tile;
 import Utility.Arithmetic;
 import Utility.Pathfinding;
@@ -33,14 +32,15 @@ public abstract class BouncingEnemy extends Enemy {
 	boolean bounceReady;
 	int moveDir;
 
-	public BouncingEnemy(String ID, Vector2f position, Renderer renderer, String name, Stats stats) {
-		super(ID, position, renderer, name, stats);
+	public BouncingEnemy(String ID, Vector2f position, String name, Stats stats) {
+		super(ID, position, name, stats);
 
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		((GeneralRenderer) this.renderer).init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE,
-				new Color());
-		((GeneralRenderer) this.renderer).spr = Debug.debugTex;
+		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+
+		this.renderer = rend;
 
 		// Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);

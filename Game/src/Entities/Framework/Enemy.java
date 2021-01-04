@@ -5,7 +5,6 @@ import org.joml.Vector2f;
 import Collision.Hitbox;
 import Entities.Player;
 import GameController.GameManager;
-import Graphics.Rendering.Renderer;
 import Utility.Pathfinding;
 import Utility.Vector;
 import Wrappers.Stats;
@@ -15,8 +14,8 @@ public abstract class Enemy extends Combatant {
 	protected Combatant target;
 	protected Pathfinding ai;
 
-	public Enemy(String ID, Vector2f position, Renderer renderer, String name, Stats stats) {
-		super(ID, position, renderer, name, stats);
+	public Enemy(String ID, Vector2f position, String name, Stats stats) {
+		super(ID, position, name, stats);
 
 		alignment = Alignment.ENEMY;
 		findTarget();

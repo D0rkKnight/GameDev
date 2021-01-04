@@ -20,7 +20,7 @@ public abstract class Entity implements CanBeCloned {
 	protected Vector2f position;
 	protected static float gravity = 5f;
 
-	public Renderer renderer;
+	public Renderer renderer; // Null by default
 	public Vector2f rendOffset;
 	public Vector2f rendDims;
 
@@ -32,7 +32,7 @@ public abstract class Entity implements CanBeCloned {
 	// For local transformations. Position/translation is added later.
 	public Transformation transform;
 
-	public Entity(String ID, Vector2f position, Renderer renderer, String name) {
+	public Entity(String ID, Vector2f position, String name) {
 		this.ID = ID;
 		if (position != null) {
 			this.position = new Vector2f(position);
@@ -41,12 +41,6 @@ public abstract class Entity implements CanBeCloned {
 		this.name = name;
 
 		rendOffset = new Vector2f();
-
-		try {
-			this.renderer = renderer.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public abstract void calculate();

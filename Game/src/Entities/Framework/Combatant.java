@@ -3,7 +3,6 @@ package Entities.Framework;
 import org.joml.Vector2f;
 
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.Renderer;
 import Utility.Timers.FlickerTimer;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
@@ -18,8 +17,8 @@ public abstract class Combatant extends PhysicsEntity {
 	protected boolean baseInvulnState = false;
 	protected int baseInvulnLength = 10;
 
-	public Combatant(String ID, Vector2f position, Renderer renderer, String name, Stats stats) {
-		super(ID, position, renderer, name);
+	public Combatant(String ID, Vector2f position, String name, Stats stats) {
+		super(ID, position, name);
 		this.stats = stats;
 	}
 
