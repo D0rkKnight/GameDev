@@ -32,9 +32,10 @@ public class Tile implements Cloneable {
 	// anyways
 	public ArrayList<TileGFX> tGFX; // Is shared between all tiles clones.
 
-	public Tile(GeneralRenderer renderer, ShapeEnum hs, SubTexture subTex, Vector2f pos, Vector2f rect) {
+	public Tile(GeneralRenderer renderer, ShapeEnum hs, SubTexture subTex, ArrayList<TileGFX> tGFX, Vector2f pos,
+			Vector2f rect) {
 		this.shape = hs;
-		this.tGFX = new ArrayList<TileGFX>();
+		this.tGFX = tGFX;
 		this.subTex = subTex;
 
 		// Create shallow copy
@@ -58,7 +59,7 @@ public class Tile implements Cloneable {
 	}
 
 	public Tile(Tile t, Vector2f pos, Vector2f rect) {
-		this(t.renderer, t.shape, t.subTex, pos, rect);
+		this(t.renderer, t.shape, t.subTex, t.tGFX, pos, rect);
 	}
 
 	/**

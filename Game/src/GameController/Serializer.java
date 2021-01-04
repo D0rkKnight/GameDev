@@ -39,6 +39,7 @@ import Entities.Framework.Interactive;
 import Entities.Framework.Prop;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
+import Graphics.Elements.TileGFX;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.GrassRenderer;
 import Graphics.Rendering.GrassShader;
@@ -128,11 +129,12 @@ public class Serializer {
 			// Creating the tile
 			int row = id / tilesWide;
 			int column = id % tilesWide;
-			Tile t = new Tile(rend, hs, tileSheet.genSubTex(column, row), new Vector2f(),
-					new Vector2f(GameManager.tileSize));
-
+			ArrayList<TileGFX> tGFX = new ArrayList<>();
 			for (String gfxName : gfxs)
-				t.addGFX(gfxName);
+				tGFX.add(new TileGFX(gfxName));
+
+			Tile t = new Tile(rend, hs, tileSheet.genSubTex(column, row), tGFX, new Vector2f(),
+					new Vector2f(GameManager.tileSize));
 
 			tileMap.put(id, t);
 		}
