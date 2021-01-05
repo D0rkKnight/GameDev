@@ -10,6 +10,8 @@ import org.joml.Vector2f;
 import GameController.Camera;
 import GameController.GameManager;
 import Graphics.Drawer;
+import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.SpriteShader;
 import Wrappers.Color;
 import Wrappers.Stats;
 
@@ -38,16 +40,16 @@ public class UI {
 		runningState = new UICanvas(new Vector2f(), Camera.main.viewport);
 
 		Stats pStats = GameManager.player.stats;
-		healthBar = new UIBarCanvas(GameManager.renderer, new Vector2f(10, 10), new Vector2f(200, 20),
-				new Color(0.3f, 0.3f, 1, 1));
+		healthBar = new UIBarCanvas(new GeneralRenderer(SpriteShader.genShader("texShader")), new Vector2f(10, 10),
+				new Vector2f(200, 20), new Color(0.3f, 0.3f, 1, 1));
 		healthBar.setAnchor(UIBoxElement.ANCHOR_UL);
 		healthBar.setUpdateCb(() -> {
 			healthBar.bar.fillRatio = (pStats.health) / (pStats.maxHealth);
 		});
 		runningState.addElement(healthBar);
 
-		staminaBar = new UIBarCanvas(GameManager.renderer, new Vector2f(10, 35), new Vector2f(200, 20),
-				new Color(0.3f, 1, 1, 1));
+		staminaBar = new UIBarCanvas(new GeneralRenderer(SpriteShader.genShader("texShader")), new Vector2f(10, 35),
+				new Vector2f(200, 20), new Color(0.3f, 1, 1, 1));
 		staminaBar.setAnchor(UIBoxElement.ANCHOR_UL);
 		staminaBar.setUpdateCb(() -> {
 			staminaBar.bar.fillRatio = (pStats.stamina) / (pStats.maxStamina);
@@ -59,14 +61,14 @@ public class UI {
 		// Initialize paused game state
 		pausedState = new UICanvas(new Vector2f(), Camera.main.viewport);
 
-		UIBoxElement box = new UIBoxElement(GameManager.renderer, new Vector2f(Camera.main.viewport).div(2),
-				new Vector2f(300, 400), new Color(0.5f, 0.5f, 0.5f, 1));
+		UIBoxElement box = new UIBoxElement(new GeneralRenderer(SpriteShader.genShader("texShader")),
+				new Vector2f(Camera.main.viewport).div(2), new Vector2f(300, 400), new Color(0.5f, 0.5f, 0.5f, 1));
 		box.setAnchor(UIBoxElement.ANCHOR_MID);
 
 		pausedState.addElement(box);
 
-		UIButtonElement exitButton = new UIButtonElement(GameManager.renderer, new Vector2f(20, 20),
-				new Vector2f(200, 50), new Color(0f, 0f, 0f, 1));
+		UIButtonElement exitButton = new UIButtonElement(new GeneralRenderer(SpriteShader.genShader("texShader")),
+				new Vector2f(20, 20), new Vector2f(200, 50), new Color(0f, 0f, 0f, 1));
 		exitButton.setClickCb(() -> {
 			glfwSetWindowShouldClose(Drawer.window, true);
 		});

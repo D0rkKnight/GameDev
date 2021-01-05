@@ -19,19 +19,11 @@ import Entities.Player;
 import Entities.Framework.Entity;
 import Entities.Framework.PhysicsEntity;
 import Graphics.Drawer;
-import Graphics.Elements.Texture;
-import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.SpriteShader;
 import Tiles.Tile;
 import UI.UI;
 import Utility.Timers.Timer;
 
 public class GameManager {
-
-	// Rendering stuff
-	public static GeneralRenderer renderer;
-	public static SpriteShader shader;
-	public static Texture[] tileSpritesheet;
 
 	// Lookup table for different kinds of tiles
 	static HashMap<String, HashMap<Integer, Tile>> tileLookup;
@@ -101,9 +93,6 @@ public class GameManager {
 		// Init camera
 		new Camera();
 
-		shader = (SpriteShader) SpriteShader.genShader("texShader");
-		renderer = new GeneralRenderer(shader);
-
 		entities = new ArrayList<>();
 		entityWaitingList = new ArrayList<>();
 		entityClearList = new ArrayList<>();
@@ -132,7 +121,7 @@ public class GameManager {
 	private void initTileSet(String fileDir, String fileName, HashMap<String, HashMap<Integer, Tile>> masterTSet) {
 		try {
 			HashMap<Integer, Tile> tSet = new HashMap<>();
-			Serializer.loadTileHash(fileDir, fileName, tSet, renderer);
+			Serializer.loadTileHash(fileDir, fileName, tSet);
 			masterTSet.put(fileName, tSet);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -141,7 +130,7 @@ public class GameManager {
 
 	private void initEntityHash(String fileDir, String fileName) {
 		try {
-			entityHash = Serializer.loadEntityHash(fileDir, fileName, renderer);
+			entityHash = Serializer.loadEntityHash(fileDir, fileName);
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

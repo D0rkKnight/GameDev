@@ -24,7 +24,7 @@ import org.joml.Vector2f;
 import Graphics.Elements.Mesh;
 import Utility.Transformation;
 
-public abstract class Renderer implements Cloneable {
+public abstract class Renderer {
 	protected Shader shader;
 
 	protected int vaoId;
@@ -40,8 +40,13 @@ public abstract class Renderer implements Cloneable {
 
 	public boolean hasInit;
 
+	private static int count = 0;
+
 	Renderer(Shader shader) {
 		this.shader = shader;
+
+		count++;
+		System.out.println(count);
 	}
 
 	public void render() {

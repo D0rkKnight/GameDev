@@ -8,7 +8,6 @@ import Entities.Framework.Entity;
 import Entities.Framework.Interactive;
 import GameController.Input;
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.Renderer;
 import Graphics.Rendering.SpriteShader;
 import Utility.Transformation;
 import Utility.Timers.Timer;
@@ -23,8 +22,8 @@ public class Button extends Entity implements Interactive {
 	Timer onTimer;
 	Player player;
 
-	public Button(String ID, Vector2f position, Renderer renderer, String name, int state, long timeOn,
-			float activationDistance, Player player) {
+	public Button(String ID, Vector2f position, String name, int state, long timeOn, float activationDistance,
+			Player player) {
 		super(ID, position, name);
 		this.state = state;
 		this.timeOn = timeOn;
@@ -34,12 +33,12 @@ public class Button extends Entity implements Interactive {
 		dim = new Vector2f(30f, 30f);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
 		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
-		
+
 		this.renderer = rend;
 	}
 
 	public Button createNew(float xPos, float yPos, Player player) {
-		return new Button(ID, new Vector2f(xPos, yPos), renderer, name, state, timeOn, activationDistance, player);
+		return new Button(ID, new Vector2f(xPos, yPos), name, state, timeOn, activationDistance, player);
 	}
 
 	@Override

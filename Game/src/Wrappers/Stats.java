@@ -1,6 +1,6 @@
 package Wrappers;
 
-public class Stats implements Cloneable {
+public class Stats {
 	public float health;
 	public float maxHealth;
 	public float healthRegen;

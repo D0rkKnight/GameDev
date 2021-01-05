@@ -40,7 +40,6 @@ import Entities.Framework.Prop;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Elements.TileGFX;
-import Graphics.Rendering.GeneralRenderer;
 import Tiles.Tile;
 import Wrappers.Stats;
 
@@ -73,8 +72,7 @@ public class Serializer {
 		return (Element) doc.getElementsByTagName(name).item(0);
 	}
 
-	public static void loadTileHash(String fdir, String fname, HashMap<Integer, Tile> tileMap, GeneralRenderer rend)
-			throws Exception {
+	public static void loadTileHash(String fdir, String fname, HashMap<Integer, Tile> tileMap) throws Exception {
 
 		Document doc = readDoc(fdir, fname);
 		NodeList nList = doc.getElementsByTagName("tile");
@@ -129,7 +127,7 @@ public class Serializer {
 			int column = id % tilesWide;
 			TileGFX tGFX = new TileGFX(gfxName);
 
-			Tile t = new Tile(rend, hs, tileSheet.genSubTex(column, row), tGFX, new Vector2f(),
+			Tile t = new Tile(hs, tileSheet.genSubTex(column, row), tGFX, new Vector2f(),
 					new Vector2f(GameManager.tileSize));
 
 			tileMap.put(id, t);
@@ -273,7 +271,7 @@ public class Serializer {
 	private static HashMap<String, String> activeDataHash;
 
 	// TODO: Load from templates, rather than the text file.
-	public static HashMap<String, Entity> loadEntityHash(String fileDir, String fileName, GeneralRenderer renderer)
+	public static HashMap<String, Entity> loadEntityHash(String fileDir, String fileName)
 			throws NumberFormatException, IOException {
 		BufferedReader charFile = null;
 		try {
@@ -344,7 +342,7 @@ public class Serializer {
 				float ACT_DIST = rhFloat("ActivationDistance");
 
 				if (ID.equals("BUTTON")) {
-					newE = new Button(ID, null, renderer, ID, STATE, TIME_ON, ACT_DIST, null);
+					newE = new Button(ID, null, ID, STATE, TIME_ON, ACT_DIST, null);
 				}
 			}
 

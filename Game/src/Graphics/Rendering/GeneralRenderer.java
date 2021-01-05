@@ -17,7 +17,7 @@ import Graphics.Elements.Texture;
 import Utility.Transformation;
 import Wrappers.Color;
 
-public class GeneralRenderer extends Renderer implements Cloneable {
+public class GeneralRenderer extends Renderer {
 
 	public Texture spr;
 
@@ -89,11 +89,6 @@ public class GeneralRenderer extends Renderer implements Cloneable {
 
 		mesh.write(genUVs(uvs), attribsBuff.get(1));
 		mesh.write(genColors(col), attribsBuff.get(2));
-	}
-
-	@Override
-	public GeneralRenderer clone() throws CloneNotSupportedException {
-		return (GeneralRenderer) super.clone();
 	}
 
 	public void updateColors(Color color) {

@@ -2,7 +2,7 @@ package Utility;
 
 import org.joml.Vector2f;
 
-public class Vector implements Cloneable {
+public class Vector {
 
 	/**
 	 * Takes

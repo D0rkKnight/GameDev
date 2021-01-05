@@ -9,9 +9,6 @@ import Collision.Shapes.Shape.ShapeEnum;
 import GameController.Map;
 import Graphics.Elements.SubTexture;
 import Graphics.Elements.TileGFX;
-import Graphics.Rendering.GeneralRenderer;
-import Utility.Transformation;
-import Wrappers.Color;
 
 /**
  * Tile
@@ -19,9 +16,8 @@ import Wrappers.Color;
  * @author Benjamin
  *
  */
-public class Tile implements Cloneable {
+public class Tile {
 	protected Map map;
-	public GeneralRenderer renderer;
 	public Shape.ShapeEnum shape; // NOT IN CONSTRUCTOR BECAUSE ITS NOT SET WITHIN HASHMAP (individual to when
 	// loaded in maps)
 	public SubTexture subTex;
@@ -29,18 +25,10 @@ public class Tile implements Cloneable {
 	public ArrayList<Map.CompEdgeSegment> edgeSegs;
 	public TileGFX tGFX; // Is shared between all tiles clones.
 
-	public Tile(GeneralRenderer renderer, ShapeEnum hs, SubTexture subTex, TileGFX tGFX, Vector2f pos, Vector2f rect) {
+	public Tile(ShapeEnum hs, SubTexture subTex, TileGFX tGFX, Vector2f pos, Vector2f rect) {
 		this.shape = hs;
 		this.tGFX = tGFX;
 		this.subTex = subTex;
-
-		// Create shallow copy
-		try {
-			this.renderer = renderer.clone();
-			this.renderer.spr = subTex.tex;
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
 
 		// Enqueue data
 		if (shape == null) {
@@ -50,22 +38,10 @@ public class Tile implements Cloneable {
 
 		// will be set later
 		edgeSegs = new ArrayList<>();
-
-		this.renderer.init(new Transformation(pos), rect, shape, new Color(), subTex);
 	}
 
 	public Tile(Tile t, Vector2f pos, Vector2f rect) {
-		this(t.renderer, t.shape, t.subTex, t.tGFX, pos, rect);
-	}
-
-	/**
-	 * 
-	 * @param pos: position at which to render
-	 * @param dim: dimensions of tile
-	 */
-	public void render(Vector2f pos, float dim) {
-		renderer.transform.pos = pos;
-		renderer.render();
+		this(t.shape, t.subTex, t.tGFX, pos, rect);
 	}
 
 	public ShapeEnum getHammerState() {
