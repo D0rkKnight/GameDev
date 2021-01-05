@@ -40,13 +40,8 @@ public abstract class Renderer {
 
 	public boolean hasInit;
 
-	private static int count = 0;
-
 	Renderer(Shader shader) {
 		this.shader = shader;
-
-		count++;
-		System.out.println(count);
 	}
 
 	public void render() {

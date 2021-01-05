@@ -47,6 +47,7 @@ import Graphics.Elements.DrawOrderElement;
 import Graphics.Elements.DrawOrderEntities;
 import Graphics.Elements.DrawOrderRenderers;
 import Graphics.Elements.SubTexture;
+import Graphics.Elements.Text;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.DrawBufferRenderer;
 import Graphics.Rendering.GeneralRenderer;
@@ -106,6 +107,8 @@ public class Drawer {
 		// UI elements
 		UI.render();
 
+		Text.font.test();
+
 		/**
 		 * Now draw the texture to the screen as a quad
 		 */
@@ -158,6 +161,9 @@ public class Drawer {
 
 		// Creating graphical elements
 		initDrawBuffer();
+
+		// Initializing text elements
+		Text.init();
 	}
 
 	private static void initOpenGL() {

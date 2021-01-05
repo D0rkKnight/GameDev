@@ -71,8 +71,15 @@ public class Texture {
 		return t;
 	}
 
+	/**
+	 * Creates a texture that exists outside of the texture cache
+	 * 
+	 * @param pixels
+	 * @param w
+	 * @param h
+	 */
 	@SuppressWarnings("unused")
-	private Texture(ByteBuffer pixels, int w, int h) {
+	public Texture(ByteBuffer pixels, int w, int h) {
 		this.width = w;
 		this.height = h;
 		genThisTex(pixels);
@@ -125,6 +132,8 @@ public class Texture {
 	 */
 	private void genThisTex(ByteBuffer pixels) {
 		id = glGenTextures();
+
+		// TODO: A ton of pointless draw calls
 
 		glBindTexture(GL_TEXTURE_2D, id);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
