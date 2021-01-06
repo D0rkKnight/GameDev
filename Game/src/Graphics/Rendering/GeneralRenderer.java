@@ -21,6 +21,9 @@ public class GeneralRenderer extends Renderer {
 
 	public Texture spr;
 
+	protected static final int INDEX_UV = 1;
+	protected static final int INDEX_COLOR = 2;
+
 	public GeneralRenderer(Shader shader) {
 		super(shader);
 		spr = null;
@@ -80,23 +83,23 @@ public class GeneralRenderer extends Renderer {
 	protected void createAttribs(ArrayList<Attribute> attribsBuff) {
 		super.createAttribs(attribsBuff);
 
-		Attribute.addAttribute(attribsBuff, new Attribute(1, 2)); // Tex UVs
-		Attribute.addAttribute(attribsBuff, new Attribute(2, 4)); // Colors
+		Attribute.addAttribute(attribsBuff, new Attribute(INDEX_UV, 2)); // Tex UVs
+		Attribute.addAttribute(attribsBuff, new Attribute(INDEX_COLOR, 4)); // Colors
 	}
 
 	protected void writeToMesh(ArrayList<Attribute> attribsBuff, Vector2f[] vertices, Vector2f[] uvs, Color col) {
 		super.writeToMesh(attribsBuff, vertices);
 
-		mesh.write(genUVs(uvs), attribsBuff.get(1));
-		mesh.write(genColors(col), attribsBuff.get(2));
+		mesh.write(genUVs(uvs), attribsBuff.get(INDEX_UV));
+		mesh.write(genColors(col), attribsBuff.get(INDEX_COLOR));
 	}
 
 	public void updateColors(Color color) {
-		bufferSubData(genColors(color), 2);
+		bufferSubData(genColors(color), INDEX_COLOR);
 	}
 
 	public void updateUVs(Vector2f[] uv) {
-		bufferSubData(genUVs(uv), 1);
+		bufferSubData(genUVs(uv), INDEX_UV);
 	}
 
 	protected float[] genUVs(Vector2f[] uvs) {

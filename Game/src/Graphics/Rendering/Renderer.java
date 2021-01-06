@@ -40,6 +40,8 @@ public abstract class Renderer {
 
 	public boolean hasInit;
 
+	protected static final int INDEX_VERTEX = 0;
+
 	Renderer(Shader shader) {
 		this.shader = shader;
 	}
@@ -124,7 +126,7 @@ public abstract class Renderer {
 	}
 
 	protected void createAttribs(ArrayList<Attribute> attribsBuff) {
-		Attribute.addAttribute(attribsBuff, new Attribute(0, 3)); // Vertices
+		Attribute.addAttribute(attribsBuff, new Attribute(INDEX_VERTEX, 3)); // Vertices
 
 		return;
 	}
@@ -133,7 +135,7 @@ public abstract class Renderer {
 		vertexCount = vertices.length;
 		mesh = new Mesh(vertexCount * Attribute.getRowsize(attribsBuff));
 
-		mesh.write(genVerts(vertices), attribsBuff.get(0));
+		mesh.write(genVerts(vertices), attribsBuff.get(INDEX_VERTEX));
 	};
 
 	// Hmm this needs an MVP uniform, well if there isn't one then don't set the
@@ -160,7 +162,7 @@ public abstract class Renderer {
 
 	// Note: this is an expensive operation
 	public void updateVertices(Vector2f[] verts) {
-		bufferSubData(genVerts(verts), 0);
+		bufferSubData(genVerts(verts), INDEX_VERTEX);
 	}
 
 	// Encapsulated to make sure that hasBufferUpdate is set to true
