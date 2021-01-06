@@ -13,4 +13,8 @@ public class Audio {
 		aud.start();
 		aud.setVolume(-20f);
 	}
+
+	public static void update() {
+
+	}
 }
