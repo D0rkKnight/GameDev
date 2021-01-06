@@ -47,7 +47,6 @@ import Graphics.Elements.DrawOrderElement;
 import Graphics.Elements.DrawOrderEntities;
 import Graphics.Elements.DrawOrderRenderers;
 import Graphics.Elements.SubTexture;
-import Graphics.Elements.Text;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.DrawBufferRenderer;
 import Graphics.Rendering.GeneralRenderer;
@@ -55,6 +54,7 @@ import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Graphics.Rendering.TimedRenderer;
 import Graphics.Rendering.TimedShader;
+import Text.Text;
 import Tiles.Tile;
 import UI.UI;
 import Utility.Transformation;
@@ -107,7 +107,7 @@ public class Drawer {
 		// UI elements
 		UI.render();
 
-		Text.font.test();
+		Text.test();
 
 		/**
 		 * Now draw the texture to the screen as a quad

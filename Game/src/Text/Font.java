@@ -1,4 +1,4 @@
-package Graphics.Elements;
+package Text;
 
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
 import static org.lwjgl.opengl.GL11.GL_RED;
@@ -21,21 +21,21 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 
-import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTBakedChar;
 import org.lwjgl.stb.STBTruetype;
 
-import Collision.Shapes.Shape;
-import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.SpriteShader;
-import Utility.Transformation;
-import Wrappers.Color;
+import Graphics.Elements.Texture;
 
 public class Font {
 
 	private ByteBuffer dataBuff;
-	private GeneralRenderer rend;
+
+	public char firstChar;
+	public char lastChar;
+
+	TextChar[] characters;
+	public Texture tex;
 
 	public Font(String url) {
 		// Read font file
@@ -58,14 +58,16 @@ public class Font {
 		}
 
 		// Prepare data containers for font information
-		int glyphCount = '~' - ' ' + 1;
+		firstChar = ' ';
+		lastChar = '~';
+		int glyphCount = lastChar - firstChar + 1;
 		int pw = 512;
 		int ph = 512;
 		ByteBuffer pixels = BufferUtils.createByteBuffer(pw * ph);
-		STBTTBakedChar.Buffer charData = STBTTBakedChar.calloc(STBTTBakedChar.SIZEOF * glyphCount);
+		STBTTBakedChar.Buffer charData = STBTTBakedChar.calloc(glyphCount);
 
 		// Bake the font
-		STBTruetype.stbtt_BakeFontBitmap(dataBuff, 32f, pixels, pw, ph, ' ', charData);
+		STBTruetype.stbtt_BakeFontBitmap(dataBuff, 32f, pixels, pw, ph, firstChar, charData);
 
 		// This seems to work?
 //		STBTTFontinfo fontInfo = STBTTFontinfo.calloc();
@@ -85,7 +87,7 @@ public class Font {
 
 		// Texture tex = new Texture(bitmap, w, h);
 		// TODO: Write with overrides instead
-		// TODO: Workable TrueType example:
+		// TODO: Workable TrueType example (USE THIS INSTEAD OF THE CURRENT SOLUTION)
 		// https://github.com/nothings/stb/blob/master/tests/test_truetype.c
 
 		int tex = glGenTextures();
@@ -102,15 +104,13 @@ public class Font {
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		Texture texObj = new Texture(tex, pw, ph);
+		this.tex = texObj;
 
-		rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-		rend.init(new Transformation(new Vector2f(100, 100), Transformation.MatrixMode.SCREEN), new Vector2f(100, 100),
-				Shape.ShapeEnum.SQUARE, new Color(1, 1, 1, 1));
-		rend.spr = texObj;
-	}
-
-	public void test() {
-		rend.render();
+		// Generate characters
+		characters = new TextChar[glyphCount];
+		for (char c = firstChar; c <= lastChar; c++) {
+			characters[c - firstChar] = new TextChar(c, this, texObj, charData);
+		}
 	}
 
 }
