@@ -6,9 +6,9 @@ import org.joml.Vector2f;
 
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
+import Graphics.text.Text;
 import Utility.Transformation;
 import Wrappers.Color;
-import text.Text;
 
 public class UITextElement extends UIDrawElement {
 

@@ -87,6 +87,8 @@ public class GameManager {
 
 		coll = new ArrayList<>();
 		Drawer.initGraphics();
+		Audio.init();
+
 		Input.initInput();
 		Debug.init();
 
