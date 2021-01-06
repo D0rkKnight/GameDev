@@ -1,4 +1,4 @@
-package Text;
+package text;
 
 import java.nio.FloatBuffer;
 
@@ -35,9 +35,6 @@ public class TextChar {
 		xOff = charData.xoff();
 		yOff = -h - charData.yoff();
 		advance = charData.xadvance();
-
-		System.out.println("xOff: " + charData.xoff());
-		System.out.println("yOff: " + charData.yoff());
 
 		// Pull UVs
 		float u1, u2, v1, v2;

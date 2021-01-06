@@ -1,4 +1,4 @@
-package Text;
+package text;
 
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
 import static org.lwjgl.opengl.GL11.GL_RED;
@@ -20,6 +20,7 @@ import static org.lwjgl.opengl.GL30.GL_R8;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTBakedChar;
@@ -37,7 +38,12 @@ public class Font {
 	TextChar[] characters;
 	public Texture tex;
 
-	public Font(String url) {
+	public static HashMap<String, Font> cachedFonts;
+	static {
+		cachedFonts = new HashMap<>();
+	}
+
+	protected Font(String url) {
 		// Read font file
 		File f = new File("assets/Fonts/" + url);
 		dataBuff = null;
@@ -113,4 +119,14 @@ public class Font {
 		}
 	}
 
+	public static Font genFont(String name) {
+		if (cachedFonts.containsKey(name)) {
+			return cachedFonts.get(name);
+		} else {
+			Font f = new Font(name);
+			cachedFonts.put(name, f);
+
+			return f;
+		}
+	}
 }

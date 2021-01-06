@@ -56,6 +56,9 @@ public class UI {
 		});
 		runningState.addElement(staminaBar);
 
+		UITextElement sampleText = new UITextElement("Testing", new Vector2f(10, 60), new Vector2f(300, 30));
+		runningState.addElement(sampleText);
+
 		canvases.put(CanvasEnum.RUNNING, runningState);
 
 		// Initialize paused game state

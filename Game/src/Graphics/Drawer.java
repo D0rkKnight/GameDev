@@ -54,11 +54,11 @@ import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Graphics.Rendering.TimedRenderer;
 import Graphics.Rendering.TimedShader;
-import Text.Text;
 import Tiles.Tile;
 import UI.UI;
 import Utility.Transformation;
 import Wrappers.Color;
+import text.Text;
 
 /*
  * Calls shaders to render themselves.
@@ -106,8 +106,6 @@ public class Drawer {
 
 		// UI elements
 		UI.render();
-
-		Text.test();
 
 		/**
 		 * Now draw the texture to the screen as a quad
