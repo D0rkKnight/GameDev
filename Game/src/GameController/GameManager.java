@@ -22,6 +22,7 @@ import Graphics.Drawer;
 import Tiles.Tile;
 import UI.UI;
 import Utility.Timers.Timer;
+import audio.Audio;
 
 public class GameManager {
 
@@ -209,6 +210,7 @@ public class GameManager {
 		// Drawing stuff
 		update();
 		Drawer.draw(World.currmap, entities);
+		Audio.update();
 
 		// Frame walking debug tools
 		if (Debug.frameWalk) {

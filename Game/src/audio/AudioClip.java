@@ -1,4 +1,4 @@
-package GameController;
+package audio;
 
 import java.io.File;
 
@@ -8,23 +8,16 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 
 /**
- * Centralized controller for audio
+ * Controls the playback of one clip.
  * 
  * @author Hanzen Shou
  *
  */
-public class Audio {
+public class AudioClip {
 
-	static Clip clip;
+	private Clip clip;
 
-	public static void init() {
-		playClip("Crystal_Desert_16.wav");
-
-		FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-		gainControl.setValue(-20f);
-	}
-
-	public static void playClip(String url) {
+	public AudioClip(String url) {
 		try {
 			AudioInputStream inStream = AudioSystem
 					.getAudioInputStream(new File("assets/Audio/" + url).getAbsoluteFile());
@@ -33,11 +26,18 @@ public class Audio {
 			clip.open(inStream);
 
 			clip.loop(Clip.LOOP_CONTINUOUSLY);
-			clip.start();
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
+	}
+
+	public void start() {
+		clip.start();
+	}
+
+	public void setVolume(float vol) {
+		FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+		gainControl.setValue(vol);
 	}
 }
