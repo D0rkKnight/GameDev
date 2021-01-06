@@ -20,13 +20,11 @@ import static org.lwjgl.opengl.GL30.GL_R8;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.stb.STBTTFontinfo;
+import org.lwjgl.stb.STBTTBakedChar;
 import org.lwjgl.stb.STBTruetype;
-import org.lwjgl.system.MemoryStack;
 
 import Collision.Shapes.Shape;
 import Graphics.Rendering.GeneralRenderer;
@@ -53,40 +51,42 @@ public class Font {
 
 			dataBuff = BufferUtils.createByteBuffer(data.length);
 			dataBuff.put(data);
-			dataBuff.flip();
+			dataBuff.flip(); // Remember, everything has to be flipped going into JNI, just because.
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 
 		// Prepare data containers for font information
-//		int glyphCount = '~' - ' ' + 1;
-//		int pw = 512;
-//		int ph = 512;
-//		ByteBuffer pixels = ByteBuffer.allocate(pw * ph * 4);
-//		STBTTBakedChar.Buffer charData = STBTTBakedChar.calloc(STBTTBakedChar.SIZEOF * glyphCount);
-//
-//		// Bake the font
-//		STBTruetype.stbtt_BakeFontBitmap(dataBuff, 32f, pixels, pw, ph, ' ', charData);
+		int glyphCount = '~' - ' ' + 1;
+		int pw = 512;
+		int ph = 512;
+		ByteBuffer pixels = BufferUtils.createByteBuffer(pw * ph);
+		STBTTBakedChar.Buffer charData = STBTTBakedChar.calloc(STBTTBakedChar.SIZEOF * glyphCount);
+
+		// Bake the font
+		STBTruetype.stbtt_BakeFontBitmap(dataBuff, 32f, pixels, pw, ph, ' ', charData);
 
 		// This seems to work?
-		STBTTFontinfo fontInfo = STBTTFontinfo.calloc();
-		STBTruetype.stbtt_InitFont(fontInfo, dataBuff);
-
-		ByteBuffer pixels = null;
-		int w, h;
-		try (MemoryStack stack = MemoryStack.stackPush()) {
-			IntBuffer width = stack.mallocInt(1);
-			IntBuffer height = stack.mallocInt(1);
-
-			pixels = STBTruetype.stbtt_GetCodepointBitmap(fontInfo, 0, 1, 'a', width, height, null, null);
-			System.out.println(pixels);
-			w = width.get(0);
-			h = height.get(0);
-		}
+//		STBTTFontinfo fontInfo = STBTTFontinfo.calloc();
+//		STBTruetype.stbtt_InitFont(fontInfo, dataBuff);
+//
+//		ByteBuffer pixels = null;
+//		int w, h;
+//		try (MemoryStack stack = MemoryStack.stackPush()) {
+//			IntBuffer width = stack.mallocInt(1);
+//			IntBuffer height = stack.mallocInt(1);
+//
+//			pixels = STBTruetype.stbtt_GetCodepointBitmap(fontInfo, 0, 1, 'a', width, height, null, null);
+//			System.out.println(pixels);
+//			w = width.get(0);
+//			h = height.get(0);
+//		}
 
 		// Texture tex = new Texture(bitmap, w, h);
 		// TODO: Write with overrides instead
+		// TODO: Workable TrueType example:
+		// https://github.com/nothings/stb/blob/master/tests/test_truetype.c
 
 		int tex = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, tex);
@@ -98,10 +98,10 @@ public class Font {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, w, h, 0, GL_RED, GL_UNSIGNED_BYTE, pixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, pw, ph, 0, GL_RED, GL_UNSIGNED_BYTE, pixels);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		Texture texObj = new Texture(tex, w, h);
+		Texture texObj = new Texture(tex, pw, ph);
 
 		rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
 		rend.init(new Transformation(new Vector2f(100, 100), Transformation.MatrixMode.SCREEN), new Vector2f(100, 100),
