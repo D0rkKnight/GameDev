@@ -130,12 +130,21 @@ public abstract class Renderer {
 		return;
 	}
 
-	protected void writeToMesh(ArrayList<Attribute> attribsBuff, Vector2f[] vertices) {
+	protected void buildMesh(ArrayList<Attribute> attribsBuff, Vector2f[] vertices) {
 		vertexCount = vertices.length;
 		mesh = new Mesh(vertexCount * Attribute.getRowsize(attribsBuff));
 
 		mesh.write(genVerts(vertices), attribsBuff.get(INDEX_VERTEX));
-	};
+	}
+
+	public void rebuildMesh(Vector2f[] verts) {
+		// Build arraylist because... TODO: Fix this
+		ArrayList<Attribute> attribsArr = new ArrayList<>();
+		for (Attribute a : attribs)
+			attribsArr.add(a);
+
+		buildMesh(attribsArr, verts);
+	}
 
 	// Hmm this needs an MVP uniform, well if there isn't one then don't set the
 	// transform matrix

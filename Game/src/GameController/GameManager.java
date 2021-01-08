@@ -15,6 +15,7 @@ import Collision.Collidable;
 import Collision.Hitbox;
 import Collision.Physics;
 import Debugging.Debug;
+import Debugging.TestSpace;
 import Entities.Player;
 import Entities.Framework.Entity;
 import Entities.Framework.PhysicsEntity;
@@ -108,6 +109,8 @@ public class GameManager {
 
 		UI.init();
 		Time.initTime();
+
+		TestSpace.init();
 	}
 
 	/*

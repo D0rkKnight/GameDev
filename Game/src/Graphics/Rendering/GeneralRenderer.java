@@ -74,7 +74,7 @@ public class GeneralRenderer extends Renderer {
 		createAttribs(attribsBuff);
 
 		// Write to mesh
-		writeToMesh(attribsBuff, vertices, uvs, col);
+		buildMesh(attribsBuff, vertices, uvs, col);
 
 		initData(mesh.toBuffer(), attribsBuff);
 	}
@@ -87,11 +87,20 @@ public class GeneralRenderer extends Renderer {
 		Attribute.addAttribute(attribsBuff, new Attribute(INDEX_COLOR, 4)); // Colors
 	}
 
-	protected void writeToMesh(ArrayList<Attribute> attribsBuff, Vector2f[] vertices, Vector2f[] uvs, Color col) {
-		super.writeToMesh(attribsBuff, vertices);
+	protected void buildMesh(ArrayList<Attribute> attribsBuff, Vector2f[] vertices, Vector2f[] uvs, Color col) {
+		super.buildMesh(attribsBuff, vertices);
 
 		mesh.write(genUVs(uvs), attribsBuff.get(INDEX_UV));
 		mesh.write(genColors(col), attribsBuff.get(INDEX_COLOR));
+	}
+
+	public void rebuildMesh(Vector2f[] verts, Vector2f[] uvs, Color col) {
+		// Build arraylist because... TODO: Fix this
+		ArrayList<Attribute> attribsArr = new ArrayList<>();
+		for (Attribute a : attribs)
+			attribsArr.add(a);
+
+		buildMesh(attribsArr, verts, uvs, col);
 	}
 
 	public void updateColors(Color color) {

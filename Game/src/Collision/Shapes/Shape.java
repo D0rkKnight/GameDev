@@ -103,4 +103,12 @@ public abstract class Shape {
 			normals[i] = n;
 		}
 	}
+
+	public int vertexCount() {
+		return vertices.length;
+	}
+
+	public int renderVertexCount() {
+		return triangulatedVertices.length;
+	}
 }

@@ -37,6 +37,7 @@ import org.lwjgl.system.MemoryStack;
 
 import Collision.Shapes.Shape;
 import Debugging.Debug;
+import Debugging.TestSpace;
 import Entities.Framework.Entity;
 import GameController.Camera;
 import GameController.GameManager;
@@ -122,6 +123,8 @@ public class Drawer {
 
 		Debug.renderDebug();
 
+		TestSpace.draw();
+
 		// Yeesh that was hard.
 //  		ByteBuffer pixels = BufferUtils.createByteBuffer(20*20*4);
 //  		glReadPixels(0, 0, 20, 20, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
@@ -162,6 +165,7 @@ public class Drawer {
 
 		// Initializing text elements
 		Text.init();
+
 	}
 
 	private static void initOpenGL() {
