@@ -7,7 +7,6 @@ import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.GL_STREAM_DRAW;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glBufferSubData;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
@@ -62,7 +61,7 @@ public abstract class Renderer {
 			FloatBuffer fBuff = mesh.toBuffer();
 
 			glBindBuffer(GL_ARRAY_BUFFER, vboId);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, fBuff);
+			glBufferData(GL_ARRAY_BUFFER, fBuff, GL_STREAM_DRAW);
 
 			hasBufferUpdate = false;
 		}
@@ -162,11 +161,11 @@ public abstract class Renderer {
 
 	// Note: this is an expensive operation
 	public void updateVertices(Vector2f[] verts) {
-		bufferSubData(genVerts(verts), INDEX_VERTEX);
+		bufferData(genVerts(verts), INDEX_VERTEX);
 	}
 
 	// Encapsulated to make sure that hasBufferUpdate is set to true
-	protected void bufferSubData(float[] data, int attribId) {
+	protected void bufferData(float[] data, int attribId) {
 		// Buffer sub data
 		mesh.write(data, attribs[attribId]);
 

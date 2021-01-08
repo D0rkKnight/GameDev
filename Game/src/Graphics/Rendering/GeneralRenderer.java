@@ -95,11 +95,11 @@ public class GeneralRenderer extends Renderer {
 	}
 
 	public void updateColors(Color color) {
-		bufferSubData(genColors(color), INDEX_COLOR);
+		bufferData(genColors(color), INDEX_COLOR);
 	}
 
 	public void updateUVs(Vector2f[] uv) {
-		bufferSubData(genUVs(uv), INDEX_UV);
+		bufferData(genUVs(uv), INDEX_UV);
 	}
 
 	protected float[] genUVs(Vector2f[] uvs) {
