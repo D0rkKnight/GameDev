@@ -17,7 +17,7 @@ import Utility.Transformation;
  */
 public abstract class Entity implements CanBeCloned {
 	protected String ID;
-	protected Vector2f position;
+	protected final Vector2f position = new Vector2f();
 	protected static float gravity = 5f;
 
 	public Renderer renderer; // Null by default
@@ -35,7 +35,7 @@ public abstract class Entity implements CanBeCloned {
 	public Entity(String ID, Vector2f position, String name) {
 		this.ID = ID;
 		if (position != null) {
-			this.position = new Vector2f(position);
+			this.position.set(position);
 			transform = new Transformation(new Vector2f(position)); // View/Proj matrices are unimportant
 		}
 		this.name = name;
