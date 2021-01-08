@@ -7,30 +7,30 @@ import org.joml.Vector2f;
 import Collision.Shapes.Shape;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.SpriteShader;
-import Utility.Transformation;
 import Wrappers.Color;
 
-public class ParticleSystem {
+public abstract class ParticleSystem {
 
-	private Texture tex;
-	private Vector2f[] vertexPos;
-	private Vector2f[] uvs;
-	private Particle[] particles;
+	protected Texture tex;
 
-	private int particleLimit;
-	private Shape particleShape;
-	private int pvCount;
+	// Single pool of data that particles write in and out of (optimized)
+	protected Vector2f[] vertexPos;
+	protected Vector2f[] uvs;
+	protected Particle[] particles;
 
-	private GeneralRenderer rend;
+	protected int particleLimit;
+	protected Shape particleShape;
+	protected int pvCount;
+
+	protected GeneralRenderer rend;
 
 	private boolean shouldRegenData = false;
-	private int endOfData;
+	int endOfData;
 
 	public ParticleSystem(Texture tex, int particleLimit) {
 		this.tex = tex;
 		this.particleLimit = particleLimit;
-		this.endOfData = particleLimit;
+		this.endOfData = 0;
 
 		particleShape = Shape.ShapeEnum.SQUARE.v;
 		pvCount = particleShape.renderVertexCount();
@@ -38,19 +38,9 @@ public class ParticleSystem {
 		vertexPos = new Vector2f[this.particleLimit * pvCount];
 		uvs = new Vector2f[this.particleLimit * pvCount];
 		particles = new Particle[particleLimit];
-
-		// Populate with particles
-		for (int i = 0; i < this.particleLimit; i++) {
-			particles[i] = new Particle(this, i, pvCount, (int) (Math.random() * 2000), particleShape, vertexPos, uvs);
-			particles[i].init();
-		}
-
-		// Load in the data
-		rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-
-		rend.init(new Transformation(new Vector2f(100, 100)), vertexPos, uvs, new Color(1, 1, 1, 1));
-		rend.spr = this.tex;
 	}
+
+	// Children should set their renderers in an init() call that is not inherited
 
 	public void update() {
 		// Update particles
@@ -109,6 +99,14 @@ public class ParticleSystem {
 		rend.rebuildMesh(rendPos, rendUV, new Color());
 
 		rend.render();
+	}
+
+	public void addParticle(Particle p) {
+		if (endOfData == particles.length)
+			System.err.println("Max particles already!");
+
+		particles[endOfData] = p;
+		endOfData++;
 	}
 
 	public void removeParticle(int index) {

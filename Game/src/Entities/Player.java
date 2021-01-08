@@ -6,6 +6,7 @@ import org.joml.Vector2f;
 
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
+import Debugging.Debug;
 import Entities.Framework.Combatant;
 import Entities.Framework.Entity;
 import Entities.Framework.Melee;
@@ -20,6 +21,7 @@ import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
+import Graphics.particles.GhostParticleSystem;
 import Utility.Arithmetic;
 import Utility.Transformation;
 import Utility.Timers.Timer;
@@ -51,6 +53,8 @@ public class Player extends Combatant {
 	private Timer jumpGraceTimer;
 
 	private int sideFacing;
+
+	private GhostParticleSystem pSys;
 
 	public Player(String ID, Vector2f position, String name, Stats stats) {
 		super(ID, position, name, stats);
@@ -91,6 +95,9 @@ public class Player extends Combatant {
 		sideFacing = 1;
 
 		baseInvulnLength = 1000;
+
+		pSys = new GhostParticleSystem(Debug.debugTex, 20, position);
+		pSys.init();
 	}
 
 	@Override
@@ -377,6 +384,15 @@ public class Player extends Combatant {
 			scale.scale(sideFacing, 1, 1);
 			scale.translate(-rendDims.x / 2, 0, 0);
 		}
+
+		pSys.pos = position;
+		pSys.update();
+	}
+
+	@Override
+	public void render() {
+		super.render();
+		pSys.render();
 	}
 
 	@Override

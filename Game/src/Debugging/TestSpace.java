@@ -1,18 +1,14 @@
 package Debugging;
 
-import Graphics.particles.ParticleSystem;
+import Graphics.particles.GhostParticleSystem;
 
 public class TestSpace {
 
-	public static ParticleSystem pSys;
+	public static GhostParticleSystem pSys;
 
 	public static void init() {
-
-		pSys = new ParticleSystem(Debug.debugTex, 100);
 	}
 
 	public static void draw() {
-		pSys.update();
-		pSys.render();
 	}
 }

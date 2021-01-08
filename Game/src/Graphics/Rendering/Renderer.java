@@ -135,6 +135,8 @@ public abstract class Renderer {
 		mesh = new Mesh(vertexCount * Attribute.getRowsize(attribsBuff));
 
 		mesh.write(genVerts(vertices), attribsBuff.get(INDEX_VERTEX));
+
+		hasBufferUpdate = true;
 	}
 
 	public void rebuildMesh(Vector2f[] verts) {

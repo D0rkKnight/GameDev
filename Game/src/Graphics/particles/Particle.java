@@ -5,7 +5,7 @@ import org.joml.Vector2f;
 import Collision.Shapes.Shape;
 import GameController.Time;
 
-public class Particle {
+public abstract class Particle {
 
 	protected ParticleSystem master;
 
@@ -19,15 +19,15 @@ public class Particle {
 	protected int firstIndex;
 	protected int life;
 
-	public Particle(ParticleSystem master, int index, int stride, int life, Shape particleShape,
-			Vector2f[] masterVertexPos, Vector2f[] masterUV) {
+	public Particle(ParticleSystem master, int stride, int life, Shape particleShape, Vector2f[] masterVertexPos,
+			Vector2f[] masterUV) {
 		this.master = master;
 		this.masterVertexPos = masterVertexPos;
 		this.masterUV = masterUV;
 
 		this.life = life;
 
-		this.index = index;
+		this.index = master.endOfData;
 		this.stride = stride;
 		this.firstIndex = index * stride;
 
@@ -39,22 +39,14 @@ public class Particle {
 	 * 
 	 * @return array of such vectors
 	 */
-	protected Vector2f[] genPos() {
-		Vector2f pos = new Vector2f(((float) Math.random()) * 100, ((float) Math.random()) * 100);
-		Vector2f[] partPos = particleShape.getRenderVertices(new Vector2f(20, 20));
-		for (Vector2f v : partPos)
-			v.add(pos);
-		return partPos;
-	}
+	protected abstract Vector2f[] genPos();
 
 	/**
 	 * Generate the UV vectors of this particle, invoked in constructor
 	 * 
 	 * @return array of such vectors
 	 */
-	protected Vector2f[] genUV() {
-		return particleShape.getRenderUVs();
-	}
+	protected abstract Vector2f[] genUV();
 
 	protected void init() {
 		// Generate self
@@ -71,7 +63,7 @@ public class Particle {
 	public void update() {
 		life -= Time.deltaT();
 
-		// Self destruct
+		// Self destruction
 		if (life <= 0) {
 			master.removeParticle(index);
 		}
