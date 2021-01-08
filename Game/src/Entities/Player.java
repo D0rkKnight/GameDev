@@ -6,7 +6,6 @@ import org.joml.Vector2f;
 
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
-import Debugging.Debug;
 import Entities.Framework.Combatant;
 import Entities.Framework.Entity;
 import Entities.Framework.Melee;
@@ -76,7 +75,7 @@ public class Player extends Combatant {
 
 		dashSpeed = 2f;
 		dashDuration = 80;
-		movementMode = MOVEMENT_MODE_CONTROLLED;
+		movementMode = Movement.CONTROLLED;
 
 		// Configure animation stuff
 		TextureAtlas animSheet = new TextureAtlas(Texture.getTex("Assets/Sprites/Ilyia_idle-running_proto.png"), 96,
@@ -96,7 +95,7 @@ public class Player extends Combatant {
 
 		baseInvulnLength = 1000;
 
-		pSys = new GhostParticleSystem(Debug.debugTex, 20, position);
+		pSys = new GhostParticleSystem(animSheet.tex, 20, rendDims);
 		pSys.init();
 	}
 
@@ -123,15 +122,15 @@ public class Player extends Combatant {
 
 		Color baseCol = null;
 		switch (movementMode) {
-		case MOVEMENT_MODE_CONTROLLED: // walking
+		case CONTROLLED: // walking
 			baseCol = new Color(1, 0, 0, 1);
 			controlledMovement();
 			break;
-		case MOVEMENT_MODE_IS_DASHING: // dashing, a bit spaghetti here TODO
+		case DASHING: // dashing, a bit spaghetti here TODO
 			baseCol = new Color(1, 1, 1, 1);
 			dashingMovement();
 			break;
-		case MOVEMENT_MODE_DECEL:
+		case DECEL:
 			baseCol = new Color(0, 0, 1, 1);
 			decelMovement();
 			break;
@@ -192,25 +191,25 @@ public class Player extends Combatant {
 	}
 
 	private void determineMovementMode() {
-		if (Input.knockbackTest && movementMode == MOVEMENT_MODE_CONTROLLED) {// TODO
+		if (Input.knockbackTest && movementMode == Movement.CONTROLLED) {// TODO
 			knockback(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
 		}
 		if (knockback) {
-			movementMode = MOVEMENT_MODE_DECEL;
+			movementMode = Movement.DECEL;
 			knockback = false;
 		}
-		if (movementMode == MOVEMENT_MODE_DECEL && Math.abs(pData.velo.x) <= xCap) {
-			movementMode = MOVEMENT_MODE_CONTROLLED;
+		if (movementMode == Movement.DECEL && Math.abs(pData.velo.x) <= xCap) {
+			movementMode = Movement.CONTROLLED;
 			knockbackDir = null;
 		}
-		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && movementMode != MOVEMENT_MODE_IS_DASHING) {
+		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && movementMode != Movement.DASHING) {
 			if (stats.stamina < dashCost) {
 				return;
 			}
 
 			stats.stamina -= dashCost;
 			justDashed = true;
-			movementMode = MOVEMENT_MODE_IS_DASHING;
+			movementMode = Movement.DASHING;
 			dashDir = new Vector2f(Input.moveX, Input.moveY).normalize();
 
 			// Set velocity here
@@ -225,13 +224,13 @@ public class Player extends Combatant {
 					dashTimer = null;
 
 					// Now stop dashing
-					movementMode = MOVEMENT_MODE_CONTROLLED;
+					movementMode = Movement.CONTROLLED;
 				}
 
 			});
 		}
 		// Bring entity back to normal
-		if (movementMode == MOVEMENT_MODE_CONTROLLED && justDashed) {
+		if (movementMode == Movement.CONTROLLED && justDashed) {
 			pData.velo.y *= 0.4; // TODO hardcode for dash deacc
 			pData.velo.x *= 0.8;
 			justDashed = false;
@@ -269,7 +268,7 @@ public class Player extends Combatant {
 		}
 
 		// Jump grace
-		if (pData.grounded && movementMode != MOVEMENT_MODE_IS_DASHING)
+		if (pData.grounded && movementMode != Movement.DASHING)
 			canJump = true;
 		else if (pData.wasGrounded) {
 			// begin timer
@@ -385,14 +384,17 @@ public class Player extends Combatant {
 			scale.translate(-rendDims.x / 2, 0, 0);
 		}
 
-		pSys.pos = position;
+		// Update trailing particle system
+		pSys.activeSubTex = anim.currentAnim.getFrame();
+		pSys.activeTransform = new Transformation(renderer.transform);
 		pSys.update();
 	}
 
 	@Override
 	public void render() {
-		super.render();
 		pSys.render();
+		super.render();
+
 	}
 
 	@Override

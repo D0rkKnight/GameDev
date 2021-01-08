@@ -11,12 +11,11 @@ import Utility.Timers.Timer;
 import Wrappers.Color;
 
 public class GhostParticleSystem extends ParticleSystem {
-
-	public Vector2f pos;
 	protected Timer timer;
-	protected SubTexture activeSubTex;
+	public SubTexture activeSubTex;
+	public Transformation activeTransform;
 
-	public GhostParticleSystem(Texture tex, int particleLimit, Vector2f pos) {
+	public GhostParticleSystem(Texture tex, int particleLimit, Vector2f dims) {
 		super(tex, particleLimit);
 		// TODO Auto-generated constructor stub
 
@@ -26,12 +25,10 @@ public class GhostParticleSystem extends ParticleSystem {
 
 			if (endOfData < particleLimit) {
 				GhostParticle p = new GhostParticle(this, pvCount, 1000, particleShape, vertexPos, uvs, activeSubTex,
-						new Vector2f(pos), 20);
+						activeTransform, dims);
 				p.init();
 
 				addParticle(p);
-
-				System.out.println(pos);
 			}
 		});
 	}

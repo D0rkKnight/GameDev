@@ -52,6 +52,20 @@ public class Transformation {
 		mvp = new Matrix4f();
 	}
 
+	public Transformation(Transformation transform) {
+		this.pos = new Vector2f(transform.pos);
+		this.matrixMode = transform.matrixMode;
+
+		this.trans = new Matrix4f(transform.trans);
+		this.rot = new Matrix4f(transform.rot);
+		this.scale = new Matrix4f(transform.scale);
+		this.model = new Matrix4f(transform.model);
+
+		this.view = new Matrix4f(transform.view);
+		this.proj = new Matrix4f(transform.proj);
+		this.mvp = new Matrix4f(transform.rot);
+	}
+
 	/**
 	 * Note that UI elements are anchored to the top left.
 	 * 

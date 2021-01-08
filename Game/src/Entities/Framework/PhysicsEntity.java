@@ -29,11 +29,11 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	protected float movementMulti; // multiplier for movement when knocked back (suggest 0.5)
 	protected float decelMulti; // multiplier for decel when knocked back (suggest 1)
 	protected boolean knockback = true;
-	protected int movementMode;
+	protected Movement movementMode;
 
-	public static final int MOVEMENT_MODE_CONTROLLED = 1;
-	public static final int MOVEMENT_MODE_IS_DASHING = 2;
-	public static final int MOVEMENT_MODE_DECEL = 3;
+	public static enum Movement {
+		CONTROLLED, DASHING, DECEL
+	}
 
 	public static enum Alignment {
 		NEUTRAL, PLAYER, ENEMY
@@ -156,7 +156,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	 * @param decelMulti
 	 */
 	public void knockback(Vector2f knockbackVector, float movementMulti, float decelMulti) {
-		if (movementMode == MOVEMENT_MODE_DECEL) {
+		if (movementMode == Movement.DECEL) {
 			if (Math.abs(pData.velo.x) < Math.abs(knockbackVector.x)) {
 				pData.velo.x = knockbackVector.x;
 				this.knockbackDir.x = knockbackVector.x;
@@ -184,7 +184,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 		this.movementMulti = movementMulti;
 		this.decelMulti = decelMulti;
 		knockback = true;
-		this.movementMode = MOVEMENT_MODE_DECEL;
+		this.movementMode = Movement.DECEL;
 	}
 
 	@Override
