@@ -34,8 +34,6 @@ public class GhostParticle extends Particle {
 		for (Vector2f v : rendVerts) {
 			Vector4f vFour = new Vector4f(v.x, v.y, 0, 1).mul(trans.genModel());
 			v.set(vFour.x, vFour.y);
-
-			System.out.println(v);
 		}
 
 		return rendVerts;
