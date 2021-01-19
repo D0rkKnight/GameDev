@@ -21,13 +21,13 @@ public class World {
 	public static void init() {
 		maps = new HashMap<>();
 
-		Map map0 = genMap("assets/Maps/", "test3.tmx");
+		Map map0 = genMap("assets/Maps/Forest/", "forestE.tmx");
 		map0.setEntranceLink(0, new int[] { 1, 0 }); // Entrance 0 is to exit 0 of
 		// map 1
 
 		maps.put(0, map0);
 
-		Map map1 = genMap("assets/Maps/", "test4.tmx");
+		Map map1 = genMap("assets/Maps/Forest/", "forest1.tmx");
 		map1.setEntranceLink(0, new int[] { 0, 0 });
 
 		maps.put(1, map1);

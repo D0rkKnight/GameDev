@@ -56,6 +56,5 @@ public class WorldTetromino {
 		this.h = cells[0].length;
 
 		this.gates = gates;
-
 	}
 }

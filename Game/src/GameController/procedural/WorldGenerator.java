@@ -16,60 +16,67 @@ public class WorldGenerator {
 		new WorldTetromino(
 			new int[][] {
 				{1, 1},
-				{1, 0}
+				{1, 1}
 			}, true, 
 			new WorldGate[]{
 				new WorldGate(0, 0, WorldGate.GateDir.LEFT),
-				new WorldGate(0, 1, WorldGate.GateDir.DOWN)
-			}),
-		new WorldTetromino(
-			new int[][] {
-				{1}
-			}, true, 
-			new WorldGate[]{
-				new WorldGate(0, 0, WorldGate.GateDir.LEFT),
-				new WorldGate(0, 0, WorldGate.GateDir.DOWN),
-				new WorldGate(0, 0, WorldGate.GateDir.RIGHT)
-			}),
-		new WorldTetromino(
-			new int[][] {
-				{1},
-				{1}
-			}, true,
-			new WorldGate[]{
-				new WorldGate(0, 0, WorldGate.GateDir.UP),
-				new WorldGate(0, 1, WorldGate.GateDir.DOWN)
-			}),
-		new WorldTetromino(
-				new int[][] {
-					{1, 1}
-				}, true,
-				new WorldGate[]{
-					new WorldGate(0, 0, WorldGate.GateDir.UP),
-					new WorldGate(1, 0, WorldGate.GateDir.RIGHT)
-				}),
-		new WorldTetromino(
-				new int[][] {
-					{1, 1},
-					{1, 1}
-				}, true,
-				new WorldGate[]{
-					new WorldGate(0, 0, WorldGate.GateDir.LEFT),
-					new WorldGate(1, 0, WorldGate.GateDir.UP),
-					new WorldGate(1, 1, WorldGate.GateDir.RIGHT)
-				})
+				new WorldGate(1, 1, WorldGate.GateDir.RIGHT)
+			})//,
+//		new WorldTetromino(
+//			new int[][] {
+//				{1}
+//			}, true, 
+//			new WorldGate[]{
+//				new WorldGate(0, 0, WorldGate.GateDir.LEFT),
+//				new WorldGate(0, 0, WorldGate.GateDir.DOWN),
+//				new WorldGate(0, 0, WorldGate.GateDir.RIGHT)
+//			}),
+//		new WorldTetromino(
+//			new int[][] {
+//				{1},
+//				{1}
+//			}, true,
+//			new WorldGate[]{
+//				new WorldGate(0, 0, WorldGate.GateDir.UP),
+//				new WorldGate(0, 1, WorldGate.GateDir.DOWN)
+//			}),
+//		new WorldTetromino(
+//				new int[][] {
+//					{1, 1}
+//				}, true,
+//				new WorldGate[]{
+//					new WorldGate(0, 0, WorldGate.GateDir.UP),
+//					new WorldGate(1, 0, WorldGate.GateDir.RIGHT)
+//				}),
+//		new WorldTetromino(
+//				new int[][] {
+//					{1, 1},
+//					{1, 1}
+//				}, true,
+//				new WorldGate[]{
+//					new WorldGate(0, 0, WorldGate.GateDir.LEFT),
+//					new WorldGate(1, 0, WorldGate.GateDir.UP),
+//					new WorldGate(1, 1, WorldGate.GateDir.RIGHT)
+//				})
 	};
 	//@formatter:on
+
+	static HashMap<WorldTetromino, String> tetrominoMapLookup;
 
 	static Random random;
 	static long seed;
 
 	public static void init() {
+		// Random generator
 		seed = new Random().nextLong();
 		// seed = 5189681989908125063L;
-
 		random = new Random(seed);
 
+		// Initiate tetromino map pairings, necessary because caps need to be mapped
+		// too.
+		tetrominoMapLookup = new HashMap<>();
+		tetrominoMapLookup.put(tetrominos[0], "assets/Maps/Forest/forest1.tmx");
+		tetrominoMapLookup.put(WorldTetromino.CapTet.RIGHT.tet, "assets/Maps/Forest/forestE.tmx");
 	}
 
 	public static void genWorld() {
@@ -85,6 +92,8 @@ public class WorldGenerator {
 		printBoard(board);
 
 		System.out.println("Seed: " + seed);
+
+		// Convert to maps
 	}
 
 	/**
@@ -105,9 +114,6 @@ public class WorldGenerator {
 		// Begin by trying to place next room
 		boolean success = insertRoom(localState, roomToInsert);
 
-		System.out.println("\n\n\nBoard after room insertion:");
-		printBoard(localState);
-
 		// Place caps on last room as part of this operation
 		// TODO: Make sure dungeon has no loops
 		if (lastRoom != null) {
@@ -118,12 +124,7 @@ public class WorldGenerator {
 				localState = capOutput;
 		}
 
-		System.out.println("\n\n\nBoard after cap insertion:");
-		printBoard(localState);
-
 		if (!success) {
-			System.out.println("Failure");
-
 			// Return failure
 			return null;
 		}
@@ -146,8 +147,6 @@ public class WorldGenerator {
 			int randIndex = (int) (random.nextFloat() * caps.size());
 			WorldRoom exit = caps.get(randIndex);
 			exit.roomStatus = WorldRoom.RoomStatus.EXIT;
-
-			System.out.println("Natural termination");
 			return localState;
 		}
 
@@ -191,14 +190,12 @@ public class WorldGenerator {
 
 					// Check if success or not
 					if (out != null) {
-						System.out.println("Success, passing up");
 						return out; // Single pathway generation
 					}
 				}
 			}
 		}
 
-		System.out.println("No valid exit, throwing");
 		return null;
 	}
 

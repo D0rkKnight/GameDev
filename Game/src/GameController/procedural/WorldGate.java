@@ -3,7 +3,8 @@ package GameController.procedural;
 import org.joml.Vector2i;
 
 public class WorldGate {
-	Vector2i pos;
+	public Vector2i pos;
+	public WorldRoom ownerRoom; // Not set while owned by tetromino
 
 	public static enum GateDir {
 		UP, DOWN, LEFT, RIGHT;
@@ -47,5 +48,11 @@ public class WorldGate {
 	public WorldGate(int x, int y, GateDir dir) {
 		pos = new Vector2i(x, y);
 		this.dir = dir;
+	}
+
+	public WorldGate(WorldGate worldGate, WorldRoom ownerRoom) {
+		this(worldGate.pos.x, worldGate.pos.y, worldGate.dir);
+
+		this.ownerRoom = ownerRoom;
 	}
 }

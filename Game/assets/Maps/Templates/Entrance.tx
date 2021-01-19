@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <object name="Entrance" type="ENTRANCE" width="24" height="168">
+  <properties>
+   <property name="entrId" type="int" value="0"/>
+  </properties>
+ </object>
+</template>

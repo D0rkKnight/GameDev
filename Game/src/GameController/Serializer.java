@@ -270,7 +270,6 @@ public class Serializer {
 	private static ReadMode readMode = ReadMode.NONE;
 	private static HashMap<String, String> activeDataHash;
 
-	// TODO: Load from templates, rather than the text file.
 	public static HashMap<String, Entity> loadEntityHash(String fileDir, String fileName)
 			throws NumberFormatException, IOException {
 		BufferedReader charFile = null;
@@ -387,6 +386,7 @@ public class Serializer {
 	}
 
 	// TODO: Rewrite this function
+	@SuppressWarnings("unchecked")
 	public static ArrayList<Entity> loadEntities(Document doc, HashMap<String, Entity> entityHash, int tileSize) {
 		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
 
@@ -401,21 +401,7 @@ public class Serializer {
 
 		for (int i = 0; i < entitynum; i++) {
 			Element entity = (Element) objects.item(i);
-
 			HashMap<String, String> propVals = new HashMap<>();
-			Element propPar = retrieveElement(entity, "properties");
-
-			if (propPar != null) {
-				// Write to a hashmap
-				NodeList propList = propPar.getElementsByTagName("property");
-				for (int j = 0; j < propList.getLength(); j++) {
-					Element ele = (Element) propList.item(j);
-					String name = ele.getAttribute("name");
-					String val = ele.getAttribute("value");
-
-					propVals.put(name, val);
-				}
-			}
 
 			String ID;
 			float eTileW;
@@ -424,8 +410,8 @@ public class Serializer {
 			float yTPos;
 			String template = entity.getAttribute("template");
 
-			xTPos = Float.parseFloat((entity).getAttribute("x")) / GameManager.tileSpriteSize;
-			yTPos = Float.parseFloat((entity).getAttribute("y")) / GameManager.tileSpriteSize;
+			xTPos = Float.parseFloat(entity.getAttribute("x")) / GameManager.tileSpriteSize;
+			yTPos = Float.parseFloat(entity.getAttribute("y")) / GameManager.tileSpriteSize;
 
 			if (!template.isEmpty()) {
 				String path = shearFileDirectory(template);
@@ -438,6 +424,9 @@ public class Serializer {
 				ID = t.properties.get("type");
 				eTileW = Float.parseFloat(t.properties.get("width")) / GameManager.tileSpriteSize;
 				eTileH = Float.parseFloat(t.properties.get("height")) / GameManager.tileSpriteSize;
+
+				// Load in base data to propVals
+				propVals = (HashMap<String, String>) t.properties.clone();
 			}
 
 			else {
@@ -447,6 +436,21 @@ public class Serializer {
 				// Loading data in tile cords
 				eTileW = Float.parseFloat((entity).getAttribute("width")) / GameManager.tileSpriteSize;
 				eTileH = Float.parseFloat((entity).getAttribute("height")) / GameManager.tileSpriteSize;
+			}
+
+			// Overrides
+			Element propPar = retrieveElement(entity, "properties");
+
+			if (propPar != null) {
+				// Write to a hashmap
+				NodeList propList = propPar.getElementsByTagName("property");
+				for (int j = 0; j < propList.getLength(); j++) {
+					Element ele = (Element) propList.item(j);
+					String name = ele.getAttribute("name");
+					String val = ele.getAttribute("value");
+
+					propVals.put(name, val);
+				}
 			}
 
 			yTPos += eTileH;
@@ -509,7 +513,29 @@ public class Serializer {
 				data.put(n.getNodeName(), n.getNodeValue());
 			}
 
-			templates.put(obj.getAttribute("name"), new Template(data));
+			// Insert property data
+			NodeList props = template.getElementsByTagName("property");
+			for (int i = 0; i < props.getLength(); i++) {
+				Element e = (Element) props.item(i);
+				String key = e.getAttribute("name");
+				String value = e.getAttribute("value");
+
+				if (data.containsKey(key)) {
+					System.err.println("Data overriden!");
+					System.exit(1);
+				} else {
+					data.put(key, value);
+				}
+			}
+
+			// Dump data
+			for (String key : data.keySet()) {
+				System.out.println(key + ", " + data.get(key));
+			}
+			System.out.println();
+
+			Template t = new Template(data);
+			templates.put(obj.getAttribute("name"), t);
 		}
 	}
 

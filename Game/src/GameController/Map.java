@@ -54,6 +54,13 @@ public class Map {
 			if (e instanceof Entrance) {
 				Entrance eEnt = (Entrance) e;
 				int[] dest = entranceLinks.get(eEnt.entranceId);
+
+				System.out.println("Entrance link count: " + entranceLinks.size());
+				for (int key : entranceLinks.keySet())
+					System.out.println("Target entrance: " + key);
+
+				System.out.println("Entrance id: " + eEnt.entranceId);
+
 				eEnt.setData(dest[0], dest[1]);
 			}
 		}
