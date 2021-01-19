@@ -1,22 +1,42 @@
 package GameController.procedural;
 
-import java.util.LinkedHashMap;
-
-import org.joml.Vector2i;
-
 public class WorldTetromino {
 
 	int w;
 	int h;
 	int[][] cells;
 
-	public static enum GateDir {
-		UP, DOWN, LEFT, RIGHT;
+	WorldGate[] gates;
+
+	public static enum CapTet {
+
+		UP(WorldGate.GateDir.UP), DOWN(WorldGate.GateDir.DOWN), LEFT(WorldGate.GateDir.LEFT),
+		RIGHT(WorldGate.GateDir.RIGHT);
+
+		public WorldTetromino tet;
+
+		CapTet(WorldGate.GateDir dir) {
+			// Create a 1x1 tetromino that faces the inputted direction.
+			tet = new WorldTetromino(new int[][] { { 1 } }, false, new WorldGate[] { new WorldGate(0, 0, dir) });
+		}
+
+		public static CapTet CapFromDir(WorldGate.GateDir dir) {
+			switch (dir) {
+			case UP:
+				return UP;
+			case DOWN:
+				return DOWN;
+			case LEFT:
+				return LEFT;
+			case RIGHT:
+				return RIGHT;
+			default:
+				return null;
+			}
+		}
 	}
 
-	LinkedHashMap<Vector2i, GateDir> gates;
-
-	public WorldTetromino(int[][] cellMask, boolean flip) {
+	public WorldTetromino(int[][] cellMask, boolean flip, WorldGate[] gates) {
 		cells = null;
 
 		// Rotate mask coming in
@@ -34,10 +54,8 @@ public class WorldTetromino {
 		// Search for gates
 		this.w = cells.length;
 		this.h = cells[0].length;
-		gates = new LinkedHashMap<>();
-	}
 
-	public void addEntrance(int x, int y, GateDir dir) {
-		gates.put(new Vector2i(x, y), dir);
+		this.gates = gates;
+
 	}
 }

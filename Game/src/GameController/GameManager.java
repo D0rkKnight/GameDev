@@ -19,6 +19,7 @@ import Debugging.TestSpace;
 import Entities.Player;
 import Entities.Framework.Entity;
 import Entities.Framework.PhysicsEntity;
+import GameController.procedural.WorldGenerator;
 import Graphics.Drawer;
 import Tiles.Tile;
 import UI.UI;
@@ -104,6 +105,7 @@ public class GameManager {
 		initTiles();
 		initEntityHash("assets/Hashfiles/", "EntitiesTest.txt");
 
+		WorldGenerator.init();
 		World.init(); // also should initialize entities
 		initPlayer();
 

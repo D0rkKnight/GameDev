@@ -1,5 +1,7 @@
 package GameController.procedural;
 
+import org.joml.Vector2i;
+
 public class WorldRoom {
 	public WorldTetromino tetromino;
 
@@ -8,9 +10,11 @@ public class WorldRoom {
 	}
 
 	RoomStatus roomStatus;
+	Vector2i pos;
 
-	public WorldRoom(WorldTetromino tetromino, RoomStatus roomStatus) {
+	public WorldRoom(WorldTetromino tetromino, Vector2i pos, RoomStatus roomStatus) {
 		this.tetromino = tetromino;
 		this.roomStatus = roomStatus;
+		this.pos = pos;
 	}
 }
