@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="8" tileheight="8" infinite="0" nextlayerid="5" nextobjectid="10">
+<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="8" tileheight="8" infinite="0" nextlayerid="5" nextobjectid="11">
  <tileset firstgid="1" source="Tilesets/coll8x8.tsx"/>
  <tileset firstgid="17" source="Tilesets/Forest/forestTSet.tsx"/>
  <layer id="4" name="BG" width="100" height="100">
@@ -31,5 +31,10 @@
   <object id="7" name="Crawler2" type="CRAWLER" x="248" y="528" width="32" height="32"/>
   <object id="8" name="Crawler3" type="CRAWLER" x="392" y="520" width="32" height="32"/>
   <object id="9" name="Crawler4" type="CRAWLER" x="544" y="520" width="32" height="32"/>
+  <object id="10" name="Entrance" type="ENTRANCE" x="768" y="480" width="31" height="256">
+   <properties>
+    <property name="entrId" type="int" value="1"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

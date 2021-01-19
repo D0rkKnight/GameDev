@@ -364,19 +364,19 @@
             }
         },
         "test3.tmx": {
-            "scale": 2,
+            "scale": 0.75,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 399.75,
-                "y": 399.5
+                "x": 630.6666666666666,
+                "y": 453.3333333333333
             }
         },
         "test4.tmx": {
-            "scale": 1.5,
+            "scale": 1,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 399.66666666666663,
-                "y": 400
+                "x": 457,
+                "y": 434
             }
         },
         "tset1.tsx": {
@@ -401,6 +401,7 @@
     "project": "PROJECT.tiled-project",
     "property.type": "string",
     "recentFiles": [
+        "test.tmx",
         "Tilesets/coll8x8.tsx",
         "Tilesets/Forest/forestTSet.tsx",
         "test4.tmx",
@@ -408,7 +409,6 @@
         "test2.tmx",
         "Tilesets/coll.tsx",
         "Rules/coll8x8.tsx",
-        "test.tmx",
         "Rules/rules0.tmx",
         "Rules/rules1.tmx",
         "Rules/rules4.tmx",

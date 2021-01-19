@@ -1,5 +1,6 @@
 package GameController.procedural;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,35 +33,31 @@ public class WorldGenerator {
 			}),
 		new WorldTetromino(
 			new int[][] {
-				{1, 1}
-			}, true,
-			new WorldGate[]{
-				new WorldGate(0, 0, WorldGate.GateDir.LEFT),
-				new WorldGate(1, 0, WorldGate.GateDir.RIGHT)
-			}),
-		new WorldTetromino(
-			new int[][] {
-				{1, 1},
-				{0, 1},
-				{1, 1},
-				{1, 0}
+				{1},
+				{1}
 			}, true,
 			new WorldGate[]{
 				new WorldGate(0, 0, WorldGate.GateDir.UP),
-				new WorldGate(0, 3, WorldGate.GateDir.RIGHT)
+				new WorldGate(0, 1, WorldGate.GateDir.DOWN)
 			}),
 		new WorldTetromino(
-			new int[][] {
-				{1, 1, 1, 1},
-				{1, 0, 0, 1},
-				{1, 0, 0, 1},
-				{1, 1, 1, 1}
-			}, true,
-			new WorldGate[]{
-				new WorldGate(0, 0, WorldGate.GateDir.LEFT),
-				new WorldGate(2, 0, WorldGate.GateDir.UP),
-				new WorldGate(3, 2, WorldGate.GateDir.RIGHT)
-			})
+				new int[][] {
+					{1, 1}
+				}, true,
+				new WorldGate[]{
+					new WorldGate(0, 0, WorldGate.GateDir.UP),
+					new WorldGate(1, 0, WorldGate.GateDir.RIGHT)
+				}),
+		new WorldTetromino(
+				new int[][] {
+					{1, 1},
+					{1, 1}
+				}, true,
+				new WorldGate[]{
+					new WorldGate(0, 0, WorldGate.GateDir.LEFT),
+					new WorldGate(1, 0, WorldGate.GateDir.UP),
+					new WorldGate(1, 1, WorldGate.GateDir.RIGHT)
+				})
 	};
 	//@formatter:on
 
@@ -69,14 +66,14 @@ public class WorldGenerator {
 
 	public static void init() {
 		seed = new Random().nextLong();
-		seed = 1842262655753846578L;
+		// seed = 5189681989908125063L;
 
 		random = new Random(seed);
 
 	}
 
 	public static void genWorld() {
-		WorldRoom[][] board = new WorldRoom[20][20];
+		WorldRoom[][] board = new WorldRoom[10][10];
 
 		// Generate start
 		WorldRoom start = new WorldRoom(WorldTetromino.CapTet.CapFromDir(WorldGate.GateDir.RIGHT).tet,
@@ -88,9 +85,6 @@ public class WorldGenerator {
 		printBoard(board);
 
 		System.out.println("Seed: " + seed);
-
-		// For Testing
-		System.exit(0);
 	}
 
 	/**
@@ -105,10 +99,7 @@ public class WorldGenerator {
 	 */
 	public static WorldRoom[][] growMap(WorldRoom[][] parentState, WorldRoom lastRoom, WorldRoom roomToInsert) {
 		// 2D array copy
-		WorldRoom[][] localState = new WorldRoom[parentState.length][parentState[0].length];
-		for (int i = 0; i < localState.length; i++) {
-			localState[i] = parentState[i].clone();
-		}
+		WorldRoom[][] localState = duplicateBoard(parentState);
 
 		// Perform local operations
 		// Begin by trying to place next room
@@ -118,49 +109,13 @@ public class WorldGenerator {
 		printBoard(localState);
 
 		// Place caps on last room as part of this operation
+		// TODO: Make sure dungeon has no loops
 		if (lastRoom != null) {
-			WorldGate[] lastRoomGates = lastRoom.tetromino.gates;
-			for (WorldGate g : lastRoomGates) {
-				Vector2i gateExit = new Vector2i(lastRoom.pos).add(g.pos);
-				Vector2i capPos = new Vector2i(gateExit).add(g.dir.getFaceDelta());
-
-				// Check bounds
-				if (checkBounds(capPos, localState))
-					continue;
-
-				// Check if any tiles are already connected
-				if (localState[capPos.x][capPos.y] != null) {
-					WorldRoom facingRoom = localState[capPos.x][capPos.y];
-
-					boolean isAlreadyLinked = false;
-					for (WorldGate fg : facingRoom.tetromino.gates) {
-						Vector2i fgLoc = new Vector2i(facingRoom.pos).add(fg.pos);
-
-						if (fgLoc.equals(capPos) && fg.dir == g.dir.getOpposing()) {
-							// Issok, gates are linked properly here
-							isAlreadyLinked = true;
-							break;
-						}
-					}
-
-					if (isAlreadyLinked)
-						continue; // Ignore this gate if it's already linked
-				}
-
-				// Attempt to cap the openings of the last room.
-				WorldTetromino cap = WorldTetromino.CapTet.CapFromDir(g.dir.getOpposing()).tet;
-				WorldRoom capRoom = new WorldRoom(cap, capPos, WorldRoom.RoomStatus.NONE);
-				boolean capInserted = insertRoom(localState, capRoom);
-
-				// If failure, backtrack
-				if (!capInserted) {
-					System.out.println("Can't place cap");
-					System.out.println("Gate position: " + g.pos);
-
-					success = false;
-					break;
-				}
-			}
+			WorldRoom[][] capOutput = capRoom(localState, lastRoom);
+			if (capOutput == null)
+				success = false;
+			else
+				localState = capOutput;
 		}
 
 		System.out.println("\n\n\nBoard after cap insertion:");
@@ -169,14 +124,29 @@ public class WorldGenerator {
 		if (!success) {
 			System.out.println("Failure");
 
-			// Return old map
-			return parentState;
+			// Return failure
+			return null;
 		}
 
 		// Exit condition! (If pressed to right wall)
-		boolean shouldExit = roomToInsert.pos.x + roomToInsert.tetromino.w >= parentState.length
-				|| roomToInsert.pos.y + roomToInsert.tetromino.h >= parentState[0].length;
-		if (shouldExit) {
+		boolean atEdge = roomToInsert.pos.x + roomToInsert.tetromino.w >= parentState.length - 2
+				|| roomToInsert.pos.y + roomToInsert.tetromino.h >= parentState[0].length - 2; // -2 creates padding on
+																								// edge
+		if (atEdge) {
+			// Try to add caps
+			ArrayList<WorldRoom> caps = new ArrayList<>();
+			WorldRoom[][] capOutput = capRoom(localState, roomToInsert, caps);
+			if (capOutput == null)
+				// Failure to cap, throw
+				return null;
+			else
+				localState = capOutput;
+
+			// Pick one cap room to set as the exit
+			int randIndex = (int) (random.nextFloat() * caps.size());
+			WorldRoom exit = caps.get(randIndex);
+			exit.roomStatus = WorldRoom.RoomStatus.EXIT;
+
 			System.out.println("Natural termination");
 			return localState;
 		}
@@ -220,7 +190,7 @@ public class WorldGenerator {
 					WorldRoom[][] out = growMap(localState, roomToInsert, newRoom);
 
 					// Check if success or not
-					if (out != localState) {
+					if (out != null) {
 						System.out.println("Success, passing up");
 						return out; // Single pathway generation
 					}
@@ -229,7 +199,7 @@ public class WorldGenerator {
 		}
 
 		System.out.println("No valid exit, throwing");
-		return parentState;
+		return null;
 	}
 
 	public static boolean insertRoom(WorldRoom[][] mapState, WorldRoom room) {
@@ -267,6 +237,80 @@ public class WorldGenerator {
 		return true;
 	}
 
+	public static WorldRoom[][] capRoom(WorldRoom[][] parentBoard, WorldRoom room) {
+		return capRoom(parentBoard, room, null);
+	}
+
+	public static WorldRoom[][] capRoom(WorldRoom[][] parentBoard, WorldRoom room, ArrayList<WorldRoom> caps) {
+		// Duplicate room
+		WorldRoom[][] board = duplicateBoard(parentBoard);
+
+		// TODO: Make sure dungeon has no loops
+		WorldGate[] gates = room.tetromino.gates;
+		boolean success = true;
+
+		for (WorldGate g : gates) {
+			Vector2i gateExit = new Vector2i(room.pos).add(g.pos);
+			Vector2i capPos = new Vector2i(gateExit).add(g.dir.getFaceDelta());
+
+			// Check bounds
+			if (checkBounds(capPos, board)) {
+				success = false;
+				break;
+			}
+
+			// Check if any tiles are already connected
+			if (board[capPos.x][capPos.y] != null) {
+				WorldRoom facingRoom = board[capPos.x][capPos.y];
+
+				boolean isAlreadyLinked = false;
+				for (WorldGate fg : facingRoom.tetromino.gates) {
+					Vector2i fgLoc = new Vector2i(facingRoom.pos).add(fg.pos);
+
+					if (fgLoc.equals(capPos) && fg.dir == g.dir.getOpposing()) {
+						// Issok, gates are linked properly here
+						isAlreadyLinked = true;
+						break;
+					}
+				}
+
+				if (isAlreadyLinked)
+					continue; // Ignore this gate if it's already linked
+			}
+
+			// Attempt to cap the openings of the last room.
+			WorldTetromino cap = WorldTetromino.CapTet.CapFromDir(g.dir.getOpposing()).tet;
+			WorldRoom capRoom = new WorldRoom(cap, capPos, WorldRoom.RoomStatus.NONE);
+			boolean capInserted = insertRoom(board, capRoom);
+
+			if (caps != null)
+				caps.add(capRoom); // For outputting successful caps
+
+			// If failure, backtrack
+			if (!capInserted) {
+				success = false;
+				break;
+
+			}
+		}
+
+		if (!success) {
+			if (caps != null)
+				caps.clear();
+			return null;
+		} else
+			return board;
+	}
+
+	private static WorldRoom[][] duplicateBoard(WorldRoom[][] board) {
+		WorldRoom[][] out = new WorldRoom[board.length][board[0].length];
+		for (int i = 0; i < board.length; i++) {
+			out[i] = board[i].clone();
+		}
+
+		return out;
+	}
+
 	public static void printBoard(WorldRoom[][] board) {
 		HashMap<WorldTetromino, Character> labeler = new HashMap<>();
 		char currLabel = '1';
@@ -290,6 +334,11 @@ public class WorldGenerator {
 				if (r != null) {
 					WorldTetromino t = r.tetromino;
 					c = labeler.get(t);
+
+					if (r.roomStatus == WorldRoom.RoomStatus.ENTRANCE)
+						c = 'E';
+					if (r.roomStatus == WorldRoom.RoomStatus.EXIT)
+						c = 'X';
 				}
 
 				System.out.print(c);
