@@ -69,7 +69,7 @@ public class WorldGenerator {
 
 	public static void init() {
 		seed = new Random().nextLong();
-		// seed = 4648919169339757557L;
+		seed = 1842262655753846578L;
 
 		random = new Random(seed);
 
@@ -125,7 +125,7 @@ public class WorldGenerator {
 				Vector2i capPos = new Vector2i(gateExit).add(g.dir.getFaceDelta());
 
 				// Check bounds
-				if (capPos.x < 0 || capPos.x >= localState.length || capPos.y < 0 || capPos.y >= localState[0].length)
+				if (checkBounds(capPos, localState))
 					continue;
 
 				// Check if any tiles are already connected
@@ -174,7 +174,8 @@ public class WorldGenerator {
 		}
 
 		// Exit condition! (If pressed to right wall)
-		boolean shouldExit = roomToInsert.pos.x + roomToInsert.tetromino.w >= parentState.length;
+		boolean shouldExit = roomToInsert.pos.x + roomToInsert.tetromino.w >= parentState.length
+				|| roomToInsert.pos.y + roomToInsert.tetromino.h >= parentState[0].length;
 		if (shouldExit) {
 			System.out.println("Natural termination");
 			return localState;
@@ -191,8 +192,7 @@ public class WorldGenerator {
 			Vector2i exitCellPos = new Vector2i(roomToInsert.pos).add(entrance.pos).add(entrance.dir.getFaceDelta());
 
 			// Check bounds
-			if (exitCellPos.x < 0 || exitCellPos.x >= localState.length || exitCellPos.y < 0
-					|| exitCellPos.y >= localState[0].length)
+			if (checkBounds(exitCellPos, localState))
 				continue;
 
 			// Generate random indexing of array
@@ -212,8 +212,7 @@ public class WorldGenerator {
 
 					Vector2i newRoomAnchor = new Vector2i(exitCellPos).sub(exit.pos);
 					// Check bounds
-					if (newRoomAnchor.x < 0 || newRoomAnchor.x >= localState.length || newRoomAnchor.y < 0
-							|| newRoomAnchor.y >= localState[0].length)
+					if (checkBounds(newRoomAnchor, localState))
 						continue;
 
 					WorldRoom newRoom = new WorldRoom(tetrominos[ind], newRoomAnchor, WorldRoom.RoomStatus.NONE);
@@ -315,5 +314,13 @@ public class WorldGenerator {
 		indexes = (Integer[]) indexesList.toArray();
 
 		return indexes;
+	}
+
+	public static boolean checkBounds(Vector2i v, Object[][] arr) {
+		return checkBounds(v.x, v.y, arr);
+	}
+
+	public static boolean checkBounds(int x, int y, Object[][] arr) {
+		return x < 0 || x >= arr.length || y < 0 || y >= arr[0].length;
 	}
 }
