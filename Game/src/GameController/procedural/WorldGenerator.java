@@ -174,7 +174,7 @@ public class WorldGenerator {
 		for (int i = 0; i < gateIndexes.length; i++) {
 			WorldGate entrance = insertedRoomGates[gateIndexes[i]];
 			Vector2i exitCellPos = new Vector2i(roomToInsert.pos).add(entrance.localPos)
-					.add(entrance.dir.getFaceDelta());
+					.add(entrance.dir.getFaceDelta()); // TODO: Use WorldGate.getOpposingLoc() instead
 
 			// Check bounds
 			if (checkBounds(exitCellPos, localState))
