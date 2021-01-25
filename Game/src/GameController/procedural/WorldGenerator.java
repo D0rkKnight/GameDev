@@ -9,6 +9,10 @@ import java.util.Random;
 
 import org.joml.Vector2i;
 
+import GameController.EntranceData;
+import GameController.Map;
+import GameController.World;
+
 public class WorldGenerator {
 
 	//@formatter:off
@@ -77,6 +81,9 @@ public class WorldGenerator {
 		tetrominoMapLookup = new HashMap<>();
 		tetrominoMapLookup.put(tetrominos[0], "assets/Maps/Forest/forest1.tmx");
 		tetrominoMapLookup.put(WorldTetromino.CapTet.RIGHT.tet, "assets/Maps/Forest/forestE.tmx");
+		tetrominoMapLookup.put(WorldTetromino.CapTet.LEFT.tet, "assets/Maps/Forest/forestX.tmx");
+
+		genWorld();
 	}
 
 	public static void genWorld() {
@@ -84,21 +91,25 @@ public class WorldGenerator {
 
 		// Generate start
 		WorldRoom start = new WorldRoom(WorldTetromino.CapTet.CapFromDir(WorldGate.GateDir.RIGHT).tet,
-				new Vector2i(2, 2), WorldRoom.RoomStatus.ENTRANCE);
+				new Vector2i(0, 0), WorldRoom.RoomStatus.ENTRANCE);
 
 		// Begin growing out
 		board = growMap(board, null, start);
+
+		populateWithMaps(board);
 
 		printBoard(board);
 
 		System.out.println("Seed: " + seed);
 
-		// Convert to maps
+		linkGates(board);
+
+		// Load in board
+		World.currmap = start.map;
 	}
 
 	/**
-	 * Returns a map state. If it's referencing the same map passed in, the
-	 * operation failed.
+	 * Returns a map state. Returns null if operation failed.
 	 * 
 	 * @param parentState
 	 * @param x
@@ -158,7 +169,8 @@ public class WorldGenerator {
 		// Maybe all this goes into another function...
 		for (int i = 0; i < gateIndexes.length; i++) {
 			WorldGate entrance = insertedRoomGates[gateIndexes[i]];
-			Vector2i exitCellPos = new Vector2i(roomToInsert.pos).add(entrance.pos).add(entrance.dir.getFaceDelta());
+			Vector2i exitCellPos = new Vector2i(roomToInsert.pos).add(entrance.localPos)
+					.add(entrance.dir.getFaceDelta());
 
 			// Check bounds
 			if (checkBounds(exitCellPos, localState))
@@ -179,7 +191,7 @@ public class WorldGenerator {
 					if (entrance.dir.getOpposing() != exit.dir)
 						continue; // Skip if not aligned
 
-					Vector2i newRoomAnchor = new Vector2i(exitCellPos).sub(exit.pos);
+					Vector2i newRoomAnchor = new Vector2i(exitCellPos).sub(exit.localPos);
 					// Check bounds
 					if (checkBounds(newRoomAnchor, localState))
 						continue;
@@ -197,6 +209,87 @@ public class WorldGenerator {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Operates on given board
+	 * 
+	 * @param board
+	 */
+	public static void linkGates(WorldRoom[][] board) {
+		for (int x = 0; x < board.length; x++) {
+			for (int y = 0; y < board[0].length; y++) {
+				// Pull relevant board
+				WorldRoom room = board[x][y];
+
+				if (room == null)
+					continue;
+
+				WorldGate r1Gate = room.getGateAtWorldPos(x, y);
+				if (r1Gate == null)
+					continue;
+
+				Vector2i r1GOppLoc = r1Gate.getOpposingLoc();
+
+				WorldRoom oppRoom = board[r1GOppLoc.x][r1GOppLoc.y];
+
+				if (oppRoom == null) {
+					System.err.println("Gate pointing towards nowhere.");
+					System.exit(1);
+				}
+
+				WorldGate r2Gate = oppRoom.getGateAtWorldPos(r1GOppLoc.x, r1GOppLoc.y);
+				if (r2Gate == null) {
+					System.err.println("Opposing room does now own gate at coordinate");
+					System.exit(1);
+				}
+
+				r1Gate.linkedGate = r2Gate;
+
+				// Set link one way since it'll get linked the other way when the loop reaches
+				// the opposing gate.
+				EntranceData start = new EntranceData(room.map, r1Gate.localPos, r1Gate.dir);
+				EntranceData end = new EntranceData(oppRoom.map, r2Gate.localPos, r2Gate.dir);
+				room.map.setEntranceLink(start, end);
+			}
+		}
+
+		// Debug check
+		for (int x = 0; x < board.length; x++) {
+			for (int y = 0; y < board[0].length; y++) {
+				// Pull relevant board
+				WorldRoom room = board[x][y];
+
+				if (room == null)
+					continue;
+
+				WorldGate r1Gate = room.getGateAtWorldPos(x, y);
+				if (r1Gate == null)
+					continue;
+
+				if (r1Gate.linkedGate == null) {
+					System.err.println("Oh no");
+					System.exit(1);
+				}
+			}
+		}
+	}
+
+	public static void populateWithMaps(WorldRoom[][] board) {
+		for (int x = 0; x < board.length; x++) {
+			for (int y = 0; y < board[0].length; y++) {
+				// Pull relevant board
+				WorldRoom room = board[x][y];
+
+				if (room == null || room.map != null)
+					continue;
+
+				String mapUrl = tetrominoMapLookup.get(room.tetromino);
+
+				Map map = World.genMap(mapUrl);
+				room.map = map;
+			}
+		}
 	}
 
 	public static boolean insertRoom(WorldRoom[][] mapState, WorldRoom room) {
@@ -247,7 +340,7 @@ public class WorldGenerator {
 		boolean success = true;
 
 		for (WorldGate g : gates) {
-			Vector2i gateExit = new Vector2i(room.pos).add(g.pos);
+			Vector2i gateExit = new Vector2i(room.pos).add(g.localPos);
 			Vector2i capPos = new Vector2i(gateExit).add(g.dir.getFaceDelta());
 
 			// Check bounds
@@ -262,7 +355,7 @@ public class WorldGenerator {
 
 				boolean isAlreadyLinked = false;
 				for (WorldGate fg : facingRoom.tetromino.gates) {
-					Vector2i fgLoc = new Vector2i(facingRoom.pos).add(fg.pos);
+					Vector2i fgLoc = new Vector2i(facingRoom.pos).add(fg.localPos);
 
 					if (fgLoc.equals(capPos) && fg.dir == g.dir.getOpposing()) {
 						// Issok, gates are linked properly here

@@ -1,13 +1,16 @@
 package Entities.Framework;
 
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 
 import Collision.Collidable;
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
 import Entities.Player;
+import GameController.EntranceData;
 import GameController.GameManager;
 import GameController.World;
+import GameController.procedural.WorldGate;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
 import Utility.Transformation;
@@ -21,13 +24,16 @@ public class Entrance extends Entity implements Collidable {
 
 	private boolean hasBeenConnected = false;
 	public int entranceId;
-	private int targetMap;
-	private int targetEntranceId;
+	private EntranceData dest;
 
 	public boolean isActive = true;
 	private int exclusionRadius = 100;
 
-	public Entrance(String ID, Vector2f position, String name, Vector2f dims, int entranceId) {
+	public Vector2i localMapPos;
+	public WorldGate.GateDir dir;
+
+	public Entrance(String ID, Vector2f position, String name, Vector2f dims, int entranceId, int mapX, int mapY,
+			WorldGate.GateDir dir) {
 		super(ID, position, name);
 
 		dim = dims;
@@ -40,13 +46,19 @@ public class Entrance extends Entity implements Collidable {
 		hb = new Hitbox(this, dim.x, dim.y);
 
 		this.entranceId = entranceId;
+
+		this.localMapPos = new Vector2i(mapX, mapY);
+		this.dir = dir;
 	}
 
-	public void setData(int targetMap, int targetEntranceId) {
-		this.targetMap = targetMap;
-		this.targetEntranceId = targetEntranceId;
+	public void setDest(EntranceData dest) {
+		this.dest = dest;
 
 		hasBeenConnected = true;
+	}
+
+	public EntranceData getDest() {
+		return dest;
 	}
 
 	@Override
@@ -62,7 +74,7 @@ public class Entrance extends Entity implements Collidable {
 
 				@Override
 				public void invoke(Timer timer) {
-					World.switchMap(targetMap, targetEntranceId);
+					World.switchMap(dest);
 					GameManager.switchTimer = null;
 					GameManager.roomChanging = false;
 				}
@@ -81,13 +93,18 @@ public class Entrance extends Entity implements Collidable {
 		this.hb = hb;
 	}
 
+	// TODO: Rethink this system?
 	@Override
 	public Entrance createNew(float xPos, float yPos) {
-		return createNew(xPos, yPos, 30, 30, -1);
+		return createNew(xPos, yPos, 30, 30, -1, 0, 0, "UP");
 	}
 
-	public Entrance createNew(float xPos, float yPos, float width, float height, int entranceId) {
-		return new Entrance(ID, new Vector2f(xPos, yPos), name, new Vector2f(width, height), entranceId);
+	public Entrance createNew(float xPos, float yPos, float width, float height, int entranceId, int mapX, int mapY,
+			String dirStr) {
+		WorldGate.GateDir dir = WorldGate.GateDir.valueOf(dirStr);
+
+		return new Entrance(ID, new Vector2f(xPos, yPos), name, new Vector2f(width, height), entranceId, mapX, mapY,
+				dir);
 	}
 
 	@Override

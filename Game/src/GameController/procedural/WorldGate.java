@@ -3,11 +3,11 @@ package GameController.procedural;
 import org.joml.Vector2i;
 
 public class WorldGate {
-	public Vector2i pos;
+	public Vector2i localPos;
 	public WorldRoom ownerRoom; // Not set while owned by tetromino
 
 	public static enum GateDir {
-		UP, DOWN, LEFT, RIGHT;
+		UP, DOWN, LEFT, RIGHT, NONE;
 
 		public GateDir getOpposing() {
 			switch (this) {
@@ -46,13 +46,17 @@ public class WorldGate {
 	WorldGate linkedGate;
 
 	public WorldGate(int x, int y, GateDir dir) {
-		pos = new Vector2i(x, y);
+		localPos = new Vector2i(x, y);
 		this.dir = dir;
 	}
 
 	public WorldGate(WorldGate worldGate, WorldRoom ownerRoom) {
-		this(worldGate.pos.x, worldGate.pos.y, worldGate.dir);
+		this(worldGate.localPos.x, worldGate.localPos.y, worldGate.dir);
 
 		this.ownerRoom = ownerRoom;
+	}
+
+	public Vector2i getOpposingLoc() {
+		return new Vector2i(localPos).add(ownerRoom.pos).add(dir.getFaceDelta());
 	}
 }

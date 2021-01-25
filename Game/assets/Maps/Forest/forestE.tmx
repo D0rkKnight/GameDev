@@ -25,7 +25,11 @@
  </layer>
  <objectgroup id="4" name="Objects">
   <object id="1" name="Player" type="PLAYER" x="400" y="704" width="7" height="28"/>
-  <object id="2" template="../Templates/Entrance.tx" x="776" y="568" width="24" height="168"/>
+  <object id="2" template="../Templates/Entrance.tx" x="776" y="568" width="24" height="168">
+   <properties>
+    <property name="dir" value="RIGHT"/>
+   </properties>
+  </object>
   <object id="6" template="../Templates/Grass.tx" x="280" y="712"/>
   <object id="7" template="../Templates/Grass.tx" x="216" y="712"/>
   <object id="8" template="../Templates/Grass.tx" x="256" y="712"/>

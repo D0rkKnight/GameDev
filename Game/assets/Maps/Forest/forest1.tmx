@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="8" tileheight="8" infinite="0" nextlayerid="5" nextobjectid="11">
+<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="8" tileheight="8" infinite="0" nextlayerid="5" nextobjectid="13">
  <tileset firstgid="1" source="../Tilesets/Forest/forestTSet.tsx"/>
  <tileset firstgid="1025" source="../Tilesets/coll8x8.tsx"/>
  <layer id="4" name="BG" width="100" height="100">
@@ -18,11 +18,6 @@
   </data>
  </layer>
  <objectgroup id="3" name="Objects">
-  <object id="1" name="Entrance" type="ENTRANCE" x="16" y="32" width="31" height="136">
-   <properties>
-    <property name="entrId" type="int" value="0"/>
-   </properties>
-  </object>
   <object id="2" template="../Templates/Slime.tx" x="472" y="128"/>
   <object id="3" template="../Templates/Slime.tx" x="312" y="360"/>
   <object id="4" template="../Templates/Floater.tx" x="120" y="320"/>
@@ -31,5 +26,18 @@
   <object id="7" template="../Templates/Crawler.tx" x="248" y="528"/>
   <object id="8" template="../Templates/Crawler.tx" x="392" y="520"/>
   <object id="9" template="../Templates/Crawler.tx" x="544" y="520"/>
+  <object id="11" template="../Templates/Entrance.tx" x="776" y="480" width="24" height="256">
+   <properties>
+    <property name="dir" value="RIGHT"/>
+    <property name="entrId" type="int" value="1"/>
+    <property name="mapX" type="int" value="1"/>
+    <property name="mapY" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="12" template="../Templates/Entrance.tx" x="16" y="32" width="24" height="136">
+   <properties>
+    <property name="dir" value="LEFT"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

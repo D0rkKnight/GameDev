@@ -37,6 +37,7 @@ import Entities.Framework.Entity;
 import Entities.Framework.Entrance;
 import Entities.Framework.Interactive;
 import Entities.Framework.Prop;
+import GameController.procedural.WorldGate;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Elements.TileGFX;
@@ -60,8 +61,8 @@ public class Serializer {
 		return doc;
 	}
 
-	public static Document readDoc(String fdir, String fname) throws Exception {
-		return readDoc(new File(fdir + fname));
+	public static Document readDoc(String url) throws Exception {
+		return readDoc(new File(url));
 	}
 
 	private static Element retrieveElement(Element e, String name) {
@@ -74,7 +75,7 @@ public class Serializer {
 
 	public static void loadTileHash(String fdir, String fname, HashMap<Integer, Tile> tileMap) throws Exception {
 
-		Document doc = readDoc(fdir, fname);
+		Document doc = readDoc(fdir + fname);
 		NodeList nList = doc.getElementsByTagName("tile");
 
 		// Grab textures
@@ -348,7 +349,7 @@ public class Serializer {
 			else if (readMode == ReadMode.STATIC) {
 				if (ID.equals("ENTRANCE")) {
 					// Without configuration, the default value of every entrance id is -1.
-					newE = new Entrance(ID, null, ID, new Vector2f(30, 30), -1);
+					newE = new Entrance(ID, null, ID, new Vector2f(30, 30), -1, -1, -1, WorldGate.GateDir.NONE);
 				}
 			}
 
@@ -404,8 +405,8 @@ public class Serializer {
 			HashMap<String, String> propVals = new HashMap<>();
 
 			String ID;
-			float eTileW;
-			float eTileH;
+			Float eTileW = null;
+			Float eTileH = null;
 			float xTPos;
 			float yTPos;
 			String template = entity.getAttribute("template");
@@ -432,10 +433,13 @@ public class Serializer {
 			else {
 				// Load data from what is given
 				ID = (entity).getAttribute("type");
+			}
 
-				// Loading data in tile cords
-				eTileW = Float.parseFloat((entity).getAttribute("width")) / GameManager.tileSpriteSize;
-				eTileH = Float.parseFloat((entity).getAttribute("height")) / GameManager.tileSpriteSize;
+			// Crummy way of doing overrides TODO: Fix this later
+			// Loading data in tile cords
+			if (entity.hasAttribute("width")) {
+				eTileW = Float.parseFloat(entity.getAttribute("width")) / GameManager.tileSpriteSize;
+				eTileH = Float.parseFloat(entity.getAttribute("height")) / GameManager.tileSpriteSize;
 			}
 
 			// Overrides
@@ -478,7 +482,13 @@ public class Serializer {
 				e = ((Button) baseE).createNew(newX, yTPos * newY, GameManager.player);
 			} else if (baseE instanceof Entrance) {
 				int entId = Integer.parseInt(propVals.get("entrId"));
-				e = ((Entrance) baseE).createNew(newX, newY, newW, newH, entId);
+				int mapX = Integer.parseInt(propVals.get("mapX"));
+				int mapY = Integer.parseInt(propVals.get("mapY"));
+				String dir = propVals.get("dir");
+
+				System.out.println("Dir: " + dir);
+
+				e = ((Entrance) baseE).createNew(newX, newY, newW, newH, entId, mapX, mapY, dir);
 			} else {
 				e = baseE.createNew(newX, newY);
 			}
@@ -527,12 +537,6 @@ public class Serializer {
 					data.put(key, value);
 				}
 			}
-
-			// Dump data
-			for (String key : data.keySet()) {
-				System.out.println(key + ", " + data.get(key));
-			}
-			System.out.println();
 
 			Template t = new Template(data);
 			templates.put(obj.getAttribute("name"), t);

@@ -25,7 +25,7 @@ public class Map {
 	public ArrayList<CompEdge> compEdges;
 	private Document file;
 
-	public HashMap<Integer, int[]> entranceLinks;
+	public HashMap<EntranceData, EntranceData> entranceLinks;
 
 	public Map(HashMap<String, Tile[][]> mapData, Document file) {
 		this.file = file;
@@ -38,7 +38,7 @@ public class Map {
 		generateEdges(grids.get(GameManager.Grid.COLL.name));
 	}
 
-	public void setEntranceLink(int start, int[] end) {
+	public void setEntranceLink(EntranceData start, EntranceData end) {
 		entranceLinks.put(start, end);
 	}
 
@@ -53,15 +53,18 @@ public class Map {
 		for (Entity e : out) {
 			if (e instanceof Entrance) {
 				Entrance eEnt = (Entrance) e;
-				int[] dest = entranceLinks.get(eEnt.entranceId);
 
-				System.out.println("Entrance link count: " + entranceLinks.size());
-				for (int key : entranceLinks.keySet())
-					System.out.println("Target entrance: " + key);
+				// Cycle through all entranceLinks and grab the right one
+				EntranceData matchingDataset = null;
+				for (EntranceData entD : entranceLinks.keySet()) {
+					if (entD.mapPos.equals(eEnt.localMapPos) && entD.dir == eEnt.dir) {
+						matchingDataset = entD;
+					}
+				}
 
-				System.out.println("Entrance id: " + eEnt.entranceId);
-
-				eEnt.setData(dest[0], dest[1]);
+				// Deliver data to the entrance
+				EntranceData dest = entranceLinks.get(matchingDataset);
+				eEnt.setDest(dest);
 			}
 		}
 

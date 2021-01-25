@@ -13,39 +13,31 @@ import Graphics.Drawer;
 import Tiles.Tile;
 
 public class World {
-
-	// Storage for tiles
-	private static HashMap<Integer, Map> maps;
 	public static Map currmap;
 
 	public static void init() {
-		maps = new HashMap<>();
-
-		Map map0 = genMap("assets/Maps/Forest/", "forestE.tmx");
-		map0.setEntranceLink(0, new int[] { 1, 0 }); // Entrance 0 is to exit 0 of
-		// map 1
-
-		maps.put(0, map0);
-
-		Map map1 = genMap("assets/Maps/Forest/", "forest1.tmx");
-		map1.setEntranceLink(0, new int[] { 0, 0 });
-
-		maps.put(1, map1);
-
-		currmap = maps.get(0);
+//		Map map0 = genMap("assets/Maps/Forest/forestE.tmx");
+//		Map map1 = genMap("assets/Maps/Forest/forestX.tmx");
+//
+//		map0.setEntranceLink(new EntranceData(map0, new Vector2i(0, 0), WorldGate.GateDir.RIGHT),
+//				new EntranceData(map1, new Vector2i(0, 0), WorldGate.GateDir.LEFT));
+//		map1.setEntranceLink(new EntranceData(map1, new Vector2i(0, 0), WorldGate.GateDir.LEFT),
+//				new EntranceData(map0, new Vector2i(0, 0), WorldGate.GateDir.RIGHT));
+//
+//		currmap = map0;
 		loadMap(currmap);
 	}
 
 	/**
-	 * Initializes a map, and assigns it to currmap.
+	 * Initializes a map
 	 * 
 	 * @param fileDir
 	 * @param fileName
 	 */
-	private static Map genMap(String fileDir, String fileName) {
+	public static Map genMap(String url) {
 		Document mapFile = null;
 		try {
-			mapFile = Serializer.readDoc(fileDir, fileName);
+			mapFile = Serializer.readDoc(url);
 		} catch (Exception e) {
 			System.err.println("File not found");
 			e.printStackTrace();
@@ -87,7 +79,7 @@ public class World {
 			if (head.equals("fg"))
 				rlFG.add(key);
 		}
-		// TESTING
+
 		Drawer.generateLayerVertexData(map.grids, rlBG, Drawer.LayerEnum.BG);
 		Drawer.generateLayerVertexData(map.grids, rlGround, Drawer.LayerEnum.GROUND);
 		Drawer.generateLayerVertexData(map.grids, rlFG, Drawer.LayerEnum.FG);
@@ -99,7 +91,7 @@ public class World {
 		return ents;
 	}
 
-	public static void switchMap(int mapId, int entranceId) {
+	public static void switchMap(EntranceData dest) {
 		Debug.clearElements();
 		Drawer.clearScreenBuffer(); // This gets called before the draw call anyways
 		Drawer.onSceneChange();
@@ -111,18 +103,28 @@ public class World {
 		GameManager.entityWaitingList.clear();
 		GameManager.updateEntityList();
 
-		currmap = maps.get(mapId);
+		currmap = dest.map;
 		ArrayList<Entity> ents = loadMap(currmap);
 
+		// Try to move player
+		boolean success = false;
 		for (Entity e : ents) {
 			if (e instanceof Entrance) {
 				Entrance enter = (Entrance) e;
-				if (enter.entranceId == entranceId) {
+
+				if (enter.localMapPos.equals(dest.mapPos) && enter.dir == dest.dir) {
 					GameManager.player.getPosition().set(enter.getPosition());
 					enter.isActive = false;
+					success = true;
+					System.out.println(GameManager.player.getPosition());
+
 					break;
 				}
 			}
+		}
+
+		if (success == false) {
+			System.err.println("Failed to move player");
 		}
 
 		// Reset time & snap camera once operations are done
