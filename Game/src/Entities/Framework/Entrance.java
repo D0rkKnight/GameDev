@@ -23,7 +23,6 @@ public class Entrance extends Entity implements Collidable {
 	private Hitbox hb;
 
 	private boolean hasBeenConnected = false;
-	public int entranceId;
 	private EntranceData dest;
 
 	public boolean isActive = true;
@@ -32,7 +31,7 @@ public class Entrance extends Entity implements Collidable {
 	public Vector2i localMapPos;
 	public WorldGate.GateDir dir;
 
-	public Entrance(String ID, Vector2f position, String name, Vector2f dims, int entranceId, int mapX, int mapY,
+	public Entrance(String ID, Vector2f position, String name, Vector2f dims, int mapX, int mapY,
 			WorldGate.GateDir dir) {
 		super(ID, position, name);
 
@@ -44,8 +43,6 @@ public class Entrance extends Entity implements Collidable {
 
 		// Configure hitbox
 		hb = new Hitbox(this, dim.x, dim.y);
-
-		this.entranceId = entranceId;
 
 		this.localMapPos = new Vector2i(mapX, mapY);
 		this.dir = dir;
@@ -96,15 +93,13 @@ public class Entrance extends Entity implements Collidable {
 	// TODO: Rethink this system?
 	@Override
 	public Entrance createNew(float xPos, float yPos) {
-		return createNew(xPos, yPos, 30, 30, -1, 0, 0, "UP");
+		return createNew(xPos, yPos, 30, 30, 0, 0, "UP");
 	}
 
-	public Entrance createNew(float xPos, float yPos, float width, float height, int entranceId, int mapX, int mapY,
-			String dirStr) {
+	public Entrance createNew(float xPos, float yPos, float width, float height, int mapX, int mapY, String dirStr) {
 		WorldGate.GateDir dir = WorldGate.GateDir.valueOf(dirStr);
 
-		return new Entrance(ID, new Vector2f(xPos, yPos), name, new Vector2f(width, height), entranceId, mapX, mapY,
-				dir);
+		return new Entrance(ID, new Vector2f(xPos, yPos), name, new Vector2f(width, height), mapX, mapY, dir);
 	}
 
 	@Override

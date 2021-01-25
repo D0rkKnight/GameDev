@@ -1,5 +1,7 @@
 package GameController.procedural;
 
+import java.util.ArrayList;
+
 import org.joml.Vector2i;
 
 import GameController.Map;
@@ -30,15 +32,17 @@ public class WorldRoom {
 	/*
 	 * has time complexity of n
 	 */
-	public WorldGate getGateAtWorldPos(int x, int y) {
+	public ArrayList<WorldGate> getGatesAtWorldPos(int x, int y) {
 		Vector2i roomSpacePos = new Vector2i(x, y).sub(pos);
+
+		ArrayList<WorldGate> out = new ArrayList<>();
 
 		for (WorldGate gate : gates) {
 			if (gate.localPos.equals(roomSpacePos)) {
-				return gate;
+				out.add(gate);
 			}
 		}
 
-		return null;
+		return out;
 	}
 }

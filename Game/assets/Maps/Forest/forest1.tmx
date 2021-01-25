@@ -29,7 +29,6 @@
   <object id="11" template="../Templates/Entrance.tx" x="776" y="480" width="24" height="256">
    <properties>
     <property name="dir" value="RIGHT"/>
-    <property name="entrId" type="int" value="1"/>
     <property name="mapX" type="int" value="1"/>
     <property name="mapY" type="int" value="1"/>
    </properties>

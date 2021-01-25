@@ -25,16 +25,16 @@ public class WorldGenerator {
 			new WorldGate[]{
 				new WorldGate(0, 0, WorldGate.GateDir.LEFT),
 				new WorldGate(1, 1, WorldGate.GateDir.RIGHT)
+			}),
+		new WorldTetromino(
+			new int[][] {
+				{1}
+			}, true, 
+			new WorldGate[]{
+				new WorldGate(0, 0, WorldGate.GateDir.LEFT),
+				new WorldGate(0, 0, WorldGate.GateDir.DOWN),
+				new WorldGate(0, 0, WorldGate.GateDir.RIGHT)
 			})//,
-//		new WorldTetromino(
-//			new int[][] {
-//				{1}
-//			}, true, 
-//			new WorldGate[]{
-//				new WorldGate(0, 0, WorldGate.GateDir.LEFT),
-//				new WorldGate(0, 0, WorldGate.GateDir.DOWN),
-//				new WorldGate(0, 0, WorldGate.GateDir.RIGHT)
-//			}),
 //		new WorldTetromino(
 //			new int[][] {
 //				{1},
@@ -73,15 +73,19 @@ public class WorldGenerator {
 	public static void init() {
 		// Random generator
 		seed = new Random().nextLong();
-		// seed = 5189681989908125063L;
+		seed = 5779994054622002424L;
 		random = new Random(seed);
 
 		// Initiate tetromino map pairings, necessary because caps need to be mapped
 		// too.
 		tetrominoMapLookup = new HashMap<>();
 		tetrominoMapLookup.put(tetrominos[0], "assets/Maps/Forest/forest1.tmx");
+		tetrominoMapLookup.put(tetrominos[1], "assets/Maps/Forest/forest2.tmx");
+
 		tetrominoMapLookup.put(WorldTetromino.CapTet.RIGHT.tet, "assets/Maps/Forest/forestE.tmx");
 		tetrominoMapLookup.put(WorldTetromino.CapTet.LEFT.tet, "assets/Maps/Forest/forestX.tmx");
+		tetrominoMapLookup.put(WorldTetromino.CapTet.UP.tet, "assets/Maps/Forest/forestUC.tmx");
+		tetrominoMapLookup.put(WorldTetromino.CapTet.DOWN.tet, "assets/Maps/Forest/forestDC.tmx");
 
 		genWorld();
 	}
@@ -98,7 +102,7 @@ public class WorldGenerator {
 
 		populateWithMaps(board);
 
-		printBoard(board);
+		// printBoard(board);
 
 		System.out.println("Seed: " + seed);
 
@@ -225,51 +229,42 @@ public class WorldGenerator {
 				if (room == null)
 					continue;
 
-				WorldGate r1Gate = room.getGateAtWorldPos(x, y);
-				if (r1Gate == null)
+				ArrayList<WorldGate> r1Gates = room.getGatesAtWorldPos(x, y);
+				if (r1Gates.isEmpty())
 					continue;
 
-				Vector2i r1GOppLoc = r1Gate.getOpposingLoc();
+				for (WorldGate r1g : r1Gates) {
+					Vector2i r1GOppLoc = r1g.getOpposingLoc();
 
-				WorldRoom oppRoom = board[r1GOppLoc.x][r1GOppLoc.y];
+					WorldRoom oppRoom = board[r1GOppLoc.x][r1GOppLoc.y];
 
-				if (oppRoom == null) {
-					System.err.println("Gate pointing towards nowhere.");
-					System.exit(1);
-				}
+					if (oppRoom == null) {
+						System.err.println("Gate pointing towards nowhere.");
+						System.exit(1);
+					}
 
-				WorldGate r2Gate = oppRoom.getGateAtWorldPos(r1GOppLoc.x, r1GOppLoc.y);
-				if (r2Gate == null) {
-					System.err.println("Opposing room does now own gate at coordinate");
-					System.exit(1);
-				}
+					ArrayList<WorldGate> r2Gates = oppRoom.getGatesAtWorldPos(r1GOppLoc.x, r1GOppLoc.y);
+					if (r2Gates.isEmpty()) {
+						System.err.println("Opposing room does now own gate at coordinate");
+						System.exit(1);
+					}
 
-				r1Gate.linkedGate = r2Gate;
+					// Find target gate
+					WorldGate r2g = null;
+					for (WorldGate tempG : r2Gates) {
+						if (tempG.dir.getOpposing() == r1g.dir) {
+							r2g = tempG;
+							break;
+						}
+					}
 
-				// Set link one way since it'll get linked the other way when the loop reaches
-				// the opposing gate.
-				EntranceData start = new EntranceData(room.map, r1Gate.localPos, r1Gate.dir);
-				EntranceData end = new EntranceData(oppRoom.map, r2Gate.localPos, r2Gate.dir);
-				room.map.setEntranceLink(start, end);
-			}
-		}
+					r1g.linkedGate = r2g;
 
-		// Debug check
-		for (int x = 0; x < board.length; x++) {
-			for (int y = 0; y < board[0].length; y++) {
-				// Pull relevant board
-				WorldRoom room = board[x][y];
-
-				if (room == null)
-					continue;
-
-				WorldGate r1Gate = room.getGateAtWorldPos(x, y);
-				if (r1Gate == null)
-					continue;
-
-				if (r1Gate.linkedGate == null) {
-					System.err.println("Oh no");
-					System.exit(1);
+					// Set link one way since it'll get linked the other way when the loop reaches
+					// the opposing gate.
+					EntranceData start = new EntranceData(room.map, r1g.localPos, r1g.dir);
+					EntranceData end = new EntranceData(oppRoom.map, r2g.localPos, r2g.dir);
+					room.map.setEntranceLink(start, end);
 				}
 			}
 		}

@@ -349,7 +349,7 @@ public class Serializer {
 			else if (readMode == ReadMode.STATIC) {
 				if (ID.equals("ENTRANCE")) {
 					// Without configuration, the default value of every entrance id is -1.
-					newE = new Entrance(ID, null, ID, new Vector2f(30, 30), -1, -1, -1, WorldGate.GateDir.NONE);
+					newE = new Entrance(ID, null, ID, new Vector2f(30, 30), -1, -1, WorldGate.GateDir.NONE);
 				}
 			}
 
@@ -481,14 +481,11 @@ public class Serializer {
 			} else if (baseE instanceof Interactive) {
 				e = ((Button) baseE).createNew(newX, yTPos * newY, GameManager.player);
 			} else if (baseE instanceof Entrance) {
-				int entId = Integer.parseInt(propVals.get("entrId"));
 				int mapX = Integer.parseInt(propVals.get("mapX"));
 				int mapY = Integer.parseInt(propVals.get("mapY"));
 				String dir = propVals.get("dir");
 
-				System.out.println("Dir: " + dir);
-
-				e = ((Entrance) baseE).createNew(newX, newY, newW, newH, entId, mapX, mapY, dir);
+				e = ((Entrance) baseE).createNew(newX, newY, newW, newH, mapX, mapY, dir);
 			} else {
 				e = baseE.createNew(newX, newY);
 			}

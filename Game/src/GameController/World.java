@@ -16,15 +16,6 @@ public class World {
 	public static Map currmap;
 
 	public static void init() {
-//		Map map0 = genMap("assets/Maps/Forest/forestE.tmx");
-//		Map map1 = genMap("assets/Maps/Forest/forestX.tmx");
-//
-//		map0.setEntranceLink(new EntranceData(map0, new Vector2i(0, 0), WorldGate.GateDir.RIGHT),
-//				new EntranceData(map1, new Vector2i(0, 0), WorldGate.GateDir.LEFT));
-//		map1.setEntranceLink(new EntranceData(map1, new Vector2i(0, 0), WorldGate.GateDir.LEFT),
-//				new EntranceData(map0, new Vector2i(0, 0), WorldGate.GateDir.RIGHT));
-//
-//		currmap = map0;
 		loadMap(currmap);
 	}
 
@@ -116,7 +107,6 @@ public class World {
 					GameManager.player.getPosition().set(enter.getPosition());
 					enter.isActive = false;
 					success = true;
-					System.out.println(GameManager.player.getPosition());
 
 					break;
 				}

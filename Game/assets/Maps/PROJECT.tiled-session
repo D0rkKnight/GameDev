@@ -245,23 +245,47 @@
         },
         "Forest/forest1.tmx": {
             "scale": 1,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 366,
+                "y": 418
+            }
+        },
+        "Forest/forest2.tmx": {
+            "scale": 1,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 376,
-                "y": 293
+                "x": 395,
+                "y": 203
+            }
+        },
+        "Forest/forestDC.tmx": {
+            "scale": 1.2580445544554455,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 396.64731923266106,
+                "y": 200.3108706345302
             }
         },
         "Forest/forestE.tmx": {
             "scale": 1.5,
-            "selectedLayer": 4,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 462,
-                "y": 646.6666666666667
+                "x": 461.3333333333333,
+                "y": 646
+            }
+        },
+        "Forest/forestUC.tmx": {
+            "scale": 1.2580445544554455,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 396.64731923266106,
+                "y": 200.3108706345302
             }
         },
         "Forest/forestX.tmx": {
             "scale": 2,
-            "selectedLayer": 3,
+            "selectedLayer": 2,
             "viewCenter": {
                 "x": 119,
                 "y": 195
@@ -416,7 +440,7 @@
             "scaleInDock": 1
         }
     },
-    "map.height": 100,
+    "map.height": 50,
     "map.lastUsedExportFilter": "Tiled map files (*.tmx *.xml)",
     "map.lastUsedFormat": "tmx",
     "map.layerDataFormat": null,
@@ -433,6 +457,7 @@
     "project": "PROJECT.tiled-project",
     "property.type": "string",
     "recentFiles": [
+        "Forest/forest2.tmx",
         "Tilesets/Forest/forestTSet.tsx",
         "Tilesets/coll8x8.tsx",
         "Forest/forestE.tmx",
@@ -443,8 +468,7 @@
         "test2.tmx",
         "Tilesets/coll.tsx",
         "Rules/coll8x8.tsx",
-        "Rules/rules0.tmx",
-        "Rules/rules1.tmx"
+        "Rules/rules0.tmx"
     ],
     "tileset.lastUsedFilter": "Tiled tileset files (*.tsx *.xml)",
     "tileset.lastUsedFormat": "tsx",
