@@ -73,7 +73,7 @@ public class WorldGenerator {
 	public static void init() {
 		// Random generator
 		seed = new Random().nextLong();
-		seed = 5779994054622002424L;
+		// seed = 5779994054622002424L;
 		random = new Random(seed);
 
 		// Initiate tetromino map pairings, necessary because caps need to be mapped

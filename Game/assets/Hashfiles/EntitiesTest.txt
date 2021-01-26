@@ -10,6 +10,7 @@ Name,Crawler:ID,CRAWLER:HP,100:Stamina,100:HPregen,0:StaminaRegen,0
 INTERACTABLES
 
 Name,Button:ID,BUTTON:State,0:TimeOn,1000:ActivationDistance,10000
+Name,Sign:ID,SIGN
 
 
 

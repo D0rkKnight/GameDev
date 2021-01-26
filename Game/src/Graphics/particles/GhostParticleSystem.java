@@ -21,10 +21,10 @@ public class GhostParticleSystem extends ParticleSystem {
 
 		activeSubTex = new SubTexture(tex, 0, 0, 1, 1);
 
-		timer = new Timer(50, (t) -> {
+		timer = new Timer(10, (t) -> {
 
 			if (endOfData < particleLimit) {
-				GhostParticle p = new GhostParticle(this, pvCount, 1000, particleShape, vertexPos, uvs, activeSubTex,
+				GhostParticle p = new GhostParticle(this, pvCount, 200, particleShape, vertexPos, uvs, activeSubTex,
 						activeTransform, dims);
 				p.init();
 
@@ -48,5 +48,13 @@ public class GhostParticleSystem extends ParticleSystem {
 		super.update();
 
 		timer.update();
+	}
+
+	public void pauseParticleGeneration() {
+		timer.pause();
+	}
+
+	public void resumeParticleGeneration() {
+		timer.resume();
 	}
 }

@@ -97,6 +97,7 @@ public class Player extends Combatant {
 
 		pSys = new GhostParticleSystem(animSheet.tex, 20, rendDims);
 		pSys.init();
+		pSys.pauseParticleGeneration();
 	}
 
 	@Override
@@ -228,6 +229,9 @@ public class Player extends Combatant {
 				}
 
 			});
+
+			// Update pSys
+			pSys.resumeParticleGeneration();
 		}
 		// Bring entity back to normal
 		if (movementMode == Movement.CONTROLLED && justDashed) {
@@ -235,6 +239,9 @@ public class Player extends Combatant {
 			pData.velo.x *= 0.8;
 			justDashed = false;
 			decelMode(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
+
+			// Update pSys
+			pSys.pauseParticleGeneration();
 		}
 
 	}

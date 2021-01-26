@@ -33,6 +33,7 @@ import Entities.CrawlerEnemy;
 import Entities.FloaterEnemy;
 import Entities.Player;
 import Entities.ShardSlimeEnemy;
+import Entities.Sign;
 import Entities.Framework.Entity;
 import Entities.Framework.Entrance;
 import Entities.Framework.Interactive;
@@ -337,12 +338,17 @@ public class Serializer {
 			}
 
 			else if (readMode == ReadMode.INTERACTABLE) {
-				int STATE = rhInt("State");
-				int TIME_ON = rhInt("TimeOn");
-				float ACT_DIST = rhFloat("ActivationDistance");
 
 				if (ID.equals("BUTTON")) {
+					int STATE = rhInt("State");
+					int TIME_ON = rhInt("TimeOn");
+					float ACT_DIST = rhFloat("ActivationDistance");
+
 					newE = new Button(ID, null, ID, STATE, TIME_ON, ACT_DIST, null);
+				}
+
+				if (ID.equals("SIGN")) {
+					newE = new Sign(ID, null, ID, "THIS SIGN IS A PROTOTYPE");
 				}
 			}
 
@@ -360,7 +366,7 @@ public class Serializer {
 			}
 
 			if (newE == null) {
-				new Exception("Enemy cannot be found").printStackTrace();
+				new Exception("Entity cannot be found").printStackTrace();
 				System.exit(1);
 			}
 
@@ -379,6 +385,10 @@ public class Serializer {
 
 	private static float rhFloat(String str) {
 		return Float.parseFloat(activeDataHash.get(str));
+	}
+
+	private static String rhString(String str) {
+		return activeDataHash.get(str);
 	}
 
 	@SuppressWarnings("unused")
@@ -486,6 +496,10 @@ public class Serializer {
 				String dir = propVals.get("dir");
 
 				e = ((Entrance) baseE).createNew(newX, newY, newW, newH, mapX, mapY, dir);
+			} else if (baseE instanceof Sign) {
+				String text = propVals.get("text");
+				e = ((Sign) baseE).createNew(newX, newY, text);
+
 			} else {
 				e = baseE.createNew(newX, newY);
 			}
@@ -537,6 +551,11 @@ public class Serializer {
 
 			Template t = new Template(data);
 			templates.put(obj.getAttribute("name"), t);
+
+			if (!obj.hasAttribute("name")) {
+				System.err.println("Name not set for template " + f.getName());
+				System.exit(1);
+			}
 		}
 	}
 

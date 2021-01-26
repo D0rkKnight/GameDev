@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <object name="Sign" type="SIGN" width="32" height="32">
+  <properties>
+   <property name="text" value="DEFAULT TEXT"/>
+  </properties>
+ </object>
+</template>

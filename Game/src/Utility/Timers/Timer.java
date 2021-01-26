@@ -17,6 +17,8 @@ public class Timer {
 	private long loopTime;
 	private long loopLength;
 
+	private boolean isPaused;
+
 	protected ArrayList<TimerCallback> cbs;
 
 	public ArrayList<Timer> subTimers;
@@ -36,6 +38,10 @@ public class Timer {
 
 	// Returns whether the time threshold is crossed.
 	public boolean update() {
+		// Short circuit
+		if (isPaused)
+			return false;
+
 		currTime = Time.getFrameTime();
 		if (currTime > loopTime) {
 			loopTime = currTime + loopLength;
@@ -51,5 +57,27 @@ public class Timer {
 			t.update(); // Note: child timers have to be freed by deletion from this array.
 
 		return false;
+	}
+
+	public void pause() {
+		isPaused = true;
+
+		// Pause children timers
+		for (Timer t : subTimers)
+			t.pause();
+	}
+
+	public void resume() {
+		isPaused = false;
+
+		// Advance the time
+		currTime = Time.getFrameTime();
+		while (currTime > loopTime) {
+			loopTime += loopLength;
+		}
+
+		// Update children
+		for (Timer t : subTimers)
+			t.resume();
 	}
 }
