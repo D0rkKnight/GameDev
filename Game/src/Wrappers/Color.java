@@ -36,6 +36,32 @@ public class Color {
 		a = col.a;
 	}
 
+	public static enum hexFormat {
+		ARGB
+	}
+
+	public Color(String hex, hexFormat format) {
+		switch (format) {
+		case ARGB:
+			// Shear off hashtag, then split
+			String sheared = hex.replace("#", "");
+			float[] data = new float[4];
+			for (int i = 0; i < data.length; i++) {
+				data[i] = Integer.parseInt(sheared.substring(i * 2, i * 2 + 2), 16) / 255f;
+			}
+
+			a = data[0];
+			r = data[1];
+			g = data[2];
+			b = data[3];
+
+			break;
+		default:
+			System.err.println("Color format not recognized");
+			System.exit(1);
+		}
+	}
+
 	public static void setGLClear(Color col) {
 		glClearColor(col.r, col.g, col.b, col.a);
 	}

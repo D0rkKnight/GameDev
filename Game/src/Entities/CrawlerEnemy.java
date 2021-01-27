@@ -7,8 +7,9 @@ import org.joml.Vector3f;
 
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
-import Entities.Framework.Combatant;
 import Entities.Framework.Enemy;
+import Entities.Framework.Entity;
+import GameController.EntityData;
 import GameController.GameManager;
 import GameController.Map;
 import GameController.World;
@@ -70,9 +71,8 @@ public class CrawlerEnemy extends Enemy {
 		isInvuln = baseInvulnState;
 	}
 
-	@Override
-	public Combatant createNew(float xPos, float yPos, Stats stats) {
-		return new CrawlerEnemy(ID, new Vector2f(xPos, yPos), name, stats);
+	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
+		return new CrawlerEnemy(vals.str("type"), pos, vals.str("name"), Stats.fromED(vals));
 	}
 
 	@Override

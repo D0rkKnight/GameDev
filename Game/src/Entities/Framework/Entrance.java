@@ -7,6 +7,7 @@ import Collision.Collidable;
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
 import Entities.Player;
+import GameController.EntityData;
 import GameController.EntranceData;
 import GameController.GameManager;
 import GameController.World;
@@ -90,16 +91,11 @@ public class Entrance extends Entity implements Collidable {
 		this.hb = hb;
 	}
 
-	// TODO: Rethink this system?
-	@Override
-	public Entrance createNew(float xPos, float yPos) {
-		return createNew(xPos, yPos, 30, 30, 0, 0, "UP");
-	}
+	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
+		// TODO Auto-generated method stub
+		WorldGate.GateDir dir = WorldGate.GateDir.valueOf(vals.str("dir"));
 
-	public Entrance createNew(float xPos, float yPos, float width, float height, int mapX, int mapY, String dirStr) {
-		WorldGate.GateDir dir = WorldGate.GateDir.valueOf(dirStr);
-
-		return new Entrance(ID, new Vector2f(xPos, yPos), name, new Vector2f(width, height), mapX, mapY, dir);
+		return new Entrance(vals.str("type"), pos, vals.str("name"), dims, vals.in("mapX"), vals.in("mapY"), dir);
 	}
 
 	@Override
@@ -112,4 +108,5 @@ public class Entrance extends Entity implements Collidable {
 				isActive = true;
 		}
 	}
+
 }

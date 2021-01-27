@@ -1,5 +1,7 @@
 package Wrappers;
 
+import GameController.EntityData;
+
 public class Stats {
 	public float health;
 	public float maxHealth;
@@ -23,5 +25,16 @@ public class Stats {
 
 	public Stats(Stats stats) {
 		this(stats.maxHealth, stats.maxStamina, stats.healthRegen, stats.staminaRegen);
+	}
+
+	public static Stats fromED(EntityData vals) {
+		float maxHealth = vals.d.containsKey("maxHealth") ? vals.fl("maxHealth") : 100;
+		float maxStamina = vals.d.containsKey("maxStamina") ? vals.fl("maxStamina") : 100;
+		float healthRegen = vals.d.containsKey("healthRegen") ? vals.fl("healthRegen") : 0;
+		float staminaRegen = vals.d.containsKey("staminaRegen") ? vals.fl("staminaRegen") : 0;
+
+		Stats s = new Stats(maxHealth, maxStamina, healthRegen, staminaRegen);
+
+		return s;
 	}
 }

@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -28,22 +30,13 @@ import org.xml.sax.SAXException;
 import Accessories.Accessory;
 import Collision.Shapes.Shape;
 import Collision.Shapes.Shape.ShapeEnum;
-import Entities.Button;
-import Entities.CrawlerEnemy;
-import Entities.FloaterEnemy;
 import Entities.Player;
-import Entities.ShardSlimeEnemy;
-import Entities.Sign;
 import Entities.Framework.Entity;
-import Entities.Framework.Entrance;
-import Entities.Framework.Interactive;
-import Entities.Framework.Prop;
-import GameController.procedural.WorldGate;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Elements.TileGFX;
 import Tiles.Tile;
-import Wrappers.Stats;
+import Wrappers.Color;
 
 public class Serializer {
 
@@ -271,113 +264,113 @@ public class Serializer {
 
 	private static ReadMode readMode = ReadMode.NONE;
 	private static HashMap<String, String> activeDataHash;
-
-	public static HashMap<String, Entity> loadEntityHash(String fileDir, String fileName)
-			throws NumberFormatException, IOException {
-		BufferedReader charFile = null;
-		try {
-			charFile = new BufferedReader(new FileReader(fileDir + fileName));
-		} catch (FileNotFoundException e) {
-			System.err.println("File not found");
-			e.printStackTrace();
-		}
-
-		HashMap<String, Entity> entityHash = new HashMap<String, Entity>();
-
-		String line;
-		while ((line = charFile.readLine()) != null) {
-			if (line.isEmpty())
-				continue;
-
-			if (line.contains("COMBATANTS")) {
-				readMode = ReadMode.COMBATANT;
-				continue;
-			} else if (line.contains("INTERACTABLES")) {
-				readMode = ReadMode.INTERACTABLE;
-				continue;
-			} else if (line.contains("STATIC")) {
-				readMode = ReadMode.STATIC;
-				continue;
-			} else if (line.contains("PROPS")) {
-				readMode = ReadMode.PROP;
-				continue;
-			}
-
-			if (readMode == ReadMode.NONE) {
-				new Exception("Read mode not specified at start of file").printStackTrace();
-				System.exit(1);
-			}
-
-			// Format the data
-			String[] enemy = line.split(":");
-			activeDataHash = new HashMap<>();
-			for (String str : enemy) {
-				String[] splitStr = str.split(",");
-				activeDataHash.put(splitStr[0], splitStr[1]);
-			}
-
-			String ID = activeDataHash.get("ID");
-			Entity newE = null;
-
-			if (readMode == ReadMode.COMBATANT) {
-				float HP = rhFloat("HP");
-				float ST = rhFloat("Stamina");
-				float HPR = rhFloat("HPregen");
-				float STR = rhFloat("StaminaRegen");
-				Stats stats = new Stats(HP, ST, HPR, STR);
-
-				if (ID.equals("PLAYER")) {
-					newE = new Player(ID, null, ID, stats);
-				} else if (ID.equals("FLOATER")) {
-					newE = new FloaterEnemy(ID, null, ID, stats);
-				} else if (ID.equals("BOUNCER")) {
-					newE = new ShardSlimeEnemy(ID, null, ID, stats);
-				} else if (ID.equals("CRAWLER")) {
-					newE = new CrawlerEnemy(ID, null, ID, stats);
-				}
-			}
-
-			else if (readMode == ReadMode.INTERACTABLE) {
-
-				if (ID.equals("BUTTON")) {
-					int STATE = rhInt("State");
-					int TIME_ON = rhInt("TimeOn");
-					float ACT_DIST = rhFloat("ActivationDistance");
-
-					newE = new Button(ID, null, ID, STATE, TIME_ON, ACT_DIST, null);
-				}
-
-				if (ID.equals("SIGN")) {
-					newE = new Sign(ID, null, ID, "THIS SIGN IS A PROTOTYPE");
-				}
-			}
-
-			else if (readMode == ReadMode.STATIC) {
-				if (ID.equals("ENTRANCE")) {
-					// Without configuration, the default value of every entrance id is -1.
-					newE = new Entrance(ID, null, ID, new Vector2f(30, 30), -1, -1, WorldGate.GateDir.NONE);
-				}
-			}
-
-			else if (readMode == ReadMode.PROP) {
-				if (ID.equals("PROP")) {
-					newE = new Prop(ID, null, ID);
-				}
-			}
-
-			if (newE == null) {
-				new Exception("Entity cannot be found").printStackTrace();
-				System.exit(1);
-			}
-
-			entityHash.put(ID, newE);
-		}
-
-		// Also load templates
-		loadTemplates("assets/Maps/Templates");
-
-		return entityHash;
-	}
+//
+//	public static HashMap<String, Entity> loadEntityHash(String fileDir, String fileName)
+//			throws NumberFormatException, IOException {
+//		BufferedReader charFile = null;
+//		try {
+//			charFile = new BufferedReader(new FileReader(fileDir + fileName));
+//		} catch (FileNotFoundException e) {
+//			System.err.println("File not found");
+//			e.printStackTrace();
+//		}
+//
+//		HashMap<String, Entity> entityHash = new HashMap<String, Entity>();
+//
+//		String line;
+//		while ((line = charFile.readLine()) != null) {
+//			if (line.isEmpty())
+//				continue;
+//
+//			if (line.contains("COMBATANTS")) {
+//				readMode = ReadMode.COMBATANT;
+//				continue;
+//			} else if (line.contains("INTERACTABLES")) {
+//				readMode = ReadMode.INTERACTABLE;
+//				continue;
+//			} else if (line.contains("STATIC")) {
+//				readMode = ReadMode.STATIC;
+//				continue;
+//			} else if (line.contains("PROPS")) {
+//				readMode = ReadMode.PROP;
+//				continue;
+//			}
+//
+//			if (readMode == ReadMode.NONE) {
+//				new Exception("Read mode not specified at start of file").printStackTrace();
+//				System.exit(1);
+//			}
+//
+//			// Format the data
+//			String[] enemy = line.split(":");
+//			activeDataHash = new HashMap<>();
+//			for (String str : enemy) {
+//				String[] splitStr = str.split(",");
+//				activeDataHash.put(splitStr[0], splitStr[1]);
+//			}
+//
+//			String ID = activeDataHash.get("ID");
+//			Entity newE = null;
+//
+//			if (readMode == ReadMode.COMBATANT) {
+//				float HP = rhFloat("HP");
+//				float ST = rhFloat("Stamina");
+//				float HPR = rhFloat("HPregen");
+//				float STR = rhFloat("StaminaRegen");
+//				Stats stats = new Stats(HP, ST, HPR, STR);
+//
+//				if (ID.equals("PLAYER")) {
+//					newE = new Player(ID, null, ID, stats);
+//				} else if (ID.equals("FLOATER")) {
+//					newE = new FloaterEnemy(ID, null, ID, stats);
+//				} else if (ID.equals("BOUNCER")) {
+//					newE = new ShardSlimeEnemy(ID, null, ID, stats);
+//				} else if (ID.equals("CRAWLER")) {
+//					newE = new CrawlerEnemy(ID, null, ID, stats);
+//				}
+//			}
+//
+//			else if (readMode == ReadMode.INTERACTABLE) {
+//
+//				if (ID.equals("BUTTON")) {
+//					int STATE = rhInt("State");
+//					int TIME_ON = rhInt("TimeOn");
+//					float ACT_DIST = rhFloat("ActivationDistance");
+//
+//					newE = new Button(ID, null, ID, STATE, TIME_ON, ACT_DIST, null);
+//				}
+//
+//				if (ID.equals("SIGN")) {
+//					newE = new Sign(ID, null, ID, "THIS SIGN IS A PROTOTYPE");
+//				}
+//			}
+//
+//			else if (readMode == ReadMode.STATIC) {
+//				if (ID.equals("ENTRANCE")) {
+//					// Without configuration, the default value of every entrance id is -1.
+//					newE = new Entrance(ID, null, ID, new Vector2f(30, 30), -1, -1, WorldGate.GateDir.NONE);
+//				}
+//			}
+//
+//			else if (readMode == ReadMode.PROP) {
+//				if (ID.equals("PROP")) {
+//					newE = new Prop(ID, null, ID);
+//				}
+//			}
+//
+//			if (newE == null) {
+//				new Exception("Entity cannot be found").printStackTrace();
+//				System.exit(1);
+//			}
+//
+//			entityHash.put(ID, newE);
+//		}
+//
+//		// Also load templates
+//		loadTemplates("assets/Maps/Templates");
+//
+//		return entityHash;
+//	}
 
 	private static int rhInt(String str) {
 		return Integer.parseInt(activeDataHash.get(str));
@@ -398,7 +391,7 @@ public class Serializer {
 
 	// TODO: Rewrite this function
 	@SuppressWarnings("unchecked")
-	public static ArrayList<Entity> loadEntities(Document doc, HashMap<String, Entity> entityHash, int tileSize) {
+	public static ArrayList<Entity> loadEntities(Document doc, int tileSize) {
 		Element layerE = (Element) doc.getElementsByTagName("layer").item(0);
 
 		@SuppressWarnings("unused")
@@ -412,9 +405,8 @@ public class Serializer {
 
 		for (int i = 0; i < entitynum; i++) {
 			Element entity = (Element) objects.item(i);
-			HashMap<String, String> propVals = new HashMap<>();
+			EntityData propVals = new EntityData();
 
-			String ID;
 			Float eTileW = null;
 			Float eTileH = null;
 			float xTPos;
@@ -432,17 +424,11 @@ public class Serializer {
 				// Load data from template
 				Template t = templates.get(path);
 
-				ID = t.properties.get("type");
-				eTileW = Float.parseFloat(t.properties.get("width")) / GameManager.tileSpriteSize;
-				eTileH = Float.parseFloat(t.properties.get("height")) / GameManager.tileSpriteSize;
+				eTileW = t.properties.fl("width") / GameManager.tileSpriteSize;
+				eTileH = t.properties.fl("height") / GameManager.tileSpriteSize;
 
 				// Load in base data to propVals
-				propVals = (HashMap<String, String>) t.properties.clone();
-			}
-
-			else {
-				// Load data from what is given
-				ID = (entity).getAttribute("type");
+				propVals = new EntityData(t.properties);
 			}
 
 			// Crummy way of doing overrides TODO: Fix this later
@@ -460,60 +446,74 @@ public class Serializer {
 				NodeList propList = propPar.getElementsByTagName("property");
 				for (int j = 0; j < propList.getLength(); j++) {
 					Element ele = (Element) propList.item(j);
-					String name = ele.getAttribute("name");
-					String val = ele.getAttribute("value");
-
-					propVals.put(name, val);
+					processDOMProperty(propVals, ele, false);
 				}
 			}
 
 			yTPos += eTileH;
 			yTPos = height - yTPos;
 
-			Entity baseE = entityHash.get(ID);
-			Entity e = null;
-
 			// Converting to world cords
-			float newX = xTPos * GameManager.tileSize;
-			float newY = yTPos * GameManager.tileSize;
-			float newW = eTileW * GameManager.tileSize;
-			float newH = eTileH * GameManager.tileSize;
+			Vector2f newPos = new Vector2f(xTPos, yTPos).mul(GameManager.tileSize);
+			Vector2f newDims = new Vector2f(eTileW, eTileH).mul(GameManager.tileSize);
 
-			boolean addEnt = true;
-
-			if (baseE instanceof Player) {
-				if (GameManager.player == null) {
-					e = baseE.createNew(newX, newY);
-					GameManager.player = (Player) e;
-				} else {
-					addEnt = false;
-				}
-			} else if (baseE instanceof Interactive) {
-				e = ((Button) baseE).createNew(newX, yTPos * newY, GameManager.player);
-			} else if (baseE instanceof Entrance) {
-				int mapX = Integer.parseInt(propVals.get("mapX"));
-				int mapY = Integer.parseInt(propVals.get("mapY"));
-				String dir = propVals.get("dir");
-
-				e = ((Entrance) baseE).createNew(newX, newY, newW, newH, mapX, mapY, dir);
-			} else if (baseE instanceof Sign) {
-				String text = propVals.get("text");
-				e = ((Sign) baseE).createNew(newX, newY, text);
-
-			} else {
-				e = baseE.createNew(newX, newY);
+			// Get class to generate the entity from
+			if (!propVals.d.containsKey("class")) {
+				System.err.println("No class property defined");
+				System.exit(1);
 			}
 
-			if (addEnt)
-				entities.add(e);
+			Entity ent = null;
+
+			try {
+				String className = propVals.str("class");
+
+				Class<Entity> clazz = (Class<Entity>) Class.forName(className);
+
+				// Don't reconstruct the player
+				if (clazz.isAssignableFrom(Player.class) && GameManager.player != null) {
+					// Do nothing.
+				}
+
+				else {
+					// Get factory
+					Method factory = clazz.getMethod("createNew", EntityData.class, Vector2f.class, Vector2f.class);
+					ent = (Entity) factory.invoke(null, propVals, newPos, newDims);
+
+					// We know for certain there is no prior player, so we can safely assign it to
+					// the GM singleton
+					if (ent instanceof Player)
+						GameManager.player = (Player) ent;
+				}
+
+			} catch (Exception e) {
+				if (e instanceof InvocationTargetException) {
+					System.err.println("Error within invoked method");
+					e.getCause().printStackTrace();
+				} else {
+					e.printStackTrace();
+				}
+
+				System.exit(1);
+			}
+
+			if (ent != null) {
+				entities.add(ent);
+			}
 		}
+
+		// Dump entity list
+		System.out.println();
+		for (Entity e : entities)
+			System.out.println(e);
+
 		return entities;
 
 	}
 
 	static HashMap<String, Template> templates;
 
-	private static void loadTemplates(String fDir) {
+	static void loadTemplates(String fDir) {
 		templates = new HashMap<String, Template>();
 		File dir = new File(fDir);
 
@@ -528,25 +528,24 @@ public class Serializer {
 
 			// Just dump the info in
 			NamedNodeMap attribList = obj.getAttributes();
-			HashMap<String, String> data = new HashMap<String, String>();
+			EntityData data = new EntityData();
+
 			for (int i = 0; i < attribList.getLength(); i++) {
 				Node n = attribList.item(i);
-				data.put(n.getNodeName(), n.getNodeValue());
+				String key = n.getNodeName();
+				Object val = n.getNodeValue();
+
+				if (key.equals("width") || key.equals("height"))
+					val = Float.parseFloat((String) val);
+
+				data.d.put(key, val);
 			}
 
 			// Insert property data
 			NodeList props = template.getElementsByTagName("property");
 			for (int i = 0; i < props.getLength(); i++) {
 				Element e = (Element) props.item(i);
-				String key = e.getAttribute("name");
-				String value = e.getAttribute("value");
-
-				if (data.containsKey(key)) {
-					System.err.println("Data overriden!");
-					System.exit(1);
-				} else {
-					data.put(key, value);
-				}
+				processDOMProperty(data, e, true);
 			}
 
 			Template t = new Template(data);
@@ -557,6 +556,39 @@ public class Serializer {
 				System.exit(1);
 			}
 		}
+	}
+
+	private static void processDOMProperty(EntityData data, Element ele, boolean watchForOverrides) {
+		String name = ele.getAttribute("name");
+		String valStr = ele.getAttribute("value");
+
+		Object out = valStr;
+
+		if (watchForOverrides) {
+			if (data.d.containsKey(name)) {
+				System.err.println("Data overriden!");
+				System.exit(1);
+			}
+		}
+
+		if (ele.hasAttribute("type")) {
+			String typeStr = ele.getAttribute("type");
+
+			if (typeStr.equals("int") || typeStr.equals("object"))
+				out = Integer.parseInt(valStr);
+			if (typeStr.equals("boolean"))
+				out = Boolean.parseBoolean(valStr);
+			if (typeStr.equals("float"))
+				out = Float.parseFloat(valStr);
+			if (typeStr.equals("color")) {
+				out = new Color();
+				if (!valStr.isEmpty()) {
+					out = new Color(valStr, Color.hexFormat.ARGB);
+				}
+			}
+		}
+
+		data.d.put(name, out);
 	}
 
 	private static String trim(String str) {

@@ -457,7 +457,7 @@
         "Forest/forest2.tmx"
     ],
     "project": "PROJECT.tiled-project",
-    "property.type": "string",
+    "property.type": "float",
     "recentFiles": [
         "Forest/forest2.tmx",
         "Forest/forestDC.tmx",

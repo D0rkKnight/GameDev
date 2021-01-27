@@ -6,6 +6,8 @@ import org.joml.Vector2f;
 import Collision.Shapes.Shape;
 import Entities.Framework.Entity;
 import Entities.Framework.Interactive;
+import GameController.EntityData;
+import GameController.GameManager;
 import GameController.Input;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
@@ -37,13 +39,9 @@ public class Button extends Entity implements Interactive {
 		this.renderer = rend;
 	}
 
-	public Button createNew(float xPos, float yPos, Player player) {
-		return new Button(ID, new Vector2f(xPos, yPos), name, state, timeOn, activationDistance, player);
-	}
-
-	@Override
-	public Button createNew(float xPos, float yPos) {
-		return createNew(xPos, yPos, player);
+	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
+		return new Button(vals.str("type"), pos, vals.str("name"), vals.in("state"), vals.in("timeOn"),
+				vals.fl("activationDistance"), GameManager.player);
 	}
 
 	@Override

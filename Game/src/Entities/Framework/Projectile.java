@@ -4,6 +4,7 @@ import org.joml.Vector2f;
 
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
+import GameController.EntityData;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
 import Utility.Transformation;
@@ -26,9 +27,8 @@ public class Projectile extends PhysicsEntity {
 		hasGravity = false;
 	}
 
-	@Override
-	public Projectile createNew(float xPos, float yPos) {
-		return new Projectile(ID, new Vector2f(xPos, yPos), name);
+	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
+		return new Projectile(vals.str("type"), pos, vals.str("name"));
 	}
 
 	@Override

@@ -77,6 +77,7 @@ public class World {
 
 		// Load entities
 		ArrayList<Entity> ents = map.retrieveEntities();
+
 		GameManager.loadEntities(ents);
 
 		return ents;

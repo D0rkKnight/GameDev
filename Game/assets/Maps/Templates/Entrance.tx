@@ -2,9 +2,15 @@
 <template>
  <object name="Entrance" type="ENTRANCE" width="24" height="168">
   <properties>
+   <property name="booltest" type="bool" value="false"/>
+   <property name="class" value="Entities.Framework.Entrance"/>
+   <property name="coltest" type="color" value="#ffbe0a0a"/>
    <property name="dir" value="NONE"/>
+   <property name="filetest" type="file" value=""/>
+   <property name="floattest" type="float" value="1.3"/>
    <property name="mapX" type="int" value="0"/>
    <property name="mapY" type="int" value="0"/>
+   <property name="objtest" type="object" value="0"/>
   </properties>
  </object>
 </template>

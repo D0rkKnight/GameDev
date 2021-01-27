@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template>
- <object name="Floater" type="FLOATER" width="32" height="32"/>
+ <object name="Floater" type="FLOATER" width="32" height="32">
+  <properties>
+   <property name="class" value="Entities.FloaterEnemy"/>
+  </properties>
+ </object>
 </template>

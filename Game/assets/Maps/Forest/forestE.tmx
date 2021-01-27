@@ -24,10 +24,11 @@
   </data>
  </layer>
  <objectgroup id="4" name="Objects">
-  <object id="1" name="Player" type="PLAYER" x="400" y="704" width="7" height="28"/>
+  <object id="1" template="../Templates/Player.tx" x="400" y="704"/>
   <object id="2" template="../Templates/Entrance.tx" x="776" y="568" width="24" height="168">
    <properties>
     <property name="dir" value="RIGHT"/>
+    <property name="objtest" type="object" value="39"/>
    </properties>
   </object>
   <object id="6" template="../Templates/Grass.tx" x="280" y="712"/>

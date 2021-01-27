@@ -11,6 +11,7 @@ import Entities.Framework.Entity;
 import Entities.Framework.Melee;
 import Entities.Framework.PhysicsEntity;
 import Entities.Framework.Projectile;
+import GameController.EntityData;
 import GameController.GameManager;
 import GameController.Input;
 import Graphics.Animation.Animation;
@@ -100,9 +101,8 @@ public class Player extends Combatant {
 		pSys.pauseParticleGeneration();
 	}
 
-	@Override
-	public Combatant createNew(float xPos, float yPos, Stats stats) {
-		return new Player(ID, new Vector2f(xPos, yPos), name, stats);
+	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
+		return new Player(vals.str("ID"), pos, vals.str("name"), Stats.fromED(vals));
 	}
 
 	@Override

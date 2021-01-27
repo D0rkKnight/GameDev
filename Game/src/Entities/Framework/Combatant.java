@@ -105,11 +105,4 @@ public abstract class Combatant extends PhysicsEntity {
 	public boolean isInvuln() {
 		return isInvuln;
 	}
-
-	@Override
-	public Combatant createNew(float xPos, float yPos) {
-		return createNew(xPos, yPos, new Stats(stats));
-	}
-
-	public abstract Combatant createNew(float xPos, float yPos, Stats stats);
 }

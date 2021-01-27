@@ -3,7 +3,9 @@ package Entities;
 import org.joml.Vector2f;
 
 import Collision.Shapes.Shape;
+import Entities.Framework.Entity;
 import Entities.Framework.Projectile;
+import GameController.EntityData;
 import GameController.GameManager;
 import Graphics.Animation.Animation;
 import Graphics.Animation.Animator;
@@ -22,9 +24,8 @@ public class ShardSlimeEnemy extends BouncingEnemy {
 		anim = new Animator(new Animation[] { a1 }, 24, (GeneralRenderer) this.renderer, Shape.ShapeEnum.SQUARE.v);
 	}
 
-	@Override
-	public ShardSlimeEnemy createNew(float xPos, float yPos, Stats stats) {
-		return new ShardSlimeEnemy(ID, new Vector2f(xPos, yPos), name, stats);
+	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
+		return new ShardSlimeEnemy(vals.str("type"), pos, vals.str("name"), Stats.fromED(vals));
 	}
 
 	@Override

@@ -53,11 +53,6 @@ public class Melee extends Entity implements Collidable {
 	}
 
 	@Override
-	public Entity createNew(float xPos, float yPos) {
-		return new Melee(ID, new Vector2f(xPos, yPos), name, owner, new Vector2f(kbDir));
-	}
-
-	@Override
 	public void calculate() {
 		controlledMovement();
 
@@ -109,5 +104,4 @@ public class Melee extends Entity implements Collidable {
 	public void setHb(Hitbox hb) {
 		hitbox = hb;
 	}
-
 }

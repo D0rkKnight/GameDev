@@ -5,7 +5,6 @@ import org.joml.Vector2f;
 import GameController.GameManager;
 import Graphics.Animation.Animator;
 import Graphics.Rendering.Renderer;
-import Utility.CanBeCloned;
 import Utility.Transformation;
 
 /**
@@ -15,7 +14,7 @@ import Utility.Transformation;
  * @author Benjamin
  *
  */
-public abstract class Entity implements CanBeCloned {
+public abstract class Entity {
 	protected String ID;
 	protected final Vector2f position = new Vector2f();
 	protected static float gravity = 5f;
@@ -79,11 +78,4 @@ public abstract class Entity implements CanBeCloned {
 	public void Destroy() {
 		GameManager.unsubscribeEntity(this);
 	}
-
-	@Override
-	public Entity createNew() {
-		return createNew(position.x, position.y);
-	}
-
-	public abstract Entity createNew(float xPos, float yPos);
 }

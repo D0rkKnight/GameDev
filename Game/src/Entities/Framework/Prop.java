@@ -3,6 +3,7 @@ package Entities.Framework;
 import org.joml.Vector2f;
 
 import Collision.Shapes.Shape;
+import GameController.EntityData;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GrassRenderer;
@@ -28,9 +29,9 @@ public class Prop extends Entity {
 	public void calculate() {
 	}
 
-	@Override
-	public Entity createNew(float xPos, float yPos) {
-		return new Prop(ID, new Vector2f(xPos, yPos), name);
+	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
+		// TODO Auto-generated method stub
+		return new Prop(vals.str("type"), pos, vals.str("name"));
 	}
 
 }

@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template>
- <object name="Crawler" type="CRAWLER" width="32" height="32"/>
+ <object name="Crawler" type="CRAWLER" width="32" height="32">
+  <properties>
+   <property name="class" value="Entities.CrawlerEnemy"/>
+  </properties>
+ </object>
 </template>

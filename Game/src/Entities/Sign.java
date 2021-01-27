@@ -4,6 +4,7 @@ import org.joml.Vector2f;
 
 import Collision.Shapes.Shape;
 import Entities.Framework.Entity;
+import GameController.EntityData;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GrassRenderer;
@@ -28,8 +29,6 @@ public class Sign extends Entity {
 				tAtlas.genSubTex(0, 0));
 		rend.spr = tAtlas.tex;
 		this.renderer = rend;
-
-		System.out.println(text);
 	}
 
 	@Override
@@ -38,14 +37,9 @@ public class Sign extends Entity {
 
 	}
 
-	@Override
-	public Entity createNew(float xPos, float yPos) {
+	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
 		// TODO Auto-generated method stub
-		return createNew(xPos, yPos, "ERROR: DO NOT CALL THIS CREATENEW METHOD");
-	}
-
-	public Entity createNew(float xPos, float yPos, String text) {
-		return new Sign(this.ID, new Vector2f(xPos, yPos), this.name, text);
+		return new Sign(vals.str("type"), pos, vals.str("name"), vals.str("text"));
 	}
 
 }

@@ -7,6 +7,8 @@ import Collision.Behaviors.PhysicsCollisionBehavior;
 import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
 import Collision.Shapes.Shape;
 import Entities.Framework.Enemy;
+import Entities.Framework.Entity;
+import GameController.EntityData;
 import GameController.Time;
 import GameController.World;
 import Graphics.Rendering.GeneralRenderer;
@@ -27,7 +29,7 @@ public class FloaterEnemy extends Enemy {
 		dim = new Vector2f(30f, 30f);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
 		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
-		
+
 		this.renderer = rend;
 
 		// Configure hitbox
@@ -37,9 +39,8 @@ public class FloaterEnemy extends Enemy {
 		ai = new Pathfinding();
 	}
 
-	@Override
-	public FloaterEnemy createNew(float xPos, float yPos, Stats stats) {
-		return new FloaterEnemy(ID, new Vector2f(xPos, yPos), name, stats);
+	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
+		return new FloaterEnemy(vals.str("type"), pos, vals.str("name"), Stats.fromED(vals));
 	}
 
 	@Override

@@ -7,7 +7,6 @@ import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -32,7 +31,7 @@ public class GameManager {
 	static HashMap<String, HashMap<Integer, Tile>> tileLookup;
 	// Lookup table for different kinds of accessories
 //	private HashMap<Integer, Accessory> accessoryLookup;
-	static HashMap<String, Entity> entityHash;
+	// static HashMap<String, Entity> entityHash;
 
 	// Entity positions in current room
 	static ArrayList<Entity> entities;
@@ -103,7 +102,8 @@ public class GameManager {
 		entityClearList = new ArrayList<>();
 
 		initTiles();
-		initEntityHash("assets/Hashfiles/", "EntitiesTest.txt");
+//		initEntityHash("assets/Hashfiles/", "EntitiesTest.txt");
+		Serializer.loadTemplates("assets/Maps/Templates");
 
 		WorldGenerator.init();
 		World.init(); // also should initialize entities
@@ -136,15 +136,15 @@ public class GameManager {
 		}
 	}
 
-	private void initEntityHash(String fileDir, String fileName) {
-		try {
-			entityHash = Serializer.loadEntityHash(fileDir, fileName);
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+//	private void initEntityHash(String fileDir, String fileName) {
+//		try {
+//			entityHash = Serializer.loadEntityHash(fileDir, fileName);
+//		} catch (NumberFormatException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	static void initPlayer() {
 		Camera.main.attach(player);
@@ -303,6 +303,7 @@ public class GameManager {
 			// Somehow need to avoid pushing the movement of entities that don't move.
 			if (e instanceof PhysicsEntity) {
 				PhysicsEntity pe = (PhysicsEntity) e;
+
 				if (pe.pData.collidedWithTile) {
 					pe.onTileCollision();
 					pe.pData.collidedWithTile = false;

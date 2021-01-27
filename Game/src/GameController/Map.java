@@ -48,7 +48,7 @@ public class Map {
 	 * @return
 	 */
 	public ArrayList<Entity> retrieveEntities() {
-		ArrayList<Entity> out = Serializer.loadEntities(file, GameManager.entityHash, GameManager.tileSize);
+		ArrayList<Entity> out = Serializer.loadEntities(file, GameManager.tileSize);
 
 		for (Entity e : out) {
 			if (e instanceof Entrance) {

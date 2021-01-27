@@ -7,9 +7,10 @@ import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Entities.Framework.Entity;
 import Entities.Framework.Interactive;
+import GameController.EntityData;
+import GameController.GameManager;
 import GameController.Input;
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.Renderer;
 import Utility.Transformation;
 import Utility.Timers.Timer;
 import Wrappers.Color;
@@ -22,8 +23,8 @@ public class Switch extends Entity implements Interactive {
 	public Timer onTimer;
 	Player player;
 
-	public Switch(String ID, Vector2f position, Renderer renderer, String name, int state, int statenum,
-			float activationDistance, Player player) {
+	public Switch(String ID, Vector2f position, String name, int state, int statenum, float activationDistance,
+			Player player) {
 		super(ID, position, name);
 		this.state = state;
 		this.activationDistance = activationDistance;
@@ -37,9 +38,9 @@ public class Switch extends Entity implements Interactive {
 		renderer = rendTemp;
 	}
 
-	@Override
-	public Switch createNew(float xPos, float yPos) {
-		return new Switch(ID, new Vector2f(xPos, yPos), renderer, name, state, statenum, activationDistance, player);
+	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
+		return new Switch(vals.str("type"), pos, vals.str("name"), vals.in("state"), vals.in("statenum"),
+				vals.fl("activationDistance"), GameManager.player);
 	}
 
 	@Override
