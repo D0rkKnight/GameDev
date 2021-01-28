@@ -43,7 +43,7 @@ public class Debug {
 		frameDelta = 20f;
 
 		showCollisions = false;
-		debugElementsEnabled = true;
+		debugElementsEnabled = false;
 		drawEdges = false;
 		logIssues = true;
 

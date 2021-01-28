@@ -19,6 +19,7 @@ public class PlayerAnimator extends Animator {
 
 	public static final int ANIM_ACCEL = 1;
 	public static final int ANIM_MOVING = 2;
+	public static final int ANIM_DASHING = 3;
 
 	public PlayerAnimator(Animation[] anims, int fps, GeneralRenderer rend, Player player, Shape shape) {
 		super(anims, fps, rend, shape);

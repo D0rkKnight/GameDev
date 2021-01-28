@@ -81,10 +81,12 @@ public class Player extends Combatant {
 		// Configure animation stuff
 		TextureAtlas animSheet = new TextureAtlas(Texture.getTex("Assets/Sprites/Ilyia_idle-running_proto.png"), 96,
 				96);
-		Animation[] anims = new Animation[3];
+		Animation[] anims = new Animation[4];
 		anims[Animator.ANIM_IDLE] = new Animation(animSheet.genSubTexSet(0, 0, 3, 0));
 		anims[PlayerAnimator.ANIM_ACCEL] = new Animation(animSheet.genSubTexSet(0, 1, 11, 1));
 		anims[PlayerAnimator.ANIM_MOVING] = new Animation(animSheet.genSubTexSet(0, 2, 7, 2));
+		anims[PlayerAnimator.ANIM_DASHING] = new Animation(animSheet.genSubTexSet(0, 3, 0, 3));
+
 		rendOffset.set(-35, 0);
 
 		anim = new PlayerAnimator(anims, 12, (GeneralRenderer) this.renderer, this, Shape.ShapeEnum.SQUARE.v);
@@ -203,6 +205,8 @@ public class Player extends Combatant {
 			movementMode = Movement.CONTROLLED;
 			knockbackDir = null;
 		}
+
+		// Initiating dash
 		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && movementMode != Movement.DASHING) {
 			if (stats.stamina < dashCost) {
 				return;
@@ -232,7 +236,13 @@ public class Player extends Combatant {
 
 			// Update pSys
 			pSys.resumeParticleGeneration();
+
+			// Change animator
+			// Does this even work?
+			// Tbh all anim updates should be in Player, not PlayerAnimator TODO
+			anim.switchAnim(PlayerAnimator.ANIM_DASHING);
 		}
+
 		// Bring entity back to normal
 		if (movementMode == Movement.CONTROLLED && justDashed) {
 			pData.velo.y *= 0.4; // TODO hardcode for dash deacc
@@ -242,6 +252,7 @@ public class Player extends Combatant {
 
 			// Update pSys
 			pSys.pauseParticleGeneration();
+			anim.switchAnim(PlayerAnimator.ANIM_MOVING);
 		}
 
 	}

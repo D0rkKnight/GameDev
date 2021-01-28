@@ -33,6 +33,17 @@ public class TextureAtlas {
 		return genSubTexSet(x1, y1, x2, y2, 1, 1);
 	}
 
+	/**
+	 * Generates an array of subtextures. Bounds are inclusive.
+	 * 
+	 * @param x1
+	 * @param y1
+	 * @param x2
+	 * @param y2
+	 * @param w: tiles wide
+	 * @param h: tiles tall
+	 * @return
+	 */
 	public SubTexture[] genSubTexSet(int x1, int y1, int x2, int y2, int w, int h) {
 		ArrayList<SubTexture> arr = new ArrayList<>();
 		for (int i = y1; i <= y2; i += h) {
