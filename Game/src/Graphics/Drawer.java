@@ -53,8 +53,8 @@ import Graphics.Rendering.DrawBufferRenderer;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
-import Graphics.Rendering.TimedRenderer;
-import Graphics.Rendering.TimedShader;
+import Graphics.Rendering.WarpRenderer;
+import Graphics.Rendering.WarpShader;
 import Graphics.text.Text;
 import Tiles.Tile;
 import UI.UI;
@@ -366,8 +366,8 @@ public class Drawer {
 			}
 
 			else if (key.gfx.equals("Warp")) {
-				Shader warpShade = TimedShader.genShader("vortex");
-				rend = new TimedRenderer(warpShade);
+				Shader warpShade = WarpShader.genShader("vortex");
+				rend = new WarpRenderer(warpShade);
 				rend.init(new Transformation(new Vector2f(), Transformation.MatrixMode.WORLD), posOut, uvOut,
 						new Color(1, 1, 0, 1));
 				rend.spr = key.tex;
