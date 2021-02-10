@@ -81,7 +81,10 @@ public abstract class Shader {
 
 		// Vertex shader
 		vs = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vs, readFile(filename + ".vs"));
+
+		String raw = readFile(filename + ".vs");
+
+		glShaderSource(vs, raw);
 		glCompileShader(vs);
 
 		// Error detection

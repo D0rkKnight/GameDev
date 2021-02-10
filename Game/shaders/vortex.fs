@@ -92,10 +92,10 @@ float func( vec2 q, out vec2 o, out vec2 n )
 
     // These two effects seem to cancel each other out a bit -----------------------------------------------------
     // Ripple effect
-    //q += 0.05*sin(vec2(0.11,0.13)*slowTime + length( q )*4.0);
+    q += 0.05*sin(vec2(0.11,0.13)*slowTime + length( q )*4.0);
 
     // Looping scale effect
-    //q *= 0.7 + 0.2*cos(0.05*slowTime);
+    q *= 0.7 + 0.2*cos(0.05*slowTime);
     //-------------------------------------------------------------------------------------------------------------
 
     // Get new point to sample for the second layer of warp
@@ -139,11 +139,13 @@ void main()
   vec2 o, n;
   float f = func(q, o, n);
 
-  vec3 col = vec3(0.2,0.1,0.4);
-  col = mix( col, vec3(0.3,0.05,0.05), f );
-  col = mix( col, vec3(0.9,0.9,0.9), dot(n,n) );
-  col = mix( col, vec3(0.5,0.2,0.2), 0.5*o.y*o.y );
-  col = mix( col, vec3(0.0,0.2,0.4), 0.5*smoothstep(1.2,1.3,abs(n.y)+abs(n.x)) );
+  // Dark value, if f = 0
+  vec3 col = vec3(0.34,0.25,0.28);
+
+  col = mix( col, vec3(0.113,0.035,0.21), f ); // Scale to base value
+  col = mix( col, vec3(0.9,0.9,0.9), dot(n,n) ); // Scale to high value, dot(n, n) = |n|^2. n is the 2nd layer warp delta
+  col = mix( col, vec3(0.5,0.2,0.2), 0.5*o.y*o.y ); // Scale to mid value from sin warp
+  col = mix( col, vec3(0.0,0.2,0.4), 0.5*smoothstep(1.2,1.3,abs(n.y)+abs(n.x)) ); //Considerable clamping involved, |n| = 1, smoothstep returns normalized value
   col *= f*2.0;
 
   vec2 ex = vec2( 1.0 / viewport.x, 0.0 );
@@ -153,7 +155,9 @@ void main()
   vec3 lig = normalize( vec3( 0.9, -0.2, -0.4 ) );
   float dif = clamp( 0.3+0.7*dot( nor, lig ), 0.0, 1.0 );
 
-  vec3 bdrf;
+  //TODO: Figure out what this all does later
+  //Pretty cool tho
+  /*vec3 bdrf;
   bdrf  = vec3(0.85,0.90,0.95)*(nor.y*0.5+0.5);
   bdrf += vec3(0.15,0.10,0.05)*dif;
   bdrf  = vec3(0.85,0.90,0.95)*(nor.y*0.5+0.5);
@@ -162,7 +166,7 @@ void main()
   col *= bdrf;
   col = vec3(1.0)-col;
   col = col*col;
-  col *= vec3(1.2,1.25,1.2);
+  col *= vec3(1.2,1.25,1.2);*/
 
   tot += col;
 
