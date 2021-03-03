@@ -48,6 +48,17 @@ public class Player extends Combatant {
 	private Timer meleeTimer;
 	private Melee meleeEntity;
 
+	private static enum MeleeDir {
+		E(0), NE(Math.PI / 4), N(Math.PI / 2), NW(3 * Math.PI / 4), W(Math.PI), SW(5 * Math.PI / 4), S(3 * Math.PI / 2),
+		SE(7 * Math.PI / 4);
+
+		public double rad;
+
+		MeleeDir(double rad) {
+			this.rad = rad;
+		}
+	}
+
 	private boolean canJump;
 	private long jumpGraceInterval = 100;
 	private Timer jumpGraceTimer;
