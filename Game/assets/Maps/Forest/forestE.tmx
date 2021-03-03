@@ -67,7 +67,9 @@
   <object id="39" template="../Templates/Grass.tx" x="744" y="712"/>
   <object id="41" template="../Templates/Sign.tx" name="Sign" type="SIGN" x="480" y="352" width="32" height="32">
    <properties>
-    <property name="text" value="Hello World"/>
+    <property name="text1" value="This is a sign"/>
+    <property name="text2" value="yes"/>
+    <property name="text3" value="a sign"/>
    </properties>
   </object>
  </objectgroup>

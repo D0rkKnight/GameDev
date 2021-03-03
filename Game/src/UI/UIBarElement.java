@@ -4,15 +4,14 @@ import org.joml.Vector2f;
 
 import Collision.Shapes.Shape;
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.Renderer;
 import Wrappers.Color;
 
 public class UIBarElement extends UIBoxElement {
 
 	public float fillRatio;
 
-	public UIBarElement(Renderer rend, Vector2f pos, Vector2f dims, Color col) {
-		super(rend, pos, dims, col);
+	public UIBarElement(Vector2f pos, Vector2f dims, Color col) {
+		super(pos, dims, col);
 		fillRatio = 1.0f;
 	}
 

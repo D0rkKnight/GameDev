@@ -2,7 +2,9 @@ package Entities.Framework;
 
 import org.joml.Vector2f;
 
+import Entities.Framework.EntityFlag.FlagFactory;
 import GameController.GameManager;
+import GameController.Input;
 import Graphics.Animation.Animator;
 import Graphics.Rendering.Renderer;
 import Utility.Transformation;
@@ -27,6 +29,8 @@ public abstract class Entity {
 	public Vector2f dim;
 
 	protected Animator anim;
+
+	public EntityFlag flag;
 
 	// For local transformations. Position/translation is added later.
 	public Transformation transform;
@@ -77,5 +81,32 @@ public abstract class Entity {
 
 	public void Destroy() {
 		GameManager.unsubscribeEntity(this);
+	}
+
+	public void onGameLoad() {
+
+	}
+
+	public boolean mouseHovered() {
+		try {
+			if (Input.mouseWorldPos.x > position.x && Input.mouseWorldPos.x < position.x + dim.x
+					&& Input.mouseWorldPos.y > position.y && Input.mouseWorldPos.y < position.y + dim.y) {
+				return true;
+			}
+			return false;
+		} catch (NullPointerException E) {
+			System.err.println("Nullpointer Error in Button, First cycle?");
+			return false;
+		}
+	}
+
+	public void flagEntity(FlagFactory iflagfactory) {
+		this.flag = iflagfactory.create(new Vector2f(position).add(0, 50f));
+		GameManager.subscribeEntity(this.flag);
+	}
+
+	public void deflagEntity() {
+		flag.Destroy();
+		flag = null;
 	}
 }

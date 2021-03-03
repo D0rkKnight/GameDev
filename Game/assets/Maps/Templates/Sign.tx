@@ -3,7 +3,6 @@
  <object name="Sign" type="SIGN" width="32" height="32">
   <properties>
    <property name="class" value="Entities.Sign"/>
-   <property name="text" value="DEFAULT TEXT"/>
   </properties>
  </object>
 </template>

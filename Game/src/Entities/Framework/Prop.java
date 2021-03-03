@@ -27,6 +27,7 @@ public class Prop extends Entity {
 
 	@Override
 	public void calculate() {
+
 	}
 
 	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {

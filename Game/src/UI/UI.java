@@ -19,7 +19,7 @@ public class UI {
 	private static HashMap<CanvasEnum, UICanvas> canvases;
 
 	public static enum CanvasEnum {
-		NONE, RUNNING, PAUSED;
+		NONE, RUNNING, PAUSED, DIALOGUE;
 	}
 
 	private static CanvasEnum currCanvas = CanvasEnum.NONE;
@@ -27,6 +27,9 @@ public class UI {
 	private static UICanvas runningState;
 	private static UIBarCanvas healthBar;
 	private static UIBarCanvas staminaBar;
+
+	private static UICanvas dialogueState;
+	private static UITextBox dialogueBox;
 
 	private static UICanvas pausedState;
 
@@ -64,14 +67,14 @@ public class UI {
 		// Initialize paused game state
 		pausedState = new UICanvas(new Vector2f(), Camera.main.viewport);
 
-		UIBoxElement box = new UIBoxElement(new GeneralRenderer(SpriteShader.genShader("texShader")),
-				new Vector2f(Camera.main.viewport).div(2), new Vector2f(300, 400), new Color(0.5f, 0.5f, 0.5f, 1));
+		UIBoxElement box = new UIBoxElement(new Vector2f(Camera.main.viewport).div(2), new Vector2f(300, 400),
+				new Color(0.5f, 0.5f, 0.5f, 1));
 		box.setAnchor(UIBoxElement.ANCHOR_MID);
 
 		pausedState.addElement(box);
 
-		UIButtonElement exitButton = new UIButtonElement(new GeneralRenderer(SpriteShader.genShader("texShader")),
-				new Vector2f(20, 20), new Vector2f(200, 50), new Color(0f, 0f, 0f, 1));
+		UIButtonElement exitButton = new UIButtonElement(new Vector2f(20, 20), new Vector2f(200, 50),
+				new Color(0f, 0f, 0f, 1));
 		exitButton.setClickCb(() -> {
 			glfwSetWindowShouldClose(Drawer.window, true);
 		});
@@ -82,6 +85,17 @@ public class UI {
 		canvases.put(CanvasEnum.PAUSED, pausedState);
 
 		changeCanvas(CanvasEnum.RUNNING);
+
+		// Dialogue popup
+		dialogueState = new UICanvas(new Vector2f(), Camera.main.viewport);
+
+		Vector2f tbPos = new Vector2f(10, Camera.main.viewport.y - 300);
+		Vector2f tbDims = new Vector2f(Camera.main.viewport.x - 20, Camera.main.viewport.y - tbPos.y - 10);
+		dialogueBox = new UITextBox(tbPos, tbDims, "DIALOGUE BOX EMPTY");
+		dialogueBox.setAnchor(UIBoxElement.ANCHOR_UL);
+		dialogueState.addElement(dialogueBox);
+
+		canvases.put(CanvasEnum.DIALOGUE, dialogueState);
 	}
 
 	public static void changeCanvas(CanvasEnum newId) {
@@ -94,10 +108,21 @@ public class UI {
 		currCanvas = newId;
 	}
 
+	public static CanvasEnum getCurrCanvas() {
+		return currCanvas;
+	}
+
 	public static void render() {
 		for (UIElement e : elements)
 			e.update();
 		for (UIElement e : elements)
 			e.render();
 	}
+
+	public static void showTextBox(String text) {
+		dialogueBox.text.updateText(text);
+
+		changeCanvas(CanvasEnum.DIALOGUE);
+	}
+
 }

@@ -15,8 +15,11 @@ import Collision.Hitbox;
 import Collision.Physics;
 import Debugging.Debug;
 import Debugging.TestSpace;
+import Entities.InteractableFlag;
 import Entities.Player;
 import Entities.Framework.Entity;
+import Entities.Framework.EntityFlag;
+import Entities.Framework.Interactive;
 import Entities.Framework.PhysicsEntity;
 import GameController.procedural.WorldGenerator;
 import Graphics.Drawer;
@@ -47,6 +50,10 @@ public class GameManager {
 
 	public static final int tileSize = 16;
 	public static final int tileSpriteSize = 8;
+
+	private static final EntityFlag.FlagFactory iFlagFactory = (pos) -> {
+		return new InteractableFlag(pos);
+	};
 
 	// TODO: Write error checks for these
 	public static enum Grid {
@@ -113,6 +120,12 @@ public class GameManager {
 		Time.initTime();
 
 		TestSpace.init();
+
+		// Perform some things on load
+		updateEntityList();
+		for (Entity e : entities) {
+			e.onGameLoad();
+		}
 	}
 
 	/*
@@ -198,7 +211,6 @@ public class GameManager {
 			// Event listening stuff. Key callback is invoked here.
 			// Do wipe input before going in
 			Input.update();
-			glfwPollEvents();
 
 			switch (gameState) {
 			case RUNNING:
@@ -264,6 +276,23 @@ public class GameManager {
 		// Each entity makes decisions
 		for (Entity ent : entities) {
 			ent.calculate();
+			if (ent instanceof Interactive) {
+				float activationDistance = 100f;
+				float distToInteractable = player.getPosition().distance(ent.getPosition());
+
+				if (distToInteractable <= activationDistance) {
+					if (ent.flag == null)
+						ent.flagEntity(iFlagFactory);
+
+					if (Input.interactAction && !Input.interactEaten) {
+						((Interactive) ent).interact();
+					}
+				} else {
+					if (ent.flag != null)
+						ent.deflagEntity();
+				}
+			}
+
 			ent.updateChildren();
 		}
 

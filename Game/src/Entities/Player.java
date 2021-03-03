@@ -54,6 +54,8 @@ public class Player extends Combatant {
 
 	private int sideFacing;
 
+	public boolean canMove = true;
+
 	private GhostParticleSystem pSys;
 
 	public Player(String ID, Vector2f position, String name, Stats stats) {
@@ -194,7 +196,7 @@ public class Player extends Combatant {
 	}
 
 	private void determineMovementMode() {
-		if (Input.knockbackTest && movementMode == Movement.CONTROLLED) {// TODO
+		if (Input.knockbackTest && movementMode == Movement.CONTROLLED) {
 			knockback(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
 		}
 		if (knockback) {
@@ -261,9 +263,16 @@ public class Player extends Combatant {
 	public void controlledMovement() {
 		float xAccel = 0;
 
+		float moveX = Input.moveX;
+		float moveY = Input.moveY;
+		if (!canMove) {
+			moveX = 0;
+			moveY = 0;
+		}
+
 		// Deceleration
-		if (Input.moveX != 0) {
-			xAccel = accelConst * Input.moveX;
+		if (moveX != 0) {
+			xAccel = accelConst * moveX;
 		} else {
 			float decelConst = Math.min(accelConst, Math.abs(pData.velo.x));
 
@@ -273,15 +282,15 @@ public class Player extends Combatant {
 			pData.velo.x += xAccel;
 
 			// cap velo
-			if (Input.moveX > 0)
+			if (moveX > 0)
 				pData.velo.x = Math.min(pData.velo.x, xCap);
-			if (Input.moveX < 0)
+			if (moveX < 0)
 				pData.velo.x = Math.max(pData.velo.x, -xCap);
 		} else {
 			float decelConst = (Math.max(xCap, Math.abs(pData.velo.x) - 2 * accelConst));
 			pData.velo.x -= decelConst * Arithmetic.sign(pData.velo.x);
 		}
-		if (Input.moveY == 0) {
+		if (moveY == 0) {
 			releasedJump = true;
 		}
 
@@ -419,5 +428,4 @@ public class Player extends Combatant {
 	public void onTileCollision() {
 
 	}
-
 }

@@ -2,6 +2,7 @@ package GameController;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_E;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_J;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_K;
@@ -15,6 +16,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwSetCursorPosCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetMouseButtonCallback;
@@ -28,6 +30,7 @@ import org.lwjgl.glfw.GLFWWindowSizeCallback;
 
 import Debugging.Debug;
 import Graphics.Drawer;
+import UI.UI;
 
 /*
  * Input is a helper class to player and serves as a buffer for GM to write to and Player to read from.
@@ -47,6 +50,9 @@ public class Input {
 	public static boolean meleeAction;
 
 	public static boolean dashAction; // Only active for one frame
+	public static boolean interactAction;
+	public static boolean interactEaten = false;
+
 	public static boolean knockbackTest;
 	public static Vector2f knockbackVectorTest = new Vector2f(-2f, 0.5f);
 
@@ -97,16 +103,30 @@ public class Input {
 		});
 	}
 
-	// Called once per frame
+	// Called once per frame, immediately before polling input. Used to reset input
+	// data.
 	public static void update() {
 		dashAction = false;
 		knockbackTest = false;
 		meleeAction = false;
+		interactAction = false;
+		interactEaten = false;
 
 		for (int i = 0; i < clickArr.length; i++)
 			clickArr[i] = false;
+
+		glfwPollEvents();
 	}
 
+	/**
+	 * All polls occur immediately after the update call
+	 * 
+	 * @param window
+	 * @param key
+	 * @param scancode
+	 * @param action
+	 * @param mods
+	 */
 	public static void updateKeys(long window, int key, int scancode, int action, int mods) {
 		// Record key states here
 		if (action == GLFW_PRESS)
@@ -143,6 +163,9 @@ public class Input {
 				knockbackVectorTest = new Vector2f(2f, 0.5f);
 				knockbackTest = true;
 				break;
+			case GLFW_KEY_E:
+				interactAction = true;
+				break;
 			}
 		}
 
@@ -158,6 +181,13 @@ public class Input {
 			moveY++;
 		if (keyStates[GLFW_KEY_S])
 			moveY--;
+
+		// Clear the UI if there is a text box first, this should also eat the input
+		if (UI.getCurrCanvas() == UI.CanvasEnum.DIALOGUE && interactAction) {
+			// Should advance dialogue, but for now, just remove the box.
+			interactEaten = true;
+			Dialogue.advanceDialogue();
+		}
 	}
 
 	public static void updateMouse(long window, int button, int action, int mods) {

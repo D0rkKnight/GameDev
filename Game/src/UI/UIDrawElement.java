@@ -14,6 +14,7 @@ public class UIDrawElement extends UIElement {
 
 	@Override
 	public void render() {
+
 		// Render yourself first
 		rend.transform.pos.set(sPos);
 		rend.transform.pos.add(0, dims.y); // 4th quadrant

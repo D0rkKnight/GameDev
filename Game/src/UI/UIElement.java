@@ -8,8 +8,8 @@ import Utility.Callback;
 
 public class UIElement {
 
-	Vector2f relPos;
-	Vector2f sPos;
+	Vector2f relPos; // Relative position
+	Vector2f sPos; // Screen position
 	Vector2f dims;
 
 	UIElement parent;
@@ -23,6 +23,8 @@ public class UIElement {
 	public static final int ANCHOR_BL = 1;
 	public static final int ANCHOR_MID = 2;
 
+	boolean wPosGenerated = false;
+
 	public UIElement(Vector2f pos, Vector2f dims) {
 		this.relPos = pos;
 		this.dims = dims;
@@ -31,11 +33,13 @@ public class UIElement {
 		children = new ArrayList<>();
 
 		offset = new Vector2f(); // None by default
-
-		genWPos();
 	}
 
 	public void render() {
+		// Generate world position if not generated yet
+		if (!wPosGenerated)
+			genWPos();
+
 		for (UIElement c : children)
 			c.render();
 	}
@@ -57,10 +61,14 @@ public class UIElement {
 		sPos.zero();
 
 		if (parent != null) {
+			parent.genWPos(); // Kindly request parent to regenerate their screen position
+
 			sPos.add(parent.sPos);
 		}
 
 		sPos.add(relPos).add(offset);
+
+		wPosGenerated = true;
 	}
 
 	public void setUpdateCb(Callback newCb) {

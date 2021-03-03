@@ -1,13 +1,11 @@
 package Entities;
 
-import org.joml.Math;
 import org.joml.Vector2f;
 
 import Collision.Shapes.Shape;
 import Entities.Framework.Entity;
 import Entities.Framework.Interactive;
 import GameController.EntityData;
-import GameController.GameManager;
 import GameController.Input;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
@@ -24,13 +22,11 @@ public class Button extends Entity implements Interactive {
 	Timer onTimer;
 	Player player;
 
-	public Button(String ID, Vector2f position, String name, int state, long timeOn, float activationDistance,
-			Player player) {
+	public Button(String ID, Vector2f position, String name, int state, long timeOn, float activationDistance) {
 		super(ID, position, name);
 		this.state = state;
 		this.timeOn = timeOn;
 		this.activationDistance = activationDistance;
-		this.player = player;
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
@@ -41,7 +37,7 @@ public class Button extends Entity implements Interactive {
 
 	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
 		return new Button(vals.str("type"), pos, vals.str("name"), vals.in("state"), vals.in("timeOn"),
-				vals.fl("activationDistance"), GameManager.player);
+				vals.fl("activationDistance"));
 	}
 
 	@Override
@@ -53,9 +49,6 @@ public class Button extends Entity implements Interactive {
 		if (state == 1) {
 		}
 
-		if (mouseHovered() && Input.primaryButtonDown && getMouseDistance() <= activationDistance) {
-			interact();
-		}
 		calcFrame();
 		changed = false;
 	}
@@ -73,15 +66,6 @@ public class Button extends Entity implements Interactive {
 
 			}
 		});
-	}
-
-	@Override
-	public float getMouseDistance() {
-		Vector2f playerpos = new Vector2f(player.getPosition());
-		playerpos.x += player.dim.x / 2;
-		playerpos.y += player.dim.y / 2;// center of player
-		return Math.sqrt((playerpos.x - position.x) * (playerpos.x - position.x)
-				+ (playerpos.y - position.y) * (playerpos.y - position.y));
 	}
 
 	@Override

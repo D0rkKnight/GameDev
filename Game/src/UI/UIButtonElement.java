@@ -6,7 +6,6 @@ import org.joml.Vector2f;
 
 import GameController.Input;
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.Renderer;
 import Utility.Callback;
 import Wrappers.Color;
 
@@ -18,8 +17,8 @@ public class UIButtonElement extends UIBoxElement {
 	private Color baseCol;
 	private Callback clickCb;
 
-	public UIButtonElement(Renderer rend, Vector2f pos, Vector2f dims, Color col) {
-		super(rend, pos, dims, col);
+	public UIButtonElement(Vector2f pos, Vector2f dims, Color col) {
+		super(pos, dims, col);
 
 		baseCol = new Color(col);
 	}

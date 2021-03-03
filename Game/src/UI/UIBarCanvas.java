@@ -13,8 +13,9 @@ public class UIBarCanvas extends UICanvas {
 	public UIBarCanvas(Renderer rend, Vector2f pos, Vector2f dims, Color col) {
 		super(pos, dims);
 
-		bg = new UIBoxElement(rend, new Vector2f(), dims, new Color(0.1f, 0.1f, 0.1f, 1));
-		bar = new UIBarElement(rend, new Vector2f(), dims, col);
+		// Instantiated in local space
+		bg = new UIBoxElement(new Vector2f(), dims, new Color(0.1f, 0.1f, 0.1f, 1));
+		bar = new UIBarElement(new Vector2f(), dims, col);
 
 		addElement(bg);
 		addElement(bar);

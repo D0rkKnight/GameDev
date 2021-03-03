@@ -20,11 +20,14 @@ import static org.lwjgl.opengl.GL30.GL_R8;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.HashMap;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTBakedChar;
+import org.lwjgl.stb.STBTTFontinfo;
 import org.lwjgl.stb.STBTruetype;
+import org.lwjgl.system.MemoryStack;
 
 import Graphics.Elements.Texture;
 
@@ -34,6 +37,11 @@ public class Font {
 
 	public char firstChar;
 	public char lastChar;
+
+	public float vAdvance;
+	public float ascent;
+	public float descent;
+	public float linegap;
 
 	TextChar[] characters;
 	public Texture tex;
@@ -73,7 +81,8 @@ public class Font {
 		STBTTBakedChar.Buffer charData = STBTTBakedChar.calloc(glyphCount);
 
 		// Bake the font
-		STBTruetype.stbtt_BakeFontBitmap(dataBuff, 32f, pixels, pw, ph, firstChar, charData);
+		float fontHeight = 32f;
+		STBTruetype.stbtt_BakeFontBitmap(dataBuff, fontHeight, pixels, pw, ph, firstChar, charData);
 
 		// This seems to work?
 //		STBTTFontinfo fontInfo = STBTTFontinfo.calloc();
@@ -116,6 +125,27 @@ public class Font {
 		characters = new TextChar[glyphCount];
 		for (char c = firstChar; c <= lastChar; c++) {
 			characters[c - firstChar] = new TextChar(c, this, texObj, charData);
+		}
+
+		// Grab vertical advance
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			IntBuffer bAscent = stack.mallocInt(1);
+			IntBuffer bDescent = stack.mallocInt(1);
+			IntBuffer bLinegap = stack.mallocInt(1);
+
+			STBTTFontinfo fontInfo = STBTTFontinfo.mallocStack();
+			STBTruetype.stbtt_InitFont(fontInfo, dataBuff);
+
+			STBTruetype.stbtt_GetFontVMetrics(fontInfo, bAscent, bDescent, bLinegap);
+
+			// Same as fontHeight / (ascent - descent)
+			float scaleFactor = STBTruetype.stbtt_ScaleForPixelHeight(fontInfo, fontHeight);
+
+			ascent = bAscent.get(0) * scaleFactor;
+			descent = bDescent.get(0) * scaleFactor;
+			vAdvance = (bAscent.get(0) - bDescent.get(0) + bLinegap.get(0)) * scaleFactor;
+
+			System.out.println("vAdvance: " + vAdvance);
 		}
 	}
 
