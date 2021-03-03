@@ -2,7 +2,7 @@
 <template>
  <object name="Player" type="PLAYER" width="7" height="28">
   <properties>
-   <property name="class" value="Entities.Player"/>
+   <property name="class" value="Entities.PlayerPackage.Player"/>
    <property name="healthRegen" type="float" value="0.5"/>
    <property name="staminaRegen" type="float" value="0.5"/>
   </properties>

@@ -2,6 +2,8 @@ package Wrappers;
 
 import java.util.ArrayList;
 
+import Utility.Callback;
+
 /**
  * Outlines a set of frame segments that can be used for animation and game
  * logic
@@ -13,7 +15,17 @@ import java.util.ArrayList;
  */
 public class FrameData {
 	public static enum FrameTag {
-		INACTABLE, DASH_CANCELLABLE, MOVE_CANCELLABLE, HITBOX_OUT
+		INACTABLE, DASH_CANCELLABLE, MOVE_CANCELLABLE
+	}
+
+	public static class Event {
+		public Callback cb;
+		public int frame;
+
+		public Event(Callback cb, int frame) {
+			this.cb = cb;
+			this.frame = frame;
+		}
 	}
 
 	public static class FrameSegment {
@@ -26,21 +38,44 @@ public class FrameData {
 			this.fStart = fStart;
 			this.tags = tags;
 		}
+
+		public FrameSegment(int fLength, int fStart) {
+			this(fLength, fStart, new FrameTag[] {});
+		}
+
+		public FrameSegment(int fLength, int fStart, FrameTag tag) {
+			this(fLength, fStart, new FrameTag[] { tag });
+		}
 	}
 
 	private ArrayList<FrameSegment> segments;
+	private ArrayList<Event> events;
 	private int currFrame = 0;
 
-	public FrameData(ArrayList<FrameSegment> segments) {
+	public FrameData(ArrayList<FrameSegment> segments, ArrayList<Event> events) {
 		this.segments = segments;
+		this.events = events;
 	}
 
 	public void advanceFrames(int fCount) {
-		this.currFrame = fCount;
+		// Invoke events along the way
+		for (Event e : events) {
+			if (e.frame >= currFrame && e.frame < currFrame + fCount) {
+				e.cb.invoke();
+
+				// TODO: These are NOT invoked in order!!!
+			}
+		}
+
+		this.currFrame += fCount;
 	}
 
 	public int getCurrFrame() {
 		return currFrame;
+	}
+
+	public void reset() {
+		currFrame = 0;
 	}
 
 	/**

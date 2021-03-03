@@ -1,4 +1,4 @@
-package Entities;
+package Entities.PlayerPackage;
 
 import org.joml.Math;
 import org.joml.Matrix4f;
@@ -8,9 +8,9 @@ import Collision.Hitbox;
 import Collision.Shapes.Shape;
 import Entities.Framework.Combatant;
 import Entities.Framework.Entity;
-import Entities.Framework.Melee;
 import Entities.Framework.PhysicsEntity;
 import Entities.Framework.Projectile;
+import Entities.PlayerPackage.PlayerCombatController.Attack;
 import GameController.EntityData;
 import GameController.GameManager;
 import GameController.Input;
@@ -45,25 +45,13 @@ public class Player extends Combatant {
 	private boolean releasedJump = true; // for making sure the player can't hold down w to jump
 	private boolean justDashed = false;
 
-	private Timer meleeTimer;
-	private Melee meleeEntity;
-
-	private static enum MeleeDir {
-		E(0), NE(Math.PI / 4), N(Math.PI / 2), NW(3 * Math.PI / 4), W(Math.PI), SW(5 * Math.PI / 4), S(3 * Math.PI / 2),
-		SE(7 * Math.PI / 4);
-
-		public double rad;
-
-		MeleeDir(double rad) {
-			this.rad = rad;
-		}
-	}
+	private Attack currAtk;
 
 	private boolean canJump;
 	private long jumpGraceInterval = 100;
 	private Timer jumpGraceTimer;
 
-	private int sideFacing;
+	int sideFacing;
 
 	public boolean canMove = true;
 
@@ -124,8 +112,8 @@ public class Player extends Combatant {
 	protected void initPhysicsCollBehavior() {
 		super.initPhysicsCollBehavior();
 
-		// collBehaviorList.add(new PhysicsCollisionBehaviorStepUp());
-		// collBehaviorList.add(new PhysicsCollisionBehaviorWallCling());
+//		collBehaviorList.add(new PhysicsCollisionBehaviorStepUp());
+//		collBehaviorList.add(new PhysicsCollisionBehaviorWallCling());
 	}
 
 	@Override
@@ -194,14 +182,14 @@ public class Player extends Combatant {
 		}
 
 		// Melee
-		if (Input.meleeAction && meleeTimer == null) {
-			melee(Input.mouseWorldPos);
+		if (Input.meleeAction) {
+			setCurrAtk(Attack.M_A);
+		}
+		if (currAtk != null) {
+			// TODO: calculate how many frames are advanced from deltaT!
+			currAtk.fd.advanceFrames(1);
 		}
 
-		// Update timers
-		if (meleeTimer != null) {
-			meleeTimer.update();
-		}
 		if (dashTimer != null)
 			dashTimer.update();
 	}
@@ -322,7 +310,7 @@ public class Player extends Combatant {
 
 		int newSideFacing = Arithmetic.sign(Input.moveX);
 		// Can only change sides if not attacking
-		if (newSideFacing != 0 && meleeTimer == null)
+		if (newSideFacing != 0)
 			sideFacing = newSideFacing;
 
 		hasGravity = true;
@@ -372,40 +360,11 @@ public class Player extends Combatant {
 		GameManager.subscribeEntity(proj);
 	}
 
-	private void melee(Vector2f firePos) {
-		int meleedis = 50;// hardcode TODO
-		Vector2f kbDir = new Vector2f(sideFacing, 0);
+	public void setCurrAtk(Attack atk) {
+		// TODO: pass by value, not by reference
 
-		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32)); // Hardcoded fun
-		pos.sub(16, 16); // TODO: Fix hardcode
-
-		Vector2f dir = new Vector2f(firePos).sub(pos).normalize();
-		Vector2f dist = new Vector2f(dir).mul(meleedis);
-
-		Vector2f mPos = new Vector2f(pos).add(dist);
-
-		// TODO: Retrieve this from the lookup
-		meleeEntity = new Melee("MELEE", mPos, "Melee", this, kbDir);
-		GameManager.subscribeEntity(meleeEntity);
-
-		float angle = Math.atan2(dir.y, dir.x);
-		Matrix4f rot = meleeEntity.transform.rot;
-
-		rot.translate(meleeEntity.dim.x / 2, meleeEntity.dim.y / 2, 0);
-		rot.rotateZ(angle);
-		rot.translate(-meleeEntity.dim.x / 2, -meleeEntity.dim.y / 2, 0);
-
-		meleeTimer = new Timer(200, new TimerCallback() {
-
-			@Override
-			public void invoke(Timer timer) {
-				// TODO: unsubscribing takes time while setting melee entity to null is instant,
-				// so there is one frame where melee entity is not attached to the player.
-				GameManager.unsubscribeEntity(meleeEntity);
-				meleeEntity = null;
-				meleeTimer = null;
-			}
-		});
+		atk.fd.reset();
+		currAtk = atk;
 	}
 
 	@Override

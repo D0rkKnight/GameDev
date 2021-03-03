@@ -1,7 +1,7 @@
 package Graphics.Animation;
 
 import Collision.Shapes.Shape;
-import Entities.Player;
+import Entities.PlayerPackage.Player;
 import Graphics.Rendering.GeneralRenderer;
 
 /**

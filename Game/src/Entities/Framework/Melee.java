@@ -10,6 +10,8 @@ import Collision.Shapes.Shape;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
 import Utility.Transformation;
+import Utility.Timers.Timer;
+import Utility.Timers.TimerCallback;
 import Wrappers.Color;
 
 /**
@@ -29,7 +31,9 @@ public class Melee extends Entity implements Collidable {
 
 	protected Hitbox hitbox;
 
-	public Melee(String ID, Vector2f position, String name, Entity owner, Vector2f kbDir) {
+	public Timer lifeTimer;
+
+	public Melee(String ID, Vector2f position, String name, Entity owner, Vector2f kbDir, long life) {
 		super(ID, position, name);
 		offset = new Vector2f(owner.position.x - position.x, owner.position.y - position.y);
 		this.owner = owner;
@@ -50,10 +54,22 @@ public class Melee extends Entity implements Collidable {
 
 		this.kbDir = kbDir;
 		hitEntities = new ArrayList<>();
+
+		lifeTimer = new Timer(life, new TimerCallback() {
+
+			@Override
+			public void invoke(Timer timer) {
+				Destroy();
+				lifeTimer = null;
+			}
+		});
 	}
 
 	@Override
 	public void calculate() {
+		if (lifeTimer != null)
+			lifeTimer.update();
+
 		controlledMovement();
 
 		transform.genModel();

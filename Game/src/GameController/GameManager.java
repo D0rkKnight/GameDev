@@ -16,11 +16,12 @@ import Collision.Physics;
 import Debugging.Debug;
 import Debugging.TestSpace;
 import Entities.InteractableFlag;
-import Entities.Player;
 import Entities.Framework.Entity;
 import Entities.Framework.EntityFlag;
 import Entities.Framework.Interactive;
 import Entities.Framework.PhysicsEntity;
+import Entities.PlayerPackage.Player;
+import Entities.PlayerPackage.PlayerCombatController;
 import GameController.procedural.WorldGenerator;
 import Graphics.Drawer;
 import Tiles.Tile;
@@ -161,6 +162,8 @@ public class GameManager {
 
 	static void initPlayer() {
 		Camera.main.attach(player);
+
+		PlayerCombatController.createAttacks();
 	}
 
 	// Simply subscribes an array of entities.
