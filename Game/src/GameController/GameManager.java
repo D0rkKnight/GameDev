@@ -56,6 +56,8 @@ public class GameManager {
 		return new InteractableFlag(pos);
 	};
 
+	public static final long COMBAT_FPS = 60;
+
 	// TODO: Write error checks for these
 	public static enum Grid {
 		// Used to map between Tiled2D and the internal hashmap tracking data.

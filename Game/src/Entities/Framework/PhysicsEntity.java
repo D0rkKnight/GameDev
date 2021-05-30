@@ -29,11 +29,6 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	protected float movementMulti; // multiplier for movement when knocked back (suggest 0.5)
 	protected float decelMulti; // multiplier for decel when knocked back (suggest 1)
 	protected boolean knockback = true;
-	protected Movement movementMode;
-
-	public static enum Movement {
-		CONTROLLED, DASHING, DECEL
-	}
 
 	public static enum Alignment {
 		NEUTRAL, PLAYER, ENEMY
@@ -47,6 +42,13 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 
 	public Hitbox hitbox;
 
+	public static enum Movement {
+		CONTROLLED, DASHING, DECEL;
+	}
+
+	// How to outlaw for players?
+	public Movement movementMode;
+
 	public PhysicsEntity(String ID, Vector2f position, String name) {
 		super(ID, position, name);
 
@@ -59,7 +61,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 		pData.collidedWithTile = false;
 		pData.canBeGrounded = true;
 		pData.walksUpSlopes = true;
-//Vector2f knockbackVector, float movementMulti, float decelMulti
+		// Vector2f knockbackVector, float movementMulti, float decelMulti
 		knockbackDir = new Vector2f(0, 0);
 		movementMulti = 0.5f;
 		decelMulti = 1f;

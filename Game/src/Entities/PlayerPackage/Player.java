@@ -39,8 +39,6 @@ public class Player extends Combatant {
 	float dashCost = 30f;
 
 	private float dashSpeed;
-	private long dashDuration;
-	private Timer dashTimer;
 	private Vector2f dashDir;
 	private boolean releasedJump = true; // for making sure the player can't hold down w to jump
 	private boolean justDashed = false;
@@ -57,6 +55,9 @@ public class Player extends Combatant {
 
 	private GhostParticleSystem pSys;
 
+	// Temp
+	public Color baseCol;
+
 	public Player(String ID, Vector2f position, String name, Stats stats) {
 		super(ID, position, name, stats);
 
@@ -69,6 +70,8 @@ public class Player extends Combatant {
 
 		this.renderer = rend;
 
+		baseCol = new Color(0, 0, 0, 1);
+
 		// Configure hitbox
 		dim = new Vector2f(15f, 60f);
 		hitbox = new Hitbox(this, dim.x, dim.y);
@@ -76,8 +79,6 @@ public class Player extends Combatant {
 		jumpSpeed = 1f;
 
 		dashSpeed = 2f;
-		dashDuration = 80;
-		movementMode = Movement.CONTROLLED;
 
 		// Configure animation stuff
 		TextureAtlas animSheet = new TextureAtlas(Texture.getTex("Assets/Sprites/Ilyia_idle-running_proto.png"), 96,
@@ -120,30 +121,17 @@ public class Player extends Combatant {
 	public void calculate() {
 		super.calculate();
 
+		// Default to idle loop
+		if (currAtk == null) {
+			currAtk = Attack.I;
+		}
+
 		if (!GameManager.roomChanging) {
 			determineMovementMode(); // determine what movement mode and execute it
 		}
 
-		Color baseCol = null;
-		switch (movementMode) {
-		case CONTROLLED: // walking
-			baseCol = new Color(1, 0, 0, 1);
-			controlledMovement();
-			break;
-		case DASHING: // dashing, a bit spaghetti here TODO
-			baseCol = new Color(1, 1, 1, 1);
-			dashingMovement();
-			break;
-		case DECEL:
-			baseCol = new Color(0, 0, 1, 1);
-			decelMovement();
-			break;
-		default:
-			System.err.println("Movement mode not set.");
-		}
-
 		GeneralRenderer sprRend = (GeneralRenderer) renderer;
-		if (hurtTimer == null)
+		if (hurtTimer == null && baseCol != null)
 			sprRend.updateColors(baseCol);
 
 		// Gravity
@@ -182,58 +170,43 @@ public class Player extends Combatant {
 		}
 
 		// Melee
+		// TODO: Have combat controllers handle this, since it's like an attack cancel.
 		if (Input.meleeAction) {
 			setCurrAtk(Attack.M_A);
 		}
 		if (currAtk != null) {
 			// TODO: calculate how many frames are advanced from deltaT!
-			currAtk.fd.advanceFrames(1);
+			// Urghk, this is going to need some multithreading. I need to at least decouple
+			// the game fps from the drawer fps.
+			currAtk.fd.update(this);
 		}
-
-		if (dashTimer != null)
-			dashTimer.update();
 	}
 
 	private void determineMovementMode() {
-		if (Input.knockbackTest && movementMode == Movement.CONTROLLED) {
+		if (Input.knockbackTest && currAtk == Attack.I) {
 			knockback(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
 		}
+
 		if (knockback) {
-			movementMode = Movement.DECEL;
+			currAtk = Attack.DECEL;
 			knockback = false;
-		}
-		if (movementMode == Movement.DECEL && Math.abs(pData.velo.x) <= xCap) {
-			movementMode = Movement.CONTROLLED;
-			knockbackDir = null;
 		}
 
 		// Initiating dash
-		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && movementMode != Movement.DASHING) {
+		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && currAtk != Attack.DASH) {
+			setCurrAtk(Attack.DASH);
+
 			if (stats.stamina < dashCost) {
 				return;
 			}
 
 			stats.stamina -= dashCost;
 			justDashed = true;
-			movementMode = Movement.DASHING;
 			dashDir = new Vector2f(Input.moveX, Input.moveY).normalize();
 
 			// Set velocity here
 			pData.velo = new Vector2f(dashDir).mul(dashSpeed);
-
-			// Begin a timer
-			dashTimer = new Timer(dashDuration, new TimerCallback() {
-
-				@Override
-				public void invoke(Timer timer) {
-					// First, dump this timer
-					dashTimer = null;
-
-					// Now stop dashing
-					movementMode = Movement.CONTROLLED;
-				}
-
-			});
+			hasGravity = false;
 
 			// Update pSys
 			pSys.resumeParticleGeneration();
@@ -245,7 +218,8 @@ public class Player extends Combatant {
 		}
 
 		// Bring entity back to normal
-		if (movementMode == Movement.CONTROLLED && justDashed) {
+		if (currAtk == Attack.I && justDashed) {
+
 			pData.velo.y *= 0.4; // TODO hardcode for dash deacc
 			pData.velo.x *= 0.8;
 			justDashed = false;
@@ -294,7 +268,7 @@ public class Player extends Combatant {
 		}
 
 		// Jump grace
-		if (pData.grounded && movementMode != Movement.DASHING)
+		if (pData.grounded && currAtk != Attack.DASH)
 			canJump = true;
 		else if (pData.wasGrounded) {
 			// begin timer
@@ -316,8 +290,7 @@ public class Player extends Combatant {
 		hasGravity = true;
 	}
 
-	private void dashingMovement() {
-		hasGravity = false;
+	void dashingMovement() {
 	}
 
 	/**
@@ -325,7 +298,7 @@ public class Player extends Combatant {
 	 * assuming that hit function added velo already, this function just does
 	 * deacceleration
 	 */
-	private void decelMovement() {
+	void decelMovement() {
 		// automatic deacceleration
 		float decelConst = Math.min(accelConst * decelMulti, Math.abs(pData.velo.x) - xCap)
 				* -Arithmetic.sign(pData.velo.x);
@@ -337,6 +310,12 @@ public class Player extends Combatant {
 		}
 		pData.velo.x += decelConst;
 		hasGravity = true;
+
+		// Escape knockback
+		if (Math.abs(pData.velo.x) <= xCap) {
+			setCurrAtk(Attack.I);
+			knockbackDir = null;
+		}
 	}
 
 	private void fireGun(Vector2f firePos) {
@@ -362,8 +341,9 @@ public class Player extends Combatant {
 
 	public void setCurrAtk(Attack atk) {
 		// TODO: pass by value, not by reference
+		// Assume it's so metadata is refreshed.
 
-		atk.fd.reset();
+		atk.fd.fullReset();
 		currAtk = atk;
 	}
 

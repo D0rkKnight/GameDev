@@ -2,7 +2,10 @@ package Wrappers;
 
 import java.util.ArrayList;
 
-import Utility.Callback;
+import Entities.PlayerPackage.Player;
+import Entities.PlayerPackage.PlayerCB;
+import GameController.GameManager;
+import GameController.Time;
 
 /**
  * Outlines a set of frame segments that can be used for animation and game
@@ -15,14 +18,14 @@ import Utility.Callback;
  */
 public class FrameData {
 	public static enum FrameTag {
-		INACTABLE, DASH_CANCELLABLE, MOVE_CANCELLABLE
+		INACTABLE, DASH_CANCELLABLE, MOVE_CANCELLABLE, MOVEABLE
 	}
 
 	public static class Event {
-		public Callback cb;
+		public PlayerCB cb;
 		public int frame;
 
-		public Event(Callback cb, int frame) {
+		public Event(PlayerCB cb, int frame) {
 			this.cb = cb;
 			this.frame = frame;
 		}
@@ -32,6 +35,8 @@ public class FrameData {
 		public int fLength;
 		public int fStart;
 		public FrameTag[] tags;
+
+		public PlayerCB cb;
 
 		public FrameSegment(int fLength, int fStart, FrameTag[] tags) {
 			this.fLength = fLength;
@@ -50,32 +55,72 @@ public class FrameData {
 
 	private ArrayList<FrameSegment> segments;
 	private ArrayList<Event> events;
-	private int currFrame = 0;
+	private float currContFrame = 0; // Frames are discrete but time is advanced continuously because game framerate
+										// is divorced from action framerate
 
-	public FrameData(ArrayList<FrameSegment> segments, ArrayList<Event> events) {
+	private float fEnd;
+	private boolean looping;
+	public PlayerCB cb; // General callback for every invoke
+
+	public PlayerCB onEntry; // Called on first available frame, is called before everything else
+	public boolean entryInvoked = false;
+
+	public FrameData(ArrayList<FrameSegment> segments, ArrayList<Event> events, boolean looping) {
 		this.segments = segments;
 		this.events = events;
+
+		this.looping = looping;
+		fEnd = totalFLength();
 	}
 
-	public void advanceFrames(int fCount) {
+	public FrameData(ArrayList<FrameSegment> segments, ArrayList<Event> events) {
+		this(segments, events, false);
+	}
+
+	public void update(Player player) {
+		if (!entryInvoked && onEntry != null) {
+			onEntry.invoke(player);
+			entryInvoked = true;
+		}
+
+		if (cb != null)
+			cb.invoke(player);
+
+		float fDelta = TDeltaToFrame(Time.deltaT());
+
 		// Invoke events along the way
 		for (Event e : events) {
-			if (e.frame >= currFrame && e.frame < currFrame + fCount) {
-				e.cb.invoke();
+			if (e.frame >= currContFrame && e.frame < currContFrame + fDelta) {
+				e.cb.invoke(player);
 
 				// TODO: These are NOT invoked in order!!!
 			}
 		}
 
-		this.currFrame += fCount;
+		// Invoke attached segments too
+		for (FrameSegment s : segments) {
+			if (s.cb != null && s.fStart <= currContFrame && s.fStart + s.fLength > currContFrame) {
+				s.cb.invoke(player);
+			}
+		}
+
+		this.currContFrame += fDelta;
+
+		// Loop here
+		if (looping) {
+			if (currContFrame >= fEnd) {
+				currContFrame -= fEnd;
+			}
+		}
 	}
 
-	public int getCurrFrame() {
-		return currFrame;
+	public float getCurrFrame() {
+		return currContFrame;
 	}
 
-	public void reset() {
-		currFrame = 0;
+	public void fullReset() {
+		entryInvoked = false;
+		currContFrame = 0;
 	}
 
 	/**
@@ -90,7 +135,7 @@ public class FrameData {
 		for (FrameSegment seg : segments) {
 
 			// If in this tag's timeframe
-			if (currFrame >= seg.fStart && currFrame < seg.fStart + seg.fLength) {
+			if (currContFrame >= seg.fStart && currContFrame < seg.fStart + seg.fLength) {
 				for (FrameTag tag : seg.tags) {
 					o[tag.ordinal()] = true;
 				}
@@ -112,5 +157,13 @@ public class FrameData {
 		}
 
 		return max;
+	}
+
+	public static long frameToTDelta(float f) {
+		return (long) (f / GameManager.COMBAT_FPS * 1000);
+	}
+
+	public static float TDeltaToFrame(long td) {
+		return (float) td * GameManager.COMBAT_FPS / 1000f;
 	}
 }
