@@ -10,8 +10,10 @@ import Collision.Hitbox;
 import Collision.Behaviors.PhysicsCollisionBehavior;
 import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
 import Collision.Behaviors.PhysicsCollisionBehaviorGroundMove;
+import Entities.PlayerPackage.PlayerStateController.EntityState;
 import GameController.Time;
 import Utility.Vector;
+import Wrappers.FrameData;
 import Wrappers.PhysicsData;
 
 public abstract class PhysicsEntity extends Entity implements Collidable {
@@ -28,7 +30,8 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	// movement when at normal velocities
 	protected float movementMulti; // multiplier for movement when knocked back (suggest 0.5)
 	protected float decelMulti; // multiplier for decel when knocked back (suggest 1)
-	protected boolean knockback = true;
+
+	protected EntityState currState;
 
 	public static enum Alignment {
 		NEUTRAL, PLAYER, ENEMY
@@ -41,13 +44,6 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	public ArrayList<PhysicsCollisionBehavior> collBehaviorList;
 
 	public Hitbox hitbox;
-
-	public static enum Movement {
-		CONTROLLED, DASHING, DECEL;
-	}
-
-	// How to outlaw for players?
-	public Movement movementMode;
 
 	public PhysicsEntity(String ID, Vector2f position, String name) {
 		super(ID, position, name);
@@ -158,7 +154,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	 * @param decelMulti
 	 */
 	public void knockback(Vector2f knockbackVector, float movementMulti, float decelMulti) {
-		if (movementMode == Movement.DECEL) {
+		if (currState.fd.frameOnTag(FrameData.FrameTag.KNOCKED)) {
 			if (Math.abs(pData.velo.x) < Math.abs(knockbackVector.x)) {
 				pData.velo.x = knockbackVector.x;
 				this.knockbackDir.x = knockbackVector.x;
@@ -177,16 +173,21 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 			this.knockbackDir = new Vector2f(knockbackVector);
 			this.movementMulti = movementMulti;
 			this.decelMulti = decelMulti;
-			knockback = true;
 		}
+	}
+
+	public void setEntityState(EntityState state) {
+		// TODO: pass by value, not by reference
+		// Assume it's so metadata is refreshed.
+
+		state.fd.fullReset();
+		currState = state;
 	}
 
 	public void decelMode(Vector2f knockbackVector, float movementMulti, float decelMulti) {
 		this.knockbackDir = new Vector2f(knockbackVector);
 		this.movementMulti = movementMulti;
 		this.decelMulti = decelMulti;
-		knockback = true;
-		this.movementMode = Movement.DECEL;
 	}
 
 	@Override

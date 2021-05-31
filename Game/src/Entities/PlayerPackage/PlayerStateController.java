@@ -15,7 +15,7 @@ import Wrappers.FrameData.Event;
 import Wrappers.FrameData.FrameSegment;
 import Wrappers.FrameData.FrameTag;
 
-public class PlayerCombatController {
+public class PlayerStateController {
 
 	public static enum MeleeDir {
 		N(0, 1), NE(1, 1), E(1, 0), SE(1, -1), S(0, -1), SW(-1, -1), W(-1, 0), NW(-1, 1);
@@ -31,13 +31,13 @@ public class PlayerCombatController {
 		}
 	}
 
-	public static enum Attack {
+	public static enum EntityState {
 		M_U, M_FU, M_FD, M_D, M_A, I, DASH, DECEL;
 
 		public FrameData fd;
 	}
 
-	public static void createAttacks() {
+	public static void genStates() {
 		// Create forward attack for now, has 10 frames of windup, 50 frames of hitbox,
 		// and 10 frames of windown.
 		// Creates a melee attack with 50 frames of life on frame 10.
@@ -50,14 +50,14 @@ public class PlayerCombatController {
 
 	private static void genF_A() {
 		// NEVERMIND this is just a generic attack command with framedata attached.
-		FrameData.Event cma = new FrameData.Event((player) -> {
+		FrameData.Event cma = new FrameData.Event(wrapPCB((player) -> {
 			melee(player, Input.mouseWorldPos, 30);
-		}, 5);
+		}), 5);
 
 		// Return to idle animation
-		FrameData.Event retI = new FrameData.Event((player) -> {
-			player.setCurrAtk(Attack.I);
-		}, 45);
+		FrameData.Event retI = new FrameData.Event(wrapPCB((player) -> {
+			player.setEntityState(EntityState.I);
+		}), 45);
 
 		ArrayList<Event> evs = new ArrayList<>();
 		evs.add(cma);
@@ -67,16 +67,16 @@ public class PlayerCombatController {
 		segs.add(new FrameSegment(35, 0, FrameTag.INACTABLE));
 		segs.add(new FrameSegment(10, 35, FrameTag.DASH_CANCELLABLE));
 
-		Attack.M_A.fd = new FrameData(segs, evs);
+		EntityState.M_A.fd = new FrameData(segs, evs);
 
 		// IDK if this should still be calling controlledMovement :/
-		Attack.M_A.fd.cb = (player) -> {
-			player.controlledMovement();
-		};
+		EntityState.M_A.fd.cb = wrapPCB((p) -> {
+			p.controlledMovement();
+		});
 
-		Attack.M_A.fd.onEntry = (player) -> {
-			player.baseCol = new Color(0, 1, 0, 1);
-		};
+		EntityState.M_A.fd.onEntry = wrapPCB((e) -> {
+			e.baseCol = new Color(0, 1, 0, 1);
+		});
 	}
 
 	private static void genI() {
@@ -85,22 +85,25 @@ public class PlayerCombatController {
 
 		segs.add(idle);
 
-		Attack.I.fd = new FrameData(segs, new ArrayList<Event>(), true);
+		EntityState.I.fd = new FrameData(segs, new ArrayList<Event>(), true);
 
-		Attack.I.fd.cb = (player) -> {
-			player.controlledMovement();
-			// TODO: Pass in player by reference instead of using static reference
-		};
+		EntityState.I.fd.cb = wrapPCB((p) -> {
+			p.controlledMovement();
 
-		Attack.I.fd.onEntry = (player) -> {
-			player.baseCol = new Color(0, 0, 0, 1);
-		};
+			if (Input.knockbackTest) {
+				p.knockback(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
+			}
+		});
+
+		EntityState.I.fd.onEntry = wrapPCB((p) -> {
+			p.baseCol = new Color(0, 0, 0, 1);
+		});
 	}
 
 	private static void genDASH() {
-		FrameData.Event retI = new Event((player) -> {
-			player.setCurrAtk(Attack.I);
-		}, 10);
+		FrameData.Event retI = new Event(wrapPCB((p) -> {
+			p.setEntityState(EntityState.I);
+		}), 10);
 
 		ArrayList<Event> evs = new ArrayList<>();
 		evs.add(retI);
@@ -110,29 +113,29 @@ public class PlayerCombatController {
 
 		segs.add(dash);
 
-		Attack.DASH.fd = new FrameData(segs, evs, false);
+		EntityState.DASH.fd = new FrameData(segs, evs, false);
 
-		Attack.DASH.fd.cb = (player) -> {
-			player.dashingMovement();
-		};
+		EntityState.DASH.fd.cb = wrapPCB((p) -> {
+			p.dashingMovement();
+		});
 
-		Attack.DASH.fd.onEntry = (player) -> {
-			player.baseCol = new Color(1, 1, 1, 1);
-		};
+		EntityState.DASH.fd.onEntry = wrapPCB((p) -> {
+			p.baseCol = new Color(1, 1, 1, 1);
+		});
 	}
 
 	private static void genDECEL() {
-		FrameSegment main = new FrameSegment(1, 0, FrameTag.INACTABLE);
+		FrameSegment main = new FrameSegment(1, 0, FrameTag.KNOCKED);
 		ArrayList<FrameSegment> segs = new ArrayList<>();
 		segs.add(main);
 
-		Attack.DECEL.fd = new FrameData(segs, new ArrayList<>(), true);
-		Attack.DECEL.fd.cb = (player) -> {
-			player.decelMovement();
-		};
-		Attack.DECEL.fd.onEntry = (player) -> {
-			player.baseCol = new Color(0, 0, 1, 1);
-		};
+		EntityState.DECEL.fd = new FrameData(segs, new ArrayList<>(), true);
+		EntityState.DECEL.fd.cb = wrapPCB((p) -> {
+			p.decelMovement();
+		});
+		EntityState.DECEL.fd.onEntry = wrapPCB((p) -> {
+			p.baseCol = new Color(0, 0, 1, 1);
+		});
 	}
 
 	private static void melee(Player p, Vector2f mousePos, int fLife) {
@@ -174,5 +177,11 @@ public class PlayerCombatController {
 		rot.translate(meleeEntity.dim.x / 2, meleeEntity.dim.y / 2, 0);
 		rot.rotateZ(angle);
 		rot.translate(-meleeEntity.dim.x / 2, -meleeEntity.dim.y / 2, 0);
+	}
+
+	private static EntityCB wrapPCB(PlayerCB pcb) {
+		return (e) -> {
+			pcb.invoke((Player) e);
+		};
 	}
 }

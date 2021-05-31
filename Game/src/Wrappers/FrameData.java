@@ -2,8 +2,8 @@ package Wrappers;
 
 import java.util.ArrayList;
 
-import Entities.PlayerPackage.Player;
-import Entities.PlayerPackage.PlayerCB;
+import Entities.Framework.Entity;
+import Entities.PlayerPackage.EntityCB;
 import GameController.GameManager;
 import GameController.Time;
 
@@ -18,14 +18,14 @@ import GameController.Time;
  */
 public class FrameData {
 	public static enum FrameTag {
-		INACTABLE, DASH_CANCELLABLE, MOVE_CANCELLABLE, MOVEABLE
+		INACTABLE, DASH_CANCELLABLE, MOVE_CANCELLABLE, MOVEABLE, KNOCKED
 	}
 
 	public static class Event {
-		public PlayerCB cb;
+		public EntityCB cb;
 		public int frame;
 
-		public Event(PlayerCB cb, int frame) {
+		public Event(EntityCB cb, int frame) {
 			this.cb = cb;
 			this.frame = frame;
 		}
@@ -36,7 +36,7 @@ public class FrameData {
 		public int fStart;
 		public FrameTag[] tags;
 
-		public PlayerCB cb;
+		public EntityCB cb;
 
 		public FrameSegment(int fLength, int fStart, FrameTag[] tags) {
 			this.fLength = fLength;
@@ -60,9 +60,9 @@ public class FrameData {
 
 	private float fEnd;
 	private boolean looping;
-	public PlayerCB cb; // General callback for every invoke
+	public EntityCB cb; // General callback for every invoke
 
-	public PlayerCB onEntry; // Called on first available frame, is called before everything else
+	public EntityCB onEntry; // Called on first available frame, is called before everything else
 	public boolean entryInvoked = false;
 
 	public FrameData(ArrayList<FrameSegment> segments, ArrayList<Event> events, boolean looping) {
@@ -77,21 +77,21 @@ public class FrameData {
 		this(segments, events, false);
 	}
 
-	public void update(Player player) {
+	public void update(Entity caller) {
 		if (!entryInvoked && onEntry != null) {
-			onEntry.invoke(player);
+			onEntry.invoke(caller);
 			entryInvoked = true;
 		}
 
 		if (cb != null)
-			cb.invoke(player);
+			cb.invoke(caller);
 
 		float fDelta = TDeltaToFrame(Time.deltaT());
 
 		// Invoke events along the way
 		for (Event e : events) {
 			if (e.frame >= currContFrame && e.frame < currContFrame + fDelta) {
-				e.cb.invoke(player);
+				e.cb.invoke(caller);
 
 				// TODO: These are NOT invoked in order!!!
 			}
@@ -100,7 +100,7 @@ public class FrameData {
 		// Invoke attached segments too
 		for (FrameSegment s : segments) {
 			if (s.cb != null && s.fStart <= currContFrame && s.fStart + s.fLength > currContFrame) {
-				s.cb.invoke(player);
+				s.cb.invoke(caller);
 			}
 		}
 
@@ -143,6 +143,12 @@ public class FrameData {
 		}
 
 		return o;
+	}
+
+	public boolean frameOnTag(FrameTag knocked) {
+		if (getCurrTags()[knocked.ordinal()])
+			return true;
+		return false;
 	}
 
 	/**

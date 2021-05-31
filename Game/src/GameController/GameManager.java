@@ -21,7 +21,7 @@ import Entities.Framework.EntityFlag;
 import Entities.Framework.Interactive;
 import Entities.Framework.PhysicsEntity;
 import Entities.PlayerPackage.Player;
-import Entities.PlayerPackage.PlayerCombatController;
+import Entities.PlayerPackage.PlayerStateController;
 import GameController.procedural.WorldGenerator;
 import Graphics.Drawer;
 import Tiles.Tile;
@@ -165,7 +165,7 @@ public class GameManager {
 	static void initPlayer() {
 		Camera.main.attach(player);
 
-		PlayerCombatController.createAttacks();
+		PlayerStateController.genStates();
 	}
 
 	// Simply subscribes an array of entities.

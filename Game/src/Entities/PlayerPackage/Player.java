@@ -10,7 +10,7 @@ import Entities.Framework.Combatant;
 import Entities.Framework.Entity;
 import Entities.Framework.PhysicsEntity;
 import Entities.Framework.Projectile;
-import Entities.PlayerPackage.PlayerCombatController.Attack;
+import Entities.PlayerPackage.PlayerStateController.EntityState;
 import GameController.EntityData;
 import GameController.GameManager;
 import GameController.Input;
@@ -42,8 +42,6 @@ public class Player extends Combatant {
 	private Vector2f dashDir;
 	private boolean releasedJump = true; // for making sure the player can't hold down w to jump
 	private boolean justDashed = false;
-
-	private Attack currAtk;
 
 	private boolean canJump;
 	private long jumpGraceInterval = 100;
@@ -122,8 +120,8 @@ public class Player extends Combatant {
 		super.calculate();
 
 		// Default to idle loop
-		if (currAtk == null) {
-			currAtk = Attack.I;
+		if (currState == null) {
+			currState = EntityState.I;
 		}
 
 		if (!GameManager.roomChanging) {
@@ -172,29 +170,24 @@ public class Player extends Combatant {
 		// Melee
 		// TODO: Have combat controllers handle this, since it's like an attack cancel.
 		if (Input.meleeAction) {
-			setCurrAtk(Attack.M_A);
+			setEntityState(EntityState.M_A);
 		}
-		if (currAtk != null) {
+		if (currState != null) {
 			// TODO: calculate how many frames are advanced from deltaT!
 			// Urghk, this is going to need some multithreading. I need to at least decouple
 			// the game fps from the drawer fps.
-			currAtk.fd.update(this);
+			currState.fd.update(this);
 		}
 	}
 
 	private void determineMovementMode() {
-		if (Input.knockbackTest && currAtk == Attack.I) {
+		if (Input.knockbackTest) {
 			knockback(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
 		}
 
-		if (knockback) {
-			currAtk = Attack.DECEL;
-			knockback = false;
-		}
-
 		// Initiating dash
-		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && currAtk != Attack.DASH) {
-			setCurrAtk(Attack.DASH);
+		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && currState != EntityState.DASH) {
+			setEntityState(EntityState.DASH);
 
 			if (stats.stamina < dashCost) {
 				return;
@@ -218,7 +211,7 @@ public class Player extends Combatant {
 		}
 
 		// Bring entity back to normal
-		if (currAtk == Attack.I && justDashed) {
+		if (currState == EntityState.I && justDashed) {
 
 			pData.velo.y *= 0.4; // TODO hardcode for dash deacc
 			pData.velo.x *= 0.8;
@@ -268,7 +261,7 @@ public class Player extends Combatant {
 		}
 
 		// Jump grace
-		if (pData.grounded && currAtk != Attack.DASH)
+		if (pData.grounded && currState != EntityState.DASH)
 			canJump = true;
 		else if (pData.wasGrounded) {
 			// begin timer
@@ -313,9 +306,16 @@ public class Player extends Combatant {
 
 		// Escape knockback
 		if (Math.abs(pData.velo.x) <= xCap) {
-			setCurrAtk(Attack.I);
+			setEntityState(EntityState.I);
 			knockbackDir = null;
 		}
+	}
+
+	@Override
+	public void knockback(Vector2f knockbackVector, float movementMulti, float decelMulti) {
+		super.knockback(knockbackVector, movementMulti, decelMulti);
+
+		setEntityState(EntityState.DECEL);
 	}
 
 	private void fireGun(Vector2f firePos) {
@@ -337,14 +337,6 @@ public class Player extends Combatant {
 		proj.alignment = alignment;
 
 		GameManager.subscribeEntity(proj);
-	}
-
-	public void setCurrAtk(Attack atk) {
-		// TODO: pass by value, not by reference
-		// Assume it's so metadata is refreshed.
-
-		atk.fd.fullReset();
-		currAtk = atk;
 	}
 
 	@Override
