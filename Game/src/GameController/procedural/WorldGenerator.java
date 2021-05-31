@@ -445,7 +445,7 @@ public class WorldGenerator {
 			indexes[i] = i;
 		List<Integer> indexesList = Arrays.asList(indexes);
 		Collections.shuffle(indexesList, random);
-		indexes = (Integer[]) indexesList.toArray();
+		indexes = indexesList.toArray(new Integer[length]);
 
 		return indexes;
 	}
