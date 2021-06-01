@@ -59,6 +59,8 @@ public abstract class Combatant extends PhysicsEntity {
 
 	@Override
 	public void calculate() {
+		super.calculate();
+
 		if (hurtTimer != null)
 			hurtTimer.update();
 		if (invulnTimer != null)

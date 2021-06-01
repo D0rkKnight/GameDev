@@ -28,7 +28,7 @@ public abstract class Entity {
 	public String name; // TODO: Let createNew specify the name of the entity
 	public Vector2f dim;
 
-	protected Animator anim;
+	public Animator anim;
 
 	public EntityFlag flag;
 

@@ -10,7 +10,6 @@ import Collision.Hitbox;
 import Collision.Behaviors.PhysicsCollisionBehavior;
 import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
 import Collision.Behaviors.PhysicsCollisionBehaviorGroundMove;
-import Entities.PlayerPackage.PlayerStateController.EntityState;
 import GameController.Time;
 import Utility.Vector;
 import Wrappers.FrameData;
@@ -30,8 +29,11 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	// movement when at normal velocities
 	protected float movementMulti; // multiplier for movement when knocked back (suggest 0.5)
 	protected float decelMulti; // multiplier for decel when knocked back (suggest 1)
+	public boolean knocked = false;
 
-	protected EntityState currState;
+	protected FrameData currFD;
+	protected FrameData queuedFD;
+	protected boolean isFDQueued = false; // Necessary in case we want to queue null FD
 
 	public static enum Alignment {
 		NEUTRAL, PLAYER, ENEMY
@@ -154,7 +156,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	 * @param decelMulti
 	 */
 	public void knockback(Vector2f knockbackVector, float movementMulti, float decelMulti) {
-		if (currState.fd.frameOnTag(FrameData.FrameTag.KNOCKED)) {
+		if (knocked) {
 			if (Math.abs(pData.velo.x) < Math.abs(knockbackVector.x)) {
 				pData.velo.x = knockbackVector.x;
 				this.knockbackDir.x = knockbackVector.x;
@@ -176,18 +178,38 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 		}
 	}
 
-	public void setEntityState(EntityState state) {
+	public void setEntityFD(FrameData fd) {
 		// TODO: pass by value, not by reference
 		// Assume it's so metadata is refreshed.
-
-		state.fd.fullReset();
-		currState = state;
+		queuedFD = fd;
+		isFDQueued = true;
 	}
 
 	public void decelMode(Vector2f knockbackVector, float movementMulti, float decelMulti) {
 		this.knockbackDir = new Vector2f(knockbackVector);
 		this.movementMulti = movementMulti;
 		this.decelMulti = decelMulti;
+	}
+
+	@Override
+	public void calculate() {
+		if (isFDQueued) {
+			isFDQueued = false;
+
+			if (currFD != null && currFD.onExit != null)
+				currFD.onExit.invoke(this);
+
+			if (queuedFD != null)
+				queuedFD.fullReset();
+			currFD = queuedFD;
+			queuedFD = null;
+
+			if (currFD != null && currFD.onEntry != null)
+				currFD.onEntry.invoke(this);
+		}
+
+		if (currFD != null)
+			currFD.update(this);
 	}
 
 	@Override

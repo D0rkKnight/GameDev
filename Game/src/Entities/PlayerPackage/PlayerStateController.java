@@ -9,11 +9,13 @@ import org.joml.Vector2f;
 import Entities.Framework.Melee;
 import GameController.GameManager;
 import GameController.Input;
+import Graphics.Animation.PlayerAnimator;
+import Utility.Timers.Timer;
+import Utility.Timers.TimerCallback;
 import Wrappers.Color;
 import Wrappers.FrameData;
 import Wrappers.FrameData.Event;
 import Wrappers.FrameData.FrameSegment;
-import Wrappers.FrameData.FrameTag;
 
 public class PlayerStateController {
 
@@ -31,24 +33,80 @@ public class PlayerStateController {
 		}
 	}
 
-	public static enum EntityState {
-		M_U, M_FU, M_FD, M_D, M_A, I, DASH, DECEL;
+	public static enum PlayerState {
+		//@formatter:off
+		I, DASH, DECEL, 
+		M_A, JAB1, JAB2, LUNGE, DASH_ATTACK;
+		//@formatter:on
 
 		public FrameData fd;
 	}
 
-	public static void genStates() {
+	// Containers for callbacks, I guess. Pretty dumb.
+	public static enum PlayerTag {
+		INACTABLE, DASHABLE, MOVE_CANCELLABLE, MOVEABLE, KNOCKED, JUMPABLE, CAN_MELEE, CAN_FIRE;
+
+		public EntityCB cb;
+	}
+
+	public static void init() {
+		genTags();
+		genStates();
+	}
+
+	private static void genTags() {
+		PlayerTag.DASHABLE.cb = wrapPCB((p) -> {
+			// Initiating dash
+			if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0)) {
+				p.dash();
+			}
+		});
+
+		PlayerTag.JUMPABLE.cb = wrapPCB((e) -> {
+			if (e.pData.grounded)
+				e.canJump = true;
+		});
+
+		PlayerTag.CAN_MELEE.cb = wrapPCB((p) -> {
+			// Melee
+			// TODO: Have combat controllers handle this, since it's like an attack cancel.
+			if (Input.meleeAction) {
+				p.setPlayerState(PlayerState.M_A);
+			}
+		});
+
+		PlayerTag.CAN_FIRE.cb = wrapPCB((p) -> {
+			// Shoot a gun
+			if (Input.primaryButtonDown) {
+				if (p.gunTimer == null) {
+					// Configure firing
+					p.gunTimer = new Timer(100, new TimerCallback() {
+
+						@Override
+						public void invoke(Timer timer) {
+							p.fireGun(Input.mouseWorldPos);
+						}
+
+					});
+				}
+				p.gunTimer.update();
+			}
+		});
+	}
+
+	private static void genStates() {
 		// Create forward attack for now, has 10 frames of windup, 50 frames of hitbox,
 		// and 10 frames of windown.
 		// Creates a melee attack with 50 frames of life on frame 10.
 
-		genF_A();
-		genI();
-		genDASH();
-		genDECEL();
+		PlayerState.M_A.fd = genM_A();
+		PlayerState.I.fd = genI();
+		PlayerState.DASH.fd = genDASH();
+		PlayerState.DECEL.fd = genDECEL();
+
 	}
 
-	private static void genF_A() {
+	private static FrameData genM_A() {
 		// NEVERMIND this is just a generic attack command with framedata attached.
 		FrameData.Event cma = new FrameData.Event(wrapPCB((player) -> {
 			melee(player, Input.mouseWorldPos, 30);
@@ -56,7 +114,7 @@ public class PlayerStateController {
 
 		// Return to idle animation
 		FrameData.Event retI = new FrameData.Event(wrapPCB((player) -> {
-			player.setEntityState(EntityState.I);
+			player.setPlayerState(PlayerState.I);
 		}), 45);
 
 		ArrayList<Event> evs = new ArrayList<>();
@@ -64,30 +122,33 @@ public class PlayerStateController {
 		evs.add(retI);
 
 		ArrayList<FrameSegment> segs = new ArrayList<>();
-		segs.add(new FrameSegment(35, 0, FrameTag.INACTABLE));
-		segs.add(new FrameSegment(10, 35, FrameTag.DASH_CANCELLABLE));
+		segs.add(new FrameSegment(35, 0, PlayerTag.INACTABLE.cb));
+		segs.add(new FrameSegment(10, 35, PlayerTag.DASHABLE.cb));
 
-		EntityState.M_A.fd = new FrameData(segs, evs);
+		FrameData fd = new FrameData(segs, evs);
 
 		// IDK if this should still be calling controlledMovement :/
-		EntityState.M_A.fd.cb = wrapPCB((p) -> {
+		fd.cb = wrapPCB((p) -> {
 			p.controlledMovement();
 		});
 
-		EntityState.M_A.fd.onEntry = wrapPCB((e) -> {
+		fd.onEntry = wrapPCB((e) -> {
 			e.baseCol = new Color(0, 1, 0, 1);
 		});
+
+		return fd;
 	}
 
-	private static void genI() {
+	private static FrameData genI() {
 		ArrayList<FrameSegment> segs = new ArrayList<>();
-		FrameSegment idle = new FrameSegment(5, 0, FrameTag.MOVEABLE);
+		FrameSegment idle = new FrameSegment(5, 0, new EntityCB[] { PlayerTag.MOVEABLE.cb, PlayerTag.DASHABLE.cb,
+				PlayerTag.JUMPABLE.cb, PlayerTag.CAN_FIRE.cb, PlayerTag.CAN_MELEE.cb });
 
 		segs.add(idle);
 
-		EntityState.I.fd = new FrameData(segs, new ArrayList<Event>(), true);
+		FrameData fd = new FrameData(segs, new ArrayList<Event>(), true);
 
-		EntityState.I.fd.cb = wrapPCB((p) -> {
+		fd.cb = wrapPCB((p) -> {
 			p.controlledMovement();
 
 			if (Input.knockbackTest) {
@@ -95,47 +156,77 @@ public class PlayerStateController {
 			}
 		});
 
-		EntityState.I.fd.onEntry = wrapPCB((p) -> {
+		fd.onEntry = wrapPCB((p) -> {
 			p.baseCol = new Color(0, 0, 0, 1);
 		});
+
+		return fd;
 	}
 
-	private static void genDASH() {
+	private static FrameData genDASH() {
 		FrameData.Event retI = new Event(wrapPCB((p) -> {
-			p.setEntityState(EntityState.I);
+			p.pData.velo.y *= 0.4; // TODO hardcode for dash deacc
+			p.pData.velo.x *= 0.8;
+			p.decelMode(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
+
+			p.setPlayerState(PlayerState.I);
 		}), 10);
 
 		ArrayList<Event> evs = new ArrayList<>();
 		evs.add(retI);
 
 		ArrayList<FrameSegment> segs = new ArrayList<>();
-		FrameSegment dash = new FrameSegment(10, 0, FrameTag.INACTABLE);
+		FrameSegment dash = new FrameSegment(10, 0, PlayerTag.DASHABLE.cb);
+		FrameSegment dashAttack = new FrameSegment(10, 0, wrapPCB((p) -> {
+			if (Input.meleeAction) {
+				System.out.println("Melee");
+
+				p.setPlayerState(PlayerState.DASH_ATTACK);
+			}
+		}));
 
 		segs.add(dash);
+		segs.add(dashAttack);
 
-		EntityState.DASH.fd = new FrameData(segs, evs, false);
+		FrameData fd = new FrameData(segs, evs, false);
 
-		EntityState.DASH.fd.cb = wrapPCB((p) -> {
+		fd.cb = wrapPCB((p) -> {
 			p.dashingMovement();
 		});
 
-		EntityState.DASH.fd.onEntry = wrapPCB((p) -> {
-			p.baseCol = new Color(1, 1, 1, 1);
+		fd.onEntry = wrapPCB((p) -> {
+			p.baseCol = new Color(0.5f, 0.5f, 0.5f, 1);
 		});
+
+		// Applies to forced exits by knockback and etc. too
+		fd.onExit = wrapPCB((p) -> {
+			// Update pSys
+			p.pSys.pauseParticleGeneration();
+			p.anim.switchAnim(PlayerAnimator.ANIM_MOVING);
+		});
+
+		return fd;
 	}
 
-	private static void genDECEL() {
-		FrameSegment main = new FrameSegment(1, 0, FrameTag.KNOCKED);
+	private static FrameData genDECEL() {
+		FrameSegment main = new FrameSegment(1, 0, PlayerTag.KNOCKED.cb);
 		ArrayList<FrameSegment> segs = new ArrayList<>();
 		segs.add(main);
 
-		EntityState.DECEL.fd = new FrameData(segs, new ArrayList<>(), true);
-		EntityState.DECEL.fd.cb = wrapPCB((p) -> {
+		FrameData fd = new FrameData(segs, new ArrayList<>(), true);
+		fd.cb = wrapPCB((p) -> {
 			p.decelMovement();
 		});
-		EntityState.DECEL.fd.onEntry = wrapPCB((p) -> {
+		fd.onEntry = wrapPCB((p) -> {
 			p.baseCol = new Color(0, 0, 1, 1);
+			p.knocked = true;
 		});
+
+		fd.onExit = wrapPCB((p) -> {
+			p.knocked = false;
+		});
+
+		return fd;
 	}
 
 	private static void melee(Player p, Vector2f mousePos, int fLife) {
@@ -147,7 +238,6 @@ public class PlayerStateController {
 		// Determine which direction is closest to the current mouse position (lock to
 		// cardinal direction)
 		Vector2f nmp = new Vector2f(mousePos).sub(pos).normalize();
-		System.out.println(nmp);
 
 		MeleeDir dir = MeleeDir.E;
 		float minDist = dir.v.distance(nmp);
@@ -166,7 +256,6 @@ public class PlayerStateController {
 
 		// TODO: Check
 		long tLife = FrameData.frameToTDelta(fLife);
-		System.out.println(tLife);
 
 		Melee meleeEntity = new Melee("MELEE", mPos, "Melee", p, kbDir, tLife);
 		GameManager.subscribeEntity(meleeEntity);

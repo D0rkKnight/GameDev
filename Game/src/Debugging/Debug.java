@@ -42,9 +42,9 @@ public class Debug {
 		frameWalk = false;
 		frameDelta = 20f;
 
-		showCollisions = false;
-		debugElementsEnabled = false;
-		drawEdges = false;
+		showCollisions = true;
+		debugElementsEnabled = true;
+		drawEdges = true;
 		logIssues = true;
 
 		Drawer.windowResizeable = false;

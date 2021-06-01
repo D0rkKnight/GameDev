@@ -10,7 +10,7 @@ import Entities.Framework.Combatant;
 import Entities.Framework.Entity;
 import Entities.Framework.PhysicsEntity;
 import Entities.Framework.Projectile;
-import Entities.PlayerPackage.PlayerStateController.EntityState;
+import Entities.PlayerPackage.PlayerStateController.PlayerState;
 import GameController.EntityData;
 import GameController.GameManager;
 import GameController.Input;
@@ -32,7 +32,7 @@ import Wrappers.Stats;
 public class Player extends Combatant {
 
 	private float jumpSpeed;
-	private Timer gunTimer;
+	Timer gunTimer;
 	float xCap = 0.5f; // todo add to contructor (and break everything)
 	float accelConst = 2f / 20f;
 	float gunCost = 15f;
@@ -41,9 +41,8 @@ public class Player extends Combatant {
 	private float dashSpeed;
 	private Vector2f dashDir;
 	private boolean releasedJump = true; // for making sure the player can't hold down w to jump
-	private boolean justDashed = false;
 
-	private boolean canJump;
+	boolean canJump;
 	private long jumpGraceInterval = 100;
 	private Timer jumpGraceTimer;
 
@@ -51,7 +50,7 @@ public class Player extends Combatant {
 
 	public boolean canMove = true;
 
-	private GhostParticleSystem pSys;
+	GhostParticleSystem pSys;
 
 	// Temp
 	public Color baseCol;
@@ -101,6 +100,8 @@ public class Player extends Combatant {
 		pSys = new GhostParticleSystem(animSheet.tex, 20, rendDims);
 		pSys.init();
 		pSys.pauseParticleGeneration();
+
+		currFD = PlayerState.I.fd;
 	}
 
 	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
@@ -119,13 +120,10 @@ public class Player extends Combatant {
 	public void calculate() {
 		super.calculate();
 
-		// Default to idle loop
-		if (currState == null) {
-			currState = EntityState.I;
-		}
-
 		if (!GameManager.roomChanging) {
-			determineMovementMode(); // determine what movement mode and execute it
+			if (Input.knockbackTest) {
+				knockback(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
+			}
 		}
 
 		GeneralRenderer sprRend = (GeneralRenderer) renderer;
@@ -150,79 +148,29 @@ public class Player extends Combatant {
 
 			canJump = false;
 		}
-
-		// Shoot a gun
-		if (Input.primaryButtonDown) {
-			if (gunTimer == null) {
-				// Configure firing
-				gunTimer = new Timer(100, new TimerCallback() {
-
-					@Override
-					public void invoke(Timer timer) {
-						fireGun(Input.mouseWorldPos);
-					}
-
-				});
-			}
-			gunTimer.update();
-		}
-
-		// Melee
-		// TODO: Have combat controllers handle this, since it's like an attack cancel.
-		if (Input.meleeAction) {
-			setEntityState(EntityState.M_A);
-		}
-		if (currState != null) {
-			// TODO: calculate how many frames are advanced from deltaT!
-			// Urghk, this is going to need some multithreading. I need to at least decouple
-			// the game fps from the drawer fps.
-			currState.fd.update(this);
-		}
 	}
 
-	private void determineMovementMode() {
-		if (Input.knockbackTest) {
-			knockback(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
+	public void dash() {
+		setPlayerState(PlayerState.DASH);
+
+		if (stats.stamina < dashCost) {
+			return;
 		}
 
-		// Initiating dash
-		if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0) && currState != EntityState.DASH) {
-			setEntityState(EntityState.DASH);
+		stats.stamina -= dashCost;
+		dashDir = new Vector2f(Input.moveX, Input.moveY).normalize();
 
-			if (stats.stamina < dashCost) {
-				return;
-			}
+		// Set velocity here
+		pData.velo = new Vector2f(dashDir).mul(dashSpeed);
+		hasGravity = false;
 
-			stats.stamina -= dashCost;
-			justDashed = true;
-			dashDir = new Vector2f(Input.moveX, Input.moveY).normalize();
+		// Update pSys
+		pSys.resumeParticleGeneration();
 
-			// Set velocity here
-			pData.velo = new Vector2f(dashDir).mul(dashSpeed);
-			hasGravity = false;
-
-			// Update pSys
-			pSys.resumeParticleGeneration();
-
-			// Change animator
-			// Does this even work?
-			// Tbh all anim updates should be in Player, not PlayerAnimator TODO
-			anim.switchAnim(PlayerAnimator.ANIM_DASHING);
-		}
-
-		// Bring entity back to normal
-		if (currState == EntityState.I && justDashed) {
-
-			pData.velo.y *= 0.4; // TODO hardcode for dash deacc
-			pData.velo.x *= 0.8;
-			justDashed = false;
-			decelMode(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
-
-			// Update pSys
-			pSys.pauseParticleGeneration();
-			anim.switchAnim(PlayerAnimator.ANIM_MOVING);
-		}
-
+		// Change animator
+		// Does this even work?
+		// Tbh all anim updates should be in Player, not PlayerAnimator TODO
+		anim.switchAnim(PlayerAnimator.ANIM_DASHING);
 	}
 
 	@Override
@@ -261,9 +209,7 @@ public class Player extends Combatant {
 		}
 
 		// Jump grace
-		if (pData.grounded && currState != EntityState.DASH)
-			canJump = true;
-		else if (pData.wasGrounded) {
+		if (pData.wasGrounded) {
 			// begin timer
 			jumpGraceTimer = new Timer(jumpGraceInterval, new TimerCallback() {
 
@@ -306,7 +252,7 @@ public class Player extends Combatant {
 
 		// Escape knockback
 		if (Math.abs(pData.velo.x) <= xCap) {
-			setEntityState(EntityState.I);
+			setPlayerState(PlayerState.I);
 			knockbackDir = null;
 		}
 	}
@@ -315,10 +261,14 @@ public class Player extends Combatant {
 	public void knockback(Vector2f knockbackVector, float movementMulti, float decelMulti) {
 		super.knockback(knockbackVector, movementMulti, decelMulti);
 
-		setEntityState(EntityState.DECEL);
+		setPlayerState(PlayerState.DECEL);
 	}
 
-	private void fireGun(Vector2f firePos) {
+	public void setPlayerState(PlayerState state) {
+		setEntityFD(state.fd);
+	}
+
+	public void fireGun(Vector2f firePos) {
 		if (stats.stamina < gunCost) {
 			return;
 		}

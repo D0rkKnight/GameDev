@@ -371,11 +371,6 @@ public class Serializer {
 			}
 		}
 
-		// Dump entity list
-		System.out.println();
-		for (Entity e : entities)
-			System.out.println(e);
-
 		return entities;
 
 	}

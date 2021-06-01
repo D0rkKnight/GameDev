@@ -22,6 +22,7 @@ import Entities.Framework.Interactive;
 import Entities.Framework.PhysicsEntity;
 import Entities.PlayerPackage.Player;
 import Entities.PlayerPackage.PlayerStateController;
+import Entities.PlayerPackage.PlayerStateController.PlayerState;
 import GameController.procedural.WorldGenerator;
 import Graphics.Drawer;
 import Tiles.Tile;
@@ -165,7 +166,8 @@ public class GameManager {
 	static void initPlayer() {
 		Camera.main.attach(player);
 
-		PlayerStateController.genStates();
+		PlayerStateController.init();
+		player.setPlayerState(PlayerState.I);
 	}
 
 	// Simply subscribes an array of entities.

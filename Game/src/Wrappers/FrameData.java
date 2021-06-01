@@ -1,6 +1,7 @@
 package Wrappers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import Entities.Framework.Entity;
 import Entities.PlayerPackage.EntityCB;
@@ -17,10 +18,6 @@ import GameController.Time;
  *
  */
 public class FrameData {
-	public static enum FrameTag {
-		INACTABLE, DASH_CANCELLABLE, MOVE_CANCELLABLE, MOVEABLE, KNOCKED
-	}
-
 	public static class Event {
 		public EntityCB cb;
 		public int frame;
@@ -34,22 +31,25 @@ public class FrameData {
 	public static class FrameSegment {
 		public int fLength;
 		public int fStart;
-		public FrameTag[] tags;
+		public ArrayList<EntityCB> cbs;
 
-		public EntityCB cb;
-
-		public FrameSegment(int fLength, int fStart, FrameTag[] tags) {
+		public FrameSegment(int fLength, int fStart, EntityCB[] cbs) {
 			this.fLength = fLength;
 			this.fStart = fStart;
-			this.tags = tags;
+
+			this.cbs = new ArrayList<>();
+			Collections.addAll(this.cbs, cbs);
+
+			for (EntityCB ecb : cbs)
+				System.out.println(ecb);
 		}
 
 		public FrameSegment(int fLength, int fStart) {
-			this(fLength, fStart, new FrameTag[] {});
+			this(fLength, fStart, new EntityCB[] {});
 		}
 
-		public FrameSegment(int fLength, int fStart, FrameTag tag) {
-			this(fLength, fStart, new FrameTag[] { tag });
+		public FrameSegment(int fLength, int fStart, EntityCB cb) {
+			this(fLength, fStart, new EntityCB[] { cb });
 		}
 	}
 
@@ -63,7 +63,7 @@ public class FrameData {
 	public EntityCB cb; // General callback for every invoke
 
 	public EntityCB onEntry; // Called on first available frame, is called before everything else
-	public boolean entryInvoked = false;
+	public EntityCB onExit; // Both this and onEntry are invoked externally.
 
 	public FrameData(ArrayList<FrameSegment> segments, ArrayList<Event> events, boolean looping) {
 		this.segments = segments;
@@ -78,11 +78,6 @@ public class FrameData {
 	}
 
 	public void update(Entity caller) {
-		if (!entryInvoked && onEntry != null) {
-			onEntry.invoke(caller);
-			entryInvoked = true;
-		}
-
 		if (cb != null)
 			cb.invoke(caller);
 
@@ -99,11 +94,14 @@ public class FrameData {
 
 		// Invoke attached segments too
 		for (FrameSegment s : segments) {
-			if (s.cb != null && s.fStart <= currContFrame && s.fStart + s.fLength > currContFrame) {
-				s.cb.invoke(caller);
+			if (s.cbs.size() > 0 && s.fStart <= currContFrame && s.fStart + s.fLength > currContFrame) {
+				for (EntityCB ecb : s.cbs)
+					if (ecb != null)
+						ecb.invoke(caller);
 			}
 		}
 
+		// Advance time
 		this.currContFrame += fDelta;
 
 		// Loop here
@@ -119,36 +117,7 @@ public class FrameData {
 	}
 
 	public void fullReset() {
-		entryInvoked = false;
 		currContFrame = 0;
-	}
-
-	/**
-	 * Retrieve all tags at the current frame the object is at
-	 * 
-	 * @return
-	 */
-	public boolean[] getCurrTags() {
-		// Boolean mask for tags, use ordinal value of enum to access
-		boolean[] o = new boolean[FrameTag.values().length];
-
-		for (FrameSegment seg : segments) {
-
-			// If in this tag's timeframe
-			if (currContFrame >= seg.fStart && currContFrame < seg.fStart + seg.fLength) {
-				for (FrameTag tag : seg.tags) {
-					o[tag.ordinal()] = true;
-				}
-			}
-		}
-
-		return o;
-	}
-
-	public boolean frameOnTag(FrameTag knocked) {
-		if (getCurrTags()[knocked.ordinal()])
-			return true;
-		return false;
 	}
 
 	/**

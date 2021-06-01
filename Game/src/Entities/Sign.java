@@ -57,13 +57,6 @@ public class Sign extends Entity implements Interactive {
 						text.add(i, vals.str(key));
 						loadIndices.add(i, index);
 
-						System.out.println("Insertion index: " + i);
-						System.out.println("Compare value: " + index);
-
-						for (int j : loadIndices)
-							System.out.println("lIndex: " + j);
-						System.out.println();
-
 						break;
 					}
 				}
