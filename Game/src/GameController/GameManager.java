@@ -14,6 +14,7 @@ import Collision.Collidable;
 import Collision.Hitbox;
 import Collision.Physics;
 import Debugging.Debug;
+import Debugging.DebugPolygon;
 import Debugging.TestSpace;
 import Entities.InteractableFlag;
 import Entities.Framework.Entity;
@@ -28,6 +29,7 @@ import Graphics.Drawer;
 import Tiles.Tile;
 import UI.UI;
 import Utility.Timers.Timer;
+import Wrappers.Color;
 import audio.Audio;
 
 public class GameManager {
@@ -282,25 +284,29 @@ public class GameManager {
 
 		// Each entity makes decisions
 		for (Entity ent : entities) {
-			ent.calculate();
-			if (ent instanceof Interactive) {
-				float activationDistance = 100f;
-				float distToInteractable = player.getPosition().distance(ent.getPosition());
+			if (ent.parent == null) {
+				ent.calculate();
 
-				if (distToInteractable <= activationDistance) {
-					if (ent.flag == null)
-						ent.flagEntity(iFlagFactory);
+				// TODO: Move this elsewhere
+				if (ent instanceof Interactive) {
+					float activationDistance = 100f;
+					float distToInteractable = player.getPosition().distance(ent.getPosition());
 
-					if (Input.interactAction && !Input.interactEaten) {
-						((Interactive) ent).interact();
+					if (distToInteractable <= activationDistance) {
+						if (ent.flag == null)
+							ent.flagEntity(iFlagFactory);
+
+						if (Input.interactAction && !Input.interactEaten) {
+							((Interactive) ent).interact();
+						}
+					} else {
+						if (ent.flag != null)
+							ent.deflagEntity();
 					}
-				} else {
-					if (ent.flag != null)
-						ent.deflagEntity();
 				}
-			}
 
-			ent.updateChildren();
+				ent.updateChildren();
+			}
 		}
 
 		// Each entity generates its frame
@@ -316,6 +322,12 @@ public class GameManager {
 
 		for (int i = 0; i < coll.size(); i++) {
 			Hitbox c = coll.get(i);
+
+			// Draw if debug enabled
+			if (Debug.showHitboxes) {
+				DebugPolygon poly = new DebugPolygon(c.genWorldVerts(), 1, new Color(1, 1, 1, 1));
+				Debug.enqueueElement(poly);
+			}
 
 			// Collide against other hitboxes
 			for (int j = i + 1; j < coll.size(); j++) {

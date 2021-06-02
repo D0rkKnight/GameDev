@@ -3,25 +3,23 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "Forest/forestE.tmx",
+    "activeFile": "Forest/forest2.tmx",
     "automapping.whileDrawing": true,
     "expandedProjectPaths": [
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/grassland",
-        "Templates",
-        "Tilesets",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules/cave",
         "C:/Users/Hanzen Shou/Documents/GitBash/GameDev/Game/assets",
-        "Forest",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/orthogonal_height_type",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/dungeon",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave/rules",
         "Tilesets/Forest",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave/rules",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World",
+        "Forest",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules/cave",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/grassland",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/orthogonal_height_type",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE",
-        "."
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/dungeon",
+        ".",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -255,8 +253,8 @@
             "scale": 1,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 399.5,
-                "y": 200
+                "x": 399,
+                "y": 242
             }
         },
         "Forest/forestDC.tmx": {
@@ -459,12 +457,12 @@
     "project": "PROJECT.tiled-project",
     "property.type": "string",
     "recentFiles": [
-        "Forest/forest2.tmx",
-        "Forest/forestDC.tmx",
-        "Forest/forestUC.tmx",
-        "Forest/forest1.tmx",
-        "Forest/forestX.tmx",
         "Forest/forestE.tmx",
+        "Forest/forestX.tmx",
+        "Forest/forest1.tmx",
+        "Forest/forestUC.tmx",
+        "Forest/forestDC.tmx",
+        "Forest/forest2.tmx",
         "Tilesets/Forest/forestTSet.tsx",
         "Tilesets/coll8x8.tsx",
         "test4.tmx",

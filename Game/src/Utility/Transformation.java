@@ -66,6 +66,12 @@ public class Transformation {
 		this.mvp = new Matrix4f(transform.rot);
 	}
 
+	public void setModel(Transformation transform) {
+		trans.set(transform.trans);
+		rot.set(transform.rot);
+		scale.set(transform.scale);
+	}
+
 	/**
 	 * Note that UI elements are anchored to the top left.
 	 * 

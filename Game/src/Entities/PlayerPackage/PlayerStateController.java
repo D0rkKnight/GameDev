@@ -36,7 +36,7 @@ public class PlayerStateController {
 	public static enum PlayerState {
 		//@formatter:off
 		I, DASH, DECEL, 
-		M_A, JAB1, JAB2, LUNGE, DASH_ATTACK;
+		M_A, JAB1, JAB2, LUNGE, DASH_ATK;
 		//@formatter:on
 
 		public FrameData fd;
@@ -103,7 +103,7 @@ public class PlayerStateController {
 		PlayerState.I.fd = genI();
 		PlayerState.DASH.fd = genDASH();
 		PlayerState.DECEL.fd = genDECEL();
-
+		PlayerState.DASH_ATK.fd = genDASH_ATK();
 	}
 
 	private static FrameData genM_A() {
@@ -179,9 +179,7 @@ public class PlayerStateController {
 		FrameSegment dash = new FrameSegment(10, 0, PlayerTag.DASHABLE.cb);
 		FrameSegment dashAttack = new FrameSegment(10, 0, wrapPCB((p) -> {
 			if (Input.meleeAction) {
-				System.out.println("Melee");
-
-				p.setPlayerState(PlayerState.DASH_ATTACK);
+				p.setPlayerState(PlayerState.DASH_ATK);
 			}
 		}));
 
@@ -206,6 +204,37 @@ public class PlayerStateController {
 		});
 
 		return fd;
+	}
+
+	private static FrameData genDASH_ATK() {
+		int dur = 5;
+
+		FrameData.Event spawnAtk = new FrameData.Event(wrapPCB((p) -> {
+			System.out.println("Spawning attack!");
+			Melee mEnt = new Melee("MELEE", new Vector2f(p.getPosition()), "Melee", p,
+					new Vector2f(p.pData.velo).normalize(), FrameData.frameToTDelta(dur));
+			mEnt.transform.scale.scale(3);
+
+			GameManager.subscribeEntity(mEnt);
+
+			System.out.println(mEnt);
+
+		}), 0);
+
+		FrameData.Event retI = new FrameData.Event(wrapPCB((p) -> {
+			p.setPlayerState(PlayerState.I);
+		}), dur);
+		ArrayList<FrameData.Event> evs = new ArrayList<>();
+		evs.add(spawnAtk);
+		evs.add(retI);
+
+		FrameSegment seg1 = new FrameSegment(dur, 0);
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(seg1);
+
+		FrameData fd = new FrameData(segs, evs);
+		return fd;
+
 	}
 
 	private static FrameData genDECEL() {
@@ -235,9 +264,30 @@ public class PlayerStateController {
 		Vector2f pos = new Vector2f(p.getPosition()).add(new Vector2f(8, 32)); // Hardcoded fun
 		pos.sub(16, 16); // TODO: Fix hardcode
 
+		Vector2f dir = orthoDirFromVector(new Vector2f(mousePos).sub(pos));
+
+		// Generate data for melee hitbox object
+		Vector2f dist = new Vector2f(dir).mul(meleedis);
+		Vector2f mPos = new Vector2f(p.getPosition()).add(dist);
+
+		// TODO: Check
+		long tLife = FrameData.frameToTDelta(fLife);
+
+		Melee meleeEntity = new Melee("MELEE", mPos, "Melee", p, kbDir, tLife);
+		GameManager.subscribeEntity(meleeEntity);
+
+		float angle = Math.atan2(dir.y, dir.x);
+		Matrix4f rot = meleeEntity.transform.rot;
+
+		rot.translate(meleeEntity.dim.x / 2, meleeEntity.dim.y / 2, 0);
+		rot.rotateZ(angle);
+		rot.translate(-meleeEntity.dim.x / 2, -meleeEntity.dim.y / 2, 0);
+	}
+
+	private static Vector2f orthoDirFromVector(Vector2f v) {
 		// Determine which direction is closest to the current mouse position (lock to
 		// cardinal direction)
-		Vector2f nmp = new Vector2f(mousePos).sub(pos).normalize();
+		Vector2f nmp = v.normalize();
 
 		MeleeDir dir = MeleeDir.E;
 		float minDist = dir.v.distance(nmp);
@@ -250,22 +300,7 @@ public class PlayerStateController {
 			}
 		}
 
-		// Generate data for melee hitbox object
-		Vector2f dist = new Vector2f(dir.v).mul(meleedis);
-		Vector2f mPos = new Vector2f(p.getPosition()).add(dist);
-
-		// TODO: Check
-		long tLife = FrameData.frameToTDelta(fLife);
-
-		Melee meleeEntity = new Melee("MELEE", mPos, "Melee", p, kbDir, tLife);
-		GameManager.subscribeEntity(meleeEntity);
-
-		float angle = Math.atan2(dir.v.y, dir.v.x);
-		Matrix4f rot = meleeEntity.transform.rot;
-
-		rot.translate(meleeEntity.dim.x / 2, meleeEntity.dim.y / 2, 0);
-		rot.rotateZ(angle);
-		rot.translate(-meleeEntity.dim.x / 2, -meleeEntity.dim.y / 2, 0);
+		return dir.v;
 	}
 
 	private static EntityCB wrapPCB(PlayerCB pcb) {

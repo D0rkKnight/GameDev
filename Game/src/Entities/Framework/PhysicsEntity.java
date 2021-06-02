@@ -193,6 +193,8 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 
 	@Override
 	public void calculate() {
+		super.calculate();
+
 		if (isFDQueued) {
 			isFDQueued = false;
 

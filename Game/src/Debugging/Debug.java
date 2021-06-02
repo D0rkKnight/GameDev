@@ -35,6 +35,7 @@ public class Debug {
 	public static boolean waitingForFrameWalk = true; // Helper var for frame walking
 
 	public static boolean showCollisions = false;
+	public static boolean showHitboxes = false;
 	public static boolean debugElementsEnabled = false;
 
 	public static void config() {
@@ -43,6 +44,7 @@ public class Debug {
 		frameDelta = 20f;
 
 		showCollisions = true;
+		showHitboxes = true;
 		debugElementsEnabled = true;
 		drawEdges = true;
 		logIssues = true;

@@ -21,8 +21,6 @@ import Wrappers.Color;
  *
  */
 public class Melee extends Entity implements Collidable {
-
-	Entity owner;
 	PhysicsEntity.Alignment alignment;
 	Vector2f kbDir;
 	Vector2f offset;
@@ -36,7 +34,7 @@ public class Melee extends Entity implements Collidable {
 	public Melee(String ID, Vector2f position, String name, Entity owner, Vector2f kbDir, long life) {
 		super(ID, position, name);
 		offset = new Vector2f(owner.position.x - position.x, owner.position.y - position.y);
-		this.owner = owner;
+		owner.setAsChild(this);
 		if (owner instanceof PhysicsEntity)
 			alignment = ((PhysicsEntity) owner).alignment;
 		else
@@ -51,6 +49,7 @@ public class Melee extends Entity implements Collidable {
 
 		// Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
+		System.out.println(hitbox.owner);
 
 		this.kbDir = kbDir;
 		hitEntities = new ArrayList<>();
@@ -63,10 +62,14 @@ public class Melee extends Entity implements Collidable {
 				lifeTimer = null;
 			}
 		});
+
+		// Set parentage
 	}
 
 	@Override
 	public void calculate() {
+		super.calculate();
+
 		if (lifeTimer != null)
 			lifeTimer.update();
 
@@ -76,9 +79,16 @@ public class Melee extends Entity implements Collidable {
 	}
 
 	@Override
+	public void updateChildren() {
+		super.updateChildren();
+
+		hitbox.update();
+	}
+
+	@Override
 	public void controlledMovement() {
-		position.x = owner.position.x - offset.x;
-		position.y = owner.position.y - offset.y;
+		position.x = parent.position.x - offset.x;
+		position.y = parent.position.y - offset.y;
 
 	}
 
