@@ -5,6 +5,7 @@ import org.joml.Vector2f;
 import Collision.Shapes.Shape;
 import Entities.Framework.Entity;
 import Entities.Framework.Interactive;
+import Entities.PlayerPackage.Player;
 import GameController.EntityData;
 import GameController.Input;
 import Graphics.Rendering.GeneralRenderer;

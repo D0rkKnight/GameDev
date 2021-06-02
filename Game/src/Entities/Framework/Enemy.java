@@ -3,7 +3,7 @@ package Entities.Framework;
 import org.joml.Vector2f;
 
 import Collision.Hitbox;
-import Entities.Player;
+import Entities.PlayerPackage.Player;
 import GameController.GameManager;
 import Utility.Pathfinding;
 import Utility.Vector;

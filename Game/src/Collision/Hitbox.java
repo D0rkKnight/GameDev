@@ -48,7 +48,9 @@ public class Hitbox {
 	public void update() {
 		// Pull data
 		position = new Vector2f(owner.getPosition());
-		transform.rot.set(owner.transform.rot);
+		// transform.rot.set(owner.transform.rot);
+		transform.setModel(owner.transform);
+		transform.scale.scale(width, height, 1);
 	}
 
 	/**
@@ -63,7 +65,6 @@ public class Hitbox {
 	// Generates vertices in world space
 	public Vector2f[] genWorldVerts() {
 		transform.pos.set(position);
-		transform.scale.scaling(width, height, 1);
 		Matrix4f model = transform.genModel();
 
 		for (int i = 0; i < verts.length; i++) {

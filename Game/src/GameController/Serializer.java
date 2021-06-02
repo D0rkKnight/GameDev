@@ -30,8 +30,8 @@ import org.xml.sax.SAXException;
 import Accessories.Accessory;
 import Collision.Shapes.Shape;
 import Collision.Shapes.Shape.ShapeEnum;
-import Entities.Player;
 import Entities.Framework.Entity;
+import Entities.PlayerPackage.Player;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Elements.TileGFX;
@@ -370,11 +370,6 @@ public class Serializer {
 				entities.add(ent);
 			}
 		}
-
-		// Dump entity list
-		System.out.println();
-		for (Entity e : entities)
-			System.out.println(e);
 
 		return entities;
 

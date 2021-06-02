@@ -144,8 +144,6 @@ public class Font {
 			ascent = bAscent.get(0) * scaleFactor;
 			descent = bDescent.get(0) * scaleFactor;
 			vAdvance = (bAscent.get(0) - bDescent.get(0) + bLinegap.get(0)) * scaleFactor;
-
-			System.out.println("vAdvance: " + vAdvance);
 		}
 	}
 

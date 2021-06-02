@@ -1,5 +1,7 @@
 package Entities.Framework;
 
+import java.util.ArrayList;
+
 import org.joml.Vector2f;
 
 import Entities.Framework.EntityFlag.FlagFactory;
@@ -28,12 +30,15 @@ public abstract class Entity {
 	public String name; // TODO: Let createNew specify the name of the entity
 	public Vector2f dim;
 
-	protected Animator anim;
+	public Animator anim;
 
 	public EntityFlag flag;
 
 	// For local transformations. Position/translation is added later.
 	public Transformation transform;
+
+	public ArrayList<Entity> children;
+	public Entity parent;
 
 	public Entity(String ID, Vector2f position, String name) {
 		this.ID = ID;
@@ -44,16 +49,24 @@ public abstract class Entity {
 		this.name = name;
 
 		rendOffset = new Vector2f();
+		children = new ArrayList<Entity>();
 	}
 
-	public abstract void calculate();
-
-	public void updateChildren() {
+	public void calculate() {
 		renderer.transform.pos.set(position).add(rendOffset);
 
 		// Let's not rotate around a point yet
 		renderer.transform.rot.set(transform.rot);
 		renderer.transform.scale.set(transform.scale);
+	}
+
+	public void updateChildren() {
+		// TODO: Update children?
+		// Where are children even being set...
+		for (Entity e : children) {
+			e.calculate();
+			e.updateChildren();
+		}
 	}
 
 	public void calcFrame() {
@@ -108,5 +121,10 @@ public abstract class Entity {
 	public void deflagEntity() {
 		flag.Destroy();
 		flag = null;
+	}
+
+	public void setAsChild(Entity c) {
+		c.parent = this;
+		children.add(c);
 	}
 }

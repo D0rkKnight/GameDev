@@ -1,5 +1,7 @@
 package Entities;
 
+import java.util.ArrayList;
+
 import org.joml.Vector2f;
 
 import Collision.Hitbox;
@@ -18,6 +20,8 @@ import Utility.Vector;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
 import Wrappers.Color;
+import Wrappers.FrameData;
+import Wrappers.FrameData.FrameSegment;
 import Wrappers.Stats;
 
 /**
@@ -31,6 +35,8 @@ public abstract class BouncingEnemy extends Enemy {
 	Timer bounceTimer;
 	boolean bounceReady;
 	int moveDir;
+
+	protected FrameData aggroFD;
 
 	public BouncingEnemy(String ID, Vector2f position, String name, Stats stats) {
 		super(ID, position, name, stats);
@@ -49,6 +55,9 @@ public abstract class BouncingEnemy extends Enemy {
 
 		ai = new Pathfinding();
 		bounceReady = true;
+
+		initFD();
+		setEntityFD(aggroFD);
 	}
 
 	@Override
@@ -58,16 +67,24 @@ public abstract class BouncingEnemy extends Enemy {
 		collBehaviorList.add(new PhysicsCollisionBehaviorDeflect());
 	}
 
-	@Override
-	public void calculate() {
-		super.calculate();
+	private void initFD() {
+		ArrayList<FrameSegment> fs = new ArrayList<FrameSegment>();
+		FrameSegment aFS = new FrameSegment(10, 0);
+		aFS.cbs.add((e) -> {
+			BouncingEnemy be = (BouncingEnemy) e;
 
+			be.aggroLoop();
+		});
+
+		fs.add(aFS);
+
+		aggroFD = new FrameData(fs, new ArrayList<>(), true);
+	}
+
+	protected void aggroLoop() {
 		Tile[][] grid = World.currmap.grids.get("coll");
 
 		if (target != null) {
-			hasGravity = true;
-			gravity();
-
 			ai.calculatePath(position, target.getPosition(), grid);
 
 			// Point towards the player and move
@@ -104,6 +121,14 @@ public abstract class BouncingEnemy extends Enemy {
 		} else {
 			findTarget();
 		}
+	}
+
+	@Override
+	public void calculate() {
+		super.calculate();
+
+		hasGravity = true;
+		gravity();
 
 		if (pData.wasGrounded == false && pData.grounded == true)
 			onLanding();

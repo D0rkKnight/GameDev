@@ -10,6 +10,8 @@ import Collision.Shapes.Shape;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
 import Utility.Transformation;
+import Utility.Timers.Timer;
+import Utility.Timers.TimerCallback;
 import Wrappers.Color;
 
 /**
@@ -19,8 +21,6 @@ import Wrappers.Color;
  *
  */
 public class Melee extends Entity implements Collidable {
-
-	Entity owner;
 	PhysicsEntity.Alignment alignment;
 	Vector2f kbDir;
 	Vector2f offset;
@@ -29,10 +29,12 @@ public class Melee extends Entity implements Collidable {
 
 	protected Hitbox hitbox;
 
-	public Melee(String ID, Vector2f position, String name, Entity owner, Vector2f kbDir) {
+	public Timer lifeTimer;
+
+	public Melee(String ID, Vector2f position, String name, Entity owner, Vector2f kbDir, long life) {
 		super(ID, position, name);
 		offset = new Vector2f(owner.position.x - position.x, owner.position.y - position.y);
-		this.owner = owner;
+		owner.setAsChild(this);
 		if (owner instanceof PhysicsEntity)
 			alignment = ((PhysicsEntity) owner).alignment;
 		else
@@ -47,22 +49,46 @@ public class Melee extends Entity implements Collidable {
 
 		// Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
+		System.out.println(hitbox.owner);
 
 		this.kbDir = kbDir;
 		hitEntities = new ArrayList<>();
+
+		lifeTimer = new Timer(life, new TimerCallback() {
+
+			@Override
+			public void invoke(Timer timer) {
+				Destroy();
+				lifeTimer = null;
+			}
+		});
+
+		// Set parentage
 	}
 
 	@Override
 	public void calculate() {
+		super.calculate();
+
+		if (lifeTimer != null)
+			lifeTimer.update();
+
 		controlledMovement();
 
 		transform.genModel();
 	}
 
 	@Override
+	public void updateChildren() {
+		super.updateChildren();
+
+		hitbox.update();
+	}
+
+	@Override
 	public void controlledMovement() {
-		position.x = owner.position.x - offset.x;
-		position.y = owner.position.y - offset.y;
+		position.x = parent.position.x - offset.x;
+		position.y = parent.position.y - offset.y;
 
 	}
 

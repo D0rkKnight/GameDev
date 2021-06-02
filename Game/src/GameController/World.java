@@ -6,9 +6,9 @@ import java.util.HashMap;
 import org.w3c.dom.Document;
 
 import Debugging.Debug;
-import Entities.Player;
 import Entities.Framework.Entity;
 import Entities.Framework.Entrance;
+import Entities.PlayerPackage.Player;
 import Graphics.Drawer;
 import Tiles.Tile;
 

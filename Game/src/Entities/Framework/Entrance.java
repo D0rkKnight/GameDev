@@ -6,7 +6,7 @@ import org.joml.Vector2i;
 import Collision.Collidable;
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
-import Entities.Player;
+import Entities.PlayerPackage.Player;
 import GameController.EntityData;
 import GameController.EntranceData;
 import GameController.GameManager;
