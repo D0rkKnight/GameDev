@@ -20,7 +20,7 @@ public class Transformation {
 	}
 
 	// Do this to avoid reallocation every frame
-	public Matrix4f trans;
+	public Matrix4f trans; // Exists on a local level
 	public Matrix4f rot;
 
 	public Matrix4f scale;
@@ -104,12 +104,14 @@ public class Transformation {
 	}
 
 	public Matrix4f genModel() {
-		if (matrixMode == MatrixMode.SCREEN)
-			trans.setTranslation(pos.x, -pos.y, 0);
-		else
-			trans.setTranslation(pos.x, pos.y, 0);
+		Matrix4f posToTrans = new Matrix4f();
 
-		model.identity().mul(trans).mul(rot).mul(scale);
+		if (matrixMode == MatrixMode.SCREEN) // TODO: remove this horrible jank...
+			posToTrans.setTranslation(pos.x, -pos.y, 0);
+		else
+			posToTrans.setTranslation(pos.x, pos.y, 0);
+
+		model.identity().mul(posToTrans).mul(trans).mul(rot).mul(scale);
 		return model;
 	}
 }

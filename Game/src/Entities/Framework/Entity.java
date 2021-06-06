@@ -56,6 +56,7 @@ public abstract class Entity {
 		renderer.transform.pos.set(position).add(rendOffset);
 
 		// Let's not rotate around a point yet
+		renderer.transform.trans.set(transform.trans);
 		renderer.transform.rot.set(transform.rot);
 		renderer.transform.scale.set(transform.scale);
 	}

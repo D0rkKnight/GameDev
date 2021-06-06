@@ -1,7 +1,6 @@
 package Entities.PlayerPackage;
 
 import org.joml.Math;
-import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import Collision.Hitbox;
@@ -295,12 +294,18 @@ public class Player extends Combatant {
 
 		// Scale to the side facing
 		if (sideFacing != 0) {
-			Matrix4f scale = transform.scale;
+//			Matrix4f scale = transform.scale;
+//
+//			// These are applied bottom row to top row
+//			scale.identity().translate(rendDims.x / 2, 0, 0);
+//			scale.scale(sideFacing, 1, 1);
 
-			// These are applied bottom row to top row
-			scale.identity().translate(rendDims.x / 2, 0, 0);
-			scale.scale(sideFacing, 1, 1);
-			scale.translate(-rendDims.x / 2, 0, 0);
+			transform.scale.identity().scale(sideFacing, 1, 1);
+			if (sideFacing == -1) {
+				rendOffset.set(rendDims.x / 2, 0);
+			} else {
+				rendOffset.set(-rendDims.x / 2, 0);
+			}
 		}
 
 		// Update trailing particle system

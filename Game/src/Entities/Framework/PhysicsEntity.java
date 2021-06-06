@@ -218,7 +218,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	public void updateChildren() {
 		super.updateChildren();
 
-		hitbox.update();
+		hitbox.update(); // Hitbox is necessary, PhysicsEntities without hitboxes should fail fast
 	}
 
 	@Override

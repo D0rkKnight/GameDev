@@ -45,6 +45,8 @@ public class Melee extends Entity implements Collidable {
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
 		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 
+		transform.trans.setTranslation(-dim.x / 2, -dim.y / 2, 0);
+
 		this.renderer = rend;
 
 		// Configure hitbox
