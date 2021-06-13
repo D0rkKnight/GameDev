@@ -43,10 +43,10 @@ public class Debug {
 		frameWalk = false;
 		frameDelta = 20f;
 
-		showCollisions = true;
+		showCollisions = false;
 		showHitboxes = true;
 		debugElementsEnabled = true;
-		drawEdges = true;
+		drawEdges = false;
 		logIssues = true;
 
 		Drawer.windowResizeable = false;

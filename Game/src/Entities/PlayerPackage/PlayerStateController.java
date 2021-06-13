@@ -109,7 +109,7 @@ public class PlayerStateController {
 	private static FrameData genM_A() {
 		// NEVERMIND this is just a generic attack command with framedata attached.
 		FrameData.Event cma = new FrameData.Event(wrapPCB((player) -> {
-			melee(player, Input.mouseWorldPos, 30, 50);
+			meleeInDir(player, Input.mouseWorldPos, 30, 50, new Vector2f(30));
 		}), 5);
 
 		// Return to idle animation
@@ -210,14 +210,21 @@ public class PlayerStateController {
 		int dur = 5;
 
 		FrameData.Event spawnAtk = new FrameData.Event(wrapPCB((p) -> {
-			System.out.println("Spawning attack!");
-			Melee mEnt = new Melee("MELEE", new Vector2f(p.getPosition()), "Melee", p,
-					new Vector2f(p.pData.velo).normalize(), FrameData.frameToTDelta(dur));
-			mEnt.transform.scale.scale(3);
+//			System.out.println("Spawning attack!");
+//			Melee mEnt = new Melee("MELEE", new Vector2f(p.getPosition()), "Melee", p,
+//					new Vector2f(p.pData.velo).normalize(), FrameData.frameToTDelta(dur), new Vector2f(90));
+//			// mEnt.transform.scale.scale(3);
+//
+//			GameManager.subscribeEntity(mEnt);
+//
+//			System.out.println(mEnt);
 
-			GameManager.subscribeEntity(mEnt);
+			Vector2f moveDir = new Vector2f(p.pData.velo).normalize();
+			float dist = 60;
+			Vector2f newP = new Vector2f(p.getPosition()).add(new Vector2f(moveDir).mul(dist));
+			newP.add(p.hitbox.width / 2, p.hitbox.height / 2); // Center on player
 
-			System.out.println(mEnt);
+			melee(p, newP, moveDir, 20, new Vector2f(90, 45));
 
 		}), 0);
 
@@ -258,19 +265,25 @@ public class PlayerStateController {
 		return fd;
 	}
 
-	private static void melee(Player p, Vector2f targetPos, int fLife, float meleedis) {
+	private static void meleeInDir(Player p, Vector2f targetPos, int fLife, float meleeDis, Vector2f dims) {
 		Vector2f pos = new Vector2f(p.getPosition()).add(p.hitbox.width / 2, p.hitbox.height / 2);
 
 		Vector2f dir = orthoDirFromVector(new Vector2f(targetPos).sub(pos));
 
 		// Generate data for melee hitbox object
-		Vector2f dist = new Vector2f(dir).mul(meleedis);
+		Vector2f dist = new Vector2f(dir).mul(meleeDis);
 		Vector2f mPos = new Vector2f(pos).add(dist);
+
+		melee(p, mPos, dir, fLife, dims);
+	}
+
+	private static void melee(Player p, Vector2f pos, Vector2f dir, int fLife, Vector2f dims) {
+		Vector2f nDir = new Vector2f(dir).normalize();
 
 		// TODO: Check
 		long tLife = FrameData.frameToTDelta(fLife);
 
-		Melee meleeEntity = new Melee("MELEE", mPos, "Melee", p, dir, tLife);
+		Melee meleeEntity = new Melee("MELEE", pos, "Melee", p, nDir, tLife, dims);
 		GameManager.subscribeEntity(meleeEntity);
 
 		float angle = Math.atan2(dir.y, dir.x);

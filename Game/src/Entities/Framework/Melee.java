@@ -31,7 +31,7 @@ public class Melee extends Entity implements Collidable {
 
 	public Timer lifeTimer;
 
-	public Melee(String ID, Vector2f position, String name, Entity owner, Vector2f kbDir, long life) {
+	public Melee(String ID, Vector2f position, String name, Entity owner, Vector2f kbDir, long life, Vector2f dim) {
 		super(ID, position, name);
 		offset = new Vector2f(owner.position.x - position.x, owner.position.y - position.y);
 		owner.setAsChild(this);
@@ -41,7 +41,7 @@ public class Melee extends Entity implements Collidable {
 			System.err.println("Attack owned by non physic entity?");
 
 		// Configure the renderer real quick
-		dim = new Vector2f(30f, 30f);
+		this.dim = dim;
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
 		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 
