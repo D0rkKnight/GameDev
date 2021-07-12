@@ -104,6 +104,7 @@ public class Player extends Combatant {
 		anims.put(Animator.ID.DASH_ATK, new Animation(animSheet.genSubTexSet(1, 3, 1, 3)));
 		anims.put(Animator.ID.JAB1, new Animation(animSheet.genSubTexSet(2, 3, 2, 3)));
 		anims.put(Animator.ID.JAB2, new Animation(animSheet.genSubTexSet(3, 3, 3, 3)));
+		anims.put(Animator.ID.LUNGE, new Animation(animSheet.genSubTexSet(4, 3, 4, 3)));
 
 		anims.get(Animator.ID.ACCEL).setCb(new AnimationCallback() {
 

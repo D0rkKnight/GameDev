@@ -42,6 +42,21 @@ public class PlayerStateController {
 		//@formatter:on
 
 		public FrameData fd;
+
+		public static void assignFD() {
+			// Create forward attack for now, has 10 frames of windup, 50 frames of hitbox,
+			// and 10 frames of windown.
+			// Creates a melee attack with 50 frames of life on frame 10.
+
+			M_A.fd = genM_A();
+			I.fd = genI();
+			DASH.fd = genDASH();
+			DECEL.fd = genDECEL();
+			DASH_ATK.fd = genDASH_ATK();
+			JAB1.fd = genJAB1();
+			JAB2.fd = genJAB2();
+			LUNGE.fd = genLUNGE();
+		}
 	}
 
 	// Containers for callbacks, I guess. Pretty dumb.
@@ -53,7 +68,7 @@ public class PlayerStateController {
 
 	public static void init() {
 		genTags();
-		genStates();
+		PlayerState.assignFD();
 	}
 
 	private static void genTags() {
@@ -105,20 +120,6 @@ public class PlayerStateController {
 				p.gunTimer.update();
 			}
 		});
-	}
-
-	private static void genStates() {
-		// Create forward attack for now, has 10 frames of windup, 50 frames of hitbox,
-		// and 10 frames of windown.
-		// Creates a melee attack with 50 frames of life on frame 10.
-
-		PlayerState.M_A.fd = genM_A();
-		PlayerState.I.fd = genI();
-		PlayerState.DASH.fd = genDASH();
-		PlayerState.DECEL.fd = genDECEL();
-		PlayerState.DASH_ATK.fd = genDASH_ATK();
-		PlayerState.JAB1.fd = genJAB1();
-		PlayerState.JAB2.fd = genJAB2();
 	}
 
 	private static FrameData genJAB1() {
@@ -178,6 +179,14 @@ public class PlayerStateController {
 		ArrayList<FrameSegment> segs = new ArrayList<>();
 		segs.add(new FrameSegment(dur, 0, PlayerTag.INACTABLE.cb));
 
+		// Cancelable into a lunge
+		FrameSegment cancelable = new FrameSegment(5, 5, wrapPCB((p) -> {
+			if (Input.meleeAction) {
+				p.setPlayerState(PlayerState.LUNGE);
+			}
+		}));
+		segs.add(cancelable);
+
 		// Return to idle animation
 		FrameData fd = new FrameData(segs, evs);
 
@@ -188,6 +197,41 @@ public class PlayerStateController {
 
 		fd.onEntry = wrapPCB((p) -> {
 			p.anim.switchAnim(Animator.ID.JAB2);
+		});
+
+		return fd;
+	}
+
+	/**
+	 * Final jab/lunge
+	 * 
+	 * @return
+	 */
+	private static FrameData genLUNGE() {
+		int dur = 15;
+
+		ArrayList<Event> evs = new ArrayList<>();
+
+		Event atk = new FrameData.Event(wrapPCB((p) -> {
+			int side = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
+
+			meleeInDir(p, new Vector2f(side, 0), 5, 40, new Vector2f(90, 45));
+		}), 5);
+		evs.add(atk);
+
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(dur, 0, PlayerTag.INACTABLE.cb));
+
+		// Return to idle animation
+		FrameData fd = new FrameData(segs, evs);
+
+		// Return to idle state
+		fd.onEnd = wrapPCB((p) -> {
+			p.setPlayerState(PlayerState.I);
+		});
+
+		fd.onEntry = wrapPCB((p) -> {
+			p.anim.switchAnim(Animator.ID.LUNGE);
 		});
 
 		return fd;
