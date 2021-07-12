@@ -64,6 +64,8 @@ public class FrameData {
 
 	public EntityCB onEntry; // Called on first available frame, is called before everything else
 	public EntityCB onExit; // Both this and onEntry are invoked externally.
+	public EntityCB onEnd;
+	public boolean endCBCalled = false;
 
 	public FrameData(ArrayList<FrameSegment> segments, ArrayList<Event> events, boolean looping) {
 		this.segments = segments;
@@ -105,11 +107,18 @@ public class FrameData {
 		this.currContFrame += fDelta;
 
 		// Loop here
-		if (looping) {
-			if (currContFrame >= fEnd) {
+		if (currContFrame >= fEnd) {
+			if (looping) {
 				currContFrame -= fEnd;
 			}
+
+			// Used for stitching together states if one ends through full completion.
+			else if (!endCBCalled && onEnd != null) {
+				onEnd.invoke(caller);
+				endCBCalled = true;
+			}
 		}
+
 	}
 
 	public float getCurrFrame() {
@@ -118,6 +127,7 @@ public class FrameData {
 
 	public void fullReset() {
 		currContFrame = 0;
+		endCBCalled = false;
 	}
 
 	/**

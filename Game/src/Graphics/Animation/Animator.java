@@ -1,5 +1,7 @@
 package Graphics.Animation;
 
+import java.util.HashMap;
+
 import Collision.Shapes.Shape;
 import Graphics.Rendering.GeneralRenderer;
 import Utility.Timers.Timer;
@@ -11,13 +13,16 @@ public class Animator {
 	private long frameDelta;
 	public int fps;
 
-	private Animation[] anims;
+	private HashMap<ID, Animation> anims;
 	public Animation currentAnim;
-	protected int currentAnimId;
+	protected Object currentAnimId; // This is expected to be some enumerated element owned by Animator or a child
+									// class.
 
 	private GeneralRenderer rend;
 
-	public static final int ANIM_IDLE = 0;
+	public static enum ID {
+		IDLE, ACCEL, MOVING, DASHING, DASH_ATK, JAB1, JAB2
+	}
 
 	/**
 	 * 
@@ -26,13 +31,19 @@ public class Animator {
 	 * @param renderer
 	 * @param shape    needed to generate UVs
 	 */
-	public Animator(Animation[] anims, int fps, GeneralRenderer renderer, Shape shape) {
+	public Animator(HashMap<ID, Animation> anims, int fps, GeneralRenderer renderer, Shape shape) {
 		this.fps = fps;
 		this.frameDelta = 1000 / fps;
 
 		this.anims = anims;
 		this.currentAnimId = 0;
-		this.currentAnim = anims[0];
+
+		if (anims.get(ID.IDLE) == null) {
+			new Exception("No idle animation specified for this entity").printStackTrace();
+			System.exit(1);
+		}
+
+		this.currentAnim = anims.get(ID.IDLE);
 
 		this.rend = renderer;
 
@@ -53,15 +64,19 @@ public class Animator {
 		timer.update();
 	}
 
-	public void switchAnim(int animId) {
-		if (currentAnimId == animId) {
+	public void switchAnim(Object animKey) {
+		if (currentAnimId.equals(animKey)) {
 			System.err.println("Animation already active");
 			return;
 		}
 
 		// Reset current anim
 		currentAnim.resetCurrFrame();
-		currentAnim = anims[animId];
-		currentAnimId = animId;
+		currentAnim = anims.get(animKey);
+		currentAnimId = animKey;
+	}
+
+	public Object getAnimID() {
+		return currentAnimId;
 	}
 }

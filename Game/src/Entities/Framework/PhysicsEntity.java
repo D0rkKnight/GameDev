@@ -195,6 +195,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	public void calculate() {
 		super.calculate();
 
+		// Frame data control logic - exit and entry states
 		if (isFDQueued) {
 			isFDQueued = false;
 

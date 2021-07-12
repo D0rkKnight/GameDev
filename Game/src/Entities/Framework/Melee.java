@@ -34,6 +34,7 @@ public class Melee extends Entity implements Collidable {
 	public Melee(String ID, Vector2f position, String name, Entity owner, Vector2f kbDir, long life, Vector2f dim) {
 		super(ID, position, name);
 		offset = new Vector2f(owner.position.x - position.x, owner.position.y - position.y);
+
 		owner.setAsChild(this);
 		if (owner instanceof PhysicsEntity)
 			alignment = ((PhysicsEntity) owner).alignment;
@@ -51,7 +52,6 @@ public class Melee extends Entity implements Collidable {
 
 		// Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
-		System.out.println(hitbox.owner);
 
 		this.kbDir = kbDir;
 		hitEntities = new ArrayList<>();

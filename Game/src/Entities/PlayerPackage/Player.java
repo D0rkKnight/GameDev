@@ -1,5 +1,7 @@
 package Entities.PlayerPackage;
 
+import java.util.HashMap;
+
 import org.joml.Math;
 import org.joml.Vector2f;
 
@@ -14,8 +16,9 @@ import GameController.EntityData;
 import GameController.GameManager;
 import GameController.Input;
 import Graphics.Animation.Animation;
+import Graphics.Animation.AnimationCallback;
 import Graphics.Animation.Animator;
-import Graphics.Animation.PlayerAnimator;
+import Graphics.Animation.Animator.ID;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
@@ -76,19 +79,8 @@ public class Player extends Combatant {
 
 		dashSpeed = 2f;
 
-		// Configure animation stuff
-		TextureAtlas animSheet = new TextureAtlas(Texture.getTex("Assets/Sprites/Ilyia_idle-running_proto.png"), 96,
-				96);
-		Animation[] anims = new Animation[4];
-		anims[Animator.ANIM_IDLE] = new Animation(animSheet.genSubTexSet(0, 0, 3, 0));
-		anims[PlayerAnimator.ANIM_ACCEL] = new Animation(animSheet.genSubTexSet(0, 1, 11, 1));
-		anims[PlayerAnimator.ANIM_MOVING] = new Animation(animSheet.genSubTexSet(0, 2, 7, 2));
-		anims[PlayerAnimator.ANIM_DASHING] = new Animation(animSheet.genSubTexSet(0, 3, 0, 3));
-
+		initGraphics();
 		rendOffset.set(-35, 0);
-
-		anim = new PlayerAnimator(anims, 12, (GeneralRenderer) this.renderer, this, Shape.ShapeEnum.SQUARE.v);
-
 		// Alignment
 		alignment = PhysicsEntity.Alignment.PLAYER;
 
@@ -96,11 +88,37 @@ public class Player extends Combatant {
 
 		baseInvulnLength = 1000;
 
+		currFD = PlayerState.I.fd;
+	}
+
+	private void initGraphics() {
+		// Configure animation stuff
+		TextureAtlas animSheet = new TextureAtlas(Texture.getTex("Assets/Sprites/Ilyia_idle-running_proto.png"), 96,
+				96);
+		HashMap<ID, Animation> anims = new HashMap<ID, Animation>();
+		anims.put(Animator.ID.IDLE, new Animation(animSheet.genSubTexSet(0, 0, 3, 0)));
+		anims.put(Animator.ID.ACCEL, new Animation(animSheet.genSubTexSet(0, 1, 11, 1)));
+		anims.put(Animator.ID.MOVING, new Animation(animSheet.genSubTexSet(0, 2, 7, 2)));
+		anims.put(Animator.ID.DASHING, new Animation(animSheet.genSubTexSet(0, 3, 0, 3)));
+
+		anims.put(Animator.ID.DASH_ATK, new Animation(animSheet.genSubTexSet(1, 3, 1, 3)));
+		anims.put(Animator.ID.JAB1, new Animation(animSheet.genSubTexSet(2, 3, 2, 3)));
+		anims.put(Animator.ID.JAB2, new Animation(animSheet.genSubTexSet(3, 3, 3, 3)));
+
+		anims.get(Animator.ID.ACCEL).setCb(new AnimationCallback() {
+
+			@Override
+			public void onLoopEnd() {
+				anim.switchAnim(Animator.ID.MOVING);
+			}
+
+		});
+
+		anim = new Animator(anims, 12, (GeneralRenderer) this.renderer, Shape.ShapeEnum.SQUARE.v);
+
 		pSys = new GhostParticleSystem(animSheet.tex, 20, rendDims);
 		pSys.init();
 		pSys.pauseParticleGeneration();
-
-		currFD = PlayerState.I.fd;
 	}
 
 	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
@@ -165,11 +183,6 @@ public class Player extends Combatant {
 
 		// Update pSys
 		pSys.resumeParticleGeneration();
-
-		// Change animator
-		// Does this even work?
-		// Tbh all anim updates should be in Player, not PlayerAnimator TODO
-		anim.switchAnim(PlayerAnimator.ANIM_DASHING);
 	}
 
 	@Override

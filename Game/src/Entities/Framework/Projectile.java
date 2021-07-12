@@ -62,11 +62,15 @@ public class Projectile extends PhysicsEntity {
 
 	@Override
 	public void calculate() {
+		super.calculate();
+
 		gravity();
 	}
 
 	@Override
 	public void onTileCollision() {
+		super.onTileCollision();
+
 		Destroy();
 	}
 }

@@ -38,6 +38,8 @@ public class Debug {
 	public static boolean showHitboxes = false;
 	public static boolean debugElementsEnabled = false;
 
+	public static String forceMapUsage = "";
+
 	public static void config() {
 		timeScale = 1f;
 		frameWalk = false;
@@ -50,6 +52,8 @@ public class Debug {
 		logIssues = true;
 
 		Drawer.windowResizeable = false;
+
+		forceMapUsage = "assets/Maps/Testing/test_arena.tmx";
 	}
 
 	public static void init() {

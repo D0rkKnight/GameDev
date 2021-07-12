@@ -9,7 +9,9 @@ import org.joml.Vector2f;
 import Entities.Framework.Melee;
 import GameController.GameManager;
 import GameController.Input;
-import Graphics.Animation.PlayerAnimator;
+import Graphics.Animation.Animator;
+import Graphics.Animation.Animator.ID;
+import Utility.Arithmetic;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
 import Wrappers.Color;
@@ -58,6 +60,8 @@ public class PlayerStateController {
 		PlayerTag.DASHABLE.cb = wrapPCB((p) -> {
 			// Initiating dash
 			if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0)) {
+				p.anim.switchAnim(Animator.ID.DASHING);
+
 				p.dash();
 			}
 		});
@@ -71,7 +75,16 @@ public class PlayerStateController {
 			// Melee
 			// TODO: Have combat controllers handle this, since it's like an attack cancel.
 			if (Input.meleeAction) {
-				p.setPlayerState(PlayerState.M_A);
+				// Check ortho direction
+				// TODO: Clean up this boilerplate
+				Vector2f pos = new Vector2f(p.getPosition()).add(p.hitbox.width / 2, p.hitbox.height / 2);
+				Vector2f orthoDir = orthoDirFromVector(new Vector2f(Input.mouseWorldPos).sub(pos));
+
+				if (orthoDir.y == 0) {
+					p.setPlayerState(PlayerState.JAB1);
+				} else {
+					p.setPlayerState(PlayerState.M_A);
+				}
 			}
 		});
 
@@ -104,12 +117,86 @@ public class PlayerStateController {
 		PlayerState.DASH.fd = genDASH();
 		PlayerState.DECEL.fd = genDECEL();
 		PlayerState.DASH_ATK.fd = genDASH_ATK();
+		PlayerState.JAB1.fd = genJAB1();
+		PlayerState.JAB2.fd = genJAB2();
+	}
+
+	private static FrameData genJAB1() {
+		int dur = 15;
+
+		ArrayList<Event> evs = new ArrayList<>();
+
+		Event atk = new FrameData.Event(wrapPCB((p) -> {
+			int side = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
+
+			meleeInDir(p, new Vector2f(side, 0), 5, 40, new Vector2f(45));
+		}), 5);
+		evs.add(atk);
+
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(dur, 0, PlayerTag.INACTABLE.cb));
+
+		FrameSegment cancelable = new FrameSegment(5, 5, wrapPCB((p) -> {
+			if (Input.meleeAction) {
+				p.setPlayerState(PlayerState.JAB2);
+			}
+		}));
+		segs.add(cancelable);
+
+		// Return to idle animation
+		FrameData fd = new FrameData(segs, evs);
+
+		// Return to idle state
+		fd.onEnd = wrapPCB((p) -> {
+			p.setPlayerState(PlayerState.I);
+		});
+
+		fd.onEntry = wrapPCB((p) -> {
+			p.anim.switchAnim(Animator.ID.JAB1);
+		});
+
+		return fd;
+	}
+
+	/**
+	 * Same thing as jab1, for now
+	 * 
+	 * @return
+	 */
+	private static FrameData genJAB2() {
+		int dur = 15;
+
+		ArrayList<Event> evs = new ArrayList<>();
+
+		Event atk = new FrameData.Event(wrapPCB((p) -> {
+			int side = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
+
+			meleeInDir(p, new Vector2f(side, 0), 5, 40, new Vector2f(45));
+		}), 5);
+		evs.add(atk);
+
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(dur, 0, PlayerTag.INACTABLE.cb));
+
+		// Return to idle animation
+		FrameData fd = new FrameData(segs, evs);
+
+		// Return to idle state
+		fd.onEnd = wrapPCB((p) -> {
+			p.setPlayerState(PlayerState.I);
+		});
+
+		fd.onEntry = wrapPCB((p) -> {
+			p.anim.switchAnim(Animator.ID.JAB2);
+		});
+
+		return fd;
 	}
 
 	private static FrameData genM_A() {
 		// NEVERMIND this is just a generic attack command with framedata attached.
 		FrameData.Event cma = new FrameData.Event(wrapPCB((player) -> {
-			meleeInDir(player, Input.mouseWorldPos, 30, 50, new Vector2f(30));
+			meleeAtPoint(player, Input.mouseWorldPos, 30, 50, new Vector2f(30));
 		}), 5);
 
 		// Return to idle animation
@@ -151,6 +238,13 @@ public class PlayerStateController {
 		fd.cb = wrapPCB((p) -> {
 			p.controlledMovement();
 
+			// Animation
+			if (Math.abs(p.pData.velo.x) > 0 && p.anim.getAnimID().equals(Animator.ID.IDLE)) {
+				p.anim.switchAnim(ID.ACCEL);
+			} else if (Math.abs(p.pData.velo.x) == 0 && p.anim.getAnimID() != Animator.ID.IDLE) {
+				p.anim.switchAnim(Animator.ID.IDLE);
+			}
+
 			if (Input.knockbackTest) {
 				p.knockback(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
 			}
@@ -158,6 +252,8 @@ public class PlayerStateController {
 
 		fd.onEntry = wrapPCB((p) -> {
 			p.baseCol = new Color(0, 0, 0, 1);
+
+			p.anim.switchAnim(Animator.ID.MOVING);
 		});
 
 		return fd;
@@ -200,35 +296,36 @@ public class PlayerStateController {
 		fd.onExit = wrapPCB((p) -> {
 			// Update pSys
 			p.pSys.pauseParticleGeneration();
-			p.anim.switchAnim(PlayerAnimator.ANIM_MOVING);
+			p.anim.switchAnim(Animator.ID.MOVING);
 		});
 
 		return fd;
 	}
 
+	/**
+	 * Dash attack may slightly extend a dash's distance.
+	 * 
+	 * @return
+	 */
 	private static FrameData genDASH_ATK() {
-		int dur = 5;
+		int dur = 10;
 
 		FrameData.Event spawnAtk = new FrameData.Event(wrapPCB((p) -> {
-//			System.out.println("Spawning attack!");
-//			Melee mEnt = new Melee("MELEE", new Vector2f(p.getPosition()), "Melee", p,
-//					new Vector2f(p.pData.velo).normalize(), FrameData.frameToTDelta(dur), new Vector2f(90));
-//			// mEnt.transform.scale.scale(3);
-//
-//			GameManager.subscribeEntity(mEnt);
-//
-//			System.out.println(mEnt);
-
 			Vector2f moveDir = new Vector2f(p.pData.velo).normalize();
 			float dist = 60;
 			Vector2f newP = new Vector2f(p.getPosition()).add(new Vector2f(moveDir).mul(dist));
 			newP.add(p.hitbox.width / 2, p.hitbox.height / 2); // Center on player
 
-			melee(p, newP, moveDir, 20, new Vector2f(90, 45));
+			melee(p, newP, moveDir, dur, new Vector2f(90, 45));
 
 		}), 0);
 
 		FrameData.Event retI = new FrameData.Event(wrapPCB((p) -> {
+			// Same decel routine as dash
+			p.pData.velo.y *= 0.4; // TODO hardcode for dash deacc
+			p.pData.velo.x *= 0.8;
+			p.decelMode(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
+
 			p.setPlayerState(PlayerState.I);
 		}), dur);
 		ArrayList<FrameData.Event> evs = new ArrayList<>();
@@ -240,6 +337,11 @@ public class PlayerStateController {
 		segs.add(seg1);
 
 		FrameData fd = new FrameData(segs, evs);
+
+		fd.onEntry = wrapPCB((p) -> {
+			p.anim.switchAnim(Animator.ID.DASH_ATK);
+		});
+
 		return fd;
 
 	}
@@ -265,10 +367,21 @@ public class PlayerStateController {
 		return fd;
 	}
 
-	private static void meleeInDir(Player p, Vector2f targetPos, int fLife, float meleeDis, Vector2f dims) {
+	private static void meleeAtPoint(Player p, Vector2f targetPos, int fLife, float meleeDis, Vector2f dims) {
 		Vector2f pos = new Vector2f(p.getPosition()).add(p.hitbox.width / 2, p.hitbox.height / 2);
 
 		Vector2f dir = orthoDirFromVector(new Vector2f(targetPos).sub(pos));
+
+		// Generate data for melee hitbox object
+		Vector2f dist = new Vector2f(dir).mul(meleeDis);
+		Vector2f mPos = new Vector2f(pos).add(dist);
+
+		melee(p, mPos, dir, fLife, dims);
+	}
+
+	// Hacky solution, please fix
+	private static void meleeInDir(Player p, Vector2f dir, int fLife, float meleeDis, Vector2f dims) {
+		Vector2f pos = new Vector2f(p.getPosition()).add(p.hitbox.width / 2, p.hitbox.height / 2);
 
 		// Generate data for melee hitbox object
 		Vector2f dist = new Vector2f(dir).mul(meleeDis);

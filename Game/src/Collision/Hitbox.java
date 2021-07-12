@@ -2,6 +2,7 @@ package Collision;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import Collision.Shapes.Shape;
@@ -48,8 +49,14 @@ public class Hitbox {
 	public void update() {
 		// Pull data
 		position = new Vector2f(owner.getPosition());
-		// transform.rot.set(owner.transform.rot);
 		transform.setModel(owner.transform);
+
+		// Override scaling because it's a bit different
+		// Pretty janky but I think it works
+		Vector3f ownerDiag = new Vector3f(owner.transform.scale.m00(), owner.transform.scale.m11(),
+				owner.transform.scale.m22());
+
+		transform.scale.set(new Matrix4f().scaleAround(ownerDiag.x, ownerDiag.y, 1, width / 2, height / 2, 0));
 		transform.scale.scale(width, height, 1);
 	}
 
