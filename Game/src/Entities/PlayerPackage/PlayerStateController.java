@@ -71,6 +71,14 @@ public class PlayerStateController {
 		PlayerState.assignFD();
 	}
 
+	private static class MutIntWrap {
+		int v;
+
+		public MutIntWrap(int v) {
+			this.v = v;
+		}
+	}
+
 	private static void genTags() {
 		PlayerTag.DASHABLE.cb = wrapPCB((p) -> {
 			// Initiating dash
@@ -124,13 +132,12 @@ public class PlayerStateController {
 
 	private static FrameData genJAB1() {
 		int dur = 15;
+		MutIntWrap side = new MutIntWrap(1); // Set in on entry
 
 		ArrayList<Event> evs = new ArrayList<>();
 
 		Event atk = new FrameData.Event(wrapPCB((p) -> {
-			int side = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
-
-			meleeInDir(p, new Vector2f(side, 0), 5, 40, new Vector2f(45));
+			meleeInDir(p, new Vector2f(side.v, 0), 5, 40, new Vector2f(45));
 		}), 5);
 		evs.add(atk);
 
@@ -147,6 +154,11 @@ public class PlayerStateController {
 		// Return to idle animation
 		FrameData fd = new FrameData(segs, evs);
 
+		// Slowdown during melee
+		fd.cb = wrapPCB((p) -> {
+			p.groundedSlowdown(20);
+		});
+
 		// Return to idle state
 		fd.onEnd = wrapPCB((p) -> {
 			p.setPlayerState(PlayerState.I);
@@ -154,6 +166,9 @@ public class PlayerStateController {
 
 		fd.onEntry = wrapPCB((p) -> {
 			p.anim.switchAnim(Animator.ID.JAB1);
+
+			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
+			p.pData.velo.x = side.v * 2;
 		});
 
 		return fd;
@@ -166,13 +181,12 @@ public class PlayerStateController {
 	 */
 	private static FrameData genJAB2() {
 		int dur = 15;
+		MutIntWrap side = new MutIntWrap(1); // Set in on entry
 
 		ArrayList<Event> evs = new ArrayList<>();
 
 		Event atk = new FrameData.Event(wrapPCB((p) -> {
-			int side = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
-
-			meleeInDir(p, new Vector2f(side, 0), 5, 40, new Vector2f(45));
+			meleeInDir(p, new Vector2f(side.v, 0), 5, 40, new Vector2f(45));
 		}), 5);
 		evs.add(atk);
 
@@ -190,6 +204,11 @@ public class PlayerStateController {
 		// Return to idle animation
 		FrameData fd = new FrameData(segs, evs);
 
+		// Slowdown during melee
+		fd.cb = wrapPCB((p) -> {
+			p.groundedSlowdown(20);
+		});
+
 		// Return to idle state
 		fd.onEnd = wrapPCB((p) -> {
 			p.setPlayerState(PlayerState.I);
@@ -197,6 +216,9 @@ public class PlayerStateController {
 
 		fd.onEntry = wrapPCB((p) -> {
 			p.anim.switchAnim(Animator.ID.JAB2);
+
+			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
+			p.pData.velo.x = side.v * 2;
 		});
 
 		return fd;
@@ -209,13 +231,12 @@ public class PlayerStateController {
 	 */
 	private static FrameData genLUNGE() {
 		int dur = 15;
+		MutIntWrap side = new MutIntWrap(1); // Set in on entry
 
 		ArrayList<Event> evs = new ArrayList<>();
 
 		Event atk = new FrameData.Event(wrapPCB((p) -> {
-			int side = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
-
-			meleeInDir(p, new Vector2f(side, 0), 5, 40, new Vector2f(90, 45));
+			meleeInDir(p, new Vector2f(side.v, 0), 5, 40, new Vector2f(90, 45));
 		}), 5);
 		evs.add(atk);
 
@@ -225,6 +246,11 @@ public class PlayerStateController {
 		// Return to idle animation
 		FrameData fd = new FrameData(segs, evs);
 
+		// Slowdown during melee
+		fd.cb = wrapPCB((p) -> {
+			p.groundedSlowdown(20);
+		});
+
 		// Return to idle state
 		fd.onEnd = wrapPCB((p) -> {
 			p.setPlayerState(PlayerState.I);
@@ -232,6 +258,9 @@ public class PlayerStateController {
 
 		fd.onEntry = wrapPCB((p) -> {
 			p.anim.switchAnim(Animator.ID.LUNGE);
+
+			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
+			p.pData.velo.x = side.v * 4;
 		});
 
 		return fd;
@@ -327,10 +356,6 @@ public class PlayerStateController {
 		segs.add(dashAttack);
 
 		FrameData fd = new FrameData(segs, evs, false);
-
-		fd.cb = wrapPCB((p) -> {
-			p.dashingMovement();
-		});
 
 		fd.onEntry = wrapPCB((p) -> {
 			p.baseCol = new Color(0.5f, 0.5f, 0.5f, 1);

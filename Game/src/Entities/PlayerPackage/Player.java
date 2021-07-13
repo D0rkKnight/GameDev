@@ -15,6 +15,7 @@ import Entities.PlayerPackage.PlayerStateController.PlayerState;
 import GameController.EntityData;
 import GameController.GameManager;
 import GameController.Input;
+import GameController.Time;
 import Graphics.Animation.Animation;
 import Graphics.Animation.AnimationCallback;
 import Graphics.Animation.Animator;
@@ -242,7 +243,15 @@ public class Player extends Combatant {
 		hasGravity = true;
 	}
 
-	void dashingMovement() {
+	/**
+	 * For when melee options need to slow the pc down
+	 */
+	public void groundedSlowdown(float lerpConst) {
+		Vector2f v = pData.velo;
+		float scalar = Time.deltaT() * lerpConst / 1000;
+		System.out.println(v);
+
+		v.set(Arithmetic.lerp(v.x, 0, scalar), v.y);
 	}
 
 	/**
