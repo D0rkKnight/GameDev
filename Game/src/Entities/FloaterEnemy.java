@@ -3,8 +3,7 @@ package Entities;
 import org.joml.Vector2f;
 
 import Collision.Hitbox;
-import Collision.Behaviors.PhysicsCollisionBehavior;
-import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
+import Collision.Behaviors.PCBDeflect;
 import Collision.Shapes.Shape;
 import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
@@ -44,11 +43,11 @@ public class FloaterEnemy extends Enemy {
 	}
 
 	@Override
-	protected void initPhysicsCollBehavior() {
-		super.initPhysicsCollBehavior();
+	protected void initPhysicsBehavior() {
+		super.initPhysicsBehavior();
 
-		PhysicsCollisionBehavior.removeBehavior(collBehaviorList, "groundMove");
-		collBehaviorList.add(new PhysicsCollisionBehaviorDeflect());
+		collBehaviorList.removeBehavior("groundMove");
+		collBehaviorList.add(new PCBDeflect());
 	}
 
 	@Override

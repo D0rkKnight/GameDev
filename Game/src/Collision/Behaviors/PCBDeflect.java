@@ -9,9 +9,9 @@ import Entities.Framework.PhysicsEntity;
 import Tiles.Tile;
 import Utility.Vector;
 
-public class PhysicsCollisionBehaviorDeflect extends PhysicsCollisionBehavior {
+public class PCBDeflect extends PhysicsCollisionBehavior {
 
-	public PhysicsCollisionBehaviorDeflect() {
+	public PCBDeflect() {
 		this.name = "deflect";
 	}
 

@@ -21,7 +21,7 @@ import Utility.Transformation;
 public abstract class Entity {
 	protected String ID;
 	protected final Vector2f position = new Vector2f();
-	protected static float gravity = 5f;
+	public static float gravity = 5f;
 
 	public Renderer renderer; // Null by default
 	public Vector2f rendOffset;
@@ -38,6 +38,7 @@ public abstract class Entity {
 	public Transformation transform;
 
 	public ArrayList<Entity> children;
+	private ArrayList<Entity> unsubscribeList = new ArrayList<>();
 	public Entity parent;
 
 	public Entity(String ID, Vector2f position, String name) {
@@ -64,10 +65,19 @@ public abstract class Entity {
 	public void updateChildren() {
 		// TODO: Update children?
 		// Where are children even being set...
+		for (Entity e : unsubscribeList) {
+			children.remove(e);
+		}
+		unsubscribeList.clear();
+
 		for (Entity e : children) {
 			e.calculate();
 			e.updateChildren();
 		}
+	}
+
+	public void removeChild(Entity e) {
+		unsubscribeList.add(e);
 	}
 
 	public void calcFrame() {
@@ -95,6 +105,9 @@ public abstract class Entity {
 
 	public void Destroy() {
 		GameManager.unsubscribeEntity(this);
+
+		if (parent != null)
+			parent.removeChild(this);
 	}
 
 	public void onGameLoad() {

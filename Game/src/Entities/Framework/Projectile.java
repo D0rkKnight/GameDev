@@ -64,7 +64,7 @@ public class Projectile extends PhysicsEntity {
 	public void calculate() {
 		super.calculate();
 
-		gravity();
+		// gravity();
 	}
 
 	@Override

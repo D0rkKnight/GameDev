@@ -128,8 +128,8 @@ public class Player extends Combatant {
 	}
 
 	@Override
-	protected void initPhysicsCollBehavior() {
-		super.initPhysicsCollBehavior();
+	protected void initPhysicsBehavior() {
+		super.initPhysicsBehavior();
 
 //		collBehaviorList.add(new PhysicsCollisionBehaviorStepUp());
 //		collBehaviorList.add(new PhysicsCollisionBehaviorWallCling());
@@ -148,12 +148,6 @@ public class Player extends Combatant {
 		GeneralRenderer sprRend = (GeneralRenderer) renderer;
 		if (hurtTimer == null && baseCol != null)
 			sprRend.updateColors(baseCol);
-
-		// Gravity
-		if (hasGravity) {
-			pData.velo.y -= Entity.gravity / 100;
-			pData.velo.y = Math.max(pData.velo.y, -2);
-		}
 
 		// Jump
 		if (jumpGraceTimer != null)

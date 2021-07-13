@@ -96,14 +96,13 @@ public class PlayerStateController {
 
 		PlayerTag.CAN_MELEE.cb = wrapPCB((p) -> {
 			// Melee
-			// TODO: Have combat controllers handle this, since it's like an attack cancel.
 			if (Input.meleeAction) {
 				// Check ortho direction
 				// TODO: Clean up this boilerplate
 				Vector2f pos = new Vector2f(p.getPosition()).add(p.hitbox.width / 2, p.hitbox.height / 2);
 				Vector2f orthoDir = orthoDirFromVector(new Vector2f(Input.mouseWorldPos).sub(pos));
 
-				if (orthoDir.y == 0) {
+				if (orthoDir.y == 0 && p.pData.grounded) {
 					p.setPlayerState(PlayerState.JAB1);
 				} else {
 					p.setPlayerState(PlayerState.M_A);
@@ -266,20 +265,27 @@ public class PlayerStateController {
 		return fd;
 	}
 
+	/**
+	 * Aerial spin attack
+	 * 
+	 * @return
+	 */
 	private static FrameData genM_A() {
-		// NEVERMIND this is just a generic attack command with framedata attached.
-		FrameData.Event cma = new FrameData.Event(wrapPCB((player) -> {
-			meleeAtPoint(player, Input.mouseWorldPos, 30, 50, new Vector2f(30));
-		}), 5);
+		// Launches multiple hitboxes
+		FrameData.Event[] atks = new FrameData.Event[4];
+		int start = 5;
+		int advance = 7;
+		int life = 4;
 
-		// Return to idle animation
-		FrameData.Event retI = new FrameData.Event(wrapPCB((player) -> {
-			player.setPlayerState(PlayerState.I);
-		}), 45);
+		for (int i = 0; i < atks.length; i++) {
+			atks[i] = new FrameData.Event(wrapPCB((p) -> {
+				meleeInDir(p, new Vector2f(p.sideFacing, 0), life, 0, new Vector2f(70));
+			}), start + advance * i);
+		}
 
 		ArrayList<Event> evs = new ArrayList<>();
-		evs.add(cma);
-		evs.add(retI);
+		for (FrameData.Event atk : atks)
+			evs.add(atk);
 
 		ArrayList<FrameSegment> segs = new ArrayList<>();
 		segs.add(new FrameSegment(35, 0, PlayerTag.INACTABLE.cb));
@@ -294,6 +300,11 @@ public class PlayerStateController {
 
 		fd.onEntry = wrapPCB((e) -> {
 			e.baseCol = new Color(0, 1, 0, 1);
+		});
+
+		// Return to idle state
+		fd.onEnd = wrapPCB((p) -> {
+			p.setPlayerState(PlayerState.I);
 		});
 
 		return fd;

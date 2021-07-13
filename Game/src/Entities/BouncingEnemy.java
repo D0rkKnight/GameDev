@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 
 import Collision.Hitbox;
-import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
+import Collision.Behaviors.PCBDeflect;
 import Collision.Shapes.Shape;
 import Entities.Framework.Enemy;
 import GameController.Time;
@@ -61,10 +61,10 @@ public abstract class BouncingEnemy extends Enemy {
 	}
 
 	@Override
-	protected void initPhysicsCollBehavior() {
-		super.initPhysicsCollBehavior();
+	protected void initPhysicsBehavior() {
+		super.initPhysicsBehavior();
 
-		collBehaviorList.add(new PhysicsCollisionBehaviorDeflect());
+		collBehaviorList.add(new PCBDeflect());
 	}
 
 	private void initFD() {
@@ -128,7 +128,7 @@ public abstract class BouncingEnemy extends Enemy {
 		super.calculate();
 
 		hasGravity = true;
-		gravity();
+		// gravity();
 
 		if (pData.wasGrounded == false && pData.grounded == true)
 			onLanding();
