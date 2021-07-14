@@ -4,6 +4,7 @@ import org.joml.Vector2f;
 
 import Collision.Hitbox;
 import Collision.Behaviors.PCBDeflect;
+import Collision.Behaviors.PCBGroundMove;
 import Collision.Shapes.Shape;
 import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
@@ -46,7 +47,7 @@ public class FloaterEnemy extends Enemy {
 	protected void initPhysicsBehavior() {
 		super.initPhysicsBehavior();
 
-		collBehaviorList.removeBehavior("groundMove");
+		collBehaviorList.remove(PCBGroundMove.class);
 		collBehaviorList.add(new PCBDeflect());
 	}
 

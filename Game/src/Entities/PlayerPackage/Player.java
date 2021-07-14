@@ -243,7 +243,6 @@ public class Player extends Combatant {
 	public void groundedSlowdown(float lerpConst) {
 		Vector2f v = pData.velo;
 		float scalar = Time.deltaT() * lerpConst / 1000;
-		System.out.println(v);
 
 		v.set(Arithmetic.lerp(v.x, 0, scalar), v.y);
 	}

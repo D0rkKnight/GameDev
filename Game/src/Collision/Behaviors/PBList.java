@@ -5,19 +5,19 @@ import java.util.List;
 public class PBList<T extends PhysicsBehavior> {
 	public List<T> behaviors;
 
-	public void removeBehavior(String nameStr) {
-		boolean nameRemoved = false;
+	public void remove(Class<?> clazz) {
+		boolean removed = false;
 
 		for (int i = 0; i < behaviors.size(); i++) {
 			PhysicsBehavior b = behaviors.get(i);
-			if (b.name.equals(nameStr)) {
+			if (clazz.isInstance(b)) {
 				behaviors.remove(i);
-				nameRemoved = true;
+				removed = true;
 				break;
 			}
 		}
 
-		if (!nameRemoved) {
+		if (!removed) {
 			new Exception("Behavior to be removed not found!").printStackTrace();
 		}
 	}

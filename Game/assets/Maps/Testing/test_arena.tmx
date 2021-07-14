@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="100" height="50" tilewidth="8" tileheight="8" infinite="0" nextlayerid="4" nextobjectid="3">
+<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="100" height="50" tilewidth="8" tileheight="8" infinite="0" nextlayerid="4" nextobjectid="5">
  <tileset firstgid="1" source="../Tilesets/coll8x8.tsx"/>
  <layer id="1" name="ground" width="100" height="50">
   <data encoding="base64">
@@ -18,5 +18,7 @@
     <property name="class" value="Entities.PunchingBag"/>
    </properties>
   </object>
+  <object id="3" template="../Templates/Floater.tx" x="192" y="120"/>
+  <object id="4" template="../Templates/Floater.tx" x="576" y="112"/>
  </objectgroup>
 </map>

@@ -39,9 +39,6 @@ public class FrameData {
 
 			this.cbs = new ArrayList<>();
 			Collections.addAll(this.cbs, cbs);
-
-			for (EntityCB ecb : cbs)
-				System.out.println(ecb);
 		}
 
 		public FrameSegment(int fLength, int fStart) {
