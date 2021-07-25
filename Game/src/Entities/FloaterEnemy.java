@@ -3,8 +3,8 @@ package Entities;
 import org.joml.Vector2f;
 
 import Collision.Hitbox;
-import Collision.Behaviors.PhysicsCollisionBehavior;
-import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
+import Collision.Behaviors.PCBDeflect;
+import Collision.Behaviors.PCBGroundMove;
 import Collision.Shapes.Shape;
 import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
@@ -15,8 +15,8 @@ import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
 import Tiles.Tile;
 import Utility.Pathfinding;
-import Utility.Transformation;
 import Utility.Vector;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 import Wrappers.Stats;
 
@@ -28,7 +28,7 @@ public class FloaterEnemy extends Enemy {
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 
 		this.renderer = rend;
 
@@ -44,11 +44,11 @@ public class FloaterEnemy extends Enemy {
 	}
 
 	@Override
-	protected void initPhysicsCollBehavior() {
-		super.initPhysicsCollBehavior();
+	protected void initPhysicsBehavior() {
+		super.initPhysicsBehavior();
 
-		PhysicsCollisionBehavior.removeBehavior(collBehaviorList, "groundMove");
-		collBehaviorList.add(new PhysicsCollisionBehaviorDeflect());
+		collBehaviorList.remove(PCBGroundMove.class);
+		collBehaviorList.add(new PCBDeflect());
 	}
 
 	@Override

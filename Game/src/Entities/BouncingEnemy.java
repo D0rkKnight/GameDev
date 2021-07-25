@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 
 import Collision.Hitbox;
-import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
+import Collision.Behaviors.PCBDeflect;
 import Collision.Shapes.Shape;
 import Entities.Framework.Enemy;
 import GameController.Time;
@@ -15,10 +15,10 @@ import Graphics.Rendering.SpriteShader;
 import Tiles.Tile;
 import Utility.Arithmetic;
 import Utility.Pathfinding;
-import Utility.Transformation;
 import Utility.Vector;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 import Wrappers.FrameData;
 import Wrappers.FrameData.FrameSegment;
@@ -44,7 +44,7 @@ public abstract class BouncingEnemy extends Enemy {
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 
 		this.renderer = rend;
 
@@ -61,10 +61,10 @@ public abstract class BouncingEnemy extends Enemy {
 	}
 
 	@Override
-	protected void initPhysicsCollBehavior() {
-		super.initPhysicsCollBehavior();
+	protected void initPhysicsBehavior() {
+		super.initPhysicsBehavior();
 
-		collBehaviorList.add(new PhysicsCollisionBehaviorDeflect());
+		collBehaviorList.add(new PCBDeflect());
 	}
 
 	private void initFD() {
@@ -128,7 +128,7 @@ public abstract class BouncingEnemy extends Enemy {
 		super.calculate();
 
 		hasGravity = true;
-		gravity();
+		// gravity();
 
 		if (pData.wasGrounded == false && pData.grounded == true)
 			onLanding();

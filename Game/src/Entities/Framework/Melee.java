@@ -9,9 +9,9 @@ import Collision.Hitbox;
 import Collision.Shapes.Shape;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
-import Utility.Transformation;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 
 /**
@@ -31,9 +31,10 @@ public class Melee extends Entity implements Collidable {
 
 	public Timer lifeTimer;
 
-	public Melee(String ID, Vector2f position, String name, Entity owner, Vector2f kbDir, long life) {
+	public Melee(String ID, Vector2f position, String name, Entity owner, Vector2f kbDir, long life, Vector2f dim) {
 		super(ID, position, name);
 		offset = new Vector2f(owner.position.x - position.x, owner.position.y - position.y);
+
 		owner.setAsChild(this);
 		if (owner instanceof PhysicsEntity)
 			alignment = ((PhysicsEntity) owner).alignment;
@@ -41,15 +42,15 @@ public class Melee extends Entity implements Collidable {
 			System.err.println("Attack owned by non physic entity?");
 
 		// Configure the renderer real quick
-		dim = new Vector2f(30f, 30f);
+		this.dim = dim;
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
-
+		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 		this.renderer = rend;
 
 		// Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
-		System.out.println(hitbox.owner);
+
+		localTrans.trans.setTranslation(-dim.x / 2, -dim.y / 2, 0);
 
 		this.kbDir = kbDir;
 		hitEntities = new ArrayList<>();
@@ -75,7 +76,7 @@ public class Melee extends Entity implements Collidable {
 
 		controlledMovement();
 
-		transform.genModel();
+		localTrans.genModel();
 	}
 
 	@Override

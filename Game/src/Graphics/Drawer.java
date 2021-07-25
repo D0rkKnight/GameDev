@@ -58,7 +58,7 @@ import Graphics.Rendering.WarpShader;
 import Graphics.text.Text;
 import Tiles.Tile;
 import UI.UI;
-import Utility.Transformation;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 
 /*
@@ -113,7 +113,7 @@ public class Drawer {
 		 */
 		if (!fBuffRend.hasInit) {
 			fBuffRend.init(
-					new Transformation(new Vector2f(0, Camera.main.viewport.y), Transformation.MatrixMode.SCREEN),
+					new ProjectedTransform(new Vector2f(0, Camera.main.viewport.y), ProjectedTransform.MatrixMode.SCREEN),
 					Camera.main.viewport, Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0));
 			fBuffRend.spr = drawBuff.tex;
 		}
@@ -360,7 +360,7 @@ public class Drawer {
 			GeneralRenderer rend = null;
 			if (key.gfx.equals("None")) {
 				rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-				rend.init(new Transformation(new Vector2f(), Transformation.MatrixMode.WORLD), posOut, uvOut,
+				rend.init(new ProjectedTransform(new Vector2f(), ProjectedTransform.MatrixMode.WORLD), posOut, uvOut,
 						new Color());
 				rend.spr = key.tex;
 			}
@@ -368,7 +368,7 @@ public class Drawer {
 			else if (key.gfx.equals("Warp")) {
 				Shader warpShade = WarpShader.genShader("vortex");
 				rend = new WarpRenderer(warpShade);
-				rend.init(new Transformation(new Vector2f(), Transformation.MatrixMode.WORLD), posOut, uvOut,
+				rend.init(new ProjectedTransform(new Vector2f(), ProjectedTransform.MatrixMode.WORLD), posOut, uvOut,
 						new Color(1, 1, 0, 1));
 				rend.spr = key.tex;
 			}

@@ -9,6 +9,7 @@ import java.util.Random;
 
 import org.joml.Vector2i;
 
+import Debugging.Debug;
 import GameController.EntranceData;
 import GameController.Map;
 import GameController.World;
@@ -87,7 +88,11 @@ public class WorldGenerator {
 		tetrominoMapLookup.put(WorldTetromino.CapTet.UP.tet, "assets/Maps/Forest/forestUC.tmx");
 		tetrominoMapLookup.put(WorldTetromino.CapTet.DOWN.tet, "assets/Maps/Forest/forestDC.tmx");
 
-		genWorld();
+		if (Debug.forceMapUsage.isEmpty())
+			genWorld();
+		else {
+			World.currmap = World.genMap(Debug.forceMapUsage);
+		}
 	}
 
 	public static void genWorld() {

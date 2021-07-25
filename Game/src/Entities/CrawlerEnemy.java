@@ -17,7 +17,7 @@ import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
 import Tiles.Tile;
-import Utility.Transformation;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 import Wrappers.Stats;
 
@@ -33,7 +33,7 @@ public class CrawlerEnemy extends Enemy {
 		// Configure the renderer real quick
 		dim = new Vector2f(96f, 96f);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 		rend.spr = Texture.getTex("assets/Sprites/circle_saw.png");
 		this.renderer = rend;
 
@@ -93,7 +93,7 @@ public class CrawlerEnemy extends Enemy {
 
 			ang += 0.5;
 
-			Matrix4f rot = transform.rot;
+			Matrix4f rot = localTrans.rot;
 			rot.identity();
 			rot.translate(new Vector3f(-anchorOffset.x, -anchorOffset.y, 0));
 			rot.setRotationXYZ(0, 0, ang);

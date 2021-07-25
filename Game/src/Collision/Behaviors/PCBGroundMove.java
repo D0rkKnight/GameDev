@@ -6,9 +6,9 @@ import Collision.Physics;
 import Entities.Framework.PhysicsEntity;
 import Tiles.Tile;
 
-public class PhysicsCollisionBehaviorGroundMove extends PhysicsCollisionBehavior {
+public class PCBGroundMove extends PhysicsCollisionBehavior {
 
-	public PhysicsCollisionBehaviorGroundMove() {
+	public PCBGroundMove() {
 		this.name = "groundMove";
 	}
 

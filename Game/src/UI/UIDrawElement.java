@@ -16,8 +16,8 @@ public class UIDrawElement extends UIElement {
 	public void render() {
 
 		// Render yourself first
-		rend.transform.pos.set(sPos);
-		rend.transform.pos.add(0, dims.y); // 4th quadrant
+		Vector2f rendPos = new Vector2f(sPos).add(0, dims.y);// 4th quadrant
+		rend.transform.setTrans(rendPos);
 		rend.render(); // Remember the view matrix flips the coordinates
 
 		// Render children next

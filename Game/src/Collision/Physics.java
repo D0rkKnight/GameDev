@@ -35,7 +35,7 @@ public abstract class Physics {
 		// If jumping, force a velocity change.
 		if (e.pData.isJumping && e.pData.walksUpSlopes) {
 
-			// Pass in new diVector2fional axises (x axis perpendicular to the y axis)
+			// Pass in new directional axises (x axis perpendicular to the y axis)
 			Vector2f yAxis = e.pData.yDir;
 			Vector2f xAxis = Vector.rightVector(yAxis); // This is 90 degrees clockwise
 			float yVelo = e.pData.velo.y;
@@ -168,7 +168,7 @@ public abstract class Physics {
 			Vector2f tangent = new Vector2f(-normal.y, normal.x);
 
 			// Execute behaviors
-			for (PhysicsCollisionBehavior behavior : e.collBehaviorList) {
+			for (PhysicsCollisionBehavior behavior : e.collBehaviorList.behaviors) {
 				behavior.onColl(rawPos, deltaMove, velo, e, grid, moveAxis, axises, moveDir, tangent, delta);
 			}
 

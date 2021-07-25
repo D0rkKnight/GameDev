@@ -1,16 +1,16 @@
 package Entities.Framework;
 
-import java.util.ArrayList;
-
 import org.joml.Math;
 import org.joml.Vector2f;
 
 import Collision.Collidable;
 import Collision.Hitbox;
-import Collision.Behaviors.PhysicsCollisionBehavior;
-import Collision.Behaviors.PhysicsCollisionBehaviorDeflect;
-import Collision.Behaviors.PhysicsCollisionBehaviorGroundMove;
-import GameController.Time;
+import Collision.Behaviors.PCBDeflect;
+import Collision.Behaviors.PCBGroundMove;
+import Collision.Behaviors.PCBList;
+import Collision.Behaviors.PGBGravity;
+import Collision.Behaviors.PGBList;
+import Collision.Behaviors.PhysicsGeneralBehavior;
 import Utility.Vector;
 import Wrappers.FrameData;
 import Wrappers.PhysicsData;
@@ -43,7 +43,8 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 
 	// For now, presume that if one of these behaviors trigger, the following
 	// behavior are canceled.
-	public ArrayList<PhysicsCollisionBehavior> collBehaviorList;
+	public PCBList collBehaviorList;
+	public PGBList generalBehaviorList;
 
 	public Hitbox hitbox;
 
@@ -64,14 +65,18 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 		movementMulti = 0.5f;
 		decelMulti = 1f;
 
-		initPhysicsCollBehavior();
+		initPhysicsBehavior();
 	}
 
-	protected void initPhysicsCollBehavior() {
-		collBehaviorList = new ArrayList<>();
+	protected void initPhysicsBehavior() {
+		collBehaviorList = new PCBList();
 
-		collBehaviorList.add(new PhysicsCollisionBehaviorGroundMove());
-		collBehaviorList.add(new PhysicsCollisionBehaviorDeflect());
+		collBehaviorList.add(new PCBGroundMove());
+		collBehaviorList.add(new PCBDeflect());
+
+		generalBehaviorList = new PGBList();
+
+		generalBehaviorList.add(new PGBGravity());
 	}
 
 	/**
@@ -139,14 +144,6 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	public void onTileCollision() {
 	}
 
-	protected void gravity() {
-		// Gravity
-		if (hasGravity) {
-			pData.velo.y -= Entity.gravity * Time.deltaT() / 1300;
-			pData.velo.y = Math.max(pData.velo.y, -2);
-		}
-	}
-
 	/**
 	 * applies knockback values. if currently in knockback state, chooses larger
 	 * values.
@@ -195,6 +192,11 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	public void calculate() {
 		super.calculate();
 
+		for (PhysicsGeneralBehavior pgb : generalBehaviorList.behaviors) {
+			pgb.invoke(this);
+		}
+
+		// Frame data control logic - exit and entry states
 		if (isFDQueued) {
 			isFDQueued = false;
 
@@ -218,7 +220,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	public void updateChildren() {
 		super.updateChildren();
 
-		hitbox.update();
+		hitbox.update(); // Hitbox is necessary, PhysicsEntities without hitboxes should fail fast
 	}
 
 	@Override

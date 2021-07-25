@@ -5,9 +5,9 @@ import org.joml.Vector2f;
 import Entities.Framework.PhysicsEntity;
 import Tiles.Tile;
 
-public class PhysicsCollisionBehaviorWallCling extends PhysicsCollisionBehavior{
+public class PCBWallCling extends PhysicsCollisionBehavior{
 	
-	public PhysicsCollisionBehaviorWallCling() {
+	public PCBWallCling() {
 		this.name = "wallCling";
 	}
 	

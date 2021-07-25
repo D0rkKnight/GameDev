@@ -1,7 +1,8 @@
 package Entities.PlayerPackage;
 
+import java.util.HashMap;
+
 import org.joml.Math;
-import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import Collision.Hitbox;
@@ -14,18 +15,20 @@ import Entities.PlayerPackage.PlayerStateController.PlayerState;
 import GameController.EntityData;
 import GameController.GameManager;
 import GameController.Input;
+import GameController.Time;
 import Graphics.Animation.Animation;
+import Graphics.Animation.AnimationCallback;
 import Graphics.Animation.Animator;
-import Graphics.Animation.PlayerAnimator;
+import Graphics.Animation.Animator.ID;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
 import Graphics.particles.GhostParticleSystem;
 import Utility.Arithmetic;
-import Utility.Transformation;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 import Wrappers.Stats;
 
@@ -63,7 +66,7 @@ public class Player extends Combatant {
 		// not given from outside...
 		rendDims = new Vector2f(96, 96);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-		rend.init(new Transformation(position), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
+		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
 
 		this.renderer = rend;
 
@@ -74,22 +77,10 @@ public class Player extends Combatant {
 		hitbox = new Hitbox(this, dim.x, dim.y);
 
 		jumpSpeed = 1f;
-
 		dashSpeed = 2f;
 
-		// Configure animation stuff
-		TextureAtlas animSheet = new TextureAtlas(Texture.getTex("Assets/Sprites/Ilyia_idle-running_proto.png"), 96,
-				96);
-		Animation[] anims = new Animation[4];
-		anims[Animator.ANIM_IDLE] = new Animation(animSheet.genSubTexSet(0, 0, 3, 0));
-		anims[PlayerAnimator.ANIM_ACCEL] = new Animation(animSheet.genSubTexSet(0, 1, 11, 1));
-		anims[PlayerAnimator.ANIM_MOVING] = new Animation(animSheet.genSubTexSet(0, 2, 7, 2));
-		anims[PlayerAnimator.ANIM_DASHING] = new Animation(animSheet.genSubTexSet(0, 3, 0, 3));
-
+		initGraphics();
 		rendOffset.set(-35, 0);
-
-		anim = new PlayerAnimator(anims, 12, (GeneralRenderer) this.renderer, this, Shape.ShapeEnum.SQUARE.v);
-
 		// Alignment
 		alignment = PhysicsEntity.Alignment.PLAYER;
 
@@ -97,11 +88,40 @@ public class Player extends Combatant {
 
 		baseInvulnLength = 1000;
 
+		currFD = PlayerState.I.fd;
+	}
+
+	private void initGraphics() {
+		// Configure animation stuff
+		TextureAtlas animSheet = new TextureAtlas(Texture.getTex("Assets/Sprites/Ilyia_idle-running_proto.png"), 96,
+				96);
+		HashMap<ID, Animation> anims = new HashMap<ID, Animation>();
+		anims.put(Animator.ID.IDLE, new Animation(animSheet.genSubTexSet(0, 0, 3, 0)));
+		anims.put(Animator.ID.ACCEL, new Animation(animSheet.genSubTexSet(0, 1, 11, 1)));
+		anims.put(Animator.ID.MOVING, new Animation(animSheet.genSubTexSet(0, 2, 7, 2)));
+		anims.put(Animator.ID.DASHING, new Animation(animSheet.genSubTexSet(0, 3, 0, 3)));
+
+		anims.put(Animator.ID.DASH_ATK, new Animation(animSheet.genSubTexSet(1, 3, 1, 3)));
+		anims.put(Animator.ID.JAB1, new Animation(animSheet.genSubTexSet(2, 3, 2, 3)));
+		anims.put(Animator.ID.JAB2, new Animation(animSheet.genSubTexSet(3, 3, 3, 3)));
+		anims.put(Animator.ID.LUNGE, new Animation(animSheet.genSubTexSet(4, 3, 4, 3)));
+
+		anims.put(Animator.ID.TUMBLE, new Animation(animSheet.genSubTexSet(6, 3, 6, 3)));
+
+		anims.get(Animator.ID.ACCEL).setCb(new AnimationCallback() {
+
+			@Override
+			public void onLoopEnd() {
+				anim.switchAnim(Animator.ID.MOVING);
+			}
+
+		});
+
+		anim = new Animator(anims, 12, (GeneralRenderer) this.renderer, Shape.ShapeEnum.SQUARE.v);
+
 		pSys = new GhostParticleSystem(animSheet.tex, 20, rendDims);
 		pSys.init();
 		pSys.pauseParticleGeneration();
-
-		currFD = PlayerState.I.fd;
 	}
 
 	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
@@ -109,8 +129,8 @@ public class Player extends Combatant {
 	}
 
 	@Override
-	protected void initPhysicsCollBehavior() {
-		super.initPhysicsCollBehavior();
+	protected void initPhysicsBehavior() {
+		super.initPhysicsBehavior();
 
 //		collBehaviorList.add(new PhysicsCollisionBehaviorStepUp());
 //		collBehaviorList.add(new PhysicsCollisionBehaviorWallCling());
@@ -129,12 +149,6 @@ public class Player extends Combatant {
 		GeneralRenderer sprRend = (GeneralRenderer) renderer;
 		if (hurtTimer == null && baseCol != null)
 			sprRend.updateColors(baseCol);
-
-		// Gravity
-		if (hasGravity) {
-			pData.velo.y -= Entity.gravity / 100;
-			pData.velo.y = Math.max(pData.velo.y, -2);
-		}
 
 		// Jump
 		if (jumpGraceTimer != null)
@@ -166,11 +180,6 @@ public class Player extends Combatant {
 
 		// Update pSys
 		pSys.resumeParticleGeneration();
-
-		// Change animator
-		// Does this even work?
-		// Tbh all anim updates should be in Player, not PlayerAnimator TODO
-		anim.switchAnim(PlayerAnimator.ANIM_DASHING);
 	}
 
 	@Override
@@ -229,7 +238,14 @@ public class Player extends Combatant {
 		hasGravity = true;
 	}
 
-	void dashingMovement() {
+	/**
+	 * For when melee options need to slow the pc down
+	 */
+	public void groundedSlowdown(float lerpConst) {
+		Vector2f v = pData.velo;
+		float scalar = Time.deltaT() * lerpConst / 1000;
+
+		v.set(Arithmetic.lerp(v.x, 0, scalar), v.y);
 	}
 
 	/**
@@ -239,19 +255,21 @@ public class Player extends Combatant {
 	 */
 	void decelMovement() {
 		// automatic deacceleration
-		float decelConst = Math.min(accelConst * decelMulti, Math.abs(pData.velo.x) - xCap)
-				* -Arithmetic.sign(pData.velo.x);
+//		float decelConst = Math.min(accelConst * decelMulti, Math.abs(pData.velo.x) - xCap)
+//				* -Arithmetic.sign(pData.velo.x);
+		float decelConst = accelConst * decelMulti * -Arithmetic.sign(pData.velo.x);
+
 		// effect of movement
 		decelConst += accelConst * movementMulti * Input.moveX;
 
 		if (pData.grounded) {
 			decelConst *= 1.4;
 		}
-		pData.velo.x += decelConst;
+		pData.velo.x += decelConst * Time.deltaT() / 1000 * 10; // Lots of random tuning here
 		hasGravity = true;
 
 		// Escape knockback
-		if (Math.abs(pData.velo.x) <= xCap) {
+		if (pData.velo.length() <= xCap) {
 			setPlayerState(PlayerState.I);
 			knockbackDir = null;
 		}
@@ -295,17 +313,23 @@ public class Player extends Combatant {
 
 		// Scale to the side facing
 		if (sideFacing != 0) {
-			Matrix4f scale = transform.scale;
+//			Matrix4f scale = transform.scale;
+//
+//			// These are applied bottom row to top row
+//			scale.identity().translate(rendDims.x / 2, 0, 0);
+//			scale.scale(sideFacing, 1, 1);
 
-			// These are applied bottom row to top row
-			scale.identity().translate(rendDims.x / 2, 0, 0);
-			scale.scale(sideFacing, 1, 1);
-			scale.translate(-rendDims.x / 2, 0, 0);
+			localTrans.scale.identity().scale(sideFacing, 1, 1);
+			if (sideFacing == -1) {
+				rendOffset.set(rendDims.x / 2, 0);
+			} else {
+				rendOffset.set(-rendDims.x / 2, 0);
+			}
 		}
 
 		// Update trailing particle system
 		pSys.activeSubTex = anim.currentAnim.getFrame();
-		pSys.activeTransform = new Transformation(renderer.transform);
+		pSys.activeTransform = new ProjectedTransform(renderer.transform);
 		pSys.update();
 	}
 

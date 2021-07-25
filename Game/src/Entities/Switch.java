@@ -8,8 +8,8 @@ import Entities.Framework.Entity;
 import Entities.Framework.Interactive;
 import GameController.EntityData;
 import Graphics.Rendering.GeneralRenderer;
-import Utility.Transformation;
 import Utility.Timers.Timer;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 
 public class Switch extends Entity implements Interactive {
@@ -26,7 +26,7 @@ public class Switch extends Entity implements Interactive {
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
 		GeneralRenderer rendTemp = (GeneralRenderer) this.renderer; // Renderer has been duplicated by now
-		rendTemp.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+		rendTemp.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 
 		rendTemp.spr = Debug.debugTex;
 		renderer = rendTemp;

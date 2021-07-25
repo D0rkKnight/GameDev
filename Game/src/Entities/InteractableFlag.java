@@ -8,7 +8,7 @@ import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
-import Utility.Transformation;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 
 public class InteractableFlag extends EntityFlag {
@@ -21,7 +21,7 @@ public class InteractableFlag extends EntityFlag {
 
 		dim = new Vector2f(30f, 30f);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color(), tAtlas.genSubTex(0, 0));
+		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color(), tAtlas.genSubTex(0, 0));
 		this.renderer = rend;
 
 		rend.spr = tAtlas.tex;

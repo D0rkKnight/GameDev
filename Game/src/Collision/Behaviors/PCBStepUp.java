@@ -8,9 +8,9 @@ import GameController.GameManager;
 import Tiles.Tile;
 import Utility.Vector;
 
-public class PhysicsCollisionBehaviorStepUp extends PhysicsCollisionBehavior {
+public class PCBStepUp extends PhysicsCollisionBehavior {
 
-	public PhysicsCollisionBehaviorStepUp() {
+	public PCBStepUp() {
 		this.name = "stepUp";
 	}
 

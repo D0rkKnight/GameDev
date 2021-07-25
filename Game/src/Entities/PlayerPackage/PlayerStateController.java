@@ -9,7 +9,9 @@ import org.joml.Vector2f;
 import Entities.Framework.Melee;
 import GameController.GameManager;
 import GameController.Input;
-import Graphics.Animation.PlayerAnimator;
+import Graphics.Animation.Animator;
+import Graphics.Animation.Animator.ID;
+import Utility.Arithmetic;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
 import Wrappers.Color;
@@ -40,6 +42,21 @@ public class PlayerStateController {
 		//@formatter:on
 
 		public FrameData fd;
+
+		public static void assignFD() {
+			// Create forward attack for now, has 10 frames of windup, 50 frames of hitbox,
+			// and 10 frames of windown.
+			// Creates a melee attack with 50 frames of life on frame 10.
+
+			M_A.fd = genM_A();
+			I.fd = genI();
+			DASH.fd = genDASH();
+			DECEL.fd = genDECEL();
+			DASH_ATK.fd = genDASH_ATK();
+			JAB1.fd = genJAB1();
+			JAB2.fd = genJAB2();
+			LUNGE.fd = genLUNGE();
+		}
 	}
 
 	// Containers for callbacks, I guess. Pretty dumb.
@@ -51,13 +68,23 @@ public class PlayerStateController {
 
 	public static void init() {
 		genTags();
-		genStates();
+		PlayerState.assignFD();
+	}
+
+	private static class MutIntWrap {
+		int v;
+
+		public MutIntWrap(int v) {
+			this.v = v;
+		}
 	}
 
 	private static void genTags() {
 		PlayerTag.DASHABLE.cb = wrapPCB((p) -> {
 			// Initiating dash
 			if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0)) {
+				p.anim.switchAnim(Animator.ID.DASHING);
+
 				p.dash();
 			}
 		});
@@ -69,9 +96,17 @@ public class PlayerStateController {
 
 		PlayerTag.CAN_MELEE.cb = wrapPCB((p) -> {
 			// Melee
-			// TODO: Have combat controllers handle this, since it's like an attack cancel.
 			if (Input.meleeAction) {
-				p.setPlayerState(PlayerState.M_A);
+				// Check ortho direction
+				// TODO: Clean up this boilerplate
+				Vector2f pos = new Vector2f(p.getPosition()).add(p.hitbox.width / 2, p.hitbox.height / 2);
+				Vector2f orthoDir = orthoDirFromVector(new Vector2f(Input.mouseWorldPos).sub(pos));
+
+				if (orthoDir.y == 0 && p.pData.grounded) {
+					p.setPlayerState(PlayerState.JAB1);
+				} else {
+					p.setPlayerState(PlayerState.M_A);
+				}
 			}
 		});
 
@@ -94,32 +129,163 @@ public class PlayerStateController {
 		});
 	}
 
-	private static void genStates() {
-		// Create forward attack for now, has 10 frames of windup, 50 frames of hitbox,
-		// and 10 frames of windown.
-		// Creates a melee attack with 50 frames of life on frame 10.
-
-		PlayerState.M_A.fd = genM_A();
-		PlayerState.I.fd = genI();
-		PlayerState.DASH.fd = genDASH();
-		PlayerState.DECEL.fd = genDECEL();
-		PlayerState.DASH_ATK.fd = genDASH_ATK();
-	}
-
-	private static FrameData genM_A() {
-		// NEVERMIND this is just a generic attack command with framedata attached.
-		FrameData.Event cma = new FrameData.Event(wrapPCB((player) -> {
-			melee(player, Input.mouseWorldPos, 30);
-		}), 5);
-
-		// Return to idle animation
-		FrameData.Event retI = new FrameData.Event(wrapPCB((player) -> {
-			player.setPlayerState(PlayerState.I);
-		}), 45);
+	private static FrameData genJAB1() {
+		int dur = 15;
+		MutIntWrap side = new MutIntWrap(1); // Set in on entry
 
 		ArrayList<Event> evs = new ArrayList<>();
-		evs.add(cma);
-		evs.add(retI);
+
+		Event atk = new FrameData.Event(wrapPCB((p) -> {
+			meleeInDir(p, new Vector2f(side.v, 0), 5, 40, new Vector2f(45));
+		}), 5);
+		evs.add(atk);
+
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(dur, 0, PlayerTag.INACTABLE.cb));
+
+		FrameSegment cancelable = new FrameSegment(5, 5, wrapPCB((p) -> {
+			if (Input.meleeAction) {
+				p.setPlayerState(PlayerState.JAB2);
+			}
+		}));
+		segs.add(cancelable);
+
+		// Return to idle animation
+		FrameData fd = new FrameData(segs, evs);
+
+		// Slowdown during melee
+		fd.cb = wrapPCB((p) -> {
+			p.groundedSlowdown(20);
+		});
+
+		// Return to idle state
+		fd.onEnd = wrapPCB((p) -> {
+			p.setPlayerState(PlayerState.I);
+		});
+
+		fd.onEntry = wrapPCB((p) -> {
+			p.anim.switchAnim(Animator.ID.JAB1);
+
+			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
+			p.pData.velo.x = side.v * 2;
+		});
+
+		return fd;
+	}
+
+	/**
+	 * Same thing as jab1, for now
+	 * 
+	 * @return
+	 */
+	private static FrameData genJAB2() {
+		int dur = 15;
+		MutIntWrap side = new MutIntWrap(1); // Set in on entry
+
+		ArrayList<Event> evs = new ArrayList<>();
+
+		Event atk = new FrameData.Event(wrapPCB((p) -> {
+			meleeInDir(p, new Vector2f(side.v, 0), 5, 40, new Vector2f(45));
+		}), 5);
+		evs.add(atk);
+
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(dur, 0, PlayerTag.INACTABLE.cb));
+
+		// Cancelable into a lunge
+		FrameSegment cancelable = new FrameSegment(5, 5, wrapPCB((p) -> {
+			if (Input.meleeAction) {
+				p.setPlayerState(PlayerState.LUNGE);
+			}
+		}));
+		segs.add(cancelable);
+
+		// Return to idle animation
+		FrameData fd = new FrameData(segs, evs);
+
+		// Slowdown during melee
+		fd.cb = wrapPCB((p) -> {
+			p.groundedSlowdown(20);
+		});
+
+		// Return to idle state
+		fd.onEnd = wrapPCB((p) -> {
+			p.setPlayerState(PlayerState.I);
+		});
+
+		fd.onEntry = wrapPCB((p) -> {
+			p.anim.switchAnim(Animator.ID.JAB2);
+
+			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
+			p.pData.velo.x = side.v * 2;
+		});
+
+		return fd;
+	}
+
+	/**
+	 * Final jab/lunge
+	 * 
+	 * @return
+	 */
+	private static FrameData genLUNGE() {
+		int dur = 15;
+		MutIntWrap side = new MutIntWrap(1); // Set in on entry
+
+		ArrayList<Event> evs = new ArrayList<>();
+
+		Event atk = new FrameData.Event(wrapPCB((p) -> {
+			meleeInDir(p, new Vector2f(side.v, 0), 5, 40, new Vector2f(90, 45));
+		}), 5);
+		evs.add(atk);
+
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(dur, 0, PlayerTag.INACTABLE.cb));
+
+		// Return to idle animation
+		FrameData fd = new FrameData(segs, evs);
+
+		// Slowdown during melee
+		fd.cb = wrapPCB((p) -> {
+			p.groundedSlowdown(20);
+		});
+
+		// Return to idle state
+		fd.onEnd = wrapPCB((p) -> {
+			p.setPlayerState(PlayerState.I);
+		});
+
+		fd.onEntry = wrapPCB((p) -> {
+			p.anim.switchAnim(Animator.ID.LUNGE);
+
+			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
+			p.pData.velo.x = side.v * 4;
+		});
+
+		return fd;
+	}
+
+	/**
+	 * Aerial spin attack
+	 * 
+	 * @return
+	 */
+	private static FrameData genM_A() {
+		// Launches multiple hitboxes
+		FrameData.Event[] atks = new FrameData.Event[4];
+		int start = 5;
+		int advance = 7;
+		int life = 4;
+
+		for (int i = 0; i < atks.length; i++) {
+			atks[i] = new FrameData.Event(wrapPCB((p) -> {
+				meleeInDir(p, new Vector2f(p.sideFacing, 0), life, 0, new Vector2f(70));
+			}), start + advance * i);
+		}
+
+		ArrayList<Event> evs = new ArrayList<>();
+		for (FrameData.Event atk : atks)
+			evs.add(atk);
 
 		ArrayList<FrameSegment> segs = new ArrayList<>();
 		segs.add(new FrameSegment(35, 0, PlayerTag.INACTABLE.cb));
@@ -134,6 +300,11 @@ public class PlayerStateController {
 
 		fd.onEntry = wrapPCB((e) -> {
 			e.baseCol = new Color(0, 1, 0, 1);
+		});
+
+		// Return to idle state
+		fd.onEnd = wrapPCB((p) -> {
+			p.setPlayerState(PlayerState.I);
 		});
 
 		return fd;
@@ -151,6 +322,13 @@ public class PlayerStateController {
 		fd.cb = wrapPCB((p) -> {
 			p.controlledMovement();
 
+			// Animation
+			if (Math.abs(p.pData.velo.x) > 0 && p.anim.getAnimID().equals(Animator.ID.IDLE)) {
+				p.anim.switchAnim(ID.ACCEL);
+			} else if (Math.abs(p.pData.velo.x) == 0 && p.anim.getAnimID() != Animator.ID.IDLE) {
+				p.anim.switchAnim(Animator.ID.IDLE);
+			}
+
 			if (Input.knockbackTest) {
 				p.knockback(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
 			}
@@ -158,6 +336,8 @@ public class PlayerStateController {
 
 		fd.onEntry = wrapPCB((p) -> {
 			p.baseCol = new Color(0, 0, 0, 1);
+
+			p.anim.switchAnim(Animator.ID.MOVING);
 		});
 
 		return fd;
@@ -188,10 +368,6 @@ public class PlayerStateController {
 
 		FrameData fd = new FrameData(segs, evs, false);
 
-		fd.cb = wrapPCB((p) -> {
-			p.dashingMovement();
-		});
-
 		fd.onEntry = wrapPCB((p) -> {
 			p.baseCol = new Color(0.5f, 0.5f, 0.5f, 1);
 		});
@@ -200,28 +376,36 @@ public class PlayerStateController {
 		fd.onExit = wrapPCB((p) -> {
 			// Update pSys
 			p.pSys.pauseParticleGeneration();
-			p.anim.switchAnim(PlayerAnimator.ANIM_MOVING);
+			p.anim.switchAnim(Animator.ID.MOVING);
 		});
 
 		return fd;
 	}
 
+	/**
+	 * Dash attack may slightly extend a dash's distance.
+	 * 
+	 * @return
+	 */
 	private static FrameData genDASH_ATK() {
-		int dur = 5;
+		int dur = 10;
 
 		FrameData.Event spawnAtk = new FrameData.Event(wrapPCB((p) -> {
-			System.out.println("Spawning attack!");
-			Melee mEnt = new Melee("MELEE", new Vector2f(p.getPosition()), "Melee", p,
-					new Vector2f(p.pData.velo).normalize(), FrameData.frameToTDelta(dur));
-			mEnt.transform.scale.scale(3);
+			Vector2f moveDir = new Vector2f(p.pData.velo).normalize();
+			float dist = 60;
+			Vector2f newP = new Vector2f(p.getPosition()).add(new Vector2f(moveDir).mul(dist));
+			newP.add(p.hitbox.width / 2, p.hitbox.height / 2); // Center on player
 
-			GameManager.subscribeEntity(mEnt);
-
-			System.out.println(mEnt);
+			melee(p, newP, moveDir, dur, new Vector2f(90, 45));
 
 		}), 0);
 
 		FrameData.Event retI = new FrameData.Event(wrapPCB((p) -> {
+			// Same decel routine as dash
+			p.pData.velo.y *= 0.4; // TODO hardcode for dash deacc
+			p.pData.velo.x *= 0.8;
+			p.decelMode(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
+
 			p.setPlayerState(PlayerState.I);
 		}), dur);
 		ArrayList<FrameData.Event> evs = new ArrayList<>();
@@ -233,6 +417,11 @@ public class PlayerStateController {
 		segs.add(seg1);
 
 		FrameData fd = new FrameData(segs, evs);
+
+		fd.onEntry = wrapPCB((p) -> {
+			p.anim.switchAnim(Animator.ID.DASH_ATK);
+		});
+
 		return fd;
 
 	}
@@ -247,7 +436,7 @@ public class PlayerStateController {
 			p.decelMovement();
 		});
 		fd.onEntry = wrapPCB((p) -> {
-			p.baseCol = new Color(0, 0, 1, 1);
+			p.anim.switchAnim(Animator.ID.TUMBLE);
 			p.knocked = true;
 		});
 
@@ -258,26 +447,40 @@ public class PlayerStateController {
 		return fd;
 	}
 
-	private static void melee(Player p, Vector2f mousePos, int fLife) {
-		int meleedis = 50;// hardcode TODO
-		Vector2f kbDir = new Vector2f(p.sideFacing, 0);
-		Vector2f pos = new Vector2f(p.getPosition()).add(new Vector2f(8, 32)); // Hardcoded fun
-		pos.sub(16, 16); // TODO: Fix hardcode
+	private static void meleeAtPoint(Player p, Vector2f targetPos, int fLife, float meleeDis, Vector2f dims) {
+		Vector2f pos = new Vector2f(p.getPosition()).add(p.hitbox.width / 2, p.hitbox.height / 2);
 
-		Vector2f dir = orthoDirFromVector(new Vector2f(mousePos).sub(pos));
+		Vector2f dir = orthoDirFromVector(new Vector2f(targetPos).sub(pos));
 
 		// Generate data for melee hitbox object
-		Vector2f dist = new Vector2f(dir).mul(meleedis);
-		Vector2f mPos = new Vector2f(p.getPosition()).add(dist);
+		Vector2f dist = new Vector2f(dir).mul(meleeDis);
+		Vector2f mPos = new Vector2f(pos).add(dist);
+
+		melee(p, mPos, dir, fLife, dims);
+	}
+
+	// Hacky solution, please fix
+	private static void meleeInDir(Player p, Vector2f dir, int fLife, float meleeDis, Vector2f dims) {
+		Vector2f pos = new Vector2f(p.getPosition()).add(p.hitbox.width / 2, p.hitbox.height / 2);
+
+		// Generate data for melee hitbox object
+		Vector2f dist = new Vector2f(dir).mul(meleeDis);
+		Vector2f mPos = new Vector2f(pos).add(dist);
+
+		melee(p, mPos, dir, fLife, dims);
+	}
+
+	private static void melee(Player p, Vector2f pos, Vector2f dir, int fLife, Vector2f dims) {
+		Vector2f nDir = new Vector2f(dir).normalize();
 
 		// TODO: Check
 		long tLife = FrameData.frameToTDelta(fLife);
 
-		Melee meleeEntity = new Melee("MELEE", mPos, "Melee", p, kbDir, tLife);
+		Melee meleeEntity = new Melee("MELEE", pos, "Melee", p, nDir, tLife, dims);
 		GameManager.subscribeEntity(meleeEntity);
 
 		float angle = Math.atan2(dir.y, dir.x);
-		Matrix4f rot = meleeEntity.transform.rot;
+		Matrix4f rot = meleeEntity.localTrans.rot;
 
 		rot.translate(meleeEntity.dim.x / 2, meleeEntity.dim.y / 2, 0);
 		rot.rotateZ(angle);
