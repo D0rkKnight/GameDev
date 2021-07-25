@@ -15,8 +15,8 @@ import Graphics.Elements.Texture;
 import Graphics.Rendering.ColorShader;
 import Graphics.Rendering.Shader;
 import Tiles.Tile;
-import Utility.Transformation;
 import Utility.Vector;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 
 public class Debug {
@@ -24,7 +24,7 @@ public class Debug {
 	private static ArrayList<DebugElement> debugElements;
 	public static Shader debugShader;
 	public static Texture debugTex;
-	public static Transformation trans;
+	public static ProjectedTransform trans;
 
 	public static boolean drawEdges;
 	public static boolean logIssues;
@@ -62,7 +62,7 @@ public class Debug {
 		debugShader = ColorShader.genShader("shader");
 		debugTex = Texture.getTex("assets/Sprites/debugTex.png");
 
-		trans = new Transformation(new Vector2f(0, 0), Transformation.MatrixMode.WORLD);
+		trans = new ProjectedTransform(new Vector2f(0, 0), ProjectedTransform.MatrixMode.WORLD);
 	}
 
 	public static void renderDebug() {

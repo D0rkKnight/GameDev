@@ -21,7 +21,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import Graphics.Elements.Mesh;
-import Utility.Transformation;
+import Utility.Transformations.ProjectedTransform;
 
 public abstract class Renderer {
 	protected Shader shader;
@@ -30,7 +30,7 @@ public abstract class Renderer {
 	protected int vboId;
 	protected Attribute[] attribs;
 
-	public Transformation transform;
+	public ProjectedTransform transform;
 	protected Mesh mesh;
 	protected boolean hasBufferUpdate;
 
@@ -76,7 +76,7 @@ public abstract class Renderer {
 		disableVAOs();
 	}
 
-	protected void init(Transformation transform) {
+	protected void init(ProjectedTransform transform) {
 		this.transform = transform;
 		hasInit = true;
 	}

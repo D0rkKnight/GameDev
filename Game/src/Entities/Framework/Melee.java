@@ -9,9 +9,9 @@ import Collision.Hitbox;
 import Collision.Shapes.Shape;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
-import Utility.Transformation;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 
 /**
@@ -44,14 +44,13 @@ public class Melee extends Entity implements Collidable {
 		// Configure the renderer real quick
 		this.dim = dim;
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
-
-		transform.trans.setTranslation(-dim.x / 2, -dim.y / 2, 0);
-
+		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 		this.renderer = rend;
 
 		// Configure hitbox
 		hitbox = new Hitbox(this, dim.x, dim.y);
+
+		localTrans.trans.setTranslation(-dim.x / 2, -dim.y / 2, 0);
 
 		this.kbDir = kbDir;
 		hitEntities = new ArrayList<>();
@@ -77,7 +76,7 @@ public class Melee extends Entity implements Collidable {
 
 		controlledMovement();
 
-		transform.genModel();
+		localTrans.genModel();
 	}
 
 	@Override

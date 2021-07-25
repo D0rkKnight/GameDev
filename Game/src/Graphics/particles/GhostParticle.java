@@ -5,16 +5,16 @@ import org.joml.Vector4f;
 
 import Collision.Shapes.Shape;
 import Graphics.Elements.SubTexture;
-import Utility.Transformation;
+import Utility.Transformations.ProjectedTransform;
 
 public class GhostParticle extends Particle {
 
 	private SubTexture subTex;
 	public Vector2f dims;
-	public Transformation trans;
+	public ProjectedTransform trans;
 
 	public GhostParticle(ParticleSystem master, int stride, int life, Shape particleShape, Vector2f[] masterVertexPos,
-			Vector2f[] masterUV, SubTexture subTex, Transformation trans, Vector2f dims) {
+			Vector2f[] masterUV, SubTexture subTex, ProjectedTransform trans, Vector2f dims) {
 		super(master, stride, life, particleShape, masterVertexPos, masterUV);
 
 		this.subTex = subTex;

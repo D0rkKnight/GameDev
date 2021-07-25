@@ -14,7 +14,7 @@ import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Graphics.Elements.SubTexture;
 import Graphics.Elements.Texture;
-import Utility.Transformation;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 
 public class GeneralRenderer extends Renderer {
@@ -46,7 +46,7 @@ public class GeneralRenderer extends Renderer {
 	}
 
 	// TODO: Testing, in development
-	public void init(Transformation transform, Vector2f dims, Shape.ShapeEnum shape, Color col, SubTexture subTex) {
+	public void init(ProjectedTransform transform, Vector2f dims, Shape.ShapeEnum shape, Color col, SubTexture subTex) {
 		Shape s = shape.v;
 
 		Vector2f[] vertices = s.getRenderVertices(dims);
@@ -55,7 +55,7 @@ public class GeneralRenderer extends Renderer {
 		init(transform, vertices, uvs, col);
 	}
 
-	public void init(Transformation transform, Vector2f dims, Shape.ShapeEnum shape, Color col) {
+	public void init(ProjectedTransform transform, Vector2f dims, Shape.ShapeEnum shape, Color col) {
 		Shape hs = shape.v;
 
 		Vector2f[] vertices = hs.getRenderVertices(dims);
@@ -67,7 +67,7 @@ public class GeneralRenderer extends Renderer {
 	/**
 	 * Initialize
 	 */
-	public void init(Transformation transform, Vector2f[] vertices, Vector2f[] uvs, Color col) {
+	public void init(ProjectedTransform transform, Vector2f[] vertices, Vector2f[] uvs, Color col) {
 		super.init(transform);
 
 		ArrayList<Attribute> attribsBuff = new ArrayList<>();

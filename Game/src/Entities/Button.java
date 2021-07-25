@@ -10,9 +10,9 @@ import GameController.EntityData;
 import GameController.Input;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
-import Utility.Transformation;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 
 public class Button extends Entity implements Interactive {
@@ -31,7 +31,7 @@ public class Button extends Entity implements Interactive {
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 
 		this.renderer = rend;
 	}

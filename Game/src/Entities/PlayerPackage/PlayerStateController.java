@@ -436,7 +436,7 @@ public class PlayerStateController {
 			p.decelMovement();
 		});
 		fd.onEntry = wrapPCB((p) -> {
-			p.baseCol = new Color(0, 0, 1, 1);
+			p.anim.switchAnim(Animator.ID.TUMBLE);
 			p.knocked = true;
 		});
 
@@ -480,7 +480,7 @@ public class PlayerStateController {
 		GameManager.subscribeEntity(meleeEntity);
 
 		float angle = Math.atan2(dir.y, dir.x);
-		Matrix4f rot = meleeEntity.transform.rot;
+		Matrix4f rot = meleeEntity.localTrans.rot;
 
 		rot.translate(meleeEntity.dim.x / 2, meleeEntity.dim.y / 2, 0);
 		rot.rotateZ(angle);

@@ -26,9 +26,9 @@ import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
 import Graphics.particles.GhostParticleSystem;
 import Utility.Arithmetic;
-import Utility.Transformation;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 import Wrappers.Stats;
 
@@ -66,7 +66,7 @@ public class Player extends Combatant {
 		// not given from outside...
 		rendDims = new Vector2f(96, 96);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-		rend.init(new Transformation(position), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
+		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
 
 		this.renderer = rend;
 
@@ -77,7 +77,6 @@ public class Player extends Combatant {
 		hitbox = new Hitbox(this, dim.x, dim.y);
 
 		jumpSpeed = 1f;
-
 		dashSpeed = 2f;
 
 		initGraphics();
@@ -106,6 +105,8 @@ public class Player extends Combatant {
 		anims.put(Animator.ID.JAB1, new Animation(animSheet.genSubTexSet(2, 3, 2, 3)));
 		anims.put(Animator.ID.JAB2, new Animation(animSheet.genSubTexSet(3, 3, 3, 3)));
 		anims.put(Animator.ID.LUNGE, new Animation(animSheet.genSubTexSet(4, 3, 4, 3)));
+
+		anims.put(Animator.ID.TUMBLE, new Animation(animSheet.genSubTexSet(6, 3, 6, 3)));
 
 		anims.get(Animator.ID.ACCEL).setCb(new AnimationCallback() {
 
@@ -254,19 +255,21 @@ public class Player extends Combatant {
 	 */
 	void decelMovement() {
 		// automatic deacceleration
-		float decelConst = Math.min(accelConst * decelMulti, Math.abs(pData.velo.x) - xCap)
-				* -Arithmetic.sign(pData.velo.x);
+//		float decelConst = Math.min(accelConst * decelMulti, Math.abs(pData.velo.x) - xCap)
+//				* -Arithmetic.sign(pData.velo.x);
+		float decelConst = accelConst * decelMulti * -Arithmetic.sign(pData.velo.x);
+
 		// effect of movement
 		decelConst += accelConst * movementMulti * Input.moveX;
 
 		if (pData.grounded) {
 			decelConst *= 1.4;
 		}
-		pData.velo.x += decelConst;
+		pData.velo.x += decelConst * Time.deltaT() / 1000 * 10; // Lots of random tuning here
 		hasGravity = true;
 
 		// Escape knockback
-		if (Math.abs(pData.velo.x) <= xCap) {
+		if (pData.velo.length() <= xCap) {
 			setPlayerState(PlayerState.I);
 			knockbackDir = null;
 		}
@@ -316,7 +319,7 @@ public class Player extends Combatant {
 //			scale.identity().translate(rendDims.x / 2, 0, 0);
 //			scale.scale(sideFacing, 1, 1);
 
-			transform.scale.identity().scale(sideFacing, 1, 1);
+			localTrans.scale.identity().scale(sideFacing, 1, 1);
 			if (sideFacing == -1) {
 				rendOffset.set(rendDims.x / 2, 0);
 			} else {
@@ -326,7 +329,7 @@ public class Player extends Combatant {
 
 		// Update trailing particle system
 		pSys.activeSubTex = anim.currentAnim.getFrame();
-		pSys.activeTransform = new Transformation(renderer.transform);
+		pSys.activeTransform = new ProjectedTransform(renderer.transform);
 		pSys.update();
 	}
 

@@ -6,14 +6,14 @@ import Graphics.Elements.SubTexture;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
-import Utility.Transformation;
 import Utility.Timers.Timer;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 
 public class GhostParticleSystem extends ParticleSystem {
 	protected Timer timer;
 	public SubTexture activeSubTex;
-	public Transformation activeTransform;
+	public ProjectedTransform activeTransform;
 
 	public GhostParticleSystem(Texture tex, int particleLimit, Vector2f dims) {
 		super(tex, particleLimit);
@@ -39,7 +39,7 @@ public class GhostParticleSystem extends ParticleSystem {
 		rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
 
 		// Or, send in nothing
-		rend.init(new Transformation(), new Vector2f[] {}, new Vector2f[] {}, new Color(1, 1, 1, 1));
+		rend.init(new ProjectedTransform(), new Vector2f[] {}, new Vector2f[] {}, new Color(1, 1, 1, 1));
 		rend.spr = this.tex;
 	}
 

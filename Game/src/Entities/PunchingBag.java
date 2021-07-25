@@ -11,7 +11,7 @@ import Entities.Framework.Entity;
 import GameController.EntityData;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
-import Utility.Transformation;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 import Wrappers.Stats;
 
@@ -22,7 +22,7 @@ public class PunchingBag extends Combatant {
 
 		rendDims = new Vector2f(96, 128);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-		rend.init(new Transformation(position), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
+		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
 		rend.spr = Debug.debugTex;
 
 		this.renderer = rend;

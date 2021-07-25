@@ -15,10 +15,10 @@ import Graphics.Rendering.SpriteShader;
 import Tiles.Tile;
 import Utility.Arithmetic;
 import Utility.Pathfinding;
-import Utility.Transformation;
 import Utility.Vector;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 import Wrappers.FrameData;
 import Wrappers.FrameData.FrameSegment;
@@ -44,7 +44,7 @@ public abstract class BouncingEnemy extends Enemy {
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-		rend.init(new Transformation(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 
 		this.renderer = rend;
 

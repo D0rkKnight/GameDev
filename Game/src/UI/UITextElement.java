@@ -8,7 +8,7 @@ import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
 import Graphics.text.Font;
 import Graphics.text.Text;
-import Utility.Transformation;
+import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 
 public class UITextElement extends UIDrawElement {
@@ -38,7 +38,7 @@ public class UITextElement extends UIDrawElement {
 		col = new Color(1, 1, 1, 1);
 
 		GeneralRenderer genRend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-		genRend.init(new Transformation(pos, Transformation.MatrixMode.SCREEN), pointArr, uvArr, col);
+		genRend.init(new ProjectedTransform(pos, ProjectedTransform.MatrixMode.SCREEN), pointArr, uvArr, col);
 		genRend.spr = font.tex;
 		rend = genRend;
 	}
