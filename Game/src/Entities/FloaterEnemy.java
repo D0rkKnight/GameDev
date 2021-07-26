@@ -8,6 +8,7 @@ import Collision.Behaviors.PCBGroundMove;
 import Collision.Shapes.Shape;
 import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
+import Entities.PlayerPackage.Player;
 import GameController.EntityData;
 import GameController.Time;
 import GameController.World;
@@ -32,11 +33,25 @@ public class FloaterEnemy extends Enemy {
 
 		this.renderer = rend;
 
-		// Configure hitbox
-		hitbox = new Hitbox(this, dim.x, dim.y);
-
 		pData.walksUpSlopes = false;
 		ai = new Pathfinding();
+
+		// Configure hitbox
+		Hitbox hb = new Hitbox(this, dim.x, dim.y);
+		hb.cb = (comb) -> {
+			if (comb instanceof Player) {
+				Player p = (Player) comb;
+
+				if (!p.getInvulnState()) {
+					p.hit(10);
+					p.knockback(Vector.dirTo(position, p.getPosition()), 0.5f, 1f);
+					p.invuln();
+				}
+			}
+		};
+		this.coll = hb;
+
+		// TODO: Allow for multiple hitboxes/hurtboxes
 	}
 
 	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {

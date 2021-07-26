@@ -104,7 +104,7 @@ public abstract class Physics {
 
 				// Debug.enqueueElement(new DebugBox(new Vector2f(newPos).add(deltaInch), new
 				// Vector2f(e.dim.x, e.dim.y), 1));
-				Debug.enqueueElement(new DebugPolygon(e.hitbox.genWorldVerts(), 1, new Color(1, 1, 1, 1)));
+				Debug.enqueueElement(new DebugPolygon(e.coll.genWorldVerts(), 1, new Color(1, 1, 1, 1)));
 
 				// Move (this modifies deltaInch)
 				boolean isSuccess = Physics.moveTo(newPos, deltaInch, velo, e, grid, dir, axises);
@@ -320,7 +320,7 @@ public abstract class Physics {
 			return null;
 	}
 
-	public static void checkEntityCollision(Hitbox c1, Hitbox c2) {
+	public static void checkEntityCollision(Collider c1, Collider c2) {
 		// Do separate axis theorem on them
 		Vector2f[] c1Points = c1.genWorldVerts();
 		Vector2f[] c2Points = c2.genWorldVerts();

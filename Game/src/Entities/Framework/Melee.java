@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 
 import Collision.Collidable;
+import Collision.Collider;
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
+import Entities.Framework.PhysicsEntity.Alignment;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
 import Utility.Timers.Timer;
@@ -20,8 +22,7 @@ import Wrappers.Color;
  * @author Hanzen Shou
  *
  */
-public class Melee extends Entity implements Collidable {
-	PhysicsEntity.Alignment alignment;
+public class Melee extends Entity implements Collidable, Aligned {
 	Vector2f kbDir;
 	Vector2f offset;
 
@@ -30,6 +31,8 @@ public class Melee extends Entity implements Collidable {
 	protected Hitbox hitbox;
 
 	public Timer lifeTimer;
+
+	protected Alignment alignment;
 
 	public Melee(String ID, Vector2f position, String name, Entity owner, Vector2f kbDir, long life, Vector2f dim) {
 		super(ID, position, name);
@@ -64,7 +67,28 @@ public class Melee extends Entity implements Collidable {
 			}
 		});
 
-		// Set parentage
+		// Configure hitbox
+		hitbox.cb = (comb) -> {
+			System.out.println("Hit");
+
+			// Copied straight over from Projectile. TODO: Generalize some sort of solution
+			// Hit an enemy
+			PhysicsEntity.Alignment oppAlign = Combatant.getOpposingAlignment(alignment);
+
+			// Can only hit each enemy once
+			if (!hitEntities.contains(comb)) {
+				if (comb.alignment == oppAlign) {
+					if (!comb.getInvulnState()) {
+						Vector2f kb = new Vector2f(kbDir).mul(2);
+						comb.knockback(kb, 0.5f, 1f);
+
+						comb.hit(10);
+					}
+
+					hitEntities.add(comb);
+				}
+			}
+		};
 	}
 
 	@Override
@@ -94,41 +118,28 @@ public class Melee extends Entity implements Collidable {
 	}
 
 	@Override
-	public void onHit(Hitbox otherHb) {
-		// Copied straight over from Projectile. TODO: Generalize some sort of solution
-		Entity e = otherHb.owner;
-
-		// Hit an enemy
-		PhysicsEntity.Alignment oppAlign = Combatant.getOpposingAlignment(alignment);
-
-		// Can only hit each enemy once
-		if (e instanceof PhysicsEntity && !hitEntities.contains(e)) {
-			if (((PhysicsEntity) e).alignment == oppAlign) {
-
-				// If it's a combatant, do damange and knockback
-				if (e instanceof Combatant) {
-					Combatant c = (Combatant) e;
-
-					if (!c.isInvuln()) {
-						Vector2f kb = new Vector2f(kbDir).mul(2);
-						c.knockback(kb, 0.5f, 1f);
-
-						c.hit(10);
-					}
-				}
-
-				hitEntities.add(e);
-			}
-		}
-	}
-
-	@Override
-	public Hitbox getHb() {
+	public Collider getHb() {
 		return hitbox;
 	}
 
 	@Override
-	public void setHb(Hitbox hb) {
-		hitbox = hb;
+	public void setHb(Collider hb) {
+		hitbox = (Hitbox) hb;
+	}
+
+	@Override
+	public Alignment getAlign() {
+		return alignment;
+	}
+
+	@Override
+	public void setAlign(Alignment align) {
+		this.alignment = align;
+	}
+
+	@Override
+	public void onColl(Collider otherHb) {
+		// TODO Auto-generated method stub
+
 	}
 }

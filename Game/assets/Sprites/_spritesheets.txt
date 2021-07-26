@@ -1,0 +1,1 @@
+bell_enemy.png,32,32,6

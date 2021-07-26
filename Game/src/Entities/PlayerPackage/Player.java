@@ -5,7 +5,7 @@ import java.util.HashMap;
 import org.joml.Math;
 import org.joml.Vector2f;
 
-import Collision.Hitbox;
+import Collision.Hurtbox;
 import Collision.Shapes.Shape;
 import Entities.Framework.Combatant;
 import Entities.Framework.Entity;
@@ -74,7 +74,7 @@ public class Player extends Combatant {
 
 		// Configure hitbox
 		dim = new Vector2f(15f, 60f);
-		hitbox = new Hitbox(this, dim.x, dim.y);
+		coll = new Hurtbox(this, dim.x, dim.y);
 
 		jumpSpeed = 1f;
 		dashSpeed = 2f;
@@ -263,13 +263,17 @@ public class Player extends Combatant {
 		decelConst += accelConst * movementMulti * Input.moveX;
 
 		if (pData.grounded) {
-			decelConst *= 1.4;
+			decelConst *= 1.8;
 		}
 		pData.velo.x += decelConst * Time.deltaT() / 1000 * 10; // Lots of random tuning here
 		hasGravity = true;
 
 		// Escape knockback
-		if (pData.velo.length() <= xCap) {
+		float escapeThreshMult = 0.5f;
+
+		if (pData.velo.length() <= xCap * escapeThreshMult) {
+			System.out.println("Escaped knockback");
+
 			setPlayerState(PlayerState.I);
 			knockbackDir = null;
 		}
@@ -302,7 +306,7 @@ public class Player extends Combatant {
 		Vector2f velo = new Vector2f(dir).mul(3);
 
 		proj.pData.velo = new Vector2f(velo);
-		proj.alignment = alignment;
+		proj.setAlign(alignment);
 
 		GameManager.subscribeEntity(proj);
 	}

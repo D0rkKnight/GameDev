@@ -2,6 +2,7 @@ package Entities.Framework;
 
 import org.joml.Vector2f;
 
+import Collision.Collider;
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
 import GameController.EntityData;
@@ -22,7 +23,7 @@ public class Projectile extends PhysicsEntity {
 		this.renderer = rend;
 
 		// Configure hitbox
-		hitbox = new Hitbox(this, dim.x, dim.y);
+		coll = new Hitbox(this, dim.x, dim.y);
 
 		hasGravity = false;
 	}
@@ -32,7 +33,7 @@ public class Projectile extends PhysicsEntity {
 	}
 
 	@Override
-	public void onHit(Hitbox otherHb) { // upon colliding with another hitbox
+	public void onColl(Collider otherHb) { // upon colliding with another hitbox
 		Object e = otherHb.owner;
 
 		// Hit an enemy
@@ -45,7 +46,7 @@ public class Projectile extends PhysicsEntity {
 				if (e instanceof Combatant) {
 					Combatant c = (Combatant) e;
 
-					if (!c.isInvuln()) {
+					if (!c.getInvulnState()) {
 						Vector2f kb = new Vector2f(pData.velo).mul(0.2f);
 						c.knockback(kb, 0.5f, 1f);
 

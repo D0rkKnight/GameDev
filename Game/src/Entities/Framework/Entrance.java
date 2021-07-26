@@ -4,7 +4,7 @@ import org.joml.Vector2f;
 import org.joml.Vector2i;
 
 import Collision.Collidable;
-import Collision.Hitbox;
+import Collision.Collider;
 import Collision.Shapes.Shape;
 import Entities.PlayerPackage.Player;
 import GameController.EntityData;
@@ -21,7 +21,7 @@ import Wrappers.Color;
 
 public class Entrance extends Entity implements Collidable {
 
-	private Hitbox hb;
+	private Collider hb;
 
 	private boolean hasBeenConnected = false;
 	private EntranceData dest;
@@ -43,7 +43,7 @@ public class Entrance extends Entity implements Collidable {
 		this.renderer = rend;
 
 		// Configure hitbox
-		hb = new Hitbox(this, dim.x, dim.y);
+		hb = new Collider(this, dim.x, dim.y);
 
 		this.localMapPos = new Vector2i(mapX, mapY);
 		this.dir = dir;
@@ -60,7 +60,7 @@ public class Entrance extends Entity implements Collidable {
 	}
 
 	@Override
-	public void onHit(Hitbox otherHb) {
+	public void onColl(Collider otherHb) {
 		if (otherHb.owner instanceof Player && isActive && !GameManager.roomChanging) {
 			if (!hasBeenConnected) {
 				new Exception("Entrance not yet configured.").printStackTrace();
@@ -82,12 +82,12 @@ public class Entrance extends Entity implements Collidable {
 	}
 
 	@Override
-	public Hitbox getHb() {
+	public Collider getHb() {
 		return hb;
 	}
 
 	@Override
-	public void setHb(Hitbox hb) {
+	public void setHb(Collider hb) {
 		this.hb = hb;
 	}
 

@@ -61,7 +61,7 @@ public class PlayerStateController {
 
 	// Containers for callbacks, I guess. Pretty dumb.
 	public static enum PlayerTag {
-		INACTABLE, DASHABLE, MOVE_CANCELLABLE, MOVEABLE, KNOCKED, JUMPABLE, CAN_MELEE, CAN_FIRE;
+		INACTABLE, DASHABLE, MOVE_CANCELLABLE, MOVEABLE, KNOCKED, JUMPABLE, CAN_MELEE, CAN_FIRE, INVULNERABLE;
 
 		public EntityCB cb;
 	}
@@ -99,7 +99,7 @@ public class PlayerStateController {
 			if (Input.meleeAction) {
 				// Check ortho direction
 				// TODO: Clean up this boilerplate
-				Vector2f pos = new Vector2f(p.getPosition()).add(p.hitbox.width / 2, p.hitbox.height / 2);
+				Vector2f pos = new Vector2f(p.getPosition()).add(p.coll.width / 2, p.coll.height / 2);
 				Vector2f orthoDir = orthoDirFromVector(new Vector2f(Input.mouseWorldPos).sub(pos));
 
 				if (orthoDir.y == 0 && p.pData.grounded) {
@@ -127,6 +127,10 @@ public class PlayerStateController {
 				p.gunTimer.update();
 			}
 		});
+
+		PlayerTag.INVULNERABLE.cb = wrapPCB((p) -> {
+			p.invulnFrame();
+		});
 	}
 
 	private static FrameData genJAB1() {
@@ -142,6 +146,7 @@ public class PlayerStateController {
 
 		ArrayList<FrameSegment> segs = new ArrayList<>();
 		segs.add(new FrameSegment(dur, 0, PlayerTag.INACTABLE.cb));
+		segs.add(new FrameSegment(dur, 0, PlayerTag.INVULNERABLE.cb));
 
 		FrameSegment cancelable = new FrameSegment(5, 5, wrapPCB((p) -> {
 			if (Input.meleeAction) {
@@ -191,6 +196,7 @@ public class PlayerStateController {
 
 		ArrayList<FrameSegment> segs = new ArrayList<>();
 		segs.add(new FrameSegment(dur, 0, PlayerTag.INACTABLE.cb));
+		segs.add(new FrameSegment(dur, 0, PlayerTag.INVULNERABLE.cb));
 
 		// Cancelable into a lunge
 		FrameSegment cancelable = new FrameSegment(5, 5, wrapPCB((p) -> {
@@ -241,6 +247,7 @@ public class PlayerStateController {
 
 		ArrayList<FrameSegment> segs = new ArrayList<>();
 		segs.add(new FrameSegment(dur, 0, PlayerTag.INACTABLE.cb));
+		segs.add(new FrameSegment(dur, 0, PlayerTag.INVULNERABLE.cb));
 
 		// Return to idle animation
 		FrameData fd = new FrameData(segs, evs);
@@ -290,6 +297,7 @@ public class PlayerStateController {
 		ArrayList<FrameSegment> segs = new ArrayList<>();
 		segs.add(new FrameSegment(35, 0, PlayerTag.INACTABLE.cb));
 		segs.add(new FrameSegment(10, 35, PlayerTag.DASHABLE.cb));
+		segs.add(new FrameSegment(20, 5, PlayerTag.INVULNERABLE.cb));
 
 		FrameData fd = new FrameData(segs, evs);
 
@@ -394,7 +402,7 @@ public class PlayerStateController {
 			Vector2f moveDir = new Vector2f(p.pData.velo).normalize();
 			float dist = 60;
 			Vector2f newP = new Vector2f(p.getPosition()).add(new Vector2f(moveDir).mul(dist));
-			newP.add(p.hitbox.width / 2, p.hitbox.height / 2); // Center on player
+			newP.add(p.coll.width / 2, p.coll.height / 2); // Center on player
 
 			melee(p, newP, moveDir, dur, new Vector2f(90, 45));
 
@@ -448,7 +456,7 @@ public class PlayerStateController {
 	}
 
 	private static void meleeAtPoint(Player p, Vector2f targetPos, int fLife, float meleeDis, Vector2f dims) {
-		Vector2f pos = new Vector2f(p.getPosition()).add(p.hitbox.width / 2, p.hitbox.height / 2);
+		Vector2f pos = new Vector2f(p.getPosition()).add(p.coll.width / 2, p.coll.height / 2);
 
 		Vector2f dir = orthoDirFromVector(new Vector2f(targetPos).sub(pos));
 
@@ -461,7 +469,7 @@ public class PlayerStateController {
 
 	// Hacky solution, please fix
 	private static void meleeInDir(Player p, Vector2f dir, int fLife, float meleeDis, Vector2f dims) {
-		Vector2f pos = new Vector2f(p.getPosition()).add(p.hitbox.width / 2, p.hitbox.height / 2);
+		Vector2f pos = new Vector2f(p.getPosition()).add(p.coll.width / 2, p.coll.height / 2);
 
 		// Generate data for melee hitbox object
 		Vector2f dist = new Vector2f(dir).mul(meleeDis);

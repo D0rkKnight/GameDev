@@ -2,8 +2,8 @@ package Collision;
 
 public interface Collidable {
 
-	public void onHit(Hitbox otherHb);
+	public void onColl(Collider otherHb);
 	
-	public Hitbox getHb();
-	public void setHb(Hitbox hb);
+	public Collider getHb();
+	public void setHb(Collider hb);
 }

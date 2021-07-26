@@ -23,7 +23,7 @@ public class ShardSlimeEnemy extends BouncingEnemy {
 		super(ID, position, name, stats);
 
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("assets/Sprites/ChargingSlime.png"), 32, 32);
-		Animation a1 = new Animation(tAtlas.genSubTexSet(0, 0, 16, 0));
+		Animation a1 = new Animation(tAtlas.genSubTexSet(0, 0, 15, 0));
 		HashMap<ID, Animation> aMap = new HashMap<ID, Animation>();
 		aMap.put(Animator.ID.IDLE, a1);
 		anim = new Animator(aMap, 24, (GeneralRenderer) this.renderer, Shape.ShapeEnum.SQUARE.v);
@@ -45,7 +45,7 @@ public class ShardSlimeEnemy extends BouncingEnemy {
 
 			proj.pData.velo = new Vector2f(velo);
 			proj.hasGravity = true;
-			proj.alignment = alignment;
+			proj.setAlign(alignment);
 
 			GameManager.subscribeEntity(proj);
 		}

@@ -49,7 +49,7 @@ public abstract class BouncingEnemy extends Enemy {
 		this.renderer = rend;
 
 		// Configure hitbox
-		hitbox = new Hitbox(this, dim.x, dim.y);
+		coll = new Hitbox(this, dim.x, dim.y);
 
 		pData.walksUpSlopes = false;
 
