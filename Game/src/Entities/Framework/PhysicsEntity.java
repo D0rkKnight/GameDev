@@ -224,12 +224,12 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 	}
 
 	@Override
-	public Collider getHb() {
+	public Collider getColl() {
 		return coll;
 	}
 
 	@Override
-	public void setHb(Collider hb) {
+	public void setColl(Collider hb) {
 		coll = hb;
 	}
 

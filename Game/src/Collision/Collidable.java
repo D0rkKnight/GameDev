@@ -4,6 +4,6 @@ public interface Collidable {
 
 	public void onColl(Collider otherHb);
 	
-	public Collider getHb();
-	public void setHb(Collider hb);
+	public Collider getColl();
+	public void setColl(Collider hb);
 }

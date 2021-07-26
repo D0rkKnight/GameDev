@@ -56,13 +56,15 @@ public abstract class Entity {
 
 	public void calculate() {
 		// Let's not rotate around a point yet
-		renderer.transform.trans.set(localTrans.trans);
-		renderer.transform.rot.set(localTrans.rot);
-		renderer.transform.scale.set(localTrans.scale);
+		if (renderer != null) {
+			renderer.transform.trans.set(localTrans.trans);
+			renderer.transform.rot.set(localTrans.rot);
+			renderer.transform.scale.set(localTrans.scale);
 
-		Vector2f totalOffset = new Vector2f(position).add(rendOffset);
+			Vector2f totalOffset = new Vector2f(position).add(rendOffset);
 
-		renderer.transform.trans.translate(new Vector3f(totalOffset.x, totalOffset.y, 0));
+			renderer.transform.trans.translate(new Vector3f(totalOffset.x, totalOffset.y, 0));
+		}
 	}
 
 	public void updateChildren() {
@@ -103,7 +105,8 @@ public abstract class Entity {
 	 * You can override this with something spicy I guess
 	 */
 	public void render() {
-		renderer.render();
+		if (renderer != null)
+			renderer.render();
 	}
 
 	public void Destroy() {

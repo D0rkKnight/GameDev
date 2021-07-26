@@ -183,7 +183,7 @@ public class GameManager {
 		entityWaitingList.add(e);
 
 		if (e instanceof Collidable) {
-			Collider hb = ((Collidable) e).getHb();
+			Collider hb = ((Collidable) e).getColl();
 			if (hb != null)
 				coll.add(hb);
 			else {
@@ -196,7 +196,7 @@ public class GameManager {
 		entityClearList.add(e);
 
 		if (e instanceof Collidable) {
-			Collider hb = ((Collidable) e).getHb();
+			Collider hb = ((Collidable) e).getColl();
 			if (hb != null)
 				coll.remove(hb);
 			else {

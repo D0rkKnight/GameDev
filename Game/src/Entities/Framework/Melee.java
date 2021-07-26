@@ -118,12 +118,12 @@ public class Melee extends Entity implements Collidable, Aligned {
 	}
 
 	@Override
-	public Collider getHb() {
+	public Collider getColl() {
 		return hitbox;
 	}
 
 	@Override
-	public void setHb(Collider hb) {
+	public void setColl(Collider hb) {
 		hitbox = (Hitbox) hb;
 	}
 

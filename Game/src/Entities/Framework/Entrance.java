@@ -82,12 +82,12 @@ public class Entrance extends Entity implements Collidable {
 	}
 
 	@Override
-	public Collider getHb() {
+	public Collider getColl() {
 		return hb;
 	}
 
 	@Override
-	public void setHb(Collider hb) {
+	public void setColl(Collider hb) {
 		this.hb = hb;
 	}
 
