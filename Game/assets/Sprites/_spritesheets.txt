@@ -1,1 +1,1 @@
-bell_enemy.png,32,32,6
+bell_enemy.png,32,32,8

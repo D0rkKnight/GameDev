@@ -69,7 +69,6 @@ public class Melee extends Entity implements Collidable, Aligned {
 
 		// Configure hitbox
 		hitbox.cb = (comb) -> {
-			System.out.println("Hit");
 
 			// Copied straight over from Projectile. TODO: Generalize some sort of solution
 			// Hit an enemy

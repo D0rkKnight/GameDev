@@ -193,16 +193,7 @@ public class GameManager {
 	}
 
 	public static void unsubscribeEntity(Entity e) {
-		entityClearList.add(e);
-
-		if (e instanceof Collidable) {
-			Collider hb = ((Collidable) e).getColl();
-			if (hb != null)
-				coll.remove(hb);
-			else {
-				new Exception("Collider of " + e.name + " not defined!").printStackTrace();
-			}
-		}
+		e.unsubSelf(entityClearList, coll);
 	}
 
 	/*

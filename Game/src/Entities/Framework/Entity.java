@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import Collision.Collidable;
+import Collision.Collider;
 import Entities.Framework.EntityFlag.FlagFactory;
 import GameController.GameManager;
 import GameController.Input;
@@ -146,5 +148,22 @@ public abstract class Entity {
 	public void setAsChild(Entity c) {
 		c.parent = this;
 		children.add(c);
+	}
+
+	public void unsubSelf(ArrayList<Entity> subList, ArrayList<Collider> coll) {
+		subList.add(this);
+
+		if (this instanceof Collidable) {
+			Collider hb = ((Collidable) this).getColl();
+			if (hb != null)
+				coll.remove(hb);
+			else {
+				new Exception("Collider of " + name + " not defined!").printStackTrace();
+			}
+		}
+
+		for (Entity e : children) {
+			e.unsubSelf(subList, coll);
+		}
 	}
 }

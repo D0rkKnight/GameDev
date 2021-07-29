@@ -20,7 +20,6 @@ public class Hurtbox extends Collider {
 			Alignment oppAlign = ((Aligned) hb.owner).getAlign();
 
 			if (Combatant.getOpposingAlignment(thisAlign) == oppAlign) {
-				System.out.println("Hitting");
 
 				if (hb.cb != null) // Hit actions all occur in here.
 					hb.cb.onHit((Combatant) owner);

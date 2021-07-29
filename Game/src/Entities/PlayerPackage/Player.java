@@ -272,8 +272,6 @@ public class Player extends Combatant {
 		float escapeThreshMult = 0.5f;
 
 		if (pData.velo.length() <= xCap * escapeThreshMult) {
-			System.out.println("Escaped knockback");
-
 			setPlayerState(PlayerState.I);
 			knockbackDir = null;
 		}
