@@ -1,5 +1,7 @@
 package Entities.Framework;
 
+import java.util.ArrayList;
+
 import org.joml.Math;
 import org.joml.Vector2f;
 
@@ -46,7 +48,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 	public PCBList collBehaviorList;
 	public PGBList generalBehaviorList;
 
-	public Collider coll;
+	public ArrayList<Collider> colls;
 
 	public PhysicsEntity(String ID, Vector2f position, String name) {
 		super(ID, position, name);
@@ -66,6 +68,8 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 		decelMulti = 1f;
 
 		initPhysicsBehavior();
+
+		colls = new ArrayList<Collider>();
 	}
 
 	protected void initPhysicsBehavior() {
@@ -220,17 +224,31 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 	public void updateChildren() {
 		super.updateChildren();
 
-		coll.update(); // Hitbox is necessary, PhysicsEntities without hitboxes should fail fast
+		// Fail fast if no collision data
+		if (colls.isEmpty())
+			System.err.println("No collider defined for this object");
+		for (Collider c : colls)
+			c.update();
+		;
 	}
 
 	@Override
-	public Collider getColl() {
-		return coll;
+	public ArrayList<Collider> getColl() {
+		return colls;
 	}
 
 	@Override
-	public void setColl(Collider hb) {
-		coll = hb;
+	public void addColl(Collider hb) {
+		if (!colls.contains(hb))
+			colls.add(hb);
+		else {
+			System.err.println("Duplicate collider assignment");
+		}
+	}
+
+	@Override
+	public void remColl(Collider hb) {
+		colls.remove(hb);
 	}
 
 	@Override

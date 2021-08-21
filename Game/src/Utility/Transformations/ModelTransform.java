@@ -18,7 +18,6 @@ public class ModelTransform {
 	// Do this to avoid reallocation every frame
 	public Matrix4f trans; // Exists on a local level
 	public Matrix4f rot;
-
 	public Matrix4f scale;
 	protected Matrix4f model;
 

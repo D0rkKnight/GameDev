@@ -28,7 +28,7 @@ public class Melee extends Entity implements Collidable, Aligned {
 
 	ArrayList<Entity> hitEntities;
 
-	protected Hitbox hitbox;
+	protected ArrayList<Collider> hb;
 
 	public Timer lifeTimer;
 
@@ -51,7 +51,7 @@ public class Melee extends Entity implements Collidable, Aligned {
 		this.renderer = rend;
 
 		// Configure hitbox
-		hitbox = new Hitbox(this, dim.x, dim.y);
+		hb = new ArrayList<>();
 
 		localTrans.trans.setTranslation(-dim.x / 2, -dim.y / 2, 0);
 
@@ -68,7 +68,8 @@ public class Melee extends Entity implements Collidable, Aligned {
 		});
 
 		// Configure hitbox
-		hitbox.cb = (comb) -> {
+		Hitbox tempHB = new Hitbox(this, dim.x, dim.y);
+		tempHB.cb = (comb) -> {
 
 			// Copied straight over from Projectile. TODO: Generalize some sort of solution
 			// Hit an enemy
@@ -88,6 +89,7 @@ public class Melee extends Entity implements Collidable, Aligned {
 				}
 			}
 		};
+		addColl(tempHB);
 	}
 
 	@Override
@@ -106,7 +108,8 @@ public class Melee extends Entity implements Collidable, Aligned {
 	public void updateChildren() {
 		super.updateChildren();
 
-		hitbox.update();
+		for (Collider c : hb)
+			c.update();
 	}
 
 	@Override
@@ -117,13 +120,18 @@ public class Melee extends Entity implements Collidable, Aligned {
 	}
 
 	@Override
-	public Collider getColl() {
-		return hitbox;
+	public ArrayList<Collider> getColl() {
+		return hb;
 	}
 
 	@Override
-	public void setColl(Collider hb) {
-		hitbox = (Hitbox) hb;
+	public void addColl(Collider c) {
+		hb.add(c);
+	}
+
+	@Override
+	public void remColl(Collider c) {
+		hb.remove(c);
 	}
 
 	@Override

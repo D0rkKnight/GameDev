@@ -74,13 +74,15 @@ public class Player extends Combatant {
 
 		// Configure hitbox
 		dim = new Vector2f(15f, 60f);
-		coll = new Hurtbox(this, dim.x, dim.y);
+		addColl(new Hurtbox(this, dim.x, dim.y));
 
 		jumpSpeed = 1f;
 		dashSpeed = 2f;
 
 		initGraphics();
-		rendOffset.set(-35, 0);
+		rendOriginPos.set(rendDims.x / 2, 0);
+		entOriginPos.x = dim.x / 2;
+
 		// Alignment
 		alignment = PhysicsEntity.Alignment.PLAYER;
 
@@ -311,28 +313,17 @@ public class Player extends Combatant {
 
 	@Override
 	public void calcFrame() {
-		super.calcFrame();
-
 		// Scale to the side facing
 		if (sideFacing != 0) {
-//			Matrix4f scale = transform.scale;
-//
-//			// These are applied bottom row to top row
-//			scale.identity().translate(rendDims.x / 2, 0, 0);
-//			scale.scale(sideFacing, 1, 1);
-
-			localTrans.scale.identity().scale(sideFacing, 1, 1);
-			if (sideFacing == -1) {
-				rendOffset.set(rendDims.x / 2, 0);
-			} else {
-				rendOffset.set(-rendDims.x / 2, 0);
-			}
+			localTrans.scale.identity().scaleAround(sideFacing, 1, 1, entOriginPos.x, 0, 0);
 		}
 
 		// Update trailing particle system
 		pSys.activeSubTex = anim.currentAnim.getFrame();
 		pSys.activeTransform = new ProjectedTransform(renderer.transform);
 		pSys.update();
+
+		super.calcFrame();
 	}
 
 	@Override

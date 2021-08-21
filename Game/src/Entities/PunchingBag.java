@@ -27,7 +27,7 @@ public class PunchingBag extends Combatant {
 
 		this.renderer = rend;
 
-		this.coll = new Hurtbox(this, rendDims.x, rendDims.y);
+		addColl(new Hurtbox(this, rendDims.x, rendDims.y));
 		this.dim = rendDims;
 
 		this.alignment = Combatant.Alignment.ENEMY;

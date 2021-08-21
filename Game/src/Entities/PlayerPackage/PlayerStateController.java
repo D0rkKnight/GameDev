@@ -99,7 +99,7 @@ public class PlayerStateController {
 			if (Input.meleeAction) {
 				// Check ortho direction
 				// TODO: Clean up this boilerplate
-				Vector2f pos = new Vector2f(p.getPosition()).add(p.coll.width / 2, p.coll.height / 2);
+				Vector2f pos = new Vector2f(p.getPosition()).add(p.dim.x / 2, p.dim.y / 2);
 				Vector2f orthoDir = orthoDirFromVector(new Vector2f(Input.mouseWorldPos).sub(pos));
 
 				if (orthoDir.y == 0 && p.pData.grounded) {
@@ -402,7 +402,7 @@ public class PlayerStateController {
 			Vector2f moveDir = new Vector2f(p.pData.velo).normalize();
 			float dist = 60;
 			Vector2f newP = new Vector2f(p.getPosition()).add(new Vector2f(moveDir).mul(dist));
-			newP.add(p.coll.width / 2, p.coll.height / 2); // Center on player
+			newP.add(p.dim.x / 2, p.dim.y / 2); // Center on player
 
 			melee(p, newP, moveDir, dur, new Vector2f(90, 45));
 
@@ -456,7 +456,7 @@ public class PlayerStateController {
 	}
 
 	private static void meleeAtPoint(Player p, Vector2f targetPos, int fLife, float meleeDis, Vector2f dims) {
-		Vector2f pos = new Vector2f(p.getPosition()).add(p.coll.width / 2, p.coll.height / 2);
+		Vector2f pos = new Vector2f(p.getPosition()).add(p.dim.x / 2, p.dim.y / 2);
 
 		Vector2f dir = orthoDirFromVector(new Vector2f(targetPos).sub(pos));
 
@@ -469,7 +469,7 @@ public class PlayerStateController {
 
 	// Hacky solution, please fix
 	private static void meleeInDir(Player p, Vector2f dir, int fLife, float meleeDis, Vector2f dims) {
-		Vector2f pos = new Vector2f(p.getPosition()).add(p.coll.width / 2, p.coll.height / 2);
+		Vector2f pos = new Vector2f(p.getPosition()).add(p.dim.x / 2, p.dim.y / 2);
 
 		// Generate data for melee hitbox object
 		Vector2f dist = new Vector2f(dir).mul(meleeDis);

@@ -7,12 +7,17 @@ import org.joml.Vector3f;
 
 import Collision.Collidable;
 import Collision.Collider;
+import Debugging.Debug;
+import Debugging.DebugVector;
 import Entities.Framework.EntityFlag.FlagFactory;
+import Entities.PlayerPackage.Player;
 import GameController.GameManager;
 import GameController.Input;
 import Graphics.Animation.Animator;
 import Graphics.Rendering.Renderer;
+import Utility.Rect;
 import Utility.Transformations.ModelTransform;
+import Wrappers.Color;
 
 /**
  * superclass for all entities entities have to be initialized after
@@ -27,7 +32,8 @@ public abstract class Entity {
 	public static float gravity = 5f;
 
 	public Renderer renderer; // Null by default
-	public Vector2f rendOffset;
+	public Vector2f rendOriginPos;
+	public Vector2f entOriginPos;
 	public Vector2f rendDims;
 
 	public String name; // TODO: Let createNew specify the name of the entity
@@ -52,21 +58,13 @@ public abstract class Entity {
 		}
 		this.name = name;
 
-		rendOffset = new Vector2f();
+		rendOriginPos = new Vector2f();
+		entOriginPos = new Vector2f();
 		children = new ArrayList<Entity>();
 	}
 
 	public void calculate() {
-		// Let's not rotate around a point yet
-		if (renderer != null) {
-			renderer.transform.trans.set(localTrans.trans);
-			renderer.transform.rot.set(localTrans.rot);
-			renderer.transform.scale.set(localTrans.scale);
 
-			Vector2f totalOffset = new Vector2f(position).add(rendOffset);
-
-			renderer.transform.trans.translate(new Vector3f(totalOffset.x, totalOffset.y, 0));
-		}
 	}
 
 	public void updateChildren() {
@@ -88,6 +86,28 @@ public abstract class Entity {
 	}
 
 	public void calcFrame() {
+		// Let's not rotate around a point yet
+		if (renderer != null) {
+			renderer.transform.trans.set(localTrans.trans);
+			renderer.transform.rot.set(localTrans.rot);
+
+			// Set scaling
+			renderer.transform.scale.identity();
+
+			Vector2f offset = new Vector2f(entOriginPos).sub(rendOriginPos); // Shifts rendered object so that shifted
+																				// scaling is applied properly
+
+			renderer.transform.scale.translate(new Vector3f(offset.x, offset.y, 0));
+			renderer.transform.scale.mulLocal(localTrans.scale); // Left multiply so the origin offset
+																	// is applied first
+			if (this instanceof Player)
+				System.out.println(localTrans.scale);
+
+			Vector2f totalOffset = new Vector2f(position);
+
+			renderer.transform.trans.translate(new Vector3f(totalOffset.x, totalOffset.y, 0));
+		}
+
 		if (anim != null)
 			anim.update();
 	}
@@ -101,6 +121,19 @@ public abstract class Entity {
 
 	public Vector2f getPosition() {
 		return position;
+	}
+
+	public Vector2f getCenter() {
+		// Debugging
+		Rect r = new Rect(new Vector2f(dim)); // Use dimensions as base
+		Vector2f center = new Vector2f(position).add(r.getTransformedCenter(localTrans.genModel()));
+
+		if (this instanceof Player)
+			System.out.println(localTrans.scale);
+
+		Debug.enqueueElement(new DebugVector(center, new Vector2f(0, 1), 25, new Color(0, 0, 1, 1), 1));
+
+		return center;
 	}
 
 	/**
@@ -154,11 +187,9 @@ public abstract class Entity {
 		subList.add(this);
 
 		if (this instanceof Collidable) {
-			Collider hb = ((Collidable) this).getColl();
-			if (hb != null)
-				coll.remove(hb);
-			else {
-				new Exception("Collider of " + name + " not defined!").printStackTrace();
+			Collidable thisC = (Collidable) this;
+			for (Collider c : thisC.getColl()) {
+				coll.remove(c);
 			}
 		}
 

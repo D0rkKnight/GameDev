@@ -38,7 +38,7 @@ public class CrawlerEnemy extends Enemy {
 		this.renderer = rend;
 
 		// Configure hitbox
-		coll = new Hitbox(this, dim.x, dim.y);
+		addColl(new Hitbox(this, dim.x, dim.y));
 
 		anchorOffset = new Vector2f(dim).div(-2);
 

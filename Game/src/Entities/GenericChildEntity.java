@@ -1,15 +1,16 @@
 package Entities;
 
+import java.util.ArrayList;
+
 import org.joml.Vector2f;
 
 import Collision.Collidable;
 import Collision.Collider;
-import Collision.Hitbox;
 import Entities.Framework.Entity;
 
 public class GenericChildEntity extends Entity implements Collidable {
 
-	protected Hitbox hb;
+	protected ArrayList<Collider> colls;
 
 	public GenericChildEntity(String ID, Vector2f position, String name, Entity parent) {
 		super(ID, position, name);
@@ -32,14 +33,18 @@ public class GenericChildEntity extends Entity implements Collidable {
 	}
 
 	@Override
-	public Collider getColl() {
-		// TODO Auto-generated method stub
-		return hb;
+	public ArrayList<Collider> getColl() {
+		return colls;
 	}
 
 	@Override
-	public void setColl(Collider hb) {
-		this.hb = (Hitbox) hb;
+	public void addColl(Collider hb) {
+		colls.add(hb);
+	}
+
+	@Override
+	public void remColl(Collider hb) {
+		colls.remove(hb);
 	}
 
 }

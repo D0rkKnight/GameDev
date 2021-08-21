@@ -11,7 +11,6 @@ import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
 import Entities.PlayerPackage.Player;
 import GameController.EntityData;
-import GameController.GameManager;
 import GameController.Time;
 import GameController.World;
 import Graphics.Rendering.GeneralRenderer;
@@ -38,24 +37,11 @@ public class FloaterEnemy extends Enemy {
 		pData.walksUpSlopes = false;
 		ai = new Pathfinding();
 
-		// Configure hitbox
+		// Configure hurtbox
 		Hurtbox hurtbox = new Hurtbox(this, dim.x, dim.y);
-//		hb.cb = (comb) -> {
-//			if (comb instanceof Player) {
-//				Player p = (Player) comb;
-//
-//				if (!p.getInvulnState()) {
-//					p.hit(10);
-//					p.knockback(Vector.dirTo(position, p.getPosition()), 0.5f, 1f);
-//					p.invuln();
-//				}
-//			}
-//		};
-		this.coll = hurtbox;
+		addColl(hurtbox);
 
-		// Hitbox entity
-		GenericChildEntity rHBE = new GenericChildEntity(ID, new Vector2f(getPosition()), "rHBE", this);
-
+		// Configure hitbox
 		Hitbox hitbox = new Hitbox(this, dim.x, dim.y);
 		hitbox.cb = (comb) -> {
 			if (comb instanceof Player) {
@@ -69,8 +55,7 @@ public class FloaterEnemy extends Enemy {
 			}
 		};
 
-		rHBE.setColl(hitbox);
-		GameManager.subscribeEntity(rHBE);
+		addColl(hitbox);
 	}
 
 	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {

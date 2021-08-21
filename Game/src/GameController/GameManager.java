@@ -183,12 +183,9 @@ public class GameManager {
 		entityWaitingList.add(e);
 
 		if (e instanceof Collidable) {
-			Collider hb = ((Collidable) e).getColl();
-			if (hb != null)
-				coll.add(hb);
-			else {
-				new Exception("Collider of " + e.name + " not defined!").printStackTrace();
-			}
+			Collidable ec = (Collidable) e;
+			for (Collider c : ec.getColl())
+				coll.add(c);
 		}
 	}
 
