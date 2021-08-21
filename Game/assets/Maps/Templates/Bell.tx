@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <object name="Bell" type="MELEE" width="32" height="32">
+  <properties>
+   <property name="class" value="Entities.MeleeEnemy"/>
+  </properties>
+ </object>
+</template>

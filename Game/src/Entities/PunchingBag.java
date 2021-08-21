@@ -2,7 +2,7 @@ package Entities;
 
 import org.joml.Vector2f;
 
-import Collision.Hitbox;
+import Collision.Hurtbox;
 import Collision.Behaviors.PGBGroundFriction;
 import Collision.Shapes.Shape;
 import Debugging.Debug;
@@ -27,7 +27,7 @@ public class PunchingBag extends Combatant {
 
 		this.renderer = rend;
 
-		this.hitbox = new Hitbox(this, rendDims.x, rendDims.y);
+		addColl(new Hurtbox(this, rendDims.x, rendDims.y));
 		this.dim = rendDims;
 
 		this.alignment = Combatant.Alignment.ENEMY;

@@ -1,10 +1,12 @@
 package Entities.Framework;
 
+import java.util.ArrayList;
+
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 
 import Collision.Collidable;
-import Collision.Hitbox;
+import Collision.Collider;
 import Collision.Shapes.Shape;
 import Entities.PlayerPackage.Player;
 import GameController.EntityData;
@@ -21,7 +23,7 @@ import Wrappers.Color;
 
 public class Entrance extends Entity implements Collidable {
 
-	private Hitbox hb;
+	private ArrayList<Collider> hb;
 
 	private boolean hasBeenConnected = false;
 	private EntranceData dest;
@@ -43,7 +45,8 @@ public class Entrance extends Entity implements Collidable {
 		this.renderer = rend;
 
 		// Configure hitbox
-		hb = new Hitbox(this, dim.x, dim.y);
+		this.hb = new ArrayList<>();
+		addColl(new Collider(this, dim.x, dim.y));
 
 		this.localMapPos = new Vector2i(mapX, mapY);
 		this.dir = dir;
@@ -60,7 +63,7 @@ public class Entrance extends Entity implements Collidable {
 	}
 
 	@Override
-	public void onHit(Hitbox otherHb) {
+	public void onColl(Collider otherHb) {
 		if (otherHb.owner instanceof Player && isActive && !GameManager.roomChanging) {
 			if (!hasBeenConnected) {
 				new Exception("Entrance not yet configured.").printStackTrace();
@@ -82,13 +85,18 @@ public class Entrance extends Entity implements Collidable {
 	}
 
 	@Override
-	public Hitbox getHb() {
+	public ArrayList<Collider> getColl() {
 		return hb;
 	}
 
 	@Override
-	public void setHb(Hitbox hb) {
-		this.hb = hb;
+	public void addColl(Collider c) {
+		hb.add(c);
+	}
+
+	@Override
+	public void remColl(Collider c) {
+		hb.remove(c);
 	}
 
 	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {

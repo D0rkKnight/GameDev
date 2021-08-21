@@ -1,10 +1,12 @@
 package Entities.Framework;
 
+import java.util.ArrayList;
+
 import org.joml.Math;
 import org.joml.Vector2f;
 
 import Collision.Collidable;
-import Collision.Hitbox;
+import Collision.Collider;
 import Collision.Behaviors.PCBDeflect;
 import Collision.Behaviors.PCBGroundMove;
 import Collision.Behaviors.PCBList;
@@ -15,7 +17,7 @@ import Utility.Vector;
 import Wrappers.FrameData;
 import Wrappers.PhysicsData;
 
-public abstract class PhysicsEntity extends Entity implements Collidable {
+public abstract class PhysicsEntity extends Entity implements Collidable, Aligned {
 
 	// Velocity is handled as always relative to two axises. This is nice for its
 	// flexibility.
@@ -39,14 +41,14 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 		NEUTRAL, PLAYER, ENEMY
 	}
 
-	public Alignment alignment;
+	protected Alignment alignment;
 
 	// For now, presume that if one of these behaviors trigger, the following
 	// behavior are canceled.
 	public PCBList collBehaviorList;
 	public PGBList generalBehaviorList;
 
-	public Hitbox hitbox;
+	public ArrayList<Collider> colls;
 
 	public PhysicsEntity(String ID, Vector2f position, String name) {
 		super(ID, position, name);
@@ -66,6 +68,8 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 		decelMulti = 1f;
 
 		initPhysicsBehavior();
+
+		colls = new ArrayList<Collider>();
 	}
 
 	protected void initPhysicsBehavior() {
@@ -220,21 +224,45 @@ public abstract class PhysicsEntity extends Entity implements Collidable {
 	public void updateChildren() {
 		super.updateChildren();
 
-		hitbox.update(); // Hitbox is necessary, PhysicsEntities without hitboxes should fail fast
+		// Fail fast if no collision data
+		if (colls.isEmpty())
+			System.err.println("No collider defined for this object");
+		for (Collider c : colls)
+			c.update();
+		;
 	}
 
 	@Override
-	public Hitbox getHb() {
-		return hitbox;
+	public ArrayList<Collider> getColl() {
+		return colls;
 	}
 
 	@Override
-	public void setHb(Hitbox hb) {
-		hitbox = hb;
+	public void addColl(Collider hb) {
+		if (!colls.contains(hb))
+			colls.add(hb);
+		else {
+			System.err.println("Duplicate collider assignment");
+		}
 	}
 
 	@Override
-	public void onHit(Hitbox otherHb) {
+	public void remColl(Collider hb) {
+		colls.remove(hb);
+	}
 
+	@Override
+	public void onColl(Collider otherHb) {
+
+	}
+
+	@Override
+	public Alignment getAlign() {
+		return alignment;
+	}
+
+	@Override
+	public void setAlign(Alignment align) {
+		this.alignment = align;
 	}
 }

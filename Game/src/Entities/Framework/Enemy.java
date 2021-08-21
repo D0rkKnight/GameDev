@@ -2,11 +2,8 @@ package Entities.Framework;
 
 import org.joml.Vector2f;
 
-import Collision.Hitbox;
-import Entities.PlayerPackage.Player;
 import GameController.GameManager;
 import Utility.Pathfinding;
-import Utility.Vector;
 import Wrappers.Stats;
 
 public abstract class Enemy extends Combatant {
@@ -29,20 +26,5 @@ public abstract class Enemy extends Combatant {
 	public boolean findTarget() {
 		target = GameManager.player;
 		return true;
-	}
-
-	@Override
-	public void onHit(Hitbox otherHb) {
-		super.onHit(otherHb);
-
-		if (otherHb.owner instanceof Player) {
-			Player p = (Player) otherHb.owner;
-
-			if (!p.isInvuln()) {
-				p.hit(10);
-				p.knockback(Vector.dirTo(position, p.position), 2f, 1f);
-				p.invuln();
-			}
-		}
 	}
 }

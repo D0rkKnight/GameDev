@@ -2,6 +2,7 @@ package Entities.Framework;
 
 import org.joml.Vector2f;
 
+import Collision.Hitbox;
 import Graphics.Rendering.GeneralRenderer;
 import Utility.Timers.FlickerTimer;
 import Utility.Timers.Timer;
@@ -16,6 +17,8 @@ public abstract class Combatant extends PhysicsEntity {
 	protected boolean isInvuln = false;
 	protected boolean baseInvulnState = false;
 	protected int baseInvulnLength = 10;
+
+	protected boolean thisFrameInvuln = false;
 
 	public Combatant(String ID, Vector2f position, String name, Stats stats) {
 		super(ID, position, name);
@@ -59,6 +62,9 @@ public abstract class Combatant extends PhysicsEntity {
 
 	@Override
 	public void calculate() {
+		// Reset invulnerability
+		thisFrameInvuln = false;
+
 		super.calculate();
 
 		if (hurtTimer != null)
@@ -74,6 +80,10 @@ public abstract class Combatant extends PhysicsEntity {
 	}
 
 	public void attack() {
+
+	}
+
+	public void hurtBy(Hitbox hb) {
 
 	}
 
@@ -104,7 +114,11 @@ public abstract class Combatant extends PhysicsEntity {
 		invuln(baseInvulnLength);
 	}
 
-	public boolean isInvuln() {
-		return isInvuln;
+	public void invulnFrame() {
+		thisFrameInvuln = true;
+	}
+
+	public boolean getInvulnState() {
+		return isInvuln || thisFrameInvuln;
 	}
 }

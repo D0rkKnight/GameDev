@@ -7,7 +7,7 @@ import org.joml.Vector2f;
 import Collision.Behaviors.PhysicsCollisionBehavior;
 import Collision.Shapes.Shape;
 import Debugging.Debug;
-import Debugging.DebugPolygon;
+import Debugging.DebugBox;
 import Entities.Framework.PhysicsEntity;
 import GameController.GameManager;
 import GameController.Time;
@@ -104,7 +104,7 @@ public abstract class Physics {
 
 				// Debug.enqueueElement(new DebugBox(new Vector2f(newPos).add(deltaInch), new
 				// Vector2f(e.dim.x, e.dim.y), 1));
-				Debug.enqueueElement(new DebugPolygon(e.hitbox.genWorldVerts(), 1, new Color(1, 1, 1, 1)));
+				Debug.enqueueElement(new DebugBox(newPos, e.dim, new Color(0, 1, 0, 1), 1));
 
 				// Move (this modifies deltaInch)
 				boolean isSuccess = Physics.moveTo(newPos, deltaInch, velo, e, grid, dir, axises);
@@ -186,6 +186,9 @@ public abstract class Physics {
 
 	public static boolean isColliding(Vector2f rawPos, Vector2f deltaMove, PhysicsEntity e, Tile[][] grid,
 			Vector2f moveDir, float[] dBuff, Vector2f nBuff) {
+
+		// TODO: Use terrain collider instead of bounding box
+
 		Vector2f bl = new Vector2f(rawPos.x + deltaMove.x, rawPos.y + deltaMove.y);
 		Vector2f ur = new Vector2f(bl.x + e.dim.x, bl.y + e.dim.y);
 
@@ -320,7 +323,7 @@ public abstract class Physics {
 			return null;
 	}
 
-	public static void checkEntityCollision(Hitbox c1, Hitbox c2) {
+	public static void checkEntityCollision(Collider c1, Collider c2) {
 		// Do separate axis theorem on them
 		Vector2f[] c1Points = c1.genWorldVerts();
 		Vector2f[] c2Points = c2.genWorldVerts();

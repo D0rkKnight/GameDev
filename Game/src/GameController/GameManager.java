@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import Collision.Collidable;
-import Collision.Hitbox;
+import Collision.Collider;
 import Collision.Physics;
 import Debugging.Debug;
 import Debugging.DebugPolygon;
@@ -44,7 +44,7 @@ public class GameManager {
 	static ArrayList<Entity> entities;
 	static ArrayList<Entity> entityWaitingList;
 	static private ArrayList<Entity> entityClearList;
-	static private ArrayList<Hitbox> coll;
+	static private ArrayList<Collider> coll;
 
 	public static Player player;
 
@@ -183,26 +183,14 @@ public class GameManager {
 		entityWaitingList.add(e);
 
 		if (e instanceof Collidable) {
-			Hitbox hb = ((Collidable) e).getHb();
-			if (hb != null)
-				coll.add(hb);
-			else {
-				new Exception("Collider of " + e.name + " not defined!").printStackTrace();
-			}
+			Collidable ec = (Collidable) e;
+			for (Collider c : ec.getColl())
+				coll.add(c);
 		}
 	}
 
 	public static void unsubscribeEntity(Entity e) {
-		entityClearList.add(e);
-
-		if (e instanceof Collidable) {
-			Hitbox hb = ((Collidable) e).getHb();
-			if (hb != null)
-				coll.remove(hb);
-			else {
-				new Exception("Collider of " + e.name + " not defined!").printStackTrace();
-			}
-		}
+		e.unsubSelf(entityClearList, coll);
 	}
 
 	/*
@@ -321,7 +309,7 @@ public class GameManager {
 		Tile[][] grid = World.currmap.grids.get(Grid.COLL.name);
 
 		for (int i = 0; i < coll.size(); i++) {
-			Hitbox c = coll.get(i);
+			Collider c = coll.get(i);
 
 			// Draw if debug enabled
 			if (Debug.showHitboxes) {
@@ -334,7 +322,7 @@ public class GameManager {
 				if (j == coll.size())
 					break;
 
-				Hitbox otherC = coll.get(j);
+				Collider otherC = coll.get(j);
 
 				Physics.checkEntityCollision(c, otherC);
 			}

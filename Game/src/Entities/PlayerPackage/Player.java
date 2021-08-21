@@ -5,7 +5,7 @@ import java.util.HashMap;
 import org.joml.Math;
 import org.joml.Vector2f;
 
-import Collision.Hitbox;
+import Collision.Hurtbox;
 import Collision.Shapes.Shape;
 import Entities.Framework.Combatant;
 import Entities.Framework.Entity;
@@ -74,13 +74,15 @@ public class Player extends Combatant {
 
 		// Configure hitbox
 		dim = new Vector2f(15f, 60f);
-		hitbox = new Hitbox(this, dim.x, dim.y);
+		addColl(new Hurtbox(this, dim.x, dim.y));
 
 		jumpSpeed = 1f;
 		dashSpeed = 2f;
 
 		initGraphics();
-		rendOffset.set(-35, 0);
+		rendOriginPos.set(rendDims.x / 2, 0);
+		entOriginPos.x = dim.x / 2;
+
 		// Alignment
 		alignment = PhysicsEntity.Alignment.PLAYER;
 
@@ -263,13 +265,15 @@ public class Player extends Combatant {
 		decelConst += accelConst * movementMulti * Input.moveX;
 
 		if (pData.grounded) {
-			decelConst *= 1.4;
+			decelConst *= 1.8;
 		}
 		pData.velo.x += decelConst * Time.deltaT() / 1000 * 10; // Lots of random tuning here
 		hasGravity = true;
 
 		// Escape knockback
-		if (pData.velo.length() <= xCap) {
+		float escapeThreshMult = 0.5f;
+
+		if (pData.velo.length() <= xCap * escapeThreshMult) {
 			setPlayerState(PlayerState.I);
 			knockbackDir = null;
 		}
@@ -302,35 +306,24 @@ public class Player extends Combatant {
 		Vector2f velo = new Vector2f(dir).mul(3);
 
 		proj.pData.velo = new Vector2f(velo);
-		proj.alignment = alignment;
+		proj.setAlign(alignment);
 
 		GameManager.subscribeEntity(proj);
 	}
 
 	@Override
 	public void calcFrame() {
-		super.calcFrame();
-
 		// Scale to the side facing
 		if (sideFacing != 0) {
-//			Matrix4f scale = transform.scale;
-//
-//			// These are applied bottom row to top row
-//			scale.identity().translate(rendDims.x / 2, 0, 0);
-//			scale.scale(sideFacing, 1, 1);
-
-			localTrans.scale.identity().scale(sideFacing, 1, 1);
-			if (sideFacing == -1) {
-				rendOffset.set(rendDims.x / 2, 0);
-			} else {
-				rendOffset.set(-rendDims.x / 2, 0);
-			}
+			localTrans.scale.identity().scaleAround(sideFacing, 1, 1, entOriginPos.x, 0, 0);
 		}
 
 		// Update trailing particle system
 		pSys.activeSubTex = anim.currentAnim.getFrame();
 		pSys.activeTransform = new ProjectedTransform(renderer.transform);
 		pSys.update();
+
+		super.calcFrame();
 	}
 
 	@Override
