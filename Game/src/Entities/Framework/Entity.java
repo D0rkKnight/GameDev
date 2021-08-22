@@ -10,7 +10,6 @@ import Collision.Collider;
 import Debugging.Debug;
 import Debugging.DebugVector;
 import Entities.Framework.EntityFlag.FlagFactory;
-import Entities.PlayerPackage.Player;
 import GameController.GameManager;
 import GameController.Input;
 import Graphics.Animation.Animator;
@@ -100,8 +99,6 @@ public abstract class Entity {
 			renderer.transform.scale.translate(new Vector3f(offset.x, offset.y, 0));
 			renderer.transform.scale.mulLocal(localTrans.scale); // Left multiply so the origin offset
 																	// is applied first
-			if (this instanceof Player)
-				System.out.println(localTrans.scale);
 
 			Vector2f totalOffset = new Vector2f(position);
 
@@ -127,9 +124,6 @@ public abstract class Entity {
 		// Debugging
 		Rect r = new Rect(new Vector2f(dim)); // Use dimensions as base
 		Vector2f center = new Vector2f(position).add(r.getTransformedCenter(localTrans.genModel()));
-
-		if (this instanceof Player)
-			System.out.println(localTrans.scale);
 
 		Debug.enqueueElement(new DebugVector(center, new Vector2f(0, 1), 25, new Color(0, 0, 1, 1), 1));
 
