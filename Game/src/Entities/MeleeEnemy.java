@@ -32,6 +32,7 @@ public class MeleeEnemy extends Enemy {
 	int sideFacing = 1;
 	int flip = -1;
 	Timer sideSwitchTimer;
+	Timer windupTimer;
 
 	public MeleeEnemy(String ID, Vector2f position, String name, Stats stats) {
 		super(ID, position, name, stats);
@@ -54,8 +55,12 @@ public class MeleeEnemy extends Enemy {
 
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("assets/Sprites/bell_enemy.png"), 32, 32);
 		Animation a1 = new Animation(tAtlas.genSubTexSet(0, 0, 5, 0));
+		Animation a2 = new Animation(tAtlas.genSubTexSet(6, 0, 6, 0));
+		Animation a3 = new Animation(tAtlas.genSubTexSet(6, 0, 7, 0));
 		HashMap<ID, Animation> aMap = new HashMap<ID, Animation>();
 		aMap.put(Animator.ID.IDLE, a1);
+		aMap.put(Animator.ID.WINDUP, a2);
+		aMap.put(Animator.ID.LUNGE, a3);
 		anim = new Animator(aMap, 12, (GeneralRenderer) this.renderer, Shape.ShapeEnum.SQUARE.v);
 
 		hasGravity = true;
@@ -96,12 +101,15 @@ public class MeleeEnemy extends Enemy {
 			if (sideSwitchTimer != null)
 				sideSwitchTimer.update();
 
-			int pursueThresh = 10;
+			int pursueThresh = 100;
 			float maxVelo = 1;
 			if (Math.abs(tVec.x) > pursueThresh && sideSwitchTimer == null) {
 				Vector2f v = pData.velo;
 
 				v.x = Arithmetic.lerp(v.x, maxVelo * sideFacing, 3f * Time.deltaT() / 1000f);
+			} else if (Math.abs(tVec.x) <= pursueThresh && sideSwitchTimer == null) {
+				// Attack
+				// TODO: I should probably just write this as a state machine
 			}
 		}
 	}

@@ -21,7 +21,7 @@ public class Animator {
 	private GeneralRenderer rend;
 
 	public static enum ID {
-		IDLE, ACCEL, MOVING, DASHING, DASH_ATK, JAB1, JAB2, LUNGE, TUMBLE
+		IDLE, ACCEL, MOVING, DASHING, DASH_ATK, JAB1, JAB2, LUNGE, TUMBLE, WINDUP
 	}
 
 	/**

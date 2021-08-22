@@ -3,8 +3,8 @@ package Wrappers;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import Entities.Framework.ECP;
 import Entities.Framework.Entity;
-import Entities.PlayerPackage.EntityCB;
 import GameController.GameManager;
 import GameController.Time;
 
@@ -19,10 +19,10 @@ import GameController.Time;
  */
 public class FrameData {
 	public static class Event {
-		public EntityCB cb;
+		public ECP cb;
 		public int frame;
 
-		public Event(EntityCB cb, int frame) {
+		public Event(ECP<?> cb, int frame) {
 			this.cb = cb;
 			this.frame = frame;
 		}
@@ -31,9 +31,9 @@ public class FrameData {
 	public static class FrameSegment {
 		public int fLength;
 		public int fStart;
-		public ArrayList<EntityCB> cbs;
+		public ArrayList<ECP> cbs;
 
-		public FrameSegment(int fLength, int fStart, EntityCB[] cbs) {
+		public FrameSegment(int fLength, int fStart, ECP[] cbs) {
 			this.fLength = fLength;
 			this.fStart = fStart;
 
@@ -42,11 +42,11 @@ public class FrameData {
 		}
 
 		public FrameSegment(int fLength, int fStart) {
-			this(fLength, fStart, new EntityCB[] {});
+			this(fLength, fStart, new ECP[] {});
 		}
 
-		public FrameSegment(int fLength, int fStart, EntityCB cb) {
-			this(fLength, fStart, new EntityCB[] { cb });
+		public FrameSegment(int fLength, int fStart, ECP cb) {
+			this(fLength, fStart, new ECP[] { cb });
 		}
 	}
 
@@ -57,11 +57,11 @@ public class FrameData {
 
 	private float fEnd;
 	private boolean looping;
-	public EntityCB cb; // General callback for every invoke
+	public ECP cb; // General callback for every invoke
 
-	public EntityCB onEntry; // Called on first available frame, is called before everything else
-	public EntityCB onExit; // Both this and onEntry are invoked externally.
-	public EntityCB onEnd;
+	public ECP onEntry; // Called on first available frame, is called before everything else
+	public ECP onExit; // Both this and onEntry are invoked externally.
+	public ECP onEnd;
 	public boolean endCBCalled = false;
 
 	public FrameData(ArrayList<FrameSegment> segments, ArrayList<Event> events, boolean looping) {
@@ -94,7 +94,7 @@ public class FrameData {
 		// Invoke attached segments too
 		for (FrameSegment s : segments) {
 			if (s.cbs.size() > 0 && s.fStart <= currContFrame && s.fStart + s.fLength > currContFrame) {
-				for (EntityCB ecb : s.cbs)
+				for (ECP ecb : s.cbs)
 					if (ecb != null)
 						ecb.invoke(caller);
 			}
