@@ -3,8 +3,8 @@ package Wrappers;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import Entities.Framework.ECP;
 import Entities.Framework.Entity;
+import Entities.Framework.StateMachine.ECP;
 import GameController.GameManager;
 import GameController.Time;
 

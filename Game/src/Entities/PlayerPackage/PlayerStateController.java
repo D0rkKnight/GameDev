@@ -1,13 +1,15 @@
 package Entities.PlayerPackage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
-import Entities.Framework.ECP;
 import Entities.Framework.Melee;
+import Entities.Framework.StateMachine.ECP;
+import Entities.Framework.StateMachine.StateTag;
 import GameController.GameManager;
 import GameController.Input;
 import Graphics.Animation.Animator;
@@ -60,12 +62,7 @@ public class PlayerStateController {
 		}
 	}
 
-	// Containers for callbacks, I guess. Pretty dumb.
-	public static enum PlayerTag {
-		INACTABLE, DASHABLE, MOVE_CANCELLABLE, MOVEABLE, KNOCKED, JUMPABLE, CAN_MELEE, CAN_FIRE, INVULNERABLE;
-
-		public ECP<Player> cb;
-	}
+	static HashMap<StateTag, ECP<Player>> tagCBs = new HashMap<>();
 
 	public static void init() {
 		genTags();
@@ -81,21 +78,21 @@ public class PlayerStateController {
 	}
 
 	private static void genTags() {
-		PlayerTag.DASHABLE.cb = (p) -> {
+		tagCBs.put(StateTag.DASHABLE, (p) -> {
 			// Initiating dash
 			if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0)) {
 				p.anim.switchAnim(Animator.ID.DASHING);
 
 				p.dash();
 			}
-		};
+		});
 
-		PlayerTag.JUMPABLE.cb = (e) -> {
+		tagCBs.put(StateTag.JUMPABLE, (e) -> {
 			if (e.pData.grounded)
 				e.canJump = true;
-		};
+		});
 
-		PlayerTag.CAN_MELEE.cb = (p) -> {
+		tagCBs.put(StateTag.CAN_MELEE, (p) -> {
 			// Melee
 			if (Input.meleeAction) {
 				// Check ortho direction
@@ -109,9 +106,9 @@ public class PlayerStateController {
 					p.setPlayerState(PlayerState.M_A);
 				}
 			}
-		};
+		});
 
-		PlayerTag.CAN_FIRE.cb = (p) -> {
+		tagCBs.put(StateTag.CAN_FIRE, (p) -> {
 			// Shoot a gun
 			if (Input.primaryButtonDown) {
 				if (p.gunTimer == null) {
@@ -127,11 +124,11 @@ public class PlayerStateController {
 				}
 				p.gunTimer.update();
 			}
-		};
+		});
 
-		PlayerTag.INVULNERABLE.cb = (p) -> {
+		tagCBs.put(StateTag.INVULNERABLE, (p) -> {
 			p.invulnFrame();
-		};
+		});
 	}
 
 	private static FrameData genJAB1() {
@@ -146,8 +143,8 @@ public class PlayerStateController {
 		evs.add(atk);
 
 		ArrayList<FrameSegment> segs = new ArrayList<>();
-		segs.add(new FrameSegment(dur, 0, PlayerTag.INACTABLE.cb));
-		segs.add(new FrameSegment(dur, 0, PlayerTag.INVULNERABLE.cb));
+		segs.add(new FrameSegment(dur, 0, tagCBs.get(StateTag.INACTABLE)));
+		segs.add(new FrameSegment(dur, 0, tagCBs.get(StateTag.INVULNERABLE)));
 
 		FrameSegment cancelable = new FrameSegment(5, 5, (ECP<Player>) (p) -> {
 			if (Input.meleeAction) {
@@ -196,8 +193,8 @@ public class PlayerStateController {
 		evs.add(atk);
 
 		ArrayList<FrameSegment> segs = new ArrayList<>();
-		segs.add(new FrameSegment(dur, 0, PlayerTag.INACTABLE.cb));
-		segs.add(new FrameSegment(dur, 0, PlayerTag.INVULNERABLE.cb));
+		segs.add(new FrameSegment(dur, 0, tagCBs.get(StateTag.INACTABLE)));
+		segs.add(new FrameSegment(dur, 0, tagCBs.get(StateTag.INVULNERABLE)));
 
 		// Cancelable into a lunge
 		FrameSegment cancelable = new FrameSegment(5, 5, (ECP<Player>) (p) -> {
@@ -247,8 +244,8 @@ public class PlayerStateController {
 		evs.add(atk);
 
 		ArrayList<FrameSegment> segs = new ArrayList<>();
-		segs.add(new FrameSegment(dur, 0, PlayerTag.INACTABLE.cb));
-		segs.add(new FrameSegment(dur, 0, PlayerTag.INVULNERABLE.cb));
+		segs.add(new FrameSegment(dur, 0, tagCBs.get(StateTag.INACTABLE)));
+		segs.add(new FrameSegment(dur, 0, tagCBs.get(StateTag.INVULNERABLE)));
 
 		// Return to idle animation
 		FrameData fd = new FrameData(segs, evs);
@@ -296,9 +293,9 @@ public class PlayerStateController {
 			evs.add(atk);
 
 		ArrayList<FrameSegment> segs = new ArrayList<>();
-		segs.add(new FrameSegment(35, 0, PlayerTag.INACTABLE.cb));
-		segs.add(new FrameSegment(10, 35, PlayerTag.DASHABLE.cb));
-		segs.add(new FrameSegment(20, 5, PlayerTag.INVULNERABLE.cb));
+		segs.add(new FrameSegment(35, 0, tagCBs.get(StateTag.INACTABLE)));
+		segs.add(new FrameSegment(10, 35, tagCBs.get(StateTag.DASHABLE)));
+		segs.add(new FrameSegment(20, 5, tagCBs.get(StateTag.INVULNERABLE)));
 
 		FrameData fd = new FrameData(segs, evs);
 
@@ -321,8 +318,9 @@ public class PlayerStateController {
 
 	private static FrameData genI() {
 		ArrayList<FrameSegment> segs = new ArrayList<>();
-		FrameSegment idle = new FrameSegment(5, 0, new ECP[] { PlayerTag.MOVEABLE.cb, PlayerTag.DASHABLE.cb,
-				PlayerTag.JUMPABLE.cb, PlayerTag.CAN_FIRE.cb, PlayerTag.CAN_MELEE.cb });
+		FrameSegment idle = new FrameSegment(5, 0,
+				new ECP[] { tagCBs.get(StateTag.MOVEABLE), tagCBs.get(StateTag.DASHABLE), tagCBs.get(StateTag.JUMPABLE),
+						tagCBs.get(StateTag.CAN_FIRE), tagCBs.get(StateTag.CAN_MELEE) });
 
 		segs.add(idle);
 
@@ -365,7 +363,7 @@ public class PlayerStateController {
 		evs.add(retI);
 
 		ArrayList<FrameSegment> segs = new ArrayList<>();
-		FrameSegment dash = new FrameSegment(10, 0, PlayerTag.DASHABLE.cb);
+		FrameSegment dash = new FrameSegment(10, 0, tagCBs.get(StateTag.DASHABLE));
 		FrameSegment dashAttack = new FrameSegment(10, 0, (ECP<Player>) (p) -> {
 			if (Input.meleeAction) {
 				p.setPlayerState(PlayerState.DASH_ATK);
@@ -436,7 +434,7 @@ public class PlayerStateController {
 	}
 
 	private static FrameData genDECEL() {
-		FrameSegment main = new FrameSegment(1, 0, PlayerTag.KNOCKED.cb);
+		FrameSegment main = new FrameSegment(1, 0, tagCBs.get(StateTag.KNOCKED));
 		ArrayList<FrameSegment> segs = new ArrayList<>();
 		segs.add(main);
 
