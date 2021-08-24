@@ -23,7 +23,6 @@ import GameController.GameManager;
 import GameController.Time;
 import Graphics.Animation.Animation;
 import Graphics.Animation.Animator;
-import Graphics.Animation.Animator.ID;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
@@ -68,10 +67,10 @@ public class MeleeEnemy extends Enemy {
 		Animation a1 = new Animation(tAtlas.genSubTexSet(0, 0, 5, 0));
 		Animation a2 = new Animation(tAtlas.genSubTexSet(6, 0, 6, 0));
 		Animation a3 = new Animation(tAtlas.genSubTexSet(7, 0, 7, 0));
-		HashMap<ID, Animation> aMap = new HashMap<ID, Animation>();
-		aMap.put(Animator.ID.IDLE, a1);
-		aMap.put(Animator.ID.WINDUP, a2);
-		aMap.put(Animator.ID.LUNGE, a3);
+		HashMap<StateTag, Animation> aMap = new HashMap<StateTag, Animation>();
+		aMap.put(StateTag.IDLE, a1);
+		aMap.put(StateTag.WINDUP, a2);
+		aMap.put(StateTag.LUNGE, a3);
 		anim = new Animator(aMap, 12, (GeneralRenderer) this.renderer, Shape.ShapeEnum.SQUARE.v);
 
 		hasGravity = true;
@@ -117,7 +116,7 @@ public class MeleeEnemy extends Enemy {
 		segs.add(new FrameSegment(tagCBs.get(StateTag.MOVEABLE), tagCBs.get(StateTag.CAN_MELEE)));
 
 		FrameData fd = new FrameData(segs, null, true);
-		fd.onEntry = (ECB<MeleeEnemy>) (e) -> e.anim.switchAnim(Animator.ID.IDLE);
+		fd.onEntry = (ECB<MeleeEnemy>) (e) -> e.anim.switchAnim(StateTag.IDLE);
 
 		return fd;
 	}
@@ -133,7 +132,7 @@ public class MeleeEnemy extends Enemy {
 
 			e.pData.velo.x = 1 * e.sideFacing;
 
-			e.anim.switchAnim(Animator.ID.LUNGE);
+			e.anim.switchAnim(StateTag.LUNGE);
 
 			// Attach a melee attack to self
 			Melee me = new Melee(e.getCenter(), e, new Vector2f(e.sideFacing, 0), 1, 150, e.dim);
@@ -143,7 +142,7 @@ public class MeleeEnemy extends Enemy {
 		FrameData fd = new FrameData(segs, evs, false);
 
 		fd.onEnd = (ECB<MeleeEnemy>) (e) -> e.setEntityFD(FD.MOVE.fd);
-		fd.onEntry = (ECB<MeleeEnemy>) (e) -> e.anim.switchAnim(Animator.ID.WINDUP);
+		fd.onEntry = (ECB<MeleeEnemy>) (e) -> e.anim.switchAnim(StateTag.WINDUP);
 
 		return fd;
 	}
@@ -154,9 +153,7 @@ public class MeleeEnemy extends Enemy {
 
 		FrameData fd = new FrameData(segs, null, false);
 		fd.onEnd = (ECB<MeleeEnemy>) (e) -> e.setEntityFD(FD.MOVE.fd);
-		fd.onEntry = (ECB<MeleeEnemy>) (e) -> e.anim.switchAnim(Animator.ID.IDLE); // No stunned animation yet
-
-		fd.cb = (e) -> System.out.println("Stunned");
+		fd.onEntry = (ECB<MeleeEnemy>) (e) -> e.anim.switchAnim(StateTag.IDLE); // No stunned animation yet
 
 		return fd;
 	}

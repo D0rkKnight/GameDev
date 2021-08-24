@@ -12,8 +12,6 @@ import Entities.Framework.StateMachine.ECB;
 import Entities.Framework.StateMachine.StateTag;
 import GameController.GameManager;
 import GameController.Input;
-import Graphics.Animation.Animator;
-import Graphics.Animation.Animator.ID;
 import Utility.Arithmetic;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
@@ -81,7 +79,7 @@ public class PlayerStateController {
 		tagCBs.put(StateTag.DASHABLE, (p) -> {
 			// Initiating dash
 			if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0)) {
-				p.anim.switchAnim(Animator.ID.DASHING);
+				p.anim.switchAnim(StateTag.DASHING);
 
 				p.dash();
 			}
@@ -167,7 +165,7 @@ public class PlayerStateController {
 		};
 
 		fd.onEntry = (ECB<Player>) (p) -> {
-			p.anim.switchAnim(Animator.ID.JAB1);
+			p.anim.switchAnim(StateTag.JAB1);
 
 			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
 			p.pData.velo.x = side.v * 2;
@@ -218,7 +216,7 @@ public class PlayerStateController {
 		};
 
 		fd.onEntry = (ECB<Player>) (p) -> {
-			p.anim.switchAnim(Animator.ID.JAB2);
+			p.anim.switchAnim(StateTag.JAB2);
 
 			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
 			p.pData.velo.x = side.v * 2;
@@ -261,7 +259,7 @@ public class PlayerStateController {
 		};
 
 		fd.onEntry = (ECB<Player>) (p) -> {
-			p.anim.switchAnim(Animator.ID.LUNGE);
+			p.anim.switchAnim(StateTag.LUNGE);
 
 			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
 			p.pData.velo.x = side.v * 4;
@@ -330,10 +328,10 @@ public class PlayerStateController {
 			p.controlledMovement();
 
 			// Animation
-			if (Math.abs(p.pData.velo.x) > 0 && p.anim.getAnimID().equals(Animator.ID.IDLE)) {
-				p.anim.switchAnim(ID.ACCEL);
-			} else if (Math.abs(p.pData.velo.x) == 0 && p.anim.getAnimID() != Animator.ID.IDLE) {
-				p.anim.switchAnim(Animator.ID.IDLE);
+			if (Math.abs(p.pData.velo.x) > 0 && p.anim.getAnimID().equals(StateTag.IDLE)) {
+				p.anim.switchAnim(StateTag.ACCEL);
+			} else if (Math.abs(p.pData.velo.x) == 0 && p.anim.getAnimID() != StateTag.IDLE) {
+				p.anim.switchAnim(StateTag.IDLE);
 			}
 
 			if (Input.knockbackTest) {
@@ -344,7 +342,7 @@ public class PlayerStateController {
 		fd.onEntry = (ECB<Player>) (p) -> {
 			p.baseCol = new Color(0, 0, 0, 1);
 
-			p.anim.switchAnim(Animator.ID.MOVING);
+			p.anim.switchAnim(StateTag.MOVING);
 		};
 
 		return fd;
@@ -383,7 +381,7 @@ public class PlayerStateController {
 		fd.onExit = (ECB<Player>) (p) -> {
 			// Update pSys
 			p.pSys.pauseParticleGeneration();
-			p.anim.switchAnim(Animator.ID.MOVING);
+			p.anim.switchAnim(StateTag.MOVING);
 		};
 
 		return fd;
@@ -426,7 +424,7 @@ public class PlayerStateController {
 		FrameData fd = new FrameData(segs, evs);
 
 		fd.onEntry = (ECB<Player>) (p) -> {
-			p.anim.switchAnim(Animator.ID.DASH_ATK);
+			p.anim.switchAnim(StateTag.DASH_ATK);
 		};
 
 		return fd;
@@ -443,7 +441,7 @@ public class PlayerStateController {
 			p.decelMovement();
 		};
 		fd.onEntry = (ECB<Player>) (p) -> {
-			p.anim.switchAnim(Animator.ID.TUMBLE);
+			p.anim.switchAnim(StateTag.TUMBLE);
 			p.knocked = true;
 		};
 

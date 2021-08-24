@@ -3,6 +3,7 @@ package Graphics.Animation;
 import java.util.HashMap;
 
 import Collision.Shapes.Shape;
+import Entities.Framework.StateMachine.StateTag;
 import Graphics.Rendering.GeneralRenderer;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
@@ -13,16 +14,12 @@ public class Animator {
 	private long frameDelta;
 	public int fps;
 
-	private HashMap<ID, Animation> anims;
+	private HashMap<StateTag, Animation> anims;
 	public Animation currentAnim;
 	protected Object currentAnimId; // This is expected to be some enumerated element owned by Animator or a child
 									// class.
 
 	private GeneralRenderer rend;
-
-	public static enum ID {
-		IDLE, ACCEL, MOVING, DASHING, DASH_ATK, JAB1, JAB2, LUNGE, TUMBLE, WINDUP
-	}
 
 	/**
 	 * 
@@ -31,19 +28,19 @@ public class Animator {
 	 * @param renderer
 	 * @param shape    needed to generate UVs
 	 */
-	public Animator(HashMap<ID, Animation> anims, int fps, GeneralRenderer renderer, Shape shape) {
+	public Animator(HashMap<StateTag, Animation> anims, int fps, GeneralRenderer renderer, Shape shape) {
 		this.fps = fps;
 		this.frameDelta = 1000 / fps;
 
 		this.anims = anims;
 		this.currentAnimId = 0;
 
-		if (anims.get(ID.IDLE) == null) {
+		if (anims.get(StateTag.IDLE) == null) {
 			new Exception("No idle animation specified for this entity").printStackTrace();
 			System.exit(1);
 		}
 
-		this.currentAnim = anims.get(ID.IDLE);
+		this.currentAnim = anims.get(StateTag.IDLE);
 
 		this.rend = renderer;
 

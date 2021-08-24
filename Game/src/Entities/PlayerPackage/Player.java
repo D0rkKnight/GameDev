@@ -11,6 +11,7 @@ import Entities.Framework.Combatant;
 import Entities.Framework.Entity;
 import Entities.Framework.PhysicsEntity;
 import Entities.Framework.Projectile;
+import Entities.Framework.StateMachine.StateTag;
 import Entities.PlayerPackage.PlayerStateController.PlayerState;
 import GameController.EntityData;
 import GameController.GameManager;
@@ -19,7 +20,6 @@ import GameController.Time;
 import Graphics.Animation.Animation;
 import Graphics.Animation.AnimationCallback;
 import Graphics.Animation.Animator;
-import Graphics.Animation.Animator.ID;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
@@ -97,24 +97,24 @@ public class Player extends Combatant {
 		// Configure animation stuff
 		TextureAtlas animSheet = new TextureAtlas(Texture.getTex("Assets/Sprites/Ilyia_idle-running_proto.png"), 96,
 				96);
-		HashMap<ID, Animation> anims = new HashMap<ID, Animation>();
-		anims.put(Animator.ID.IDLE, new Animation(animSheet.genSubTexSet(0, 0, 3, 0)));
-		anims.put(Animator.ID.ACCEL, new Animation(animSheet.genSubTexSet(0, 1, 11, 1)));
-		anims.put(Animator.ID.MOVING, new Animation(animSheet.genSubTexSet(0, 2, 7, 2)));
-		anims.put(Animator.ID.DASHING, new Animation(animSheet.genSubTexSet(0, 3, 0, 3)));
+		HashMap<StateTag, Animation> anims = new HashMap<StateTag, Animation>();
+		anims.put(StateTag.IDLE, new Animation(animSheet.genSubTexSet(0, 0, 3, 0)));
+		anims.put(StateTag.ACCEL, new Animation(animSheet.genSubTexSet(0, 1, 11, 1)));
+		anims.put(StateTag.MOVING, new Animation(animSheet.genSubTexSet(0, 2, 7, 2)));
+		anims.put(StateTag.DASHING, new Animation(animSheet.genSubTexSet(0, 3, 0, 3)));
 
-		anims.put(Animator.ID.DASH_ATK, new Animation(animSheet.genSubTexSet(1, 3, 1, 3)));
-		anims.put(Animator.ID.JAB1, new Animation(animSheet.genSubTexSet(2, 3, 2, 3)));
-		anims.put(Animator.ID.JAB2, new Animation(animSheet.genSubTexSet(3, 3, 3, 3)));
-		anims.put(Animator.ID.LUNGE, new Animation(animSheet.genSubTexSet(4, 3, 4, 3)));
+		anims.put(StateTag.DASH_ATK, new Animation(animSheet.genSubTexSet(1, 3, 1, 3)));
+		anims.put(StateTag.JAB1, new Animation(animSheet.genSubTexSet(2, 3, 2, 3)));
+		anims.put(StateTag.JAB2, new Animation(animSheet.genSubTexSet(3, 3, 3, 3)));
+		anims.put(StateTag.LUNGE, new Animation(animSheet.genSubTexSet(4, 3, 4, 3)));
 
-		anims.put(Animator.ID.TUMBLE, new Animation(animSheet.genSubTexSet(6, 3, 6, 3)));
+		anims.put(StateTag.TUMBLE, new Animation(animSheet.genSubTexSet(6, 3, 6, 3)));
 
-		anims.get(Animator.ID.ACCEL).setCb(new AnimationCallback() {
+		anims.get(StateTag.ACCEL).setCb(new AnimationCallback() {
 
 			@Override
 			public void onLoopEnd() {
-				anim.switchAnim(Animator.ID.MOVING);
+				anim.switchAnim(StateTag.MOVING);
 			}
 
 		});
