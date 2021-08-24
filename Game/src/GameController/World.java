@@ -8,7 +8,7 @@ import org.w3c.dom.Document;
 import Debugging.Debug;
 import Entities.Framework.Entity;
 import Entities.Framework.Entrance;
-import Entities.PlayerPackage.Player;
+import Entities.PlayerPackage.PlayerFramework;
 import Graphics.Drawer;
 import Tiles.Tile;
 
@@ -90,7 +90,7 @@ public class World {
 
 		// Dump entities
 		for (Entity e : GameManager.entities)
-			if (!(e instanceof Player))
+			if (!(e instanceof PlayerFramework))
 				GameManager.unsubscribeEntity(e);
 		GameManager.entityWaitingList.clear();
 		GameManager.updateEntityList();

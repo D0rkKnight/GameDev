@@ -3,7 +3,6 @@ package Wrappers;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import Entities.Framework.Entity;
 import Entities.Framework.StateMachine.ECB;
 import GameController.GameManager;
 import GameController.Time;
@@ -22,7 +21,7 @@ public class FrameData {
 		public ECB cb;
 		public int frame;
 
-		public Event(ECB<?> cb, int frame) {
+		public Event(ECB cb, int frame) {
 			this.cb = cb;
 			this.frame = frame;
 		}
@@ -87,16 +86,16 @@ public class FrameData {
 		this(segments, events, false);
 	}
 
-	public void update(Entity caller) {
+	public void update() {
 		if (cb != null)
-			cb.invoke(caller);
+			cb.invoke();
 
 		float fDelta = TDeltaToFrame(Time.deltaT());
 
 		// Invoke events along the way
 		for (Event e : events) {
 			if (e.frame >= currContFrame && e.frame < currContFrame + fDelta) {
-				e.cb.invoke(caller);
+				e.cb.invoke();
 
 				// TODO: These are NOT invoked in order!!!
 			}
@@ -107,7 +106,7 @@ public class FrameData {
 			if (s.cbs.size() > 0 && s.fStart <= currContFrame && s.fStart + s.fLength > currContFrame) {
 				for (ECB ecb : s.cbs)
 					if (ecb != null)
-						ecb.invoke(caller);
+						ecb.invoke();
 			}
 		}
 
@@ -123,7 +122,7 @@ public class FrameData {
 
 			// Used for stitching together states if one ends through full completion.
 			else if (!endCBCalled && onEnd != null) {
-				onEnd.invoke(caller);
+				onEnd.invoke();
 				endCBCalled = true;
 			}
 		}

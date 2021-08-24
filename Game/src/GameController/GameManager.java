@@ -21,9 +21,7 @@ import Entities.Framework.Entity;
 import Entities.Framework.EntityFlag;
 import Entities.Framework.Interactive;
 import Entities.Framework.PhysicsEntity;
-import Entities.PlayerPackage.Player;
-import Entities.PlayerPackage.PlayerStateController;
-import Entities.PlayerPackage.PlayerStateController.PlayerState;
+import Entities.PlayerPackage.PlayerFramework;
 import GameController.procedural.WorldGenerator;
 import Graphics.Drawer;
 import Tiles.Tile;
@@ -46,7 +44,7 @@ public class GameManager {
 	static private ArrayList<Entity> entityClearList;
 	static private ArrayList<Collider> coll;
 
-	public static Player player;
+	public static PlayerFramework player;
 
 	// If room is changing (all entities continue to move/freeze in place)
 	public static boolean roomChanging = false;
@@ -167,9 +165,6 @@ public class GameManager {
 
 	static void initPlayer() {
 		Camera.main.attach(player);
-
-		PlayerStateController.init();
-		player.setPlayerState(PlayerState.I);
 	}
 
 	// Simply subscribes an array of entities.

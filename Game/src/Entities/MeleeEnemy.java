@@ -16,7 +16,7 @@ import Entities.Framework.Combatant;
 import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
 import Entities.Framework.Melee;
-import Entities.Framework.StateMachine.ECB;
+import Entities.Framework.StateMachine.StateID;
 import Entities.Framework.StateMachine.StateTag;
 import GameController.EntityData;
 import GameController.GameManager;
@@ -43,8 +43,6 @@ public class MeleeEnemy extends Enemy {
 	int flip = -1;
 	Timer sideSwitchTimer;
 	Timer windupTimer;
-
-	static HashMap<StateTag, ECB<MeleeEnemy>> tagCBs = new HashMap<>();
 
 	public MeleeEnemy(String ID, Vector2f position, String name, Stats stats) {
 		super(ID, position, name, stats);
@@ -76,9 +74,7 @@ public class MeleeEnemy extends Enemy {
 		hasGravity = true;
 
 		// Generate and set states
-		genTags();
-		FD.assignFD();
-		setEntityFD(FD.MOVE.fd);
+		setEntityFD(StateID.MOVE);
 	}
 
 	@Override
@@ -97,84 +93,82 @@ public class MeleeEnemy extends Enemy {
 
 	}
 
-	// TODO: Maybe make this just use a general list of tags and map to a hashmap?
-	// Can always add a layer of abstraction if need be.
-	private static enum FD {
-		MOVE, ATTACK, STUNNED;
+	@Override
+	protected void assignFD() {
+		super.assignFD();
 
-		public FrameData fd;
-
-		public static void assignFD() {
-			MOVE.fd = genMOVE();
-			ATTACK.fd = genATTACK();
-			STUNNED.fd = genSTUNNED();
-		}
+		addFD(StateID.MOVE, genMOVE());
+		addFD(StateID.ATTACK, genATTACK());
+		addFD(StateID.STUNNED, genSTUNNED());
 	}
 
-	private static FrameData genMOVE() {
+	private FrameData genMOVE() {
 		ArrayList<FrameSegment> segs = new ArrayList<>();
-		segs.add(new FrameSegment(tagCBs.get(StateTag.MOVEABLE), tagCBs.get(StateTag.CAN_MELEE)));
+		segs.add(new FrameSegment(getTagCB(StateTag.MOVEABLE), getTagCB(StateTag.CAN_MELEE)));
 
 		FrameData fd = new FrameData(segs, null, true);
-		fd.onEntry = (ECB<MeleeEnemy>) (e) -> e.anim.switchAnim(StateTag.IDLE);
+		fd.onEntry = () -> anim.switchAnim(StateTag.IDLE);
 
 		return fd;
 	}
 
-	private static FrameData genATTACK() {
+	private FrameData genATTACK() {
 		ArrayList<FrameSegment> segs = new ArrayList<>();
 		segs.add(new FrameSegment(50, 0));
 		segs.add(new FrameSegment(50, 50));
 
 		ArrayList<Event> evs = new ArrayList<>();
-		evs.add(new Event((ECB<MeleeEnemy>) (e) -> {
+		evs.add(new Event(() -> {
 			System.out.println("Attack");
 
-			e.pData.velo.x = 1 * e.sideFacing;
+			pData.velo.x = 1 * sideFacing;
 
-			e.anim.switchAnim(StateTag.LUNGE);
+			anim.switchAnim(StateTag.LUNGE);
 
 			// Attach a melee attack to self
-			Melee me = new Melee(e.getCenter(), e, new Vector2f(e.sideFacing, 0), 1, 150, e.dim);
+			Melee me = new Melee(getCenter(), this, new Vector2f(sideFacing, 0), 1, 150, dim);
 			GameManager.subscribeEntity(me);
 		}, 50));
 
 		FrameData fd = new FrameData(segs, evs, false);
 
-		fd.onEnd = (ECB<MeleeEnemy>) (e) -> e.setEntityFD(FD.MOVE.fd);
-		fd.onEntry = (ECB<MeleeEnemy>) (e) -> e.anim.switchAnim(StateTag.WINDUP);
+		fd.onEnd = () -> setEntityFD(StateID.MOVE);
+		fd.onEntry = () -> anim.switchAnim(StateTag.WINDUP);
 
 		return fd;
 	}
 
-	private static FrameData genSTUNNED() {
+	private FrameData genSTUNNED() {
 		ArrayList<FrameSegment> segs = new ArrayList<>();
 		segs.add(new FrameSegment(50, 0));
 
 		FrameData fd = new FrameData(segs, null, false);
-		fd.onEnd = (ECB<MeleeEnemy>) (e) -> e.setEntityFD(FD.MOVE.fd);
-		fd.onEntry = (ECB<MeleeEnemy>) (e) -> e.anim.switchAnim(StateTag.IDLE); // No stunned animation yet
+		fd.onEnd = () -> setEntityFD(StateID.MOVE);
+		fd.onEntry = () -> anim.switchAnim(StateTag.IDLE); // No stunned animation yet
 
 		return fd;
 	}
 
 	// TODO: This can definitely be inherited
-	private static void genTags() {
-		tagCBs.put(StateTag.MOVEABLE, (ECB<MeleeEnemy>) (e) -> {
-			e.follow();
-		});
+	@Override
+	protected void genTags() {
+		super.genTags();
 
-		tagCBs.put(StateTag.CAN_MELEE, (ECB<MeleeEnemy>) (e) -> {
-			if (e.target == null)
+		addTag(StateTag.MOVEABLE, (() -> {
+			follow();
+		}));
+
+		addTag(StateTag.CAN_MELEE, (() -> {
+			if (target == null)
 				return;
 
-			Vector2f tVec = new Vector2f(e.target.getCenter()).sub(e.getCenter());
+			Vector2f tVec = new Vector2f(target.getCenter()).sub(getCenter());
 
 			int meleeRange = 100;
-			if (tVec.x * e.sideFacing > 0 && tVec.length() < meleeRange) {
-				e.setEntityFD(FD.ATTACK.fd);
+			if (tVec.x * sideFacing > 0 && tVec.length() < meleeRange) {
+				setEntityFD(StateID.ATTACK);
 			}
-		});
+		}));
 	}
 
 	public void follow() {
@@ -215,7 +209,7 @@ public class MeleeEnemy extends Enemy {
 	public void hurtBy(Hitbox other) {
 		Aligned otherOwner = (Aligned) other.owner;
 		if (Combatant.getOpposingAlignment(otherOwner.getAlign()) == alignment) {
-			setEntityFD(FD.STUNNED.fd);
+			setEntityFD(StateID.STUNNED);
 		}
 	}
 

@@ -9,7 +9,7 @@ import Collision.Behaviors.PCBGroundMove;
 import Collision.Shapes.Shape;
 import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
-import Entities.PlayerPackage.Player;
+import Entities.PlayerPackage.PlayerFramework;
 import GameController.EntityData;
 import GameController.Time;
 import GameController.World;
@@ -44,8 +44,8 @@ public class FloaterEnemy extends Enemy {
 		// Configure hitbox
 		Hitbox hitbox = new Hitbox(this, dim.x, dim.y);
 		hitbox.cb = (comb) -> {
-			if (comb instanceof Player) {
-				Player p = (Player) comb;
+			if (comb instanceof PlayerFramework) {
+				PlayerFramework p = (PlayerFramework) comb;
 
 				if (!p.getInvulnState()) {
 					p.hit(10);

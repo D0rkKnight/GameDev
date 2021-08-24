@@ -1,340 +1,524 @@
 package Entities.PlayerPackage;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 import org.joml.Math;
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
-import Collision.Hurtbox;
-import Collision.Shapes.Shape;
-import Entities.Framework.Combatant;
 import Entities.Framework.Entity;
-import Entities.Framework.PhysicsEntity;
-import Entities.Framework.Projectile;
+import Entities.Framework.Melee;
+import Entities.Framework.StateMachine.ECB;
+import Entities.Framework.StateMachine.StateID;
 import Entities.Framework.StateMachine.StateTag;
-import Entities.PlayerPackage.PlayerStateController.PlayerState;
 import GameController.EntityData;
 import GameController.GameManager;
 import GameController.Input;
-import GameController.Time;
-import Graphics.Animation.Animation;
-import Graphics.Animation.AnimationCallback;
-import Graphics.Animation.Animator;
-import Graphics.Elements.Texture;
-import Graphics.Elements.TextureAtlas;
-import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.SpriteShader;
-import Graphics.particles.GhostParticleSystem;
 import Utility.Arithmetic;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
-import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
+import Wrappers.FrameData;
+import Wrappers.FrameData.Event;
+import Wrappers.FrameData.FrameSegment;
 import Wrappers.Stats;
 
-public class Player extends Combatant {
-
-	private float jumpSpeed;
-	Timer gunTimer;
-	float xCap = 0.5f; // todo add to contructor (and break everything)
-	float accelConst = 2f / 20f;
-	float gunCost = 15f;
-	float dashCost = 30f;
-
-	private float dashSpeed;
-	private Vector2f dashDir;
-	private boolean releasedJump = true; // for making sure the player can't hold down w to jump
-
-	boolean canJump;
-	private long jumpGraceInterval = 100;
-	private Timer jumpGraceTimer;
-
-	int sideFacing;
-
-	public boolean canMove = true;
-
-	GhostParticleSystem pSys;
-
-	// Temp
-	public Color baseCol;
+public class Player extends PlayerFramework {
 
 	public Player(String ID, Vector2f position, String name, Stats stats) {
 		super(ID, position, name, stats);
 
-		// Configure the renderer real quick
-		// TODO: Seems like the renderer just wants to be defined within the entity and
-		// not given from outside...
-		rendDims = new Vector2f(96, 96);
-		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
-		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
-
-		this.renderer = rend;
-
-		baseCol = new Color(0, 0, 0, 1);
-
-		// Configure hitbox
-		dim = new Vector2f(15f, 60f);
-		addColl(new Hurtbox(this, dim.x, dim.y));
-
-		jumpSpeed = 1f;
-		dashSpeed = 2f;
-
-		initGraphics();
-		rendOriginPos.set(rendDims.x / 2, 0);
-		entOriginPos.x = dim.x / 2;
-
-		// Alignment
-		alignment = PhysicsEntity.Alignment.PLAYER;
-
-		sideFacing = 1;
-
-		baseInvulnLength = 1000;
-
-		currFD = PlayerState.I.fd;
 	}
 
-	private void initGraphics() {
-		// Configure animation stuff
-		TextureAtlas animSheet = new TextureAtlas(Texture.getTex("Assets/Sprites/Ilyia_idle-running_proto.png"), 96,
-				96);
-		HashMap<StateTag, Animation> anims = new HashMap<StateTag, Animation>();
-		anims.put(StateTag.IDLE, new Animation(animSheet.genSubTexSet(0, 0, 3, 0)));
-		anims.put(StateTag.ACCEL, new Animation(animSheet.genSubTexSet(0, 1, 11, 1)));
-		anims.put(StateTag.MOVING, new Animation(animSheet.genSubTexSet(0, 2, 7, 2)));
-		anims.put(StateTag.DASHING, new Animation(animSheet.genSubTexSet(0, 3, 0, 3)));
+	public static enum MeleeDir {
+		N(0, 1), NE(1, 1), E(1, 0), SE(1, -1), S(0, -1), SW(-1, -1), W(-1, 0), NW(-1, 1);
 
-		anims.put(StateTag.DASH_ATK, new Animation(animSheet.genSubTexSet(1, 3, 1, 3)));
-		anims.put(StateTag.JAB1, new Animation(animSheet.genSubTexSet(2, 3, 2, 3)));
-		anims.put(StateTag.JAB2, new Animation(animSheet.genSubTexSet(3, 3, 3, 3)));
-		anims.put(StateTag.LUNGE, new Animation(animSheet.genSubTexSet(4, 3, 4, 3)));
+		public Vector2f v;
 
-		anims.put(StateTag.TUMBLE, new Animation(animSheet.genSubTexSet(6, 3, 6, 3)));
+		MeleeDir(float x, float y) {
+			this(new Vector2f(x, y).normalize());
+		}
 
-		anims.get(StateTag.ACCEL).setCb(new AnimationCallback() {
+		MeleeDir(Vector2f dir) {
+			this.v = dir;
+		}
+	}
 
-			@Override
-			public void onLoopEnd() {
-				anim.switchAnim(StateTag.MOVING);
+	public static enum PlayerState {
+		//@formatter:off
+		I, DASH, DECEL, 
+		M_A, JAB1, JAB2, LUNGE, DASH_ATK;
+		//@formatter:on
+
+		public FrameData fd;
+
+	}
+
+	@Override
+	protected void assignFD() {
+		super.assignFD();
+
+		// Create forward attack for now, has 10 frames of windup, 50 frames of hitbox,
+		// and 10 frames of windown.
+		// Creates a melee attack with 50 frames of life on frame 10.
+
+		addFD(StateID.M_A, genM_A());
+		addFD(StateID.I, genI());
+		addFD(StateID.DASH, genDASH());
+		addFD(StateID.DECEL, genDECEL());
+		addFD(StateID.DASH_ATK, genDASH_ATK());
+		addFD(StateID.JAB1, genJAB1());
+		addFD(StateID.JAB2, genJAB2());
+		addFD(StateID.LUNGE, genLUNGE());
+	}
+
+	private static class MutIntWrap {
+		int v;
+
+		public MutIntWrap(int v) {
+			this.v = v;
+		}
+	}
+
+	@Override
+	protected void genTags() {
+		super.genTags();
+
+		addTag(StateTag.DASHABLE, () -> {
+			// Initiating dash
+			if (Input.dashAction && (Input.moveX != 0 || Input.moveY != 0)) {
+				anim.switchAnim(StateTag.DASHING);
+
+				dash();
 			}
-
 		});
 
-		anim = new Animator(anims, 12, (GeneralRenderer) this.renderer, Shape.ShapeEnum.SQUARE.v);
+		addTag(StateTag.JUMPABLE, () -> {
+			if (pData.grounded)
+				canJump = true;
+		});
 
-		pSys = new GhostParticleSystem(animSheet.tex, 20, rendDims);
-		pSys.init();
-		pSys.pauseParticleGeneration();
+		addTag(StateTag.CAN_MELEE, () -> {
+			// Melee
+			if (Input.meleeAction) {
+				// Check ortho direction
+				// TODO: Clean up this boilerplate
+				Vector2f pos = new Vector2f(getPosition()).add(dim.x / 2, dim.y / 2);
+				Vector2f orthoDir = orthoDirFromVector(new Vector2f(Input.mouseWorldPos).sub(pos));
+
+				if (orthoDir.y == 0 && pData.grounded) {
+					setEntityFD(StateID.JAB1);
+				} else {
+					setEntityFD(StateID.M_A);
+				}
+			}
+		});
+
+		addTag(StateTag.CAN_FIRE, () -> {
+			// Shoot a gun
+			if (Input.primaryButtonDown) {
+				if (gunTimer == null) {
+					// Configure firing
+					gunTimer = new Timer(100, new TimerCallback() {
+
+						@Override
+						public void invoke(Timer timer) {
+							fireGun(Input.mouseWorldPos);
+						}
+
+					});
+				}
+				gunTimer.update();
+			}
+		});
+
+		addTag(StateTag.INVULNERABLE, () -> {
+			invulnFrame();
+		});
+	}
+
+	private FrameData genJAB1() {
+		int dur = 15;
+		MutIntWrap side = new MutIntWrap(1); // Set in on entry
+
+		ArrayList<Event> evs = new ArrayList<>();
+
+		Event atk = new FrameData.Event(() -> {
+			meleeInDir(this, new Vector2f(side.v, 0), 5, 40, new Vector2f(45));
+		}, 5);
+		evs.add(atk);
+
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(dur, 0, getTagCB(StateTag.INACTABLE)));
+		segs.add(new FrameSegment(dur, 0, getTagCB(StateTag.INVULNERABLE)));
+
+		FrameSegment cancelable = new FrameSegment(5, 5, () -> {
+			if (Input.meleeAction) {
+				setEntityFD(StateID.JAB2);
+			}
+		});
+		segs.add(cancelable);
+
+		// Return to idle animation
+		FrameData fd = new FrameData(segs, evs);
+
+		// Slowdown during melee
+		fd.cb = () -> {
+			groundedSlowdown(20);
+		};
+
+		// Return to idle state
+		fd.onEnd = () -> {
+			setEntityFD(StateID.I);
+		};
+
+		fd.onEntry = () -> {
+			anim.switchAnim(StateTag.JAB1);
+
+			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(getPosition()).x);
+			pData.velo.x = side.v * 2;
+		};
+
+		return fd;
+	}
+
+	/**
+	 * Same thing as jab1, for now
+	 * 
+	 * @return
+	 */
+	private FrameData genJAB2() {
+		int dur = 15;
+		MutIntWrap side = new MutIntWrap(1); // Set in on entry
+
+		ArrayList<Event> evs = new ArrayList<>();
+
+		Event atk = new FrameData.Event(() -> {
+			meleeInDir(this, new Vector2f(side.v, 0), 5, 40, new Vector2f(45));
+		}, 5);
+		evs.add(atk);
+
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(dur, 0, getTagCB(StateTag.INACTABLE)));
+		segs.add(new FrameSegment(dur, 0, getTagCB(StateTag.INVULNERABLE)));
+
+		// Cancelable into a lunge
+		FrameSegment cancelable = new FrameSegment(5, 5, () -> {
+			if (Input.meleeAction) {
+				setEntityFD(StateID.LUNGE);
+			}
+		});
+		segs.add(cancelable);
+
+		// Return to idle animation
+		FrameData fd = new FrameData(segs, evs);
+
+		// Slowdown during melee
+		fd.cb = () -> {
+			groundedSlowdown(20);
+		};
+
+		// Return to idle state
+		fd.onEnd = () -> {
+			setEntityFD(StateID.I);
+		};
+
+		fd.onEntry = () -> {
+			anim.switchAnim(StateTag.JAB2);
+
+			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(getPosition()).x);
+			pData.velo.x = side.v * 2;
+		};
+
+		return fd;
+	}
+
+	/**
+	 * Final jab/lunge
+	 * 
+	 * @return
+	 */
+	private FrameData genLUNGE() {
+		int dur = 15;
+		MutIntWrap side = new MutIntWrap(1); // Set in on entry
+
+		ArrayList<Event> evs = new ArrayList<>();
+
+		Event atk = new FrameData.Event(() -> {
+			meleeInDir(this, new Vector2f(side.v, 0), 5, 40, new Vector2f(90, 45));
+		}, 5);
+		evs.add(atk);
+
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(dur, 0, getTagCB(StateTag.INACTABLE)));
+		segs.add(new FrameSegment(dur, 0, getTagCB(StateTag.INVULNERABLE)));
+
+		// Return to idle animation
+		FrameData fd = new FrameData(segs, evs);
+
+		// Slowdown during melee
+		fd.cb = () -> {
+			groundedSlowdown(20);
+		};
+
+		// Return to idle state
+		fd.onEnd = () -> {
+			setEntityFD(StateID.I);
+		};
+
+		fd.onEntry = () -> {
+			anim.switchAnim(StateTag.LUNGE);
+
+			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(getPosition()).x);
+			pData.velo.x = side.v * 4;
+		};
+
+		return fd;
+	}
+
+	/**
+	 * Aerial spin attack
+	 * 
+	 * @return
+	 */
+	private FrameData genM_A() {
+		// Launches multiple hitboxes
+		FrameData.Event[] atks = new FrameData.Event[4];
+		int start = 5;
+		int advance = 7;
+		int life = 4;
+
+		for (int i = 0; i < atks.length; i++) {
+			atks[i] = new FrameData.Event(() -> {
+				meleeInDir(this, new Vector2f(sideFacing, 0), life, 0, new Vector2f(70));
+			}, start + advance * i);
+		}
+
+		ArrayList<Event> evs = new ArrayList<>();
+		for (FrameData.Event atk : atks)
+			evs.add(atk);
+
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(35, 0, getTagCB(StateTag.INACTABLE)));
+		segs.add(new FrameSegment(10, 35, getTagCB(StateTag.DASHABLE)));
+		segs.add(new FrameSegment(20, 5, getTagCB(StateTag.INVULNERABLE)));
+
+		FrameData fd = new FrameData(segs, evs);
+
+		// IDK if this should still be calling controlledMovement :/
+		fd.cb = () -> {
+			controlledMovement();
+		};
+
+		fd.onEntry = () -> {
+			baseCol = new Color(0, 1, 0, 1);
+		};
+
+		// Return to idle state
+		fd.onEnd = () -> {
+			setEntityFD(StateID.I);
+		};
+
+		return fd;
+	}
+
+	private FrameData genI() {
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		FrameSegment idle = new FrameSegment(5, 0, new ECB[] { getTagCB(StateTag.MOVEABLE), getTagCB(StateTag.DASHABLE),
+				getTagCB(StateTag.JUMPABLE), getTagCB(StateTag.CAN_FIRE), getTagCB(StateTag.CAN_MELEE) });
+
+		segs.add(idle);
+
+		FrameData fd = new FrameData(segs, new ArrayList<Event>(), true);
+
+		fd.cb = () -> {
+			controlledMovement();
+
+			// Animation
+			if (Math.abs(pData.velo.x) > 0 && anim.getAnimID().equals(StateTag.IDLE)) {
+				anim.switchAnim(StateTag.ACCEL);
+			} else if (Math.abs(pData.velo.x) == 0 && anim.getAnimID() != StateTag.IDLE) {
+				anim.switchAnim(StateTag.IDLE);
+			}
+
+			if (Input.knockbackTest) {
+				knockback(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
+			}
+		};
+
+		fd.onEntry = () -> {
+			baseCol = new Color(0, 0, 0, 1);
+
+			anim.switchAnim(StateTag.MOVING);
+		};
+
+		return fd;
+	}
+
+	private FrameData genDASH() {
+		FrameData.Event retI = new Event(() -> {
+			pData.velo.y *= 0.4; // TODO hardcode for dash deacc
+			pData.velo.x *= 0.8;
+			decelMode(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
+
+			setEntityFD(StateID.I);
+		}, 10);
+
+		ArrayList<Event> evs = new ArrayList<>();
+		evs.add(retI);
+
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		FrameSegment dash = new FrameSegment(10, 0, getTagCB(StateTag.DASHABLE));
+		FrameSegment dashAttack = new FrameSegment(10, 0, () -> {
+			if (Input.meleeAction) {
+				setEntityFD(StateID.DASH_ATK);
+			}
+		});
+
+		segs.add(dash);
+		segs.add(dashAttack);
+
+		FrameData fd = new FrameData(segs, evs, false);
+
+		fd.onEntry = () -> {
+			baseCol = new Color(0.5f, 0.5f, 0.5f, 1);
+		};
+
+		// Applies to forced exits by knockback and etc. too
+		fd.onExit = () -> {
+			// Update pSys
+			pSys.pauseParticleGeneration();
+			anim.switchAnim(StateTag.MOVING);
+		};
+
+		return fd;
+	}
+
+	/**
+	 * Dash attack may slightly extend a dash's distance.
+	 * 
+	 * @return
+	 */
+	private FrameData genDASH_ATK() {
+		int dur = 10;
+
+		FrameData.Event spawnAtk = new FrameData.Event(() -> {
+			Vector2f moveDir = new Vector2f(pData.velo).normalize();
+			float dist = 60;
+			Vector2f newP = new Vector2f(getPosition()).add(new Vector2f(moveDir).mul(dist));
+			newP.add(dim.x / 2, dim.y / 2); // Center on player
+
+			melee(this, newP, moveDir, dur, new Vector2f(90, 45));
+
+		}, 0);
+
+		FrameData.Event retI = new FrameData.Event(() -> {
+			// Same decel routine as dash
+			pData.velo.y *= 0.4; // TODO hardcode for dash deacc
+			pData.velo.x *= 0.8;
+			decelMode(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
+
+			setEntityFD(StateID.I);
+		}, dur);
+		ArrayList<FrameData.Event> evs = new ArrayList<>();
+		evs.add(spawnAtk);
+		evs.add(retI);
+
+		FrameSegment seg1 = new FrameSegment(dur, 0);
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(seg1);
+
+		FrameData fd = new FrameData(segs, evs);
+
+		fd.onEntry = () -> {
+			anim.switchAnim(StateTag.DASH_ATK);
+		};
+
+		return fd;
+
+	}
+
+	private FrameData genDECEL() {
+		FrameSegment main = new FrameSegment(1, 0, getTagCB(StateTag.KNOCKED));
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(main);
+
+		FrameData fd = new FrameData(segs, new ArrayList<>(), true);
+		fd.cb = () -> {
+			decelMovement();
+		};
+		fd.onEntry = () -> {
+			anim.switchAnim(StateTag.TUMBLE);
+			knocked = true;
+		};
+
+		fd.onExit = () -> {
+			knocked = false;
+		};
+
+		return fd;
+	}
+
+	private static void meleeAtPoint(PlayerFramework p, Vector2f targetPos, int fLife, float meleeDis, Vector2f dims) {
+		Vector2f pos = new Vector2f(p.getPosition()).add(p.dim.x / 2, p.dim.y / 2);
+
+		Vector2f dir = orthoDirFromVector(new Vector2f(targetPos).sub(pos));
+
+		// Generate data for melee hitbox object
+		Vector2f dist = new Vector2f(dir).mul(meleeDis);
+		Vector2f mPos = new Vector2f(pos).add(dist);
+
+		melee(p, mPos, dir, fLife, dims);
+	}
+
+	// Hacky solution, please fix
+	private static void meleeInDir(PlayerFramework p, Vector2f dir, int fLife, float meleeDis, Vector2f dims) {
+		Vector2f pos = new Vector2f(p.getPosition()).add(p.dim.x / 2, p.dim.y / 2);
+
+		// Generate data for melee hitbox object
+		Vector2f dist = new Vector2f(dir).mul(meleeDis);
+		Vector2f mPos = new Vector2f(pos).add(dist);
+
+		melee(p, mPos, dir, fLife, dims);
+	}
+
+	private static void melee(PlayerFramework p, Vector2f pos, Vector2f dir, int fLife, Vector2f dims) {
+		Vector2f nDir = new Vector2f(dir).normalize();
+
+		// TODO: Check
+		long tLife = FrameData.frameToTDelta(fLife);
+
+		Melee meleeEntity = new Melee("MELEE", pos, "Melee", p, nDir, 2, tLife, dims);
+		GameManager.subscribeEntity(meleeEntity);
+
+		float angle = Math.atan2(dir.y, dir.x);
+		Matrix4f rot = meleeEntity.localTrans.rot;
+
+		rot.translate(meleeEntity.dim.x / 2, meleeEntity.dim.y / 2, 0);
+		rot.rotateZ(angle);
+		rot.translate(-meleeEntity.dim.x / 2, -meleeEntity.dim.y / 2, 0);
+	}
+
+	private static Vector2f orthoDirFromVector(Vector2f v) {
+		// Determine which direction is closest to the current mouse position (lock to
+		// cardinal direction)
+		Vector2f nmp = v.normalize();
+
+		MeleeDir dir = MeleeDir.E;
+		float minDist = dir.v.distance(nmp);
+
+		for (MeleeDir md : MeleeDir.values()) {
+			float compDist = md.v.distance(nmp);
+			if (compDist < minDist) {
+				minDist = compDist;
+				dir = md;
+			}
+		}
+
+		return dir.v;
 	}
 
 	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
 		return new Player(vals.str("ID"), pos, vals.str("name"), Stats.fromED(vals));
-	}
-
-	@Override
-	protected void initPhysicsBehavior() {
-		super.initPhysicsBehavior();
-
-//		collBehaviorList.add(new PhysicsCollisionBehaviorStepUp());
-//		collBehaviorList.add(new PhysicsCollisionBehaviorWallCling());
-	}
-
-	@Override
-	public void calculate() {
-		super.calculate();
-
-		if (!GameManager.roomChanging) {
-			if (Input.knockbackTest) {
-				knockback(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
-			}
-		}
-
-		GeneralRenderer sprRend = (GeneralRenderer) renderer;
-		if (hurtTimer == null && baseCol != null)
-			sprRend.updateColors(baseCol);
-
-		// Jump
-		if (jumpGraceTimer != null)
-			jumpGraceTimer.update();
-		if (canJump && Input.moveY == 1 && releasedJump) {
-			pData.velo.y = jumpSpeed;
-
-			// TODO: Rename this so its purpose is less vague.
-			pData.isJumping = true; // Signals to the physics system that some operations ought to be done
-			releasedJump = false;
-
-			canJump = false;
-		}
-	}
-
-	public void dash() {
-		setPlayerState(PlayerState.DASH);
-
-		if (stats.stamina < dashCost) {
-			return;
-		}
-
-		stats.stamina -= dashCost;
-		dashDir = new Vector2f(Input.moveX, Input.moveY).normalize();
-
-		// Set velocity here
-		pData.velo = new Vector2f(dashDir).mul(dashSpeed);
-		hasGravity = false;
-
-		// Update pSys
-		pSys.resumeParticleGeneration();
-	}
-
-	@Override
-	public void controlledMovement() {
-		float xAccel = 0;
-
-		float moveX = Input.moveX;
-		float moveY = Input.moveY;
-		if (!canMove) {
-			moveX = 0;
-			moveY = 0;
-		}
-
-		// Deceleration
-		if (moveX != 0) {
-			xAccel = accelConst * moveX;
-		} else {
-			float decelConst = Math.min(accelConst, Math.abs(pData.velo.x));
-
-			xAccel = -decelConst * Arithmetic.sign(pData.velo.x);
-		}
-		if (Math.abs(pData.velo.x) <= xCap) {
-			pData.velo.x += xAccel;
-
-			// cap velo
-			if (moveX > 0)
-				pData.velo.x = Math.min(pData.velo.x, xCap);
-			if (moveX < 0)
-				pData.velo.x = Math.max(pData.velo.x, -xCap);
-		} else {
-			float decelConst = (Math.max(xCap, Math.abs(pData.velo.x) - 2 * accelConst));
-			pData.velo.x -= decelConst * Arithmetic.sign(pData.velo.x);
-		}
-		if (moveY == 0) {
-			releasedJump = true;
-		}
-
-		// Jump grace
-		if (pData.wasGrounded) {
-			// begin timer
-			jumpGraceTimer = new Timer(jumpGraceInterval, new TimerCallback() {
-
-				@Override
-				public void invoke(Timer timer) {
-					canJump = false;
-					jumpGraceTimer = null;
-				}
-			});
-		}
-
-		int newSideFacing = Arithmetic.sign(Input.moveX);
-		// Can only change sides if not attacking
-		if (newSideFacing != 0)
-			sideFacing = newSideFacing;
-
-		hasGravity = true;
-	}
-
-	/**
-	 * For when melee options need to slow the pc down
-	 */
-	public void groundedSlowdown(float lerpConst) {
-		Vector2f v = pData.velo;
-		float scalar = Time.deltaT() * lerpConst / 1000;
-
-		v.set(Arithmetic.lerp(v.x, 0, scalar), v.y);
-	}
-
-	/**
-	 * I'm assuming that knockbackSpeed was set to not 0 upon being hit also
-	 * assuming that hit function added velo already, this function just does
-	 * deacceleration
-	 */
-	void decelMovement() {
-		// automatic deacceleration
-//		float decelConst = Math.min(accelConst * decelMulti, Math.abs(pData.velo.x) - xCap)
-//				* -Arithmetic.sign(pData.velo.x);
-		float decelConst = accelConst * decelMulti * -Arithmetic.sign(pData.velo.x);
-
-		// effect of movement
-		decelConst += accelConst * movementMulti * Input.moveX;
-
-		if (pData.grounded) {
-			decelConst *= 1.8;
-		}
-		pData.velo.x += decelConst * Time.deltaT() / 1000 * 10; // Lots of random tuning here
-		hasGravity = true;
-
-		// Escape knockback
-		float escapeThreshMult = 0.5f;
-
-		if (pData.velo.length() <= xCap * escapeThreshMult) {
-			setPlayerState(PlayerState.I);
-			knockbackDir = null;
-		}
-	}
-
-	@Override
-	public void knockback(Vector2f knockbackVector, float movementMulti, float decelMulti) {
-		super.knockback(knockbackVector, movementMulti, decelMulti);
-
-		setPlayerState(PlayerState.DECEL);
-	}
-
-	public void setPlayerState(PlayerState state) {
-		setEntityFD(state.fd);
-	}
-
-	public void fireGun(Vector2f firePos) {
-		if (stats.stamina < gunCost) {
-			return;
-		}
-
-		stats.stamina -= gunCost;
-
-		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32));
-
-		Projectile proj = new Projectile("PROJECTILE", pos, "Bullet"); // initializes bullet
-																		// entity
-
-		Vector2f dir = new Vector2f(firePos).sub(pos).normalize();
-		Vector2f velo = new Vector2f(dir).mul(3);
-
-		proj.pData.velo = new Vector2f(velo);
-		proj.setAlign(alignment);
-
-		GameManager.subscribeEntity(proj);
-	}
-
-	@Override
-	public void calcFrame() {
-		// Scale to the side facing
-		if (sideFacing != 0) {
-			localTrans.scale.identity().scaleAround(sideFacing, 1, 1, entOriginPos.x, 0, 0);
-		}
-
-		// Update trailing particle system
-		pSys.activeSubTex = anim.currentAnim.getFrame();
-		pSys.activeTransform = new ProjectedTransform(renderer.transform);
-		pSys.update();
-
-		super.calcFrame();
-	}
-
-	@Override
-	public void render() {
-		pSys.render();
-		super.render();
-
-	}
-
-	@Override
-	public void onTileCollision() {
-
 	}
 }

@@ -70,10 +70,8 @@ public abstract class BouncingEnemy extends Enemy {
 	private void initFD() {
 		ArrayList<FrameSegment> fs = new ArrayList<FrameSegment>();
 		FrameSegment aFS = new FrameSegment(10, 0);
-		aFS.cbs.add((e) -> {
-			BouncingEnemy be = (BouncingEnemy) e;
-
-			be.aggroLoop();
+		aFS.cbs.add(() -> {
+			aggroLoop();
 		});
 
 		fs.add(aFS);

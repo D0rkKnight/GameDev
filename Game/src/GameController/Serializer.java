@@ -31,7 +31,7 @@ import Accessories.Accessory;
 import Collision.Shapes.Shape;
 import Collision.Shapes.Shape.ShapeEnum;
 import Entities.Framework.Entity;
-import Entities.PlayerPackage.Player;
+import Entities.PlayerPackage.PlayerFramework;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Elements.TileGFX;
@@ -340,7 +340,7 @@ public class Serializer {
 				Class<Entity> clazz = (Class<Entity>) Class.forName(className);
 
 				// Don't reconstruct the player
-				if (clazz.isAssignableFrom(Player.class) && GameManager.player != null) {
+				if (clazz.isAssignableFrom(PlayerFramework.class) && GameManager.player != null) {
 					// Do nothing.
 				}
 
@@ -351,8 +351,8 @@ public class Serializer {
 
 					// We know for certain there is no prior player, so we can safely assign it to
 					// the GM singleton
-					if (ent instanceof Player)
-						GameManager.player = (Player) ent;
+					if (ent instanceof PlayerFramework)
+						GameManager.player = (PlayerFramework) ent;
 				}
 
 			} catch (Exception e) {
