@@ -5,7 +5,7 @@ import org.joml.Vector2f;
 import Collision.Shapes.Shape;
 import Entities.Framework.Entity;
 import Entities.Framework.Interactive;
-import Entities.PlayerPackage.Player;
+import Entities.PlayerPackage.PlayerFramework;
 import GameController.EntityData;
 import GameController.Input;
 import Graphics.Rendering.GeneralRenderer;
@@ -21,7 +21,7 @@ public class Button extends Entity implements Interactive {
 	long timeOn;
 	float activationDistance;
 	Timer onTimer;
-	Player player;
+	PlayerFramework player;
 
 	public Button(String ID, Vector2f position, String name, int state, long timeOn, float activationDistance) {
 		super(ID, position, name);

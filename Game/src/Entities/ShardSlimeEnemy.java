@@ -7,11 +7,11 @@ import org.joml.Vector2f;
 import Collision.Shapes.Shape;
 import Entities.Framework.Entity;
 import Entities.Framework.Projectile;
+import Entities.Framework.StateMachine.StateTag;
 import GameController.EntityData;
 import GameController.GameManager;
 import Graphics.Animation.Animation;
 import Graphics.Animation.Animator;
-import Graphics.Animation.Animator.ID;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
@@ -24,8 +24,8 @@ public class ShardSlimeEnemy extends BouncingEnemy {
 
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("assets/Sprites/ChargingSlime.png"), 32, 32);
 		Animation a1 = new Animation(tAtlas.genSubTexSet(0, 0, 15, 0));
-		HashMap<ID, Animation> aMap = new HashMap<ID, Animation>();
-		aMap.put(Animator.ID.IDLE, a1);
+		HashMap<StateTag, Animation> aMap = new HashMap<StateTag, Animation>();
+		aMap.put(StateTag.IDLE, a1);
 		anim = new Animator(aMap, 24, (GeneralRenderer) this.renderer, Shape.ShapeEnum.SQUARE.v);
 	}
 

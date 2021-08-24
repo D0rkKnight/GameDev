@@ -1,21 +1,28 @@
 package Entities;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.joml.Vector2f;
 
+import Collision.Hitbox;
 import Collision.Hurtbox;
 import Collision.Behaviors.PGBGroundFriction;
 import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Debugging.DebugBox;
+import Entities.Framework.Aligned;
+import Entities.Framework.Combatant;
 import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
+import Entities.Framework.Melee;
+import Entities.Framework.StateMachine.StateID;
+import Entities.Framework.StateMachine.StateTag;
 import GameController.EntityData;
+import GameController.GameManager;
 import GameController.Time;
 import Graphics.Animation.Animation;
 import Graphics.Animation.Animator;
-import Graphics.Animation.Animator.ID;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
@@ -24,6 +31,9 @@ import Utility.Arithmetic;
 import Utility.Timers.Timer;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
+import Wrappers.FrameData;
+import Wrappers.FrameData.Event;
+import Wrappers.FrameData.FrameSegment;
 import Wrappers.Stats;
 
 public class MeleeEnemy extends Enemy {
@@ -36,8 +46,6 @@ public class MeleeEnemy extends Enemy {
 
 	public MeleeEnemy(String ID, Vector2f position, String name, Stats stats) {
 		super(ID, position, name, stats);
-		// TODO Auto-generated constructor stub
-
 		// Configure the renderer real quick
 		rendDims = new Vector2f(64, 64);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
@@ -56,14 +64,17 @@ public class MeleeEnemy extends Enemy {
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("assets/Sprites/bell_enemy.png"), 32, 32);
 		Animation a1 = new Animation(tAtlas.genSubTexSet(0, 0, 5, 0));
 		Animation a2 = new Animation(tAtlas.genSubTexSet(6, 0, 6, 0));
-		Animation a3 = new Animation(tAtlas.genSubTexSet(6, 0, 7, 0));
-		HashMap<ID, Animation> aMap = new HashMap<ID, Animation>();
-		aMap.put(Animator.ID.IDLE, a1);
-		aMap.put(Animator.ID.WINDUP, a2);
-		aMap.put(Animator.ID.LUNGE, a3);
+		Animation a3 = new Animation(tAtlas.genSubTexSet(7, 0, 7, 0));
+		HashMap<StateTag, Animation> aMap = new HashMap<StateTag, Animation>();
+		aMap.put(StateTag.IDLE, a1);
+		aMap.put(StateTag.WINDUP, a2);
+		aMap.put(StateTag.LUNGE, a3);
 		anim = new Animator(aMap, 12, (GeneralRenderer) this.renderer, Shape.ShapeEnum.SQUARE.v);
 
 		hasGravity = true;
+
+		// Generate and set states
+		setEntityFD(StateID.MOVE);
 	}
 
 	@Override
@@ -80,13 +91,93 @@ public class MeleeEnemy extends Enemy {
 	public void calculate() {
 		super.calculate();
 
+	}
+
+	@Override
+	protected void assignFD() {
+		super.assignFD();
+
+		addFD(StateID.MOVE, genMOVE());
+		addFD(StateID.ATTACK, genATTACK());
+		addFD(StateID.STUNNED, genSTUNNED());
+	}
+
+	private FrameData genMOVE() {
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(getTagCB(StateTag.MOVEABLE), getTagCB(StateTag.CAN_MELEE)));
+
+		FrameData fd = new FrameData(segs, null, true);
+		fd.onEntry = () -> anim.switchAnim(StateTag.IDLE);
+
+		return fd;
+	}
+
+	private FrameData genATTACK() {
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(50, 0));
+		segs.add(new FrameSegment(50, 50));
+
+		ArrayList<Event> evs = new ArrayList<>();
+		evs.add(new Event(() -> {
+			System.out.println("Attack");
+
+			pData.velo.x = 1 * sideFacing;
+
+			anim.switchAnim(StateTag.LUNGE);
+
+			// Attach a melee attack to self
+			Melee me = new Melee(getCenter(), this, new Vector2f(sideFacing, 0), 1, 150, dim);
+			GameManager.subscribeEntity(me);
+		}, 50));
+
+		FrameData fd = new FrameData(segs, evs, false);
+
+		fd.onEnd = () -> setEntityFD(StateID.MOVE);
+		fd.onEntry = () -> anim.switchAnim(StateTag.WINDUP);
+
+		return fd;
+	}
+
+	private FrameData genSTUNNED() {
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(50, 0));
+
+		FrameData fd = new FrameData(segs, null, false);
+		fd.onEnd = () -> setEntityFD(StateID.MOVE);
+		fd.onEntry = () -> anim.switchAnim(StateTag.IDLE); // No stunned animation yet
+
+		return fd;
+	}
+
+	// TODO: This can definitely be inherited
+	@Override
+	protected void genTags() {
+		super.genTags();
+
+		addTag(StateTag.MOVEABLE, (() -> {
+			follow();
+		}));
+
+		addTag(StateTag.CAN_MELEE, (() -> {
+			if (target == null)
+				return;
+
+			Vector2f tVec = new Vector2f(target.getCenter()).sub(getCenter());
+
+			int meleeRange = 100;
+			if (tVec.x * sideFacing > 0 && tVec.length() < meleeRange) {
+				setEntityFD(StateID.ATTACK);
+			}
+		}));
+	}
+
+	public void follow() {
 		// Pursue player
 		if (target == null)
 			findTarget();
 
 		if (target != null) {
 			Vector2f tVec = new Vector2f(target.getCenter()).sub(getCenter());
-			// System.out.println(target.getCenter());
 
 			// Handle pauses when switching side faced
 			int newSideFacing = Arithmetic.sign(tVec.x);
@@ -111,6 +202,14 @@ public class MeleeEnemy extends Enemy {
 				// Attack
 				// TODO: I should probably just write this as a state machine
 			}
+		}
+	}
+
+	@Override
+	public void hurtBy(Hitbox other) {
+		Aligned otherOwner = (Aligned) other.owner;
+		if (Combatant.getOpposingAlignment(otherOwner.getAlign()) == alignment) {
+			setEntityFD(StateID.STUNNED);
 		}
 	}
 

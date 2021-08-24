@@ -8,7 +8,7 @@ import org.joml.Vector2i;
 import Collision.Collidable;
 import Collision.Collider;
 import Collision.Shapes.Shape;
-import Entities.PlayerPackage.Player;
+import Entities.PlayerPackage.PlayerFramework;
 import GameController.EntityData;
 import GameController.EntranceData;
 import GameController.GameManager;
@@ -64,7 +64,7 @@ public class Entrance extends Entity implements Collidable {
 
 	@Override
 	public void onColl(Collider otherHb) {
-		if (otherHb.owner instanceof Player && isActive && !GameManager.roomChanging) {
+		if (otherHb.owner instanceof PlayerFramework && isActive && !GameManager.roomChanging) {
 			if (!hasBeenConnected) {
 				new Exception("Entrance not yet configured.").printStackTrace();
 				System.exit(1);

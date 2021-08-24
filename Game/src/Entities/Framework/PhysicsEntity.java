@@ -1,6 +1,7 @@
 package Entities.Framework;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.joml.Math;
 import org.joml.Vector2f;
@@ -13,6 +14,9 @@ import Collision.Behaviors.PCBList;
 import Collision.Behaviors.PGBGravity;
 import Collision.Behaviors.PGBList;
 import Collision.Behaviors.PhysicsGeneralBehavior;
+import Entities.Framework.StateMachine.ECB;
+import Entities.Framework.StateMachine.StateID;
+import Entities.Framework.StateMachine.StateTag;
 import Utility.Vector;
 import Wrappers.FrameData;
 import Wrappers.PhysicsData;
@@ -36,6 +40,9 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 	protected FrameData currFD;
 	protected FrameData queuedFD;
 	protected boolean isFDQueued = false; // Necessary in case we want to queue null FD
+
+	private HashMap<StateID, FrameData> fdMap = new HashMap<>();
+	private HashMap<StateTag, ECB> tagCBs = new HashMap<>();
 
 	public static enum Alignment {
 		NEUTRAL, PLAYER, ENEMY
@@ -70,6 +77,16 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 		initPhysicsBehavior();
 
 		colls = new ArrayList<Collider>();
+
+		// Init framedata
+		genTags();
+		assignFD();
+	}
+
+	protected void assignFD() {
+	}
+
+	protected void genTags() {
 	}
 
 	protected void initPhysicsBehavior() {
@@ -186,6 +203,22 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 		isFDQueued = true;
 	}
 
+	public void setEntityFD(StateID id) {
+		setEntityFD(fdMap.get(id));
+	}
+
+	protected void addFD(StateID id, FrameData fd) {
+		fdMap.put(id, fd);
+	}
+
+	protected void addTag(StateTag tag, ECB ecb) {
+		tagCBs.put(tag, ecb);
+	}
+
+	protected ECB getTagCB(StateTag tag) {
+		return tagCBs.get(tag);
+	}
+
 	public void decelMode(Vector2f knockbackVector, float movementMulti, float decelMulti) {
 		this.knockbackDir = new Vector2f(knockbackVector);
 		this.movementMulti = movementMulti;
@@ -205,7 +238,7 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 			isFDQueued = false;
 
 			if (currFD != null && currFD.onExit != null)
-				currFD.onExit.invoke(this);
+				currFD.onExit.invoke();
 
 			if (queuedFD != null)
 				queuedFD.fullReset();
@@ -213,11 +246,11 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 			queuedFD = null;
 
 			if (currFD != null && currFD.onEntry != null)
-				currFD.onEntry.invoke(this);
+				currFD.onEntry.invoke();
 		}
 
 		if (currFD != null)
-			currFD.update(this);
+			currFD.update();
 	}
 
 	@Override
