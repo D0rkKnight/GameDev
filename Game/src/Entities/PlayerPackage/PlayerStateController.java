@@ -8,7 +8,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import Entities.Framework.Melee;
-import Entities.Framework.StateMachine.ECP;
+import Entities.Framework.StateMachine.ECB;
 import Entities.Framework.StateMachine.StateTag;
 import GameController.GameManager;
 import GameController.Input;
@@ -62,7 +62,7 @@ public class PlayerStateController {
 		}
 	}
 
-	static HashMap<StateTag, ECP<Player>> tagCBs = new HashMap<>();
+	static HashMap<StateTag, ECB<Player>> tagCBs = new HashMap<>();
 
 	public static void init() {
 		genTags();
@@ -137,7 +137,7 @@ public class PlayerStateController {
 
 		ArrayList<Event> evs = new ArrayList<>();
 
-		Event atk = new FrameData.Event((ECP<Player>) (p) -> {
+		Event atk = new FrameData.Event((ECB<Player>) (p) -> {
 			meleeInDir(p, new Vector2f(side.v, 0), 5, 40, new Vector2f(45));
 		}, 5);
 		evs.add(atk);
@@ -146,7 +146,7 @@ public class PlayerStateController {
 		segs.add(new FrameSegment(dur, 0, tagCBs.get(StateTag.INACTABLE)));
 		segs.add(new FrameSegment(dur, 0, tagCBs.get(StateTag.INVULNERABLE)));
 
-		FrameSegment cancelable = new FrameSegment(5, 5, (ECP<Player>) (p) -> {
+		FrameSegment cancelable = new FrameSegment(5, 5, (ECB<Player>) (p) -> {
 			if (Input.meleeAction) {
 				p.setPlayerState(PlayerState.JAB2);
 			}
@@ -157,16 +157,16 @@ public class PlayerStateController {
 		FrameData fd = new FrameData(segs, evs);
 
 		// Slowdown during melee
-		fd.cb = (ECP<Player>) (p) -> {
+		fd.cb = (ECB<Player>) (p) -> {
 			p.groundedSlowdown(20);
 		};
 
 		// Return to idle state
-		fd.onEnd = (ECP<Player>) (p) -> {
+		fd.onEnd = (ECB<Player>) (p) -> {
 			p.setPlayerState(PlayerState.I);
 		};
 
-		fd.onEntry = (ECP<Player>) (p) -> {
+		fd.onEntry = (ECB<Player>) (p) -> {
 			p.anim.switchAnim(Animator.ID.JAB1);
 
 			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
@@ -187,7 +187,7 @@ public class PlayerStateController {
 
 		ArrayList<Event> evs = new ArrayList<>();
 
-		Event atk = new FrameData.Event((ECP<Player>) (p) -> {
+		Event atk = new FrameData.Event((ECB<Player>) (p) -> {
 			meleeInDir(p, new Vector2f(side.v, 0), 5, 40, new Vector2f(45));
 		}, 5);
 		evs.add(atk);
@@ -197,7 +197,7 @@ public class PlayerStateController {
 		segs.add(new FrameSegment(dur, 0, tagCBs.get(StateTag.INVULNERABLE)));
 
 		// Cancelable into a lunge
-		FrameSegment cancelable = new FrameSegment(5, 5, (ECP<Player>) (p) -> {
+		FrameSegment cancelable = new FrameSegment(5, 5, (ECB<Player>) (p) -> {
 			if (Input.meleeAction) {
 				p.setPlayerState(PlayerState.LUNGE);
 			}
@@ -208,16 +208,16 @@ public class PlayerStateController {
 		FrameData fd = new FrameData(segs, evs);
 
 		// Slowdown during melee
-		fd.cb = (ECP<Player>) (p) -> {
+		fd.cb = (ECB<Player>) (p) -> {
 			p.groundedSlowdown(20);
 		};
 
 		// Return to idle state
-		fd.onEnd = (ECP<Player>) (p) -> {
+		fd.onEnd = (ECB<Player>) (p) -> {
 			p.setPlayerState(PlayerState.I);
 		};
 
-		fd.onEntry = (ECP<Player>) (p) -> {
+		fd.onEntry = (ECB<Player>) (p) -> {
 			p.anim.switchAnim(Animator.ID.JAB2);
 
 			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
@@ -238,7 +238,7 @@ public class PlayerStateController {
 
 		ArrayList<Event> evs = new ArrayList<>();
 
-		Event atk = new FrameData.Event((ECP<Player>) (p) -> {
+		Event atk = new FrameData.Event((ECB<Player>) (p) -> {
 			meleeInDir(p, new Vector2f(side.v, 0), 5, 40, new Vector2f(90, 45));
 		}, 5);
 		evs.add(atk);
@@ -251,16 +251,16 @@ public class PlayerStateController {
 		FrameData fd = new FrameData(segs, evs);
 
 		// Slowdown during melee
-		fd.cb = (ECP<Player>) (p) -> {
+		fd.cb = (ECB<Player>) (p) -> {
 			p.groundedSlowdown(20);
 		};
 
 		// Return to idle state
-		fd.onEnd = (ECP<Player>) (p) -> {
+		fd.onEnd = (ECB<Player>) (p) -> {
 			p.setPlayerState(PlayerState.I);
 		};
 
-		fd.onEntry = (ECP<Player>) (p) -> {
+		fd.onEntry = (ECB<Player>) (p) -> {
 			p.anim.switchAnim(Animator.ID.LUNGE);
 
 			side.v = Arithmetic.sign(new Vector2f(Input.mouseWorldPos).sub(p.getPosition()).x);
@@ -283,7 +283,7 @@ public class PlayerStateController {
 		int life = 4;
 
 		for (int i = 0; i < atks.length; i++) {
-			atks[i] = new FrameData.Event((ECP<Player>) (p) -> {
+			atks[i] = new FrameData.Event((ECB<Player>) (p) -> {
 				meleeInDir(p, new Vector2f(p.sideFacing, 0), life, 0, new Vector2f(70));
 			}, start + advance * i);
 		}
@@ -300,16 +300,16 @@ public class PlayerStateController {
 		FrameData fd = new FrameData(segs, evs);
 
 		// IDK if this should still be calling controlledMovement :/
-		fd.cb = (ECP<Player>) (p) -> {
+		fd.cb = (ECB<Player>) (p) -> {
 			p.controlledMovement();
 		};
 
-		fd.onEntry = (ECP<Player>) (p) -> {
+		fd.onEntry = (ECB<Player>) (p) -> {
 			p.baseCol = new Color(0, 1, 0, 1);
 		};
 
 		// Return to idle state
-		fd.onEnd = (ECP<Player>) (p) -> {
+		fd.onEnd = (ECB<Player>) (p) -> {
 			p.setPlayerState(PlayerState.I);
 		};
 
@@ -319,14 +319,14 @@ public class PlayerStateController {
 	private static FrameData genI() {
 		ArrayList<FrameSegment> segs = new ArrayList<>();
 		FrameSegment idle = new FrameSegment(5, 0,
-				new ECP[] { tagCBs.get(StateTag.MOVEABLE), tagCBs.get(StateTag.DASHABLE), tagCBs.get(StateTag.JUMPABLE),
+				new ECB[] { tagCBs.get(StateTag.MOVEABLE), tagCBs.get(StateTag.DASHABLE), tagCBs.get(StateTag.JUMPABLE),
 						tagCBs.get(StateTag.CAN_FIRE), tagCBs.get(StateTag.CAN_MELEE) });
 
 		segs.add(idle);
 
 		FrameData fd = new FrameData(segs, new ArrayList<Event>(), true);
 
-		fd.cb = (ECP<Player>) (p) -> {
+		fd.cb = (ECB<Player>) (p) -> {
 			p.controlledMovement();
 
 			// Animation
@@ -341,7 +341,7 @@ public class PlayerStateController {
 			}
 		};
 
-		fd.onEntry = (ECP<Player>) (p) -> {
+		fd.onEntry = (ECB<Player>) (p) -> {
 			p.baseCol = new Color(0, 0, 0, 1);
 
 			p.anim.switchAnim(Animator.ID.MOVING);
@@ -351,7 +351,7 @@ public class PlayerStateController {
 	}
 
 	private static FrameData genDASH() {
-		FrameData.Event retI = new Event((ECP<Player>) (p) -> {
+		FrameData.Event retI = new Event((ECB<Player>) (p) -> {
 			p.pData.velo.y *= 0.4; // TODO hardcode for dash deacc
 			p.pData.velo.x *= 0.8;
 			p.decelMode(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
@@ -364,7 +364,7 @@ public class PlayerStateController {
 
 		ArrayList<FrameSegment> segs = new ArrayList<>();
 		FrameSegment dash = new FrameSegment(10, 0, tagCBs.get(StateTag.DASHABLE));
-		FrameSegment dashAttack = new FrameSegment(10, 0, (ECP<Player>) (p) -> {
+		FrameSegment dashAttack = new FrameSegment(10, 0, (ECB<Player>) (p) -> {
 			if (Input.meleeAction) {
 				p.setPlayerState(PlayerState.DASH_ATK);
 			}
@@ -375,12 +375,12 @@ public class PlayerStateController {
 
 		FrameData fd = new FrameData(segs, evs, false);
 
-		fd.onEntry = (ECP<Player>) (p) -> {
+		fd.onEntry = (ECB<Player>) (p) -> {
 			p.baseCol = new Color(0.5f, 0.5f, 0.5f, 1);
 		};
 
 		// Applies to forced exits by knockback and etc. too
-		fd.onExit = (ECP<Player>) (p) -> {
+		fd.onExit = (ECB<Player>) (p) -> {
 			// Update pSys
 			p.pSys.pauseParticleGeneration();
 			p.anim.switchAnim(Animator.ID.MOVING);
@@ -397,7 +397,7 @@ public class PlayerStateController {
 	private static FrameData genDASH_ATK() {
 		int dur = 10;
 
-		FrameData.Event spawnAtk = new FrameData.Event((ECP<Player>) (p) -> {
+		FrameData.Event spawnAtk = new FrameData.Event((ECB<Player>) (p) -> {
 			Vector2f moveDir = new Vector2f(p.pData.velo).normalize();
 			float dist = 60;
 			Vector2f newP = new Vector2f(p.getPosition()).add(new Vector2f(moveDir).mul(dist));
@@ -407,7 +407,7 @@ public class PlayerStateController {
 
 		}, 0);
 
-		FrameData.Event retI = new FrameData.Event((ECP<Player>) (p) -> {
+		FrameData.Event retI = new FrameData.Event((ECB<Player>) (p) -> {
 			// Same decel routine as dash
 			p.pData.velo.y *= 0.4; // TODO hardcode for dash deacc
 			p.pData.velo.x *= 0.8;
@@ -425,7 +425,7 @@ public class PlayerStateController {
 
 		FrameData fd = new FrameData(segs, evs);
 
-		fd.onEntry = (ECP<Player>) (p) -> {
+		fd.onEntry = (ECB<Player>) (p) -> {
 			p.anim.switchAnim(Animator.ID.DASH_ATK);
 		};
 
@@ -439,15 +439,15 @@ public class PlayerStateController {
 		segs.add(main);
 
 		FrameData fd = new FrameData(segs, new ArrayList<>(), true);
-		fd.cb = (ECP<Player>) (p) -> {
+		fd.cb = (ECB<Player>) (p) -> {
 			p.decelMovement();
 		};
-		fd.onEntry = (ECP<Player>) (p) -> {
+		fd.onEntry = (ECB<Player>) (p) -> {
 			p.anim.switchAnim(Animator.ID.TUMBLE);
 			p.knocked = true;
 		};
 
-		fd.onExit = (ECP<Player>) (p) -> {
+		fd.onExit = (ECB<Player>) (p) -> {
 			p.knocked = false;
 		};
 

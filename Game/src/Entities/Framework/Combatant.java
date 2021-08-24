@@ -79,10 +79,6 @@ public abstract class Combatant extends PhysicsEntity {
 		stats.stamina = Math.min(stats.stamina + stats.staminaRegen, stats.maxStamina);
 	}
 
-	public void attack() {
-
-	}
-
 	public void hurtBy(Hitbox hb) {
 
 	}

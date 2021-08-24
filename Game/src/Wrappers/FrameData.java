@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import Entities.Framework.Entity;
-import Entities.Framework.StateMachine.ECP;
+import Entities.Framework.StateMachine.ECB;
 import GameController.GameManager;
 import GameController.Time;
 
@@ -19,10 +19,10 @@ import GameController.Time;
  */
 public class FrameData {
 	public static class Event {
-		public ECP cb;
+		public ECB cb;
 		public int frame;
 
-		public Event(ECP<?> cb, int frame) {
+		public Event(ECB<?> cb, int frame) {
 			this.cb = cb;
 			this.frame = frame;
 		}
@@ -31,9 +31,9 @@ public class FrameData {
 	public static class FrameSegment {
 		public int fLength;
 		public int fStart;
-		public ArrayList<ECP> cbs;
+		public ArrayList<ECB> cbs;
 
-		public FrameSegment(int fLength, int fStart, ECP[] cbs) {
+		public FrameSegment(int fLength, int fStart, ECB[] cbs) {
 			this.fLength = fLength;
 			this.fStart = fStart;
 
@@ -42,11 +42,15 @@ public class FrameData {
 		}
 
 		public FrameSegment(int fLength, int fStart) {
-			this(fLength, fStart, new ECP[] {});
+			this(fLength, fStart, new ECB[] {});
 		}
 
-		public FrameSegment(int fLength, int fStart, ECP cb) {
-			this(fLength, fStart, new ECP[] { cb });
+		public FrameSegment(int fLength, int fStart, ECB cb) {
+			this(fLength, fStart, new ECB[] { cb });
+		}
+
+		public FrameSegment(ECB... cb) {
+			this(1, 0, cb);
 		}
 	}
 
@@ -57,16 +61,23 @@ public class FrameData {
 
 	private float fEnd;
 	private boolean looping;
-	public ECP cb; // General callback for every invoke
+	public ECB cb; // General callback for every invoke
 
-	public ECP onEntry; // Called on first available frame, is called before everything else
-	public ECP onExit; // Both this and onEntry are invoked externally.
-	public ECP onEnd;
+	public ECB onEntry; // Called on first available frame, is called before everything else
+	public ECB onExit; // Both this and onEntry are invoked externally.
+	public ECB onEnd;
 	public boolean endCBCalled = false;
 
 	public FrameData(ArrayList<FrameSegment> segments, ArrayList<Event> events, boolean looping) {
 		this.segments = segments;
 		this.events = events;
+
+		if (segments == null) {
+			this.segments = new ArrayList<FrameSegment>();
+			this.segments.add(new FrameSegment(null));
+		}
+		if (events == null)
+			this.events = new ArrayList<Event>();
 
 		this.looping = looping;
 		fEnd = totalFLength();
@@ -94,7 +105,7 @@ public class FrameData {
 		// Invoke attached segments too
 		for (FrameSegment s : segments) {
 			if (s.cbs.size() > 0 && s.fStart <= currContFrame && s.fStart + s.fLength > currContFrame) {
-				for (ECP ecb : s.cbs)
+				for (ECB ecb : s.cbs)
 					if (ecb != null)
 						ecb.invoke(caller);
 			}
@@ -105,9 +116,10 @@ public class FrameData {
 
 		// Loop here
 		if (currContFrame >= fEnd) {
-			if (looping) {
-				currContFrame -= fEnd;
-			}
+			if (looping)
+				while (currContFrame >= fEnd) {
+					currContFrame -= fEnd;
+				}
 
 			// Used for stitching together states if one ends through full completion.
 			else if (!endCBCalled && onEnd != null) {

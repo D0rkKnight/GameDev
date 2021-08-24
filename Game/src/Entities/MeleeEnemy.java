@@ -1,5 +1,6 @@
 package Entities;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.joml.Vector2f;
@@ -11,6 +12,8 @@ import Debugging.Debug;
 import Debugging.DebugBox;
 import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
+import Entities.Framework.StateMachine.ECB;
+import Entities.Framework.StateMachine.StateTag;
 import GameController.EntityData;
 import GameController.Time;
 import Graphics.Animation.Animation;
@@ -24,6 +27,9 @@ import Utility.Arithmetic;
 import Utility.Timers.Timer;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
+import Wrappers.FrameData;
+import Wrappers.FrameData.Event;
+import Wrappers.FrameData.FrameSegment;
 import Wrappers.Stats;
 
 public class MeleeEnemy extends Enemy {
@@ -34,10 +40,10 @@ public class MeleeEnemy extends Enemy {
 	Timer sideSwitchTimer;
 	Timer windupTimer;
 
+	static HashMap<StateTag, ECB<MeleeEnemy>> tagCBs = new HashMap<>();
+
 	public MeleeEnemy(String ID, Vector2f position, String name, Stats stats) {
 		super(ID, position, name, stats);
-		// TODO Auto-generated constructor stub
-
 		// Configure the renderer real quick
 		rendDims = new Vector2f(64, 64);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
@@ -56,7 +62,7 @@ public class MeleeEnemy extends Enemy {
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("assets/Sprites/bell_enemy.png"), 32, 32);
 		Animation a1 = new Animation(tAtlas.genSubTexSet(0, 0, 5, 0));
 		Animation a2 = new Animation(tAtlas.genSubTexSet(6, 0, 6, 0));
-		Animation a3 = new Animation(tAtlas.genSubTexSet(6, 0, 7, 0));
+		Animation a3 = new Animation(tAtlas.genSubTexSet(7, 0, 7, 0));
 		HashMap<ID, Animation> aMap = new HashMap<ID, Animation>();
 		aMap.put(Animator.ID.IDLE, a1);
 		aMap.put(Animator.ID.WINDUP, a2);
@@ -64,6 +70,11 @@ public class MeleeEnemy extends Enemy {
 		anim = new Animator(aMap, 12, (GeneralRenderer) this.renderer, Shape.ShapeEnum.SQUARE.v);
 
 		hasGravity = true;
+
+		// Generate and set states
+		genTags();
+		FD.assignFD();
+		setEntityFD(FD.MOVE.fd);
 	}
 
 	@Override
@@ -80,13 +91,80 @@ public class MeleeEnemy extends Enemy {
 	public void calculate() {
 		super.calculate();
 
+	}
+
+	// TODO: Maybe make this just use a general list of tags and map to a hashmap?
+	// Can always add a layer of abstraction if need be.
+	private static enum FD {
+		MOVE, ATTACK;
+
+		public FrameData fd;
+
+		public static void assignFD() {
+			MOVE.fd = genMOVE();
+			ATTACK.fd = genATTACK();
+		}
+	}
+
+	private static FrameData genMOVE() {
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(tagCBs.get(StateTag.MOVEABLE), tagCBs.get(StateTag.CAN_MELEE)));
+
+		FrameData fd = new FrameData(segs, null, true);
+		fd.onEntry = (ECB<MeleeEnemy>) (e) -> e.anim.switchAnim(Animator.ID.IDLE);
+
+		return fd;
+	}
+
+	private static FrameData genATTACK() {
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(50, 0));
+		segs.add(new FrameSegment(50, 50));
+
+		ArrayList<Event> evs = new ArrayList<>();
+		evs.add(new Event((ECB<MeleeEnemy>) (e) -> {
+			System.out.println("Attack");
+
+			e.pData.velo.x = 1 * e.sideFacing;
+
+			e.anim.switchAnim(Animator.ID.LUNGE);
+		}, 50));
+
+		FrameData fd = new FrameData(segs, evs, false);
+
+		fd.onEnd = (ECB<MeleeEnemy>) (e) -> e.setEntityFD(FD.MOVE.fd);
+		fd.onEntry = (ECB<MeleeEnemy>) (e) -> e.anim.switchAnim(Animator.ID.WINDUP);
+
+		return fd;
+	}
+
+	// TODO: This can definitely be inherited
+	private static void genTags() {
+		tagCBs.put(StateTag.MOVEABLE, (ECB<MeleeEnemy>) (e) -> {
+			e.follow();
+		});
+
+		tagCBs.put(StateTag.CAN_MELEE, (ECB<MeleeEnemy>) (e) -> {
+			if (e.target == null)
+				return;
+
+			Vector2f tVec = new Vector2f(e.target.getCenter()).sub(e.getCenter());
+
+			int meleeRange = 100;
+			if (tVec.x * e.sideFacing > 0 && tVec.length() < meleeRange) {
+				System.out.println("Can melee");
+				e.setEntityFD(FD.ATTACK.fd);
+			}
+		});
+	}
+
+	public void follow() {
 		// Pursue player
 		if (target == null)
 			findTarget();
 
 		if (target != null) {
 			Vector2f tVec = new Vector2f(target.getCenter()).sub(getCenter());
-			// System.out.println(target.getCenter());
 
 			// Handle pauses when switching side faced
 			int newSideFacing = Arithmetic.sign(tVec.x);
@@ -112,6 +190,10 @@ public class MeleeEnemy extends Enemy {
 				// TODO: I should probably just write this as a state machine
 			}
 		}
+	}
+
+	public void attack() {
+
 	}
 
 	@Override
