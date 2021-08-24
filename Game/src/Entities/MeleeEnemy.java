@@ -5,16 +5,21 @@ import java.util.HashMap;
 
 import org.joml.Vector2f;
 
+import Collision.Hitbox;
 import Collision.Hurtbox;
 import Collision.Behaviors.PGBGroundFriction;
 import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Debugging.DebugBox;
+import Entities.Framework.Aligned;
+import Entities.Framework.Combatant;
 import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
+import Entities.Framework.Melee;
 import Entities.Framework.StateMachine.ECB;
 import Entities.Framework.StateMachine.StateTag;
 import GameController.EntityData;
+import GameController.GameManager;
 import GameController.Time;
 import Graphics.Animation.Animation;
 import Graphics.Animation.Animator;
@@ -96,13 +101,14 @@ public class MeleeEnemy extends Enemy {
 	// TODO: Maybe make this just use a general list of tags and map to a hashmap?
 	// Can always add a layer of abstraction if need be.
 	private static enum FD {
-		MOVE, ATTACK;
+		MOVE, ATTACK, STUNNED;
 
 		public FrameData fd;
 
 		public static void assignFD() {
 			MOVE.fd = genMOVE();
 			ATTACK.fd = genATTACK();
+			STUNNED.fd = genSTUNNED();
 		}
 	}
 
@@ -128,12 +134,29 @@ public class MeleeEnemy extends Enemy {
 			e.pData.velo.x = 1 * e.sideFacing;
 
 			e.anim.switchAnim(Animator.ID.LUNGE);
+
+			// Attach a melee attack to self
+			Melee me = new Melee(e.getCenter(), e, new Vector2f(e.sideFacing, 0), 1, 150, e.dim);
+			GameManager.subscribeEntity(me);
 		}, 50));
 
 		FrameData fd = new FrameData(segs, evs, false);
 
 		fd.onEnd = (ECB<MeleeEnemy>) (e) -> e.setEntityFD(FD.MOVE.fd);
 		fd.onEntry = (ECB<MeleeEnemy>) (e) -> e.anim.switchAnim(Animator.ID.WINDUP);
+
+		return fd;
+	}
+
+	private static FrameData genSTUNNED() {
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(50, 0));
+
+		FrameData fd = new FrameData(segs, null, false);
+		fd.onEnd = (ECB<MeleeEnemy>) (e) -> e.setEntityFD(FD.MOVE.fd);
+		fd.onEntry = (ECB<MeleeEnemy>) (e) -> e.anim.switchAnim(Animator.ID.IDLE); // No stunned animation yet
+
+		fd.cb = (e) -> System.out.println("Stunned");
 
 		return fd;
 	}
@@ -152,7 +175,6 @@ public class MeleeEnemy extends Enemy {
 
 			int meleeRange = 100;
 			if (tVec.x * e.sideFacing > 0 && tVec.length() < meleeRange) {
-				System.out.println("Can melee");
 				e.setEntityFD(FD.ATTACK.fd);
 			}
 		});
@@ -192,8 +214,12 @@ public class MeleeEnemy extends Enemy {
 		}
 	}
 
-	public void attack() {
-
+	@Override
+	public void hurtBy(Hitbox other) {
+		Aligned otherOwner = (Aligned) other.owner;
+		if (Combatant.getOpposingAlignment(otherOwner.getAlign()) == alignment) {
+			setEntityFD(FD.STUNNED.fd);
+		}
 	}
 
 	@Override

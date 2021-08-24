@@ -483,7 +483,7 @@ public class PlayerStateController {
 		// TODO: Check
 		long tLife = FrameData.frameToTDelta(fLife);
 
-		Melee meleeEntity = new Melee("MELEE", pos, "Melee", p, nDir, tLife, dims);
+		Melee meleeEntity = new Melee("MELEE", pos, "Melee", p, nDir, 2, tLife, dims);
 		GameManager.subscribeEntity(meleeEntity);
 
 		float angle = Math.atan2(dir.y, dir.x);

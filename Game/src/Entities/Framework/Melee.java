@@ -25,6 +25,7 @@ import Wrappers.Color;
 public class Melee extends Entity implements Collidable, Aligned {
 	Vector2f kbDir;
 	Vector2f offset;
+	float kbStrength;
 
 	ArrayList<Entity> hitEntities;
 
@@ -34,7 +35,10 @@ public class Melee extends Entity implements Collidable, Aligned {
 
 	protected Alignment alignment;
 
-	public Melee(String ID, Vector2f position, String name, Entity owner, Vector2f kbDir, long life, Vector2f dim) {
+	// TODO: For entities, please just use relative positioning.
+
+	public Melee(String ID, Vector2f position, String name, Entity owner, Vector2f kbDir, float kbStrength, long life,
+			Vector2f dim) {
 		super(ID, position, name);
 		offset = new Vector2f(owner.position.x - position.x, owner.position.y - position.y);
 
@@ -56,6 +60,7 @@ public class Melee extends Entity implements Collidable, Aligned {
 		localTrans.trans.setTranslation(-dim.x / 2, -dim.y / 2, 0);
 
 		this.kbDir = kbDir;
+		this.kbStrength = kbStrength;
 		hitEntities = new ArrayList<>();
 
 		lifeTimer = new Timer(life, new TimerCallback() {
@@ -79,7 +84,7 @@ public class Melee extends Entity implements Collidable, Aligned {
 			if (!hitEntities.contains(comb)) {
 				if (comb.alignment == oppAlign) {
 					if (!comb.getInvulnState()) {
-						Vector2f kb = new Vector2f(kbDir).mul(2);
+						Vector2f kb = new Vector2f(kbDir).mul(kbStrength);
 						comb.knockback(kb, 0.5f, 1f);
 
 						comb.hit(10);
@@ -90,6 +95,10 @@ public class Melee extends Entity implements Collidable, Aligned {
 			}
 		};
 		addColl(tempHB);
+	}
+
+	public Melee(Vector2f position, Entity owner, Vector2f kbDir, float kbStrength, long life, Vector2f dim) {
+		this("MELEE", position, "Melee", owner, kbDir, kbStrength, life, dim);
 	}
 
 	@Override
