@@ -22,6 +22,8 @@ public class Collider {
 	public ModelTransform localTrans;
 	private Vector2f[] verts; // Encapsulated in genVerts
 
+	public boolean isActive = true;
+
 	public Collider(Entity owner, float width, float height) {
 		this(owner, width, height, Shape.ShapeEnum.SQUARE.v);
 	}

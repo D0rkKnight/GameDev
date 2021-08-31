@@ -79,8 +79,13 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 		colls = new ArrayList<Collider>();
 
 		// Init framedata
+		initStructs();
 		genTags();
 		assignFD();
+	}
+
+	protected void initStructs() {
+
 	}
 
 	protected void assignFD() {

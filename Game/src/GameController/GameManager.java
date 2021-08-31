@@ -319,6 +319,9 @@ public class GameManager {
 
 				Collider otherC = coll.get(j);
 
+				if (!c.isActive || !otherC.isActive)
+					continue; // Skip if inactive
+
 				Physics.checkEntityCollision(c, otherC);
 			}
 

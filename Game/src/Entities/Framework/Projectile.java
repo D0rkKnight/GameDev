@@ -13,7 +13,7 @@ import Wrappers.Color;
 
 public class Projectile extends PhysicsEntity {
 
-	public Projectile(String ID, Vector2f position, String name) {
+	public Projectile(String ID, Vector2f position, String name, Alignment align) {
 		super(ID, position, name);
 
 		// Configure renderer (this is a hack)
@@ -26,10 +26,11 @@ public class Projectile extends PhysicsEntity {
 		addColl(new Hitbox(this, dim.x, dim.y));
 
 		hasGravity = false;
+		this.alignment = align;
 	}
 
 	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
-		return new Projectile(vals.str("type"), pos, vals.str("name"));
+		return new Projectile(vals.str("type"), pos, vals.str("name"), Alignment.NEUTRAL);
 	}
 
 	@Override

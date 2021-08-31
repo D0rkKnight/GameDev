@@ -68,6 +68,25 @@ public class Animator {
 		}
 
 		// Reset current anim
+		setAnim(animKey);
+	}
+
+	/**
+	 * For setting the anim without resetting if the animator is already on said
+	 * anim
+	 * 
+	 * @param animKey
+	 */
+	public void switchAnimWithoutReset(Object animKey) {
+		if (currentAnimId.equals(animKey)) {
+			return;
+		}
+
+		setAnim(animKey);
+	}
+
+	private void setAnim(Object animKey) {
+		// Reset current anim
 		currentAnim.resetCurrFrame();
 		currentAnim = anims.get(animKey);
 		currentAnimId = animKey;

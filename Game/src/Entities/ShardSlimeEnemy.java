@@ -39,13 +39,12 @@ public class ShardSlimeEnemy extends BouncingEnemy {
 			Vector2f pos = new Vector2f(position).add(new Vector2f(8, 10));
 
 			// TODO: Retrieve this from the lookup
-			Projectile proj = new Projectile("SHARD", pos, "Bullet"); // initializes bullet entity
+			Projectile proj = new Projectile("SHARD", pos, "Bullet", alignment); // initializes bullet entity
 
 			Vector2f velo = new Vector2f(((float) Math.random() - 0.5f), (float) (Math.random() / 2) + 0.3f);
 
 			proj.pData.velo = new Vector2f(velo);
 			proj.hasGravity = true;
-			proj.setAlign(alignment);
 
 			GameManager.subscribeEntity(proj);
 		}

@@ -1,7 +1,6 @@
 package Wrappers;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import Entities.Framework.StateMachine.ECB;
 import GameController.GameManager;
@@ -30,14 +29,15 @@ public class FrameData {
 	public static class FrameSegment {
 		public int fLength;
 		public int fStart;
-		public ArrayList<ECB> cbs;
+		protected ArrayList<ECB> cbs;
 
 		public FrameSegment(int fLength, int fStart, ECB[] cbs) {
 			this.fLength = fLength;
 			this.fStart = fStart;
 
 			this.cbs = new ArrayList<>();
-			Collections.addAll(this.cbs, cbs);
+			for (ECB cb : cbs)
+				addCB(cb);
 		}
 
 		public FrameSegment(int fLength, int fStart) {
@@ -50,6 +50,15 @@ public class FrameData {
 
 		public FrameSegment(ECB... cb) {
 			this(1, 0, cb);
+		}
+
+		public void addCB(ECB cb) {
+			if (!cbs.contains(cb))
+				cbs.add(cb);
+			else {
+				new Exception("Segment already contains this cb");
+				System.exit(1);
+			}
 		}
 	}
 
@@ -158,5 +167,9 @@ public class FrameData {
 
 	public static float TDeltaToFrame(long td) {
 		return (float) td * GameManager.COMBAT_FPS / 1000f;
+	}
+
+	public FrameSegment getSeg(int i) {
+		return segments.get(i);
 	}
 }

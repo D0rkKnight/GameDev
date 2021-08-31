@@ -7,6 +7,7 @@ import org.joml.Vector2f;
 
 import Collision.Hurtbox;
 import Collision.Shapes.Shape;
+import Entities.Behavior.EntityFlippable;
 import Entities.Framework.Combatant;
 import Entities.Framework.PhysicsEntity;
 import Entities.Framework.Projectile;
@@ -47,11 +48,13 @@ public abstract class PlayerFramework extends Combatant {
 	private long jumpGraceInterval = 100;
 	private Timer jumpGraceTimer;
 
-	int sideFacing;
+	EntityFlippable flip;
 
 	public boolean canMove = true;
 
 	GhostParticleSystem pSys;
+
+	protected Hurtbox mainHurtbox;
 
 	// Temp
 	public Color baseCol;
@@ -72,7 +75,9 @@ public abstract class PlayerFramework extends Combatant {
 
 		// Configure hitbox
 		dim = new Vector2f(15f, 60f);
-		addColl(new Hurtbox(this, dim.x, dim.y));
+
+		mainHurtbox = new Hurtbox(this, dim.x, dim.y);
+		addColl(mainHurtbox);
 
 		jumpSpeed = 1f;
 		dashSpeed = 2f;
@@ -84,11 +89,14 @@ public abstract class PlayerFramework extends Combatant {
 		// Alignment
 		alignment = PhysicsEntity.Alignment.PLAYER;
 
-		sideFacing = 1;
-
 		baseInvulnLength = 1000;
 
 		setEntityFD(StateID.I);
+	}
+
+	@Override
+	protected void initStructs() {
+		flip = new EntityFlippable(1, 1);
 	}
 
 	private void initGraphics() {
@@ -229,7 +237,7 @@ public abstract class PlayerFramework extends Combatant {
 		int newSideFacing = Arithmetic.sign(Input.moveX);
 		// Can only change sides if not attacking
 		if (newSideFacing != 0)
-			sideFacing = newSideFacing;
+			flip.sideFacing = newSideFacing;
 
 		hasGravity = true;
 	}
@@ -289,14 +297,13 @@ public abstract class PlayerFramework extends Combatant {
 
 		Vector2f pos = new Vector2f(position).add(new Vector2f(8, 32));
 
-		Projectile proj = new Projectile("PROJECTILE", pos, "Bullet"); // initializes bullet
-																		// entity
+		Projectile proj = new Projectile("PROJECTILE", pos, "Bullet", alignment); // initializes bullet
+		// entity
 
 		Vector2f dir = new Vector2f(firePos).sub(pos).normalize();
 		Vector2f velo = new Vector2f(dir).mul(3);
 
 		proj.pData.velo = new Vector2f(velo);
-		proj.setAlign(alignment);
 
 		GameManager.subscribeEntity(proj);
 	}
@@ -304,9 +311,7 @@ public abstract class PlayerFramework extends Combatant {
 	@Override
 	public void calcFrame() {
 		// Scale to the side facing
-		if (sideFacing != 0) {
-			localTrans.scale.identity().scaleAround(sideFacing, 1, 1, entOriginPos.x, 0, 0);
-		}
+		flip.update(this);
 
 		// Update trailing particle system
 		pSys.activeSubTex = anim.currentAnim.getFrame();

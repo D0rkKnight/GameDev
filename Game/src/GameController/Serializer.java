@@ -288,8 +288,6 @@ public class Serializer {
 			if (!template.isEmpty()) {
 				String path = shearFileDirectory(template);
 
-				path = path.substring(0, path.length() - 3);
-
 				// Load data from template
 				Template t = templates.get(path);
 
@@ -413,7 +411,7 @@ public class Serializer {
 			}
 
 			Template t = new Template(data);
-			templates.put(obj.getAttribute("name"), t);
+			templates.put(f.getName(), t);
 
 			if (!obj.hasAttribute("name")) {
 				System.err.println("Name not set for template " + f.getName());

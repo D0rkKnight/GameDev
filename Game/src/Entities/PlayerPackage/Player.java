@@ -290,7 +290,7 @@ public class Player extends PlayerFramework {
 
 		for (int i = 0; i < atks.length; i++) {
 			atks[i] = new FrameData.Event(() -> {
-				meleeInDir(this, new Vector2f(sideFacing, 0), life, 0, new Vector2f(70));
+				meleeInDir(this, new Vector2f(flip.sideFacing, 0), life, 0, new Vector2f(70));
 			}, start + advance * i);
 		}
 
@@ -356,20 +356,11 @@ public class Player extends PlayerFramework {
 	}
 
 	private FrameData genDASH() {
-		FrameData.Event retI = new Event(() -> {
-			pData.velo.y *= 0.4; // TODO hardcode for dash deacc
-			pData.velo.x *= 0.8;
-			decelMode(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
-
-			setEntityFD(StateID.I);
-		}, 10);
-
-		ArrayList<Event> evs = new ArrayList<>();
-		evs.add(retI);
+		int dur = 8;
 
 		ArrayList<FrameSegment> segs = new ArrayList<>();
-		FrameSegment dash = new FrameSegment(10, 0, getTagCB(StateTag.DASHABLE));
-		FrameSegment dashAttack = new FrameSegment(10, 0, () -> {
+		FrameSegment dash = new FrameSegment(dur, 0, getTagCB(StateTag.DASHABLE));
+		FrameSegment dashAttack = new FrameSegment(dur, 0, () -> {
 			if (Input.meleeAction) {
 				setEntityFD(StateID.DASH_ATK);
 			}
@@ -378,10 +369,13 @@ public class Player extends PlayerFramework {
 		segs.add(dash);
 		segs.add(dashAttack);
 
-		FrameData fd = new FrameData(segs, evs, false);
+		FrameData fd = new FrameData(segs, null, false);
 
 		fd.onEntry = () -> {
 			baseCol = new Color(0.5f, 0.5f, 0.5f, 1);
+
+			// Deactivate hitbox
+			mainHurtbox.isActive = false;
 		};
 
 		// Applies to forced exits by knockback and etc. too
@@ -389,6 +383,16 @@ public class Player extends PlayerFramework {
 			// Update pSys
 			pSys.pauseParticleGeneration();
 			anim.switchAnim(StateTag.MOVING);
+
+			mainHurtbox.isActive = true;
+		};
+
+		fd.onEnd = () -> {
+			pData.velo.y *= 0.4; // TODO hardcode for dash deacc
+			pData.velo.x *= 0.8;
+			decelMode(new Vector2f(Input.knockbackVectorTest), 0.5f, 1f);
+
+			setEntityFD(StateID.I);
 		};
 
 		return fd;

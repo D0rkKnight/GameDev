@@ -8,12 +8,10 @@ import org.joml.Vector2f;
 import Collision.Hurtbox;
 import Collision.Behaviors.PGBGroundFriction;
 import Collision.Shapes.Shape;
-import Debugging.Debug;
-import Debugging.DebugBox;
 import Entities.Behavior.EntityFlippable;
 import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
-import Entities.Framework.Melee;
+import Entities.Framework.Projectile;
 import Entities.Framework.StateMachine.StateID;
 import Entities.Framework.StateMachine.StateTag;
 import GameController.EntityData;
@@ -24,7 +22,6 @@ import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
-import Utility.Timers.Timer;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 import Wrappers.FrameData;
@@ -32,64 +29,81 @@ import Wrappers.FrameData.Event;
 import Wrappers.FrameData.FrameSegment;
 import Wrappers.Stats;
 
-public class MeleeEnemy extends Enemy {
+public class RangedEnemy extends Enemy {
 
-	// TODO: Same as player, remove boilerplate
-	Timer windupTimer;
 	EntityFlippable flip;
 
-	public MeleeEnemy(String ID, Vector2f position, String name, Stats stats) {
+	public RangedEnemy(String ID, Vector2f position, String name, Stats stats) {
 		super(ID, position, name, stats);
-		// Configure the renderer real quick
-		rendDims = new Vector2f(64, 64);
+
+		// Rend
+		rendDims = new Vector2f(96, 96);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
 		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color());
 
 		this.renderer = rend;
 
-		// Configure hitbox
-		dim = new Vector2f(rendDims.x, rendDims.y * 1.5f);
+		// Hitbox
+		dim = new Vector2f(16, 96);
 		addColl(new Hurtbox(this, dim.x, dim.y));
-		rendOriginPos.y = -rendDims.y * 0.5f;
-		rendOriginPos.x = rendDims.x / 2;
 
+		rendOriginPos.x = rendDims.x / 2;
 		entOriginPos.x = dim.x / 2;
 
-		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("assets/Sprites/bell_enemy.png"), 32, 32);
-		Animation a1 = new Animation(tAtlas.genSubTexSet(0, 0, 5, 0));
-		Animation a2 = new Animation(tAtlas.genSubTexSet(6, 0, 6, 0));
-		Animation a3 = new Animation(tAtlas.genSubTexSet(7, 0, 7, 0));
+		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("assets/Sprites/ranged_enemy.png"), 48, 48);
+		Animation a1 = new Animation(tAtlas.genSubTexSet(0, 0));
+		Animation a2 = new Animation(tAtlas.genSubTexSet(1, 0));
+		Animation a3 = new Animation(tAtlas.genSubTexSet(0, 1));
+		Animation a4 = new Animation(tAtlas.genSubTexSet(1, 1));
 		HashMap<StateTag, Animation> aMap = new HashMap<StateTag, Animation>();
 		aMap.put(StateTag.IDLE, a1);
-		aMap.put(StateTag.WINDUP, a2);
-		aMap.put(StateTag.LUNGE, a3);
+		aMap.put(StateTag.MOVING, a2);
+		aMap.put(StateTag.FIRE, a3);
+		aMap.put(StateTag.WINDOWN, a4);
 		anim = new Animator(aMap, 12, (GeneralRenderer) this.renderer, Shape.ShapeEnum.SQUARE.v);
 
 		hasGravity = true;
 
-		// Generate and set states
 		setEntityFD(StateID.MOVE);
 	}
 
 	@Override
 	protected void initStructs() {
+		super.initStructs();
+
 		flip = new EntityFlippable(1, -1);
 	}
 
 	@Override
 	protected void initPhysicsBehavior() {
 		super.initPhysicsBehavior();
-		generalBehaviorList.add(new PGBGroundFriction(10f));
-	}
 
-	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
-		return new MeleeEnemy(vals.str("type"), pos, vals.str("name"), Stats.fromED(vals));
+		generalBehaviorList.add(new PGBGroundFriction(8f));
 	}
 
 	@Override
-	public void calculate() {
-		super.calculate();
+	protected void genTags() {
+		super.genTags();
 
+		addTag(StateTag.MOVEABLE, genMOVETag(flip));
+		addTag(StateTag.DASHING, () -> {
+			if (Math.abs(pData.velo.x) > 0.1f)
+				anim.switchAnimWithoutReset(StateTag.MOVING);
+			else
+				anim.switchAnimWithoutReset(StateTag.IDLE);
+		});
+
+		addTag(StateTag.CAN_FIRE, (() -> {
+			if (target == null)
+				return;
+
+			Vector2f tVec = new Vector2f(target.getCenter()).sub(getCenter());
+
+			int range = 300;
+			if (tVec.x * flip.sideFacing > 0 && tVec.length() < range) {
+				setEntityFD(StateID.ATTACK);
+			}
+		}));
 	}
 
 	@Override
@@ -104,7 +118,8 @@ public class MeleeEnemy extends Enemy {
 	protected FrameData genMOVE() {
 		FrameData fd = super.genMOVE();
 
-		fd.getSeg(0).addCB(getTagCB(StateTag.CAN_MELEE));
+		fd.getSeg(0).addCB(getTagCB(StateTag.DASHING));
+		fd.getSeg(0).addCB(getTagCB(StateTag.CAN_FIRE));
 		return fd;
 	}
 
@@ -117,49 +132,33 @@ public class MeleeEnemy extends Enemy {
 		evs.add(new Event(() -> {
 			System.out.println("Attack");
 
-			pData.velo.x = 1 * flip.sideFacing;
+			pData.velo.x = -0.5f * flip.sideFacing;
 
-			anim.switchAnim(StateTag.LUNGE);
+			anim.switchAnim(StateTag.WINDOWN);
 
-			// Attach a melee attack to self
-			Melee me = new Melee(getCenter(), this, new Vector2f(flip.sideFacing, 0), 1, 150, dim);
-			GameManager.subscribeEntity(me);
+			// Fire a projectile
+			Projectile proj = new Projectile("PROJ", getCenter(), "Ranged enemy projectile", alignment);
+			proj.pData.velo.x = flip.sideFacing * 0.5f;
+			GameManager.subscribeEntity(proj);
 		}, 50));
 
 		FrameData fd = new FrameData(segs, evs, false);
 
 		fd.onEnd = () -> setEntityFD(StateID.MOVE);
-		fd.onEntry = () -> anim.switchAnim(StateTag.WINDUP);
+		fd.onEntry = () -> anim.switchAnim(StateTag.FIRE);
 
 		return fd;
 	}
 
-	@Override
-	protected void genTags() {
-		super.genTags();
-
-		addTag(StateTag.MOVEABLE, genMOVETag(flip));
-
-		addTag(StateTag.CAN_MELEE, (() -> {
-			if (target == null)
-				return;
-
-			Vector2f tVec = new Vector2f(target.getCenter()).sub(getCenter());
-
-			int meleeRange = 100;
-			if (tVec.x * flip.sideFacing > 0 && tVec.length() < meleeRange) {
-				setEntityFD(StateID.ATTACK);
-			}
-		}));
+	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
+		return new RangedEnemy(vals.str("type"), pos, vals.str("name"), Stats.fromED(vals));
 	}
 
 	@Override
 	public void calcFrame() {
-		// Log origin
-		Debug.enqueueElement(new DebugBox(position, new Vector2f(10, 10), new Color(1, 0, 0, 1), 1));
+		super.calcFrame();
 
 		flip.update(this);
-
-		super.calcFrame();
 	}
+
 }
