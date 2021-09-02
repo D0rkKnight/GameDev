@@ -2,7 +2,6 @@ package Graphics.Elements;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_NEAREST;
 import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
@@ -25,7 +24,7 @@ import static org.lwjgl.opengl.GL30.glGenFramebuffers;
 import Graphics.Rendering.GeneralRenderer;
 
 public class DrawBuffer {
-	public int fbuff;
+	private int fbuff;
 	public Texture tex;
 	public boolean isActive = false;
 
@@ -36,6 +35,7 @@ public class DrawBuffer {
 		this.tex = tex;
 
 		this.rend = rend;
+		rend.spr = tex;
 	}
 
 	public static DrawBuffer genEmptyBuffer(int pixelsW, int pixelsT, GeneralRenderer newRend) {
@@ -52,8 +52,8 @@ public class DrawBuffer {
 		Texture texObj = new Texture(texId, pixelsW, pixelsT);
 
 		// Poor filtering. Needed !
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Texture.TEX_FILTER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Texture.TEX_FILTER);
 
 		// Bind texture to active frame buffer (not the same thing as "drawBuff", it is
 		// GL_COLOR_ATTACHMENT0 in this case. It's just a static buffer.)
@@ -70,5 +70,9 @@ public class DrawBuffer {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		return new DrawBuffer(buff, texObj, newRend);
+	}
+
+	public void bind() {
+		glBindFramebuffer(GL_FRAMEBUFFER, fbuff);
 	}
 }

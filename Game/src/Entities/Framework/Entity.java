@@ -12,6 +12,7 @@ import Debugging.DebugVector;
 import Entities.Framework.EntityFlag.FlagFactory;
 import GameController.GameManager;
 import GameController.Input;
+import Graphics.Drawer;
 import Graphics.Animation.Animator;
 import Graphics.Rendering.Renderer;
 import Utility.Rect;
@@ -134,8 +135,10 @@ public abstract class Entity {
 	 * You can override this with something spicy I guess
 	 */
 	public void render() {
-		if (renderer != null)
+		if (renderer != null) {
+			Drawer.setCurrBuff(Drawer.DBEnum.MAIN);
 			renderer.render();
+		}
 	}
 
 	public void Destroy() {

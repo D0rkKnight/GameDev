@@ -27,7 +27,7 @@ public class Camera {
 		moveSpeed = 0.3f;
 
 		// TODO: Resolve this with input's stuff
-		viewport = Drawer.GetWindowSize();
+		viewport = new Vector2f(Drawer.GetWindowSize());
 
 		worldViewMatrix = new Matrix4f();
 		screenViewMatrix = new Matrix4f();

@@ -28,7 +28,7 @@ public class DebugBox extends DebugElement {
 	}
 
 	public DebugBox(Vector2f p, Vector2f dims) {
-		this(p, dims, 1);
+		this(p, dims, 0);
 	}
 
 	@Override

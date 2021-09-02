@@ -99,7 +99,7 @@ public class RangedEnemy extends Enemy {
 
 			Vector2f tVec = new Vector2f(target.getCenter()).sub(getCenter());
 
-			int range = 300;
+			int range = 500;
 			if (tVec.x * flip.sideFacing > 0 && tVec.length() < range) {
 				setEntityFD(StateID.ATTACK);
 			}

@@ -70,7 +70,7 @@ public class Debug {
 		ArrayList<DebugElement> clearList = new ArrayList<DebugElement>();
 		for (DebugElement e : debugElements) {
 			if (debugElementsEnabled)
-				e.render(debugShader);
+				e.render(debugShader); // Renders every element at least once
 			e.lifespan--;
 			if (e.lifespan <= 0)
 				clearList.add(e);

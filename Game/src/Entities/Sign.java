@@ -7,9 +7,9 @@ import org.joml.Vector2f;
 import Collision.Shapes.Shape;
 import Entities.Framework.Entity;
 import Entities.Framework.Interactive;
+import Entities.PlayerPackage.Player;
 import GameController.Dialogue;
 import GameController.EntityData;
-import GameController.GameManager;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
@@ -23,11 +23,7 @@ public class Sign extends Entity implements Interactive {
 
 	public Sign(String ID, Vector2f position, String name, ArrayList<String> text) {
 		super(ID, position, name);
-
 		this.text = text;
-
-		// Configure the renderer real quick
-		// TESTING: It's gonna look like grass for now ig
 
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("Assets/Sprites/props.png"), 48, 48);
 		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
@@ -71,8 +67,8 @@ public class Sign extends Entity implements Interactive {
 	}
 
 	@Override
-	public void interact() {
+	public void interact(Player p) {
 		Dialogue.loadDialogue(text);
-		GameManager.player.canMove = false;
+		p.canMove = false;
 	}
 }

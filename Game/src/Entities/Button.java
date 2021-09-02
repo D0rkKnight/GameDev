@@ -5,6 +5,7 @@ import org.joml.Vector2f;
 import Collision.Shapes.Shape;
 import Entities.Framework.Entity;
 import Entities.Framework.Interactive;
+import Entities.PlayerPackage.Player;
 import Entities.PlayerPackage.PlayerFramework;
 import GameController.EntityData;
 import GameController.Input;
@@ -55,7 +56,7 @@ public class Button extends Entity implements Interactive {
 	}
 
 	@Override
-	public void interact() {
+	public void interact(Player p) {
 		state = 1;
 		changed = true;
 		onTimer = new Timer(timeOn, new TimerCallback() {

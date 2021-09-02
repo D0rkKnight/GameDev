@@ -45,7 +45,6 @@ public class GeneralRenderer extends Renderer {
 		spr.bind();
 	}
 
-	// TODO: Testing, in development
 	public void init(ProjectedTransform transform, Vector2f dims, Shape.ShapeEnum shape, Color col, SubTexture subTex) {
 		Shape s = shape.v;
 

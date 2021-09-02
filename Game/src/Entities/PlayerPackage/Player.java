@@ -95,7 +95,7 @@ public class Player extends PlayerFramework {
 
 		addTag(StateTag.JUMPABLE, () -> {
 			if (pData.grounded)
-				canJump = true;
+				jumpsLeft = maxJumps;
 		});
 
 		addTag(StateTag.CAN_MELEE, () -> {

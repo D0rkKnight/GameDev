@@ -21,7 +21,7 @@ import Entities.Framework.Entity;
 import Entities.Framework.EntityFlag;
 import Entities.Framework.Interactive;
 import Entities.Framework.PhysicsEntity;
-import Entities.PlayerPackage.PlayerFramework;
+import Entities.PlayerPackage.Player;
 import GameController.procedural.WorldGenerator;
 import Graphics.Drawer;
 import Tiles.Tile;
@@ -44,7 +44,7 @@ public class GameManager {
 	static private ArrayList<Entity> entityClearList;
 	static private ArrayList<Collider> coll;
 
-	public static PlayerFramework player;
+	public static Player player;
 
 	// If room is changing (all entities continue to move/freeze in place)
 	public static boolean roomChanging = false;
@@ -280,7 +280,7 @@ public class GameManager {
 							ent.flagEntity(iFlagFactory);
 
 						if (Input.interactAction && !Input.interactEaten) {
-							((Interactive) ent).interact();
+							((Interactive) ent).interact(player);
 						}
 					} else {
 						if (ent.flag != null)

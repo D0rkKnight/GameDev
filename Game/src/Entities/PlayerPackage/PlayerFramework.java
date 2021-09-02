@@ -44,9 +44,10 @@ public abstract class PlayerFramework extends Combatant {
 	private Vector2f dashDir;
 	private boolean releasedJump = true; // for making sure the player can't hold down w to jump
 
-	boolean canJump;
+	int jumpsLeft;
+	public int maxJumps = 1;
 	private long jumpGraceInterval = 100;
-	private Timer jumpGraceTimer;
+	protected Timer jumpGraceTimer;
 
 	EntityFlippable flip;
 
@@ -157,14 +158,16 @@ public abstract class PlayerFramework extends Combatant {
 		// Jump
 		if (jumpGraceTimer != null)
 			jumpGraceTimer.update();
-		if (canJump && Input.moveY == 1 && releasedJump) {
+		if (jumpsLeft > 0 && Input.moveY == 1 && releasedJump) {
 			pData.velo.y = jumpSpeed;
 
 			// TODO: Rename this so its purpose is less vague.
 			pData.isJumping = true; // Signals to the physics system that some operations ought to be done
 			releasedJump = false;
 
-			canJump = false;
+			jumpsLeft--;
+
+			jumpGraceTimer = null; // Release timer so it doesn't decrement the jump count
 		}
 	}
 
@@ -222,13 +225,15 @@ public abstract class PlayerFramework extends Combatant {
 		}
 
 		// Jump grace
-		if (pData.wasGrounded) {
+		// TODO: Is it possible that only jumping for 1 frame can cause releasedJump to
+		// be true despite having manually jumped?
+		if (pData.wasGrounded && releasedJump == true) {
 			// begin timer
 			jumpGraceTimer = new Timer(jumpGraceInterval, new TimerCallback() {
 
 				@Override
 				public void invoke(Timer timer) {
-					canJump = false;
+					jumpsLeft--;
 					jumpGraceTimer = null;
 				}
 			});

@@ -6,6 +6,7 @@ import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Entities.Framework.Entity;
 import Entities.Framework.Interactive;
+import Entities.PlayerPackage.Player;
 import GameController.EntityData;
 import Graphics.Rendering.GeneralRenderer;
 import Utility.Timers.Timer;
@@ -48,7 +49,7 @@ public class Switch extends Entity implements Interactive {
 	}
 
 	@Override
-	public void interact() {
+	public void interact(Player p) {
 		state++;
 		if (state >= statenum) {
 			state = 0;

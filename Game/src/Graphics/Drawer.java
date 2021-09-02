@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -39,11 +40,11 @@ import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Debugging.TestSpace;
 import Entities.Framework.Entity;
-import GameController.Camera;
 import GameController.GameManager;
 import GameController.Input;
 import GameController.Map;
 import Graphics.Elements.DrawBuffer;
+import Graphics.Elements.DrawOrderBuffer;
 import Graphics.Elements.DrawOrderElement;
 import Graphics.Elements.DrawOrderEntities;
 import Graphics.Elements.DrawOrderRenderers;
@@ -66,9 +67,69 @@ import Wrappers.Color;
  */
 public class Drawer {
 	public static long window;
+	private static DBEnum currBuff;
 
-	public static DrawBuffer drawBuff;
-	private static DrawBufferRenderer fBuffRend;
+	public static DBEnum getCurrBuff() {
+		return currBuff;
+	}
+
+	public static void setCurrBuff(DBEnum currBuff) {
+		if (Drawer.currBuff == null || currBuff != Drawer.currBuff) {
+			Drawer.currBuff = currBuff;
+			currBuff.bind();
+		}
+	}
+
+	public static void setDefBuff() {
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		currBuff = null;
+	}
+
+	public static enum DBEnum {
+		MAIN, OUTLINE;
+
+		public DrawBuffer buff;
+
+		public void bind() {
+			buff.bind();
+		}
+
+		public static void init() {
+			initMain();
+			initOutline();
+		}
+
+		private static void initOutline() {
+			// Outline buffer
+			Vector2i screenDims = Drawer.GetWindowSize();
+			GeneralRenderer rend = new DrawBufferRenderer(SpriteShader.genShader("outlineShader"));
+			rend.init(new ProjectedTransform(new Vector2f(0, screenDims.y), ProjectedTransform.MatrixMode.SCREEN),
+					new Vector2f(screenDims), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0));
+
+			Color.setGLClear(new Color(0, 0, 0, 0));
+			DBEnum.OUTLINE.buff = DrawBuffer.genEmptyBuffer(screenDims.x, screenDims.y, rend);
+
+			insertDrawOrderElement(new DrawOrderBuffer(100, DBEnum.OUTLINE.buff)); // Important that entities draw to
+																					// this
+																					// buffer FIRST.
+		}
+
+		private static void initMain() {
+			/**
+			 * Draw buffer configuration
+			 */
+
+			// Now set up the renderer that deals with this.
+			Shader shader = SpriteShader.genShader("texShader");
+			DrawBufferRenderer fBuffRend = new DrawBufferRenderer(shader);
+			DBEnum.MAIN.buff = DrawBuffer.genEmptyBuffer(1280, 720, fBuffRend);
+
+			Vector2i screenDims = Drawer.GetWindowSize();
+			fBuffRend.init(new ProjectedTransform(new Vector2f(0, screenDims.y), ProjectedTransform.MatrixMode.SCREEN),
+					new Vector2f(screenDims), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0));
+			fBuffRend.spr = DBEnum.MAIN.buff.tex;
+		}
+	}
 
 	public static enum LayerEnum {
 		BG(-50), FG(50), GROUND(0);
@@ -89,7 +150,7 @@ public class Drawer {
 
 	public static void draw(Map map, ArrayList<Entity> entities) {
 		// Draw to framebuffer please
-		glBindFramebuffer(GL_FRAMEBUFFER, drawBuff.fbuff);
+		DBEnum.MAIN.buff.bind();
 
 		// Clear frame buffer
 		Color.setGLClear(clearCol);
@@ -98,10 +159,10 @@ public class Drawer {
 		for (DrawOrderElement doe : drawOrder) {
 			if (doe instanceof DrawOrderEntities) {
 				((DrawOrderEntities) doe).tryRender(entities);
-			}
-
-			else if (doe instanceof DrawOrderRenderers) {
+			} else if (doe instanceof DrawOrderRenderers) {
 				((DrawOrderRenderers) doe).tryRender();
+			} else if (doe instanceof DrawOrderBuffer) {
+				((DrawOrderBuffer) doe).tryRender();
 			}
 		}
 
@@ -111,19 +172,20 @@ public class Drawer {
 		/**
 		 * Now draw the texture to the screen as a quad
 		 */
-		if (!fBuffRend.hasInit) {
-			fBuffRend.init(
-					new ProjectedTransform(new Vector2f(0, Camera.main.viewport.y), ProjectedTransform.MatrixMode.SCREEN),
-					Camera.main.viewport, Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0));
-			fBuffRend.spr = drawBuff.tex;
-		}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		fBuffRend.render();
+		setDefBuff();
+		DBEnum.MAIN.buff.rend.render();
 
 		Debug.renderDebug();
 
 		TestSpace.draw();
+
+		// Clear buffers
+		for (DrawOrderElement doe : drawOrder) {
+			if (doe instanceof DrawOrderBuffer) {
+				((DrawOrderBuffer) doe).clear();
+			}
+		}
 
 		// Yeesh that was hard.
 //  		ByteBuffer pixels = BufferUtils.createByteBuffer(20*20*4);
@@ -160,8 +222,7 @@ public class Drawer {
 
 		insertDrawOrderElement(new DrawOrderEntities(0));
 
-		// Creating graphical elements
-		initDrawBuffer();
+		DBEnum.init();
 
 		// Initializing text elements
 		Text.init();
@@ -195,12 +256,12 @@ public class Drawer {
 			throw new RuntimeException("Failed to create GLFW window");
 		}
 
-		Vector2f r = GetWindowSize();
+		Vector2i r = GetWindowSize();
 		// Get resolution of primary monitor
 		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
 		// Set pos
-		glfwSetWindowPos(window, (vidmode.width() - (int) r.x) / 2, (vidmode.height() - (int) r.y) / 2);
+		glfwSetWindowPos(window, (vidmode.width() - r.x) / 2, (vidmode.height() - r.y) / 2);
 
 		// Tells the GPU to write to this window.
 		glfwMakeContextCurrent(window);
@@ -219,21 +280,7 @@ public class Drawer {
 		Color.setGLClear(clearCol);
 	}
 
-	private static void initDrawBuffer() {
-		/**
-		 * Draw buffer configuration
-		 */
-
-		// Now set up the renderer that deals with this.
-		Shader shader = SpriteShader.genShader("texShader");
-		fBuffRend = new DrawBufferRenderer(shader);
-		drawBuff = DrawBuffer.genEmptyBuffer(1280, 720, fBuffRend);
-
-		// Reset to the regular buffer
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-
-	public static Vector2f GetWindowSize() {
+	public static Vector2i GetWindowSize() {
 		// Stack used because C++, runs on CPU or something.
 		try (MemoryStack stack = stackPush()) {
 			IntBuffer pWidth = stack.mallocInt(1);
@@ -242,7 +289,7 @@ public class Drawer {
 			// Get window size
 			glfwGetWindowSize(window, pWidth, pHeight);
 
-			return new Vector2f(pWidth.get(0), pHeight.get(0));
+			return new Vector2i(pWidth.get(0), pHeight.get(0));
 		}
 	}
 
@@ -338,7 +385,7 @@ public class Drawer {
 		}
 
 		// Create DOE to store renderers
-		DrawOrderRenderers doe = new DrawOrderRenderers(targetLayer.z);
+		DrawOrderRenderers doe = new DrawOrderRenderers(targetLayer.z, DBEnum.MAIN);
 		doe.destroyOnSceneChange = true;
 
 		for (VertexLayerKey key : positionData.keySet()) {

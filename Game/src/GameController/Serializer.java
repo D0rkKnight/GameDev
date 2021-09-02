@@ -31,6 +31,7 @@ import Accessories.Accessory;
 import Collision.Shapes.Shape;
 import Collision.Shapes.Shape.ShapeEnum;
 import Entities.Framework.Entity;
+import Entities.PlayerPackage.Player;
 import Entities.PlayerPackage.PlayerFramework;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
@@ -332,8 +333,9 @@ public class Serializer {
 
 			Entity ent = null;
 
+			String className = "";
 			try {
-				String className = propVals.str("class");
+				className = propVals.str("class");
 
 				Class<Entity> clazz = (Class<Entity>) Class.forName(className);
 
@@ -350,13 +352,20 @@ public class Serializer {
 					// We know for certain there is no prior player, so we can safely assign it to
 					// the GM singleton
 					if (ent instanceof PlayerFramework)
-						GameManager.player = (PlayerFramework) ent;
+						GameManager.player = (Player) ent;
+
+					if (!clazz.isInstance(ent)) {
+						new Exception("Wrong return type from createNew() for class " + className).printStackTrace();
+					}
 				}
 
 			} catch (Exception e) {
 				if (e instanceof InvocationTargetException) {
 					System.err.println("Error within invoked method");
 					e.getCause().printStackTrace();
+				} else if (e instanceof NoSuchMethodException) {
+					new Exception("No createNew() method defined for class " + className).printStackTrace();
+					;
 				} else {
 					e.printStackTrace();
 				}
