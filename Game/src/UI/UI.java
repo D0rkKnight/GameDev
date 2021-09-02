@@ -16,31 +16,28 @@ import Wrappers.Color;
 import Wrappers.Stats;
 
 public class UI {
-	private static HashMap<CanvasEnum, UICanvas> canvases;
+	private static HashMap<CEnum, UICanvas> canvases;
 
-	public static enum CanvasEnum {
+	public static enum CEnum {
 		NONE, RUNNING, PAUSED, DIALOGUE;
+
+		public UICanvas state;
 	}
 
-	private static CanvasEnum currCanvas = CanvasEnum.NONE;
+	private static CEnum currCanvas = CEnum.NONE;
 
-	private static UICanvas runningState;
 	private static UIBarCanvas healthBar;
 	private static UIBarCanvas staminaBar;
 
-	private static UICanvas dialogueState;
 	private static UITextBox dialogueBox;
-
-	private static UICanvas pausedState;
 
 	public static ArrayList<UIElement> elements;
 
 	public static void init() {
 		elements = new ArrayList<>();
-		canvases = new HashMap<>();
 
 		// Initializing the running game state
-		runningState = new UICanvas(new Vector2f(), Camera.main.viewport);
+		CEnum.RUNNING.state = new UICanvas(new Vector2f(), Camera.main.viewport);
 
 		Stats pStats = GameManager.player.stats;
 		healthBar = new UIBarCanvas(new GeneralRenderer(SpriteShader.genShader("texShader")), new Vector2f(10, 10),
@@ -49,7 +46,7 @@ public class UI {
 		healthBar.setUpdateCb(() -> {
 			healthBar.bar.fillRatio = (pStats.health) / (pStats.maxHealth);
 		});
-		runningState.addElement(healthBar);
+		CEnum.RUNNING.state.addElement(healthBar);
 
 		staminaBar = new UIBarCanvas(new GeneralRenderer(SpriteShader.genShader("texShader")), new Vector2f(10, 35),
 				new Vector2f(200, 20), new Color(0.3f, 1, 1, 1));
@@ -57,21 +54,21 @@ public class UI {
 		staminaBar.setUpdateCb(() -> {
 			staminaBar.bar.fillRatio = (pStats.stamina) / (pStats.maxStamina);
 		});
-		runningState.addElement(staminaBar);
+		CEnum.RUNNING.state.addElement(staminaBar);
 
-		UITextElement sampleText = new UITextElement("Testing", new Vector2f(10, 60), new Vector2f(300, 30));
-		runningState.addElement(sampleText);
-
-		canvases.put(CanvasEnum.RUNNING, runningState);
+		UITextElement waveLabel = new UITextElement("Current Wave: ", new Vector2f(Camera.main.viewport.x / 2, 10),
+				new Vector2f(300, 30));
+		waveLabel.relPos.sub(waveLabel.getTextDims().x / 2, 0);
+		CEnum.RUNNING.state.addElement(waveLabel);
 
 		// Initialize paused game state
-		pausedState = new UICanvas(new Vector2f(), Camera.main.viewport);
+		CEnum.PAUSED.state = new UICanvas(new Vector2f(), Camera.main.viewport);
 
 		UIBoxElement box = new UIBoxElement(new Vector2f(Camera.main.viewport).div(2), new Vector2f(300, 400),
 				new Color(0.5f, 0.5f, 0.5f, 1));
 		box.setAnchor(UIBoxElement.ANCHOR_MID);
 
-		pausedState.addElement(box);
+		CEnum.PAUSED.state.addElement(box);
 
 		UIButtonElement exitButton = new UIButtonElement(new Vector2f(20, 20), new Vector2f(200, 50),
 				new Color(0f, 0f, 0f, 1));
@@ -82,33 +79,29 @@ public class UI {
 
 		box.addElement(exitButton);
 
-		canvases.put(CanvasEnum.PAUSED, pausedState);
-
-		changeCanvas(CanvasEnum.RUNNING);
+		changeCanvas(CEnum.RUNNING);
 
 		// Dialogue popup
-		dialogueState = new UICanvas(new Vector2f(), Camera.main.viewport);
+		CEnum.DIALOGUE.state = new UICanvas(new Vector2f(), Camera.main.viewport);
 
 		Vector2f tbPos = new Vector2f(10, Camera.main.viewport.y - 300);
 		Vector2f tbDims = new Vector2f(Camera.main.viewport.x - 20, Camera.main.viewport.y - tbPos.y - 10);
 		dialogueBox = new UITextBox(tbPos, tbDims, "DIALOGUE BOX EMPTY");
 		dialogueBox.setAnchor(UIBoxElement.ANCHOR_UL);
-		dialogueState.addElement(dialogueBox);
-
-		canvases.put(CanvasEnum.DIALOGUE, dialogueState);
+		CEnum.DIALOGUE.state.addElement(dialogueBox);
 	}
 
-	public static void changeCanvas(CanvasEnum newId) {
-		if (currCanvas != CanvasEnum.NONE)
-			elements.remove(canvases.get(currCanvas));
+	public static void changeCanvas(CEnum newId) {
+		if (currCanvas != CEnum.NONE)
+			elements.remove(currCanvas.state);
 
-		if (newId != CanvasEnum.NONE)
-			elements.add(canvases.get(newId));
+		if (newId != CEnum.NONE)
+			elements.add(newId.state);
 
 		currCanvas = newId;
 	}
 
-	public static CanvasEnum getCurrCanvas() {
+	public static CEnum getCurrCanvas() {
 		return currCanvas;
 	}
 
@@ -122,7 +115,7 @@ public class UI {
 	public static void showTextBox(String text) {
 		dialogueBox.text.updateText(text);
 
-		changeCanvas(CanvasEnum.DIALOGUE);
+		changeCanvas(CEnum.DIALOGUE);
 	}
 
 }

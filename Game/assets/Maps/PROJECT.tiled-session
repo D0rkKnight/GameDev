@@ -461,7 +461,7 @@
         "Testing/test_arena.tmx"
     ],
     "project": "PROJECT.tiled-project",
-    "property.type": "string",
+    "property.type": "int",
     "recentFiles": [
         "Forest/forestX.tmx",
         "Testing/test_arena.tmx",

@@ -35,6 +35,6 @@ public abstract class Powerup extends SpinningEmblem {
 		super.render();
 
 		Drawer.setCurrBuff(Drawer.DBEnum.OUTLINE);
-		renderer.render(); // Render to other framebuffer
+		renderer.render();
 	}
 }

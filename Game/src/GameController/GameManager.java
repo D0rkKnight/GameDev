@@ -123,6 +123,8 @@ public class GameManager {
 		UI.init();
 		Time.initTime();
 
+		ArenaController.init();
+
 		TestSpace.init();
 
 		// Perform some things on load
@@ -248,11 +250,11 @@ public class GameManager {
 
 		switch (gameState) {
 		case RUNNING:
-			UI.changeCanvas(UI.CanvasEnum.RUNNING);
+			UI.changeCanvas(UI.CEnum.RUNNING);
 			Time.endPause();
 			break;
 		case PAUSED:
-			UI.changeCanvas(UI.CanvasEnum.PAUSED);
+			UI.changeCanvas(UI.CEnum.PAUSED);
 			Time.beginPause();
 			break;
 		}
@@ -350,6 +352,11 @@ public class GameManager {
 
 		if (switchTimer != null) {
 			switchTimer.update();
+		}
+
+		if (!TestSpace.ffExecuted) {
+			TestSpace.firstFrame();
+			TestSpace.ffExecuted = true;
 		}
 	}
 

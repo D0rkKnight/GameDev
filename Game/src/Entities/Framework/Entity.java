@@ -36,7 +36,7 @@ public abstract class Entity {
 	public Vector2f entOriginPos;
 	public Vector2f rendDims;
 
-	public String name; // TODO: Let createNew specify the name of the entity
+	public String name;
 	public Vector2f dim;
 
 	public Animator anim;

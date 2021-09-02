@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.joml.Vector2f;
 
 import Collision.Shapes.Shape;
+import Graphics.Drawer;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
 import Wrappers.Color;
@@ -98,6 +99,8 @@ public abstract class ParticleSystem {
 
 		rend.rebuildMesh(rendPos, rendUV, new Color());
 
+		// Bind main buffer
+		Drawer.setCurrBuff(Drawer.DBEnum.MAIN);
 		rend.render();
 	}
 

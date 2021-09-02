@@ -183,7 +183,7 @@ public class Input {
 			moveY--;
 
 		// Clear the UI if there is a text box first, this should also eat the input
-		if (UI.getCurrCanvas() == UI.CanvasEnum.DIALOGUE && interactAction) {
+		if (UI.getCurrCanvas() == UI.CEnum.DIALOGUE && interactAction) {
 			// Should advance dialogue, but for now, just remove the box.
 			interactEaten = true;
 			Dialogue.advanceDialogue();
