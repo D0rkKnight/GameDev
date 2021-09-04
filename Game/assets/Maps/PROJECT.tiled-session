@@ -6,22 +6,22 @@
     "activeFile": "Testing/test_arena.tmx",
     "automapping.whileDrawing": true,
     "expandedProjectPaths": [
-        "Forest",
-        "C:/Users/Hanzen Shou/Documents/GitBash/GameDev/Game/assets",
-        ".",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/dungeon",
-        "Templates",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/orthogonal_height_type",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master",
+        ".",
         "Tilesets/Forest",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules/cave",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/orthogonal_height_type",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/grassland",
         "Testing",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules",
+        "C:/Users/Hanzen Shou/Documents/GitBash/GameDev/Game/assets",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave/rules",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules/cave"
+        "Forest",
+        "Templates",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -348,11 +348,11 @@
             }
         },
         "Testing/test_arena.tmx": {
-            "scale": 1.5,
+            "scale": 2,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 351.3333333333333,
-                "y": 203.33333333333331
+                "x": 433.5,
+                "y": 155
             }
         },
         "Tilemaps/set.tsx": {
@@ -461,7 +461,7 @@
         "Testing/test_arena.tmx"
     ],
     "project": "PROJECT.tiled-project",
-    "property.type": "string",
+    "property.type": "int",
     "recentFiles": [
         "Forest/forestX.tmx",
         "Testing/test_arena.tmx",

@@ -26,7 +26,7 @@ public class Dialogue {
 		if (index < text.size())
 			UI.showTextBox(text.get(index));
 		else {
-			UI.changeCanvas(UI.CanvasEnum.RUNNING);
+			UI.changeCanvas(UI.CEnum.RUNNING);
 
 			text = null;
 			index = 0;

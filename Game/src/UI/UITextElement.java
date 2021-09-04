@@ -8,6 +8,7 @@ import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.SpriteShader;
 import Graphics.text.Font;
 import Graphics.text.Text;
+import Utility.Rect;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 
@@ -15,6 +16,12 @@ public class UITextElement extends UIDrawElement {
 
 	private Font font;
 	private Color col;
+
+	private Vector2f textDims;
+
+	public Vector2f getTextDims() {
+		return textDims;
+	}
 
 	public UITextElement(String text, Vector2f pos, Vector2f dims) {
 		super(pos, dims);
@@ -33,6 +40,10 @@ public class UITextElement extends UIDrawElement {
 			pointArr[i] = points.get(i);
 		for (int i = 0; i < uvs.size(); i++)
 			uvArr[i] = uvs.get(i);
+
+		// Get dimensions
+		textDims = Rect.getDimsFromPointCollection(points);
+		System.out.println(textDims);
 
 		// Build renderer
 		col = new Color(1, 1, 1, 1);

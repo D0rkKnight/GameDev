@@ -331,47 +331,7 @@ public class Serializer {
 				System.exit(1);
 			}
 
-			Entity ent = null;
-
-			String className = "";
-			try {
-				className = propVals.str("class");
-
-				Class<Entity> clazz = (Class<Entity>) Class.forName(className);
-
-				// Don't reconstruct the player
-				if (clazz.isAssignableFrom(PlayerFramework.class) && GameManager.player != null) {
-					// Do nothing.
-				}
-
-				else {
-					// Get factory
-					Method factory = clazz.getMethod("createNew", EntityData.class, Vector2f.class, Vector2f.class);
-					ent = (Entity) factory.invoke(null, propVals, newPos, newDims);
-
-					// We know for certain there is no prior player, so we can safely assign it to
-					// the GM singleton
-					if (ent instanceof PlayerFramework)
-						GameManager.player = (Player) ent;
-
-					if (!clazz.isInstance(ent)) {
-						new Exception("Wrong return type from createNew() for class " + className).printStackTrace();
-					}
-				}
-
-			} catch (Exception e) {
-				if (e instanceof InvocationTargetException) {
-					System.err.println("Error within invoked method");
-					e.getCause().printStackTrace();
-				} else if (e instanceof NoSuchMethodException) {
-					new Exception("No createNew() method defined for class " + className).printStackTrace();
-					;
-				} else {
-					e.printStackTrace();
-				}
-
-				System.exit(1);
-			}
+			Entity ent = createEntityAt(propVals, newPos, newDims);
 
 			if (ent != null) {
 				entities.add(ent);
@@ -382,7 +342,53 @@ public class Serializer {
 
 	}
 
-	static HashMap<String, Template> templates;
+	static Entity createEntityAt(EntityData eData, Vector2f newPos, Vector2f newDims) {
+		Entity ent = null;
+
+		String className = "";
+		try {
+			className = eData.str("class");
+
+			Class<Entity> clazz = (Class<Entity>) Class.forName(className);
+
+			// Don't reconstruct the player
+			if (clazz.isAssignableFrom(PlayerFramework.class) && GameManager.player != null) {
+				// Do nothing.
+			}
+
+			else {
+				// Get factory
+				Method factory = clazz.getMethod("createNew", EntityData.class, Vector2f.class, Vector2f.class);
+				ent = (Entity) factory.invoke(null, eData, newPos, newDims);
+
+				// We know for certain there is no prior player, so we can safely assign it to
+				// the GM singleton
+				if (ent instanceof PlayerFramework)
+					GameManager.player = (Player) ent;
+
+				if (!clazz.isInstance(ent)) {
+					new Exception("Wrong return type from createNew() for class " + className).printStackTrace();
+				}
+			}
+
+		} catch (Exception e) {
+			if (e instanceof InvocationTargetException) {
+				System.err.println("Error within invoked method");
+				e.getCause().printStackTrace();
+			} else if (e instanceof NoSuchMethodException) {
+				new Exception("No createNew() method defined for class " + className).printStackTrace();
+				;
+			} else {
+				e.printStackTrace();
+			}
+
+			System.exit(1);
+		}
+
+		return ent;
+	}
+
+	public static HashMap<String, Template> templates;
 
 	static void loadTemplates(String fDir) {
 		templates = new HashMap<String, Template>();

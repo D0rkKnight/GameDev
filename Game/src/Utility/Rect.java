@@ -1,5 +1,7 @@
 package Utility;
 
+import java.util.Collection;
+
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -28,4 +30,21 @@ public class Rect {
 		return new Vector2f(v4c.x, v4c.y);
 	}
 
+	public static Vector2f getDimsFromPointCollection(Collection<Vector2f> points) {
+		Vector2f bl = new Vector2f();
+		Vector2f ur = new Vector2f();
+
+		for (Vector2f p : points) {
+			if (p.x < bl.x)
+				bl.x = p.x;
+			if (p.y < bl.y)
+				bl.y = p.y;
+			if (p.x > ur.x)
+				ur.x = p.x;
+			if (p.y > ur.y)
+				ur.y = p.y;
+		}
+
+		return new Vector2f(ur).sub(bl);
+	}
 }
