@@ -92,7 +92,7 @@ public abstract class Renderer {
 		glBindVertexArray(vaoId);
 
 		// VERTEX STUFF
-		// New vertex buffer (also bind it to the VAO) TODO: Make it not static
+		// New vertex buffer (also bind it to the VAO)
 		vboId = glGenBuffers();
 		glBindBuffer(GL_ARRAY_BUFFER, vboId);
 		glBufferData(GL_ARRAY_BUFFER, vBuff, GL_STREAM_DRAW);

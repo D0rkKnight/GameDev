@@ -7,8 +7,6 @@ import org.joml.Vector3f;
 
 import Collision.Collidable;
 import Collision.Collider;
-import Debugging.Debug;
-import Debugging.DebugVector;
 import Entities.Framework.EntityFlag.FlagFactory;
 import GameController.GameManager;
 import GameController.Input;
@@ -17,7 +15,6 @@ import Graphics.Animation.Animator;
 import Graphics.Rendering.Renderer;
 import Utility.Rect;
 import Utility.Transformations.ModelTransform;
-import Wrappers.Color;
 
 /**
  * superclass for all entities entities have to be initialized after
@@ -125,8 +122,6 @@ public abstract class Entity {
 		// Debugging
 		Rect r = new Rect(new Vector2f(dim)); // Use dimensions as base
 		Vector2f center = new Vector2f(position).add(r.getTransformedCenter(localTrans.genModel()));
-
-		Debug.enqueueElement(new DebugVector(center, new Vector2f(0, 1), 25, new Color(0, 0, 1, 1), 1));
 
 		return center;
 	}

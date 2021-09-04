@@ -129,7 +129,7 @@ public class UI implements NewWaveListener {
 
 	@Override
 	public void onNewWave() {
-		waveLabel.updateText("Current Wave: " + ArenaController.currWave + 1);
+		waveLabel.updateText("Current Wave: " + (ArenaController.currWave + 1));
 	}
 
 }
