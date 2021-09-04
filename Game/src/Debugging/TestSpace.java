@@ -1,6 +1,5 @@
 package Debugging;
 
-import GameController.ArenaController;
 import Graphics.particles.GhostParticleSystem;
 
 public class TestSpace {
@@ -13,7 +12,6 @@ public class TestSpace {
 	}
 
 	public static void firstFrame() {
-		ArenaController.waves.get(0).release();
 	}
 
 	public static void draw() {

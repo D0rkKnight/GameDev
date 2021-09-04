@@ -348,6 +348,7 @@ public class GameManager {
 			}
 		}
 
+		ArenaController.update();
 		Camera.main.update();
 
 		if (switchTimer != null) {

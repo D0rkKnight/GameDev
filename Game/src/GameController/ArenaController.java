@@ -4,7 +4,9 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
+import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
+import UI.NewWaveListener;
 
 /**
  * Handles enemy spawns in an arena setting
@@ -85,15 +87,48 @@ public class ArenaController {
 	}
 
 	public static ArrayList<Wave> waves;
+	public static int currWave = -1;
 
 	public static void init() {
 		waves = new ArrayList<>();
 
-		ArrayList<SpawnData> spawns = new ArrayList<>();
-		spawns.add(SpawnData.genNew("Bell.tx", 0));
+		// Lazy init
+		for (int i = 0; i < 5; i++) {
+			ArrayList<SpawnData> spawns = new ArrayList<>();
+			spawns.add(SpawnData.genNew("Bell.tx", 0));
 
-		Wave w = new Wave(spawns);
-		waves.add(w);
+			Wave w = new Wave(spawns);
+			waves.add(w);
+		}
+	}
+
+	public static ArrayList<NewWaveListener> newWaveSubList = new ArrayList<>();
+
+	public static void sendWave() {
+		System.out.println("Sending new wave");
+		currWave++;
+
+		Wave w = waves.get(currWave);
+		w.release();
+
+		for (NewWaveListener l : newWaveSubList) {
+			l.onNewWave();
+		}
+	}
+
+	public static void update() {
+		if (currWave < waves.size() - 1) {
+			boolean enemyLeft = false;
+
+			for (Entity e : GameManager.entities) {
+				if (e instanceof Enemy)
+					enemyLeft = true;
+			}
+
+			if (!enemyLeft) {
+				sendWave();
+			}
+		}
 	}
 
 }

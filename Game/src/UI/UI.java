@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import org.joml.Vector2f;
 
+import GameController.ArenaController;
 import GameController.Camera;
 import GameController.GameManager;
 import Graphics.Drawer;
@@ -15,7 +16,7 @@ import Graphics.Rendering.SpriteShader;
 import Wrappers.Color;
 import Wrappers.Stats;
 
-public class UI {
+public class UI implements NewWaveListener {
 	private static HashMap<CEnum, UICanvas> canvases;
 
 	public static enum CEnum {
@@ -30,10 +31,13 @@ public class UI {
 	private static UIBarCanvas staminaBar;
 
 	private static UITextBox dialogueBox;
+	private static UITextElement waveLabel;
 
 	public static ArrayList<UIElement> elements;
 
 	public static void init() {
+		new UI().subscribeSelf();
+
 		elements = new ArrayList<>();
 
 		// Initializing the running game state
@@ -56,9 +60,10 @@ public class UI {
 		});
 		CEnum.RUNNING.state.addElement(staminaBar);
 
-		UITextElement waveLabel = new UITextElement("Current Wave: ", new Vector2f(Camera.main.viewport.x / 2, 10),
+		waveLabel = new UITextElement("Current Wave: ", new Vector2f(Camera.main.viewport.x / 2, 10),
 				new Vector2f(300, 30));
 		waveLabel.relPos.sub(waveLabel.getTextDims().x / 2, 0);
+
 		CEnum.RUNNING.state.addElement(waveLabel);
 
 		// Initialize paused game state
@@ -91,6 +96,10 @@ public class UI {
 		CEnum.DIALOGUE.state.addElement(dialogueBox);
 	}
 
+	private void subscribeSelf() {
+		ArenaController.newWaveSubList.add(this);
+	}
+
 	public static void changeCanvas(CEnum newId) {
 		if (currCanvas != CEnum.NONE)
 			elements.remove(currCanvas.state);
@@ -116,6 +125,11 @@ public class UI {
 		dialogueBox.text.updateText(text);
 
 		changeCanvas(CEnum.DIALOGUE);
+	}
+
+	@Override
+	public void onNewWave() {
+		waveLabel.updateText("Current Wave: " + ArenaController.currWave + 1);
 	}
 
 }
