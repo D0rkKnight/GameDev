@@ -40,7 +40,7 @@ public class ClothParticle extends Particle<ClothParticleSystem> {
 			// Fun wind map!
 			// float windStrength = (float) (Math.sin(pos.x * 0.1) + Math.sin(pos.y * 0.1))
 			// + 2;
-			float windStrength = 0f;
+			float windStrength = 2f;
 
 			// Update position using Verlet integration
 			Vector2f a = new Vector2f(windStrength * 100, -0.5f * 1000); // Gravity
@@ -48,8 +48,13 @@ public class ClothParticle extends Particle<ClothParticleSystem> {
 
 			Vector2f temp = new Vector2f(pos);
 
-			// x += x-oldx+a*fTimeStep*fTimeStep;
-			pos.add(pos).sub(lastPos).add(new Vector2f(a).mul(dt * dt));
+			// x' = 2x' - x + a*dt^2
+			// >>> x += x-oldx+a*fTimeStep*fTimeStep;
+
+			float dragCoef = 0.99f;
+			Vector2f ls = new Vector2f(pos).sub(lastPos).mul(dragCoef);
+			// pos.add(pos).sub(lastPos).add(new Vector2f(a).mul(dt * dt));
+			pos.add(ls).add(new Vector2f(a).mul(dt * dt));
 
 			lastPos.set(temp);
 		}

@@ -6,10 +6,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import Collision.Shapes.Shape;
-import Debugging.Debug;
-import Debugging.DebugVector;
 import Entities.Framework.Entity;
-import Utility.Rect;
 import Utility.Transformations.ModelTransform;
 
 public class Collider {
@@ -55,21 +52,6 @@ public class Collider {
 		// Pull data
 		position = new Vector2f(owner.getPosition());
 		localTrans.setModel(owner.localTrans);
-
-		// Override scaling because it's a bit different
-		// Pretty janky but I think it works
-		Vector3f ownerDiag = new Vector3f(owner.localTrans.scale.m00(), owner.localTrans.scale.m11(),
-				owner.localTrans.scale.m22());
-
-		localTrans.scale.set(new Matrix4f().scaleAround(ownerDiag.x, ownerDiag.y, 1, width / 2, height / 2, 0));
-		localTrans.scale.scale(width, height, 1);
-
-		// Debugging
-		Rect r = new Rect(new Vector2f(1, 1)); // Dimensions of 1, 1 necessary because base shape has those dimensions.
-												// Height and width are actual scaling this base shape, so we want to
-												// avoid double applying height and width to the values.
-		Vector2f center = r.getTransformedCenter(localTrans.genModel());
-		Debug.enqueueElement(new DebugVector(new Vector2f(position).add(center), new Vector2f(0, 1), 10, 1));
 	}
 
 	/**
@@ -88,7 +70,8 @@ public class Collider {
 		Matrix4f worldTranslate = new Matrix4f().setTranslation(new Vector3f(position.x, position.y, 0));
 
 		for (int i = 0; i < verts.length; i++) {
-			Vector4f transed = new Vector4f(shape.vertices[i], 0, 1).mul(localModel);
+			Vector2f scaledVert = new Vector2f(shape.vertices[i]).mul(width, height);
+			Vector4f transed = new Vector4f(scaledVert, 0, 1).mul(localModel);
 			transed.mul(worldTranslate);
 			verts[i] = new Vector2f(transed.x, transed.y);
 		}

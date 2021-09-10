@@ -329,7 +329,7 @@ public class GameManager {
 
 			// Figure out movement (but only if it's a physics entity)
 			Object e = c.owner;
-			if (c.owner instanceof PhysicsEntity) {
+			if (e instanceof PhysicsEntity && ((PhysicsEntity) e).hasCollision) {
 				Physics.calculateDeltas((PhysicsEntity) e, grid);
 			}
 		}

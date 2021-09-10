@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <object name="Spirit" type="SPIRIT_BOSS" width="32" height="32">
+  <properties>
+   <property name="class" value="Entities.SpiritFragment"/>
+   <property name="id" type="int" value="0"/>
+  </properties>
+ </object>
+</template>

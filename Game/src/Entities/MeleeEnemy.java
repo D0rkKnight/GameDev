@@ -8,8 +8,6 @@ import org.joml.Vector2f;
 import Collision.Hurtbox;
 import Collision.Behaviors.PGBGroundFriction;
 import Collision.Shapes.Shape;
-import Debugging.Debug;
-import Debugging.DebugBox;
 import Entities.Behavior.EntityFlippable;
 import Entities.Framework.Enemy;
 import Entities.Framework.Entity;
@@ -155,9 +153,6 @@ public class MeleeEnemy extends Enemy {
 
 	@Override
 	public void calcFrame() {
-		// Log origin
-		Debug.enqueueElement(new DebugBox(position, new Vector2f(10, 10), new Color(1, 0, 0, 1), 1));
-
 		flip.update(this);
 
 		super.calcFrame();

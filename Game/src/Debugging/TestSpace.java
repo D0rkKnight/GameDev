@@ -10,7 +10,7 @@ public class TestSpace {
 
 	public static void init() {
 
-		pSys = new ClothParticleSystem(Debug.debugTex, 1000);
+		// pSys = new ClothParticleSystem(Debug.debugTex, 20, 20);
 
 	}
 
@@ -18,7 +18,7 @@ public class TestSpace {
 	}
 
 	public static void draw() {
-		pSys.update();
-		pSys.render();
+//		pSys.update();
+//		pSys.render();
 	}
 }

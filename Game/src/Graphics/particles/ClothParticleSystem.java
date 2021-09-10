@@ -17,14 +17,14 @@ public class ClothParticleSystem extends ParticleSystem<ClothParticle> {
 
 	public ArrayList<Constraint> constraints = new ArrayList<Constraint>();
 
-	public ClothParticleSystem(Texture tex, int particleLimit) {
-		super(ClothParticle.class, tex, particleLimit);
+	public ClothParticleSystem(Texture tex, int w, int h) {
+		super(ClothParticle.class, tex, w * h);
 
 		// Generate rudimentary array of particles
 		Vector2f bl = new Vector2f(100, 200);
 
-		int w = 20;
-		int h = 20;
+		w = 20;
+		h = 20;
 		float dist = 20;
 		float slackCoef = 1f;
 		ClothParticle[][] pArr = new ClothParticle[w][h];
@@ -60,12 +60,42 @@ public class ClothParticleSystem extends ParticleSystem<ClothParticle> {
 		pArr[w - 1][h - 1].setAnchor();
 
 		// Place particles in array
-		int i = 0;
-		for (ClothParticle[] a : pArr)
-			for (ClothParticle p : a) {
-				particles[i] = p;
-				i++;
+		for (int x = 0; x < w; x++) {
+			for (int y = 0; y < h; y++) {
+				particles[x * w + y] = pArr[x][y];
 			}
+		}
+
+		// Input particles into arrays
+
+		// Testing
+		Vector2f[] verts = new Vector2f[h * w];
+		uvs = new Vector2f[h * w];
+		int[] indexes = new int[h * w * 6];
+
+		for (int x = 0; x < w; x++) {
+			for (int y = 0; y < h; y++) {
+				int a = x * w + y;
+				verts[a] = pArr[x][y].pos;
+				uvs[a] = new Vector2f(((float) x) / w, ((float) y) / h);
+
+				// Input indexes for this square
+				// Points are inputted vertically upwards and from the left
+
+				if (x < w - 1 && y < h - 1) { // Squares one less in dimension than point array
+					indexes[a * 6] = a;
+					indexes[a * 6 + 1] = a + 1;
+					indexes[a * 6 + 2] = a + h;
+					indexes[a * 6 + 3] = a + 1;
+					indexes[a * 6 + 4] = a + h;
+					indexes[a * 6 + 5] = a + h + 1;
+				}
+			}
+		}
+
+		rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		rend.init(new ProjectedTransform(new Vector2f()), verts, uvs, new Color(1, 1, 1, 1));
+		rend.setIndexBuffer(indexes);
 	}
 
 	public void init() {
@@ -84,12 +114,22 @@ public class ClothParticleSystem extends ParticleSystem<ClothParticle> {
 
 	}
 
+	Vector2f[] uvs;
+
 	@Override
 	public void render() {
 		// TODO Auto-generated method stub
 		// Debug render them
 		for (Constraint l : constraints)
 			Debug.enqueueElement(new DebugVector(l.p1.pos, l.p2.pos, new Color(1, 1, 0, 1), 1));
+
+		Vector2f[] vert = new Vector2f[particles.length];
+		for (int i = 0; i < particles.length; i++) {
+			vert[i] = particles[i].pos;
+		}
+
+		rend.rebuildMesh(vert, uvs, new Color());
+		rend.render();
 	}
 
 	@Override
