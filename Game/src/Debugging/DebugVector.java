@@ -12,17 +12,24 @@ import Graphics.Rendering.Shader;
 import Wrappers.Color;
 
 public class DebugVector extends DebugElement {
-	Vector2f p;
-	Vector2f v;
-	float mult;
+	public Vector2f s;
+	public Vector2f e;
+
+	public DebugVector(Vector2f s, Vector2f e, Color col, int lifespan) {
+		this.s = s;
+		this.e = e;
+
+		this.col = col;
+		this.lifespan = lifespan;
+	}
 
 	public DebugVector(Vector2f p, Vector2f v, float mult, Color col, int lifespan) {
-		this.p = p;
-		this.v = v;
-		this.mult = mult;
+		Vector2f fullVec = new Vector2f(v).mul(mult);
+
+		s = new Vector2f(p);
+		e = new Vector2f(s).add(fullVec);
 
 		this.lifespan = lifespan;
-
 		this.col = col;
 	}
 
@@ -42,17 +49,12 @@ public class DebugVector extends DebugElement {
 		shader.setUniform("MVP", mvp);
 		shader.setUniform("Color", col);
 
-		Vector2f fullVec = new Vector2f(v).mul(mult);
-
-		Vector2f start = new Vector2f(p);
-		Vector2f end = new Vector2f(start).add(fullVec);
-
 		// Bind shader
 		shader.bind();
 
 		glBegin(GL_LINES);
-		glVertex2f(start.x, start.y);
-		glVertex2f(end.x, end.y);
+		glVertex2f(s.x, s.y);
+		glVertex2f(e.x, e.y);
 		glEnd();
 	}
 }

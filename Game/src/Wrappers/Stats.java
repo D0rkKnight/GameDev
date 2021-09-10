@@ -27,6 +27,10 @@ public class Stats {
 		this(stats.maxHealth, stats.maxStamina, stats.healthRegen, stats.staminaRegen);
 	}
 
+	public Stats() {
+		this(100, 100, 0, 0);
+	}
+
 	public static Stats fromED(EntityData vals) {
 		float maxHealth = vals.d.containsKey("maxHealth") ? vals.fl("maxHealth") : 100;
 		float maxStamina = vals.d.containsKey("maxStamina") ? vals.fl("maxStamina") : 100;

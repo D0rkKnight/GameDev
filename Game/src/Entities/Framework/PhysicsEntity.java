@@ -57,6 +57,8 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 
 	public ArrayList<Collider> colls;
 
+	public boolean hasCollision = true;
+
 	public PhysicsEntity(String ID, Vector2f position, String name) {
 		super(ID, position, name);
 

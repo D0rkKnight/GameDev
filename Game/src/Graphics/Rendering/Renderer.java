@@ -3,6 +3,7 @@ package Graphics.Rendering;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL11.glDrawElements;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.GL_STREAM_DRAW;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
@@ -15,10 +16,13 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL30;
 
 import Graphics.Elements.Mesh;
 import Utility.Transformations.ProjectedTransform;
@@ -72,7 +76,10 @@ public abstract class Renderer {
 	protected void draw() {
 		// Draw stuff
 		enableVAOs();
-		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+		if (useIndexing)
+			glDrawElements(GL_TRIANGLES, indexCount, GL30.GL_UNSIGNED_INT, 0l);
+		else
+			glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 		disableVAOs();
 	}
 
@@ -92,7 +99,7 @@ public abstract class Renderer {
 		glBindVertexArray(vaoId);
 
 		// VERTEX STUFF
-		// New vertex buffer (also bind it to the VAO) TODO: Make it not static
+		// New vertex buffer (also bind it to the VAO)
 		vboId = glGenBuffers();
 		glBindBuffer(GL_ARRAY_BUFFER, vboId);
 		glBufferData(GL_ARRAY_BUFFER, vBuff, GL_STREAM_DRAW);
@@ -115,6 +122,9 @@ public abstract class Renderer {
 		for (Attribute a : attribs) {
 			glEnableVertexAttribArray(a.id);
 		}
+
+		if (useIndexing)
+			glBindBuffer(GL30.GL_ELEMENT_ARRAY_BUFFER, indexId);
 	}
 
 	protected void disableVAOs() {
@@ -122,6 +132,9 @@ public abstract class Renderer {
 			glDisableVertexAttribArray(a.id);
 		}
 		glBindVertexArray(0);
+
+		if (useIndexing)
+			glBindBuffer(GL30.GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
 	protected void createAttribs(ArrayList<Attribute> attribsBuff) {
@@ -181,6 +194,32 @@ public abstract class Renderer {
 		mesh.write(data, attribs[attribId]);
 
 		hasBufferUpdate = true; // this should be set to true, otherwise the update won't be seen.
+	}
+
+	protected int indexId = -1; // Indexing is not directly associated with VAO, instead used in draw call
+	protected int indexCount = -1;
+	protected boolean useIndexing = false;
+
+	public void setIndexBuffer(int[] vf) {
+		useIndexing = true;
+		indexCount = vf.length;
+
+		// Init indexing
+		if (indexId == -1) {
+			indexId = glGenBuffers();
+		}
+
+		glBindBuffer(GL30.GL_ELEMENT_ARRAY_BUFFER, indexId);
+
+		IntBuffer buff = BufferUtils.createIntBuffer(vf.length);
+		buff.put(vf);
+		buff.flip();
+
+		// Static because indexing doesn't change but is used a lot
+		glBufferData(GL30.GL_ELEMENT_ARRAY_BUFFER, buff, GL30.GL_STATIC_DRAW);
+
+		// Return to default
+		glBindBuffer(GL30.GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
 	public static class Attribute {
