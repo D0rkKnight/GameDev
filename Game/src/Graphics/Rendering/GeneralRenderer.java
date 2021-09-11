@@ -20,6 +20,7 @@ import Wrappers.Color;
 public class GeneralRenderer extends Renderer {
 
 	public Texture spr;
+	public boolean flipUVs = false;
 
 	protected static final int INDEX_UV = 1;
 	protected static final int INDEX_COLOR = 2;
@@ -117,6 +118,13 @@ public class GeneralRenderer extends Renderer {
 			out[i * 2] = v.x;
 			out[i * 2 + 1] = v.y;
 		}
+
+		if (flipUVs) {
+			for (int i = 0; i < out.length / 2; i++) {
+				out[i * 2 + 1] = 1 - out[i * 2 + 1];
+			}
+		}
+
 		return out;
 	}
 

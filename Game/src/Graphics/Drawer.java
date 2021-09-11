@@ -50,11 +50,10 @@ import Graphics.Elements.DrawOrderEntities;
 import Graphics.Elements.DrawOrderRenderers;
 import Graphics.Elements.SubTexture;
 import Graphics.Elements.Texture;
-import Graphics.Rendering.DrawBufferRenderer;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
-import Graphics.Rendering.WarpRenderer;
+import Graphics.Rendering.TimedShader;
 import Graphics.Rendering.WarpShader;
 import Graphics.text.Text;
 import Tiles.Tile;
@@ -68,6 +67,7 @@ import Wrappers.Color;
 public class Drawer {
 	public static long window;
 	private static DBEnum currBuff;
+	public static DBEnum finalbuff = DBEnum.MAIN;
 
 	public static DBEnum getCurrBuff() {
 		return currBuff;
@@ -86,7 +86,7 @@ public class Drawer {
 	}
 
 	public static enum DBEnum {
-		MAIN, OUTLINE;
+		MAIN, OUTLINE, BLEED;
 
 		public DrawBuffer buff;
 
@@ -97,12 +97,14 @@ public class Drawer {
 		public static void init() {
 			initMain();
 			initOutline();
+			initBleed();
 		}
 
 		private static void initOutline() {
 			// Outline buffer
 			Vector2i screenDims = Drawer.GetWindowSize();
-			GeneralRenderer rend = new DrawBufferRenderer(SpriteShader.genShader("outlineShader"));
+			GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("outlineShader"));
+			rend.flipUVs = true;
 			rend.init(new ProjectedTransform(new Vector2f(0, screenDims.y), ProjectedTransform.MatrixMode.SCREEN),
 					new Vector2f(screenDims), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0));
 
@@ -121,13 +123,32 @@ public class Drawer {
 
 			// Now set up the renderer that deals with this.
 			Shader shader = SpriteShader.genShader("texShader");
-			DrawBufferRenderer fBuffRend = new DrawBufferRenderer(shader);
-			DBEnum.MAIN.buff = DrawBuffer.genEmptyBuffer(1280, 720, fBuffRend);
+			GeneralRenderer fBuffRend = new GeneralRenderer(shader);
+			fBuffRend.flipUVs = true;
 
 			Vector2i screenDims = Drawer.GetWindowSize();
+			DBEnum.MAIN.buff = DrawBuffer.genEmptyBuffer(screenDims.x, screenDims.y, fBuffRend);
+
 			fBuffRend.init(new ProjectedTransform(new Vector2f(0, screenDims.y), ProjectedTransform.MatrixMode.SCREEN),
 					new Vector2f(screenDims), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0));
 			fBuffRend.spr = DBEnum.MAIN.buff.tex;
+		}
+
+		private static void initBleed() {
+			// Now set up the renderer that deals with this.
+			Shader shader = TimedShader.genShader("bleedShader");
+			GeneralRenderer fBuffRend = new GeneralRenderer(shader);
+			fBuffRend.flipUVs = true;
+
+			Vector2i screenDims = Drawer.GetWindowSize();
+			DBEnum.BLEED.buff = DrawBuffer.genEmptyBuffer(screenDims.x, screenDims.y, fBuffRend);
+
+			fBuffRend.init(new ProjectedTransform(new Vector2f(0, screenDims.y), ProjectedTransform.MatrixMode.SCREEN),
+					new Vector2f(screenDims), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0));
+			fBuffRend.spr = DBEnum.MAIN.buff.tex;
+
+			// TESTING:
+			finalbuff = DBEnum.BLEED;
 		}
 	}
 
@@ -174,7 +195,7 @@ public class Drawer {
 		 */
 
 		setDefBuff();
-		DBEnum.MAIN.buff.rend.render();
+		finalbuff.buff.rend.render();
 
 		Debug.renderDebug();
 
@@ -414,7 +435,7 @@ public class Drawer {
 
 			else if (key.gfx.equals("Warp")) {
 				Shader warpShade = WarpShader.genShader("vortex");
-				rend = new WarpRenderer(warpShade);
+				rend = new GeneralRenderer(warpShade);
 				rend.init(new ProjectedTransform(new Vector2f(), ProjectedTransform.MatrixMode.WORLD), posOut, uvOut,
 						new Color(1, 1, 0, 1));
 				rend.spr = key.tex;

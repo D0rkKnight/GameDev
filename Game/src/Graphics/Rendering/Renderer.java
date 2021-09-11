@@ -70,7 +70,7 @@ public abstract class Renderer {
 			hasBufferUpdate = false;
 		}
 
-		shader.bind();
+		shader.renderStart(this);
 	}
 
 	protected void draw() {

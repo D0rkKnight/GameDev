@@ -6,7 +6,7 @@ import Collision.Shapes.Shape;
 import GameController.EntityData;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
-import Graphics.Rendering.GrassRenderer;
+import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.GrassShader;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
@@ -18,7 +18,7 @@ public class Grass extends Entity {
 
 		// Configure the renderer real quick
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("Assets/Sprites/props.png"), 32, 48);
-		GrassRenderer rend = new GrassRenderer(GrassShader.genShader("grassShader"));
+		GeneralRenderer rend = new GeneralRenderer(GrassShader.genShader("grassShader"));
 		rend.init(new ProjectedTransform(position), new Vector2f(32, 48), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0),
 				tAtlas.genSubTex(0, 0));
 		rend.spr = tAtlas.tex;

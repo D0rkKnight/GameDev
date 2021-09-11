@@ -89,7 +89,8 @@ public abstract class Shader {
 
 		// Error detection
 		if (glGetShaderi(vs, GL_COMPILE_STATUS) != 1) {
-			System.err.println(glGetShaderInfoLog(vs));
+			new Exception(glGetShaderInfoLog(vs)).printStackTrace();
+			System.err.println(filename);
 			System.exit(1);
 		}
 
@@ -100,7 +101,8 @@ public abstract class Shader {
 
 		// Error detection
 		if (glGetShaderi(fs, GL_COMPILE_STATUS) != 1) {
-			System.err.println(glGetShaderInfoLog(fs));
+			new Exception(glGetShaderInfoLog(fs)).printStackTrace();
+			System.err.println(filename);
 			System.exit(1);
 		}
 
@@ -118,13 +120,15 @@ public abstract class Shader {
 		// Link and validate
 		glLinkProgram(program);
 		if (glGetProgrami(program, GL_LINK_STATUS) != 1) {
-			System.err.println(glGetProgramInfoLog(program));
+			new Exception(glGetProgramInfoLog(program)).printStackTrace();
+			System.err.println(filename);
 			System.exit(1);
 		}
 
 		glValidateProgram(program);
 		if (glGetProgrami(program, GL_VALIDATE_STATUS) != 1) {
-			System.err.println(glGetProgramInfoLog(program));
+			new Exception(glGetProgramInfoLog(program)).printStackTrace();
+			System.err.println(filename);
 			System.exit(1);
 		}
 
@@ -202,5 +206,9 @@ public abstract class Shader {
 
 	public void setUniform(String name, Vector2f vec2) {
 		glUniform2f(uniforms.get(name), vec2.x, vec2.y);
+	}
+
+	public void renderStart(Renderer rend) {
+		bind();
 	}
 }

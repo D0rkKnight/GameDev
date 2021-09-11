@@ -8,9 +8,12 @@ uniform mat4 MVP;
 
 out vec2 texCord;
 out vec4 vertexColor;
+out vec4 pos;
 
 void main() {
 	gl_Position = MVP * vec4(vertices, 1.0);
 	texCord = texCords;
 	vertexColor = color;
+
+	pos = gl_Position;
 }

@@ -2,7 +2,7 @@ package Graphics.Rendering;
 
 import GameController.Camera;
 
-public class WarpRenderer extends TimedRenderer {
+public class WarpRenderer extends GeneralRenderer {
 
 	public WarpRenderer(Shader shader) {
 		super(shader);
