@@ -15,6 +15,7 @@ import GameController.Map;
 import GameController.World;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Tiles.Tile;
 import Utility.Transformations.ProjectedTransform;
@@ -32,7 +33,7 @@ public class CrawlerEnemy extends Enemy {
 
 		// Configure the renderer real quick
 		dim = new Vector2f(96f, 96f);
-		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 		rend.spr = Texture.getTex("assets/Sprites/circle_saw.png");
 		this.renderer = rend;

@@ -50,10 +50,10 @@ import Graphics.Elements.DrawOrderEntities;
 import Graphics.Elements.DrawOrderRenderers;
 import Graphics.Elements.SubTexture;
 import Graphics.Elements.Texture;
+import Graphics.Rendering.BleedShader;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
-import Graphics.Rendering.TimedShader;
 import Graphics.Rendering.WarpShader;
 import Graphics.text.Text;
 import Tiles.Tile;
@@ -103,7 +103,7 @@ public class Drawer {
 		private static void initOutline() {
 			// Outline buffer
 			Vector2i screenDims = Drawer.GetWindowSize();
-			GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("outlineShader"));
+			GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "outlineShader"));
 			rend.flipUVs = true;
 			rend.init(new ProjectedTransform(new Vector2f(0, screenDims.y), ProjectedTransform.MatrixMode.SCREEN),
 					new Vector2f(screenDims), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0));
@@ -122,7 +122,7 @@ public class Drawer {
 			 */
 
 			// Now set up the renderer that deals with this.
-			Shader shader = SpriteShader.genShader("texShader");
+			Shader shader = Shader.genShader(SpriteShader.class, "texShader");
 			GeneralRenderer fBuffRend = new GeneralRenderer(shader);
 			fBuffRend.flipUVs = true;
 
@@ -136,7 +136,7 @@ public class Drawer {
 
 		private static void initBleed() {
 			// Now set up the renderer that deals with this.
-			Shader shader = TimedShader.genShader("bleedShader");
+			Shader shader = Shader.genShader(BleedShader.class, "bleedShader");
 			GeneralRenderer fBuffRend = new GeneralRenderer(shader);
 			fBuffRend.flipUVs = true;
 
@@ -427,14 +427,14 @@ public class Drawer {
 			// Add to a renderer and store that renderer
 			GeneralRenderer rend = null;
 			if (key.gfx.equals("None")) {
-				rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+				rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 				rend.init(new ProjectedTransform(new Vector2f(), ProjectedTransform.MatrixMode.WORLD), posOut, uvOut,
 						new Color());
 				rend.spr = key.tex;
 			}
 
 			else if (key.gfx.equals("Warp")) {
-				Shader warpShade = WarpShader.genShader("vortex");
+				Shader warpShade = Shader.genShader(WarpShader.class, "vortex");
 				rend = new GeneralRenderer(warpShade);
 				rend.init(new ProjectedTransform(new Vector2f(), ProjectedTransform.MatrixMode.WORLD), posOut, uvOut,
 						new Color(1, 1, 0, 1));

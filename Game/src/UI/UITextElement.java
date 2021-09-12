@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Graphics.text.Font;
 import Graphics.text.Text;
@@ -48,7 +49,7 @@ public class UITextElement extends UIDrawElement {
 		// Build renderer
 		col = new Color(1, 1, 1, 1);
 
-		GeneralRenderer genRend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		GeneralRenderer genRend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		genRend.init(new ProjectedTransform(pos, ProjectedTransform.MatrixMode.SCREEN), pointArr, uvArr, col);
 		genRend.spr = font.tex;
 		rend = genRend;

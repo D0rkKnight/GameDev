@@ -13,7 +13,10 @@ import Entities.Framework.StateMachine.StateID;
 import GameController.EntityData;
 import GameController.GameManager;
 import GameController.Time;
+import Graphics.Drawer.DBEnum;
+import Graphics.Rendering.BleedShader;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
@@ -30,7 +33,7 @@ public class SpiritBoss extends Boss {
 
 		// Rend
 		rendDims = new Vector2f(192, 192);
-		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color());
 		rend.spr = Debug.debugTex;
 
@@ -80,6 +83,15 @@ public class SpiritBoss extends Boss {
 
 	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
 		return new SpiritBoss(vals.str("type"), pos, vals.str("name"), Stats.fromED(vals));
+	}
+
+	@Override
+	public void render() {
+		super.render();
+
+		// Testing stuff
+		BleedShader bleed = (BleedShader) DBEnum.BLEED.buff.rend.shader;
+		bleed.trans.setTrans(getCenter());
 	}
 
 }

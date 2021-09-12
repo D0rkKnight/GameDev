@@ -7,6 +7,7 @@ import Collision.Hitbox;
 import Collision.Shapes.Shape;
 import GameController.EntityData;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
@@ -18,7 +19,7 @@ public class Projectile extends PhysicsEntity {
 
 		// Configure renderer (this is a hack)
 		dim = new Vector2f(8f, 8f);
-		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color(1, 1, 0, 0));
 		this.renderer = rend;
 

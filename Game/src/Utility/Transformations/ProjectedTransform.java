@@ -34,7 +34,7 @@ public class ProjectedTransform extends ModelTransform {
 
 		this.view = new Matrix4f(transform.view);
 		this.proj = new Matrix4f(transform.proj);
-		this.mvp = new Matrix4f(transform.rot);
+		this.mvp = new Matrix4f(transform.mvp);
 	}
 
 	/**

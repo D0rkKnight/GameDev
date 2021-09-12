@@ -59,7 +59,7 @@ public class Debug {
 	public static void init() {
 		debugElements = new ArrayList<DebugElement>();
 
-		debugShader = ColorShader.genShader("shader");
+		debugShader = Shader.genShader(ColorShader.class, "shader");
 		debugTex = Texture.getTex("assets/Sprites/debugTex.png");
 
 		trans = new ProjectedTransform(new Vector2f(0, 0), ProjectedTransform.MatrixMode.WORLD);

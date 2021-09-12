@@ -27,6 +27,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,8 +73,27 @@ public abstract class Shader {
 		}
 	}
 
-	public static Shader genShader(String filename) {
-		System.err.println("genShader() override not implemented");
+	public static Shader genShader(Class<?> clazz, String filename) {
+		try {
+			System.out.println(clazz.getName());
+			Constructor<?> con = clazz.getConstructor(String.class);
+
+			return cacheShader(filename, (fname) -> {
+				try {
+					return (Shader) con.newInstance(filename);
+				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+						| InvocationTargetException e) {
+					e.printStackTrace();
+					System.exit(1);
+				}
+
+				return null;
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
 		return null;
 	}
 

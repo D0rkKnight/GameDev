@@ -4,7 +4,7 @@ import GameController.Camera;
 
 public class WarpShader extends TimedShader {
 
-	protected WarpShader(String filename) {
+	public WarpShader(String filename) {
 		super(filename);
 		// TODO Auto-generated constructor stub
 	}
@@ -25,11 +25,5 @@ public class WarpShader extends TimedShader {
 		} else {
 			System.err.println("No camera to render to");
 		}
-	}
-
-	public static WarpShader genShader(String filename) {
-		return (WarpShader) cacheShader(filename, (fname) -> {
-			return new WarpShader(fname);
-		});
 	}
 }

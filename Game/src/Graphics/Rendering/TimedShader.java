@@ -8,7 +8,7 @@ public class TimedShader extends SpriteShader {
 	public Callback timeFunction;
 	private float t;
 
-	protected TimedShader(String filename) {
+	public TimedShader(String filename) {
 		super(filename);
 
 		timeFunction = () -> {
@@ -21,12 +21,6 @@ public class TimedShader extends SpriteShader {
 		super.initUniforms();
 
 		createUniform("Time");
-	}
-
-	public static TimedShader genShader(String filename) {
-		return (TimedShader) cacheShader(filename, (fname) -> {
-			return new TimedShader(fname);
-		});
 	}
 
 	@Override

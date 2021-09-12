@@ -8,6 +8,7 @@ import Collision.Shapes.Shape;
 import Graphics.Drawer;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
@@ -37,7 +38,7 @@ public class DiscreteParticleSystem extends ParticleSystem<DiscreteParticle> {
 	public void init() {
 		// Does not populate with particles
 		// Load in the data
-		rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 
 		// Or, send in nothing
 		rend.init(new ProjectedTransform(), new Vector2f[] {}, new Vector2f[] {}, new Color(1, 1, 1, 1));

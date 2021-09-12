@@ -10,6 +10,7 @@ import Collision.Hitbox;
 import Collision.Shapes.Shape;
 import Entities.Framework.PhysicsEntity.Alignment;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
@@ -50,7 +51,7 @@ public class Melee extends Entity implements Collidable, Aligned {
 
 		// Configure the renderer real quick
 		this.dim = dim;
-		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 		this.renderer = rend;
 

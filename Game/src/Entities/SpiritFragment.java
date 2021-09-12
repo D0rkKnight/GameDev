@@ -9,6 +9,7 @@ import Debugging.Debug;
 import Entities.Framework.Enemy;
 import Entities.Framework.StateMachine.StateID;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
@@ -21,7 +22,7 @@ public class SpiritFragment extends Enemy {
 
 		// Rend
 		rendDims = new Vector2f(96, 32);
-		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color());
 		rend.spr = Debug.debugTex;
 

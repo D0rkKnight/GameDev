@@ -12,6 +12,7 @@ import GameController.Camera;
 import GameController.GameManager;
 import Graphics.Drawer;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Wrappers.Color;
 import Wrappers.Stats;
@@ -44,7 +45,7 @@ public class UI implements NewWaveListener {
 		CEnum.RUNNING.state = new UICanvas(new Vector2f(), Camera.main.viewport);
 
 		Stats pStats = GameManager.player.stats;
-		healthBar = new UIBarCanvas(new GeneralRenderer(SpriteShader.genShader("texShader")), new Vector2f(10, 10),
+		healthBar = new UIBarCanvas(new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader")), new Vector2f(10, 10),
 				new Vector2f(200, 20), new Color(0.3f, 0.3f, 1, 1));
 		healthBar.setAnchor(UIBoxElement.ANCHOR_UL);
 		healthBar.setUpdateCb(() -> {
@@ -52,7 +53,7 @@ public class UI implements NewWaveListener {
 		});
 		CEnum.RUNNING.state.addElement(healthBar);
 
-		staminaBar = new UIBarCanvas(new GeneralRenderer(SpriteShader.genShader("texShader")), new Vector2f(10, 35),
+		staminaBar = new UIBarCanvas(new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader")), new Vector2f(10, 35),
 				new Vector2f(200, 20), new Color(0.3f, 1, 1, 1));
 		staminaBar.setAnchor(UIBoxElement.ANCHOR_UL);
 		staminaBar.setUpdateCb(() -> {

@@ -8,6 +8,7 @@ import Debugging.Debug;
 import Debugging.DebugVector;
 import Graphics.Elements.Texture;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Graphics.particles.ClothParticle.Constraint;
 import Utility.Transformations.ProjectedTransform;
@@ -93,7 +94,7 @@ public class ClothParticleSystem extends ParticleSystem<ClothParticle> {
 			}
 		}
 
-		rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		rend.init(new ProjectedTransform(new Vector2f()), verts, uvs, new Color(1, 1, 1, 1));
 		rend.setIndexBuffer(indexes);
 	}
@@ -101,7 +102,7 @@ public class ClothParticleSystem extends ParticleSystem<ClothParticle> {
 	public void init() {
 		// Does not populate with particles
 		// Load in the data
-		rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 
 		// Or, send in nothing
 		rend.init(new ProjectedTransform(), new Vector2f[] {}, new Vector2f[] {}, new Color(1, 1, 1, 1));

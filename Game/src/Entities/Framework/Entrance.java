@@ -15,6 +15,7 @@ import GameController.GameManager;
 import GameController.World;
 import GameController.procedural.WorldGate;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
@@ -39,7 +40,7 @@ public class Entrance extends Entity implements Collidable {
 		super(ID, position, name);
 
 		dim = dims;
-		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 
 		this.renderer = rend;
