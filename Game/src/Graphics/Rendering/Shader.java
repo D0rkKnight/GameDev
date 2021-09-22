@@ -17,6 +17,7 @@ import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 import static org.lwjgl.opengl.GL20.glLinkProgram;
 import static org.lwjgl.opengl.GL20.glShaderSource;
 import static org.lwjgl.opengl.GL20.glUniform1f;
+import static org.lwjgl.opengl.GL20.glUniform1fv;
 import static org.lwjgl.opengl.GL20.glUniform2f;
 import static org.lwjgl.opengl.GL20.glUniform4f;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
@@ -37,6 +38,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.lwjgl.system.MemoryStack;
 
+import Utility.Data;
 import Wrappers.Color;
 
 /*
@@ -50,6 +52,7 @@ public abstract class Shader {
 	protected Map<String, Integer> uniforms;
 
 	private static HashMap<String, Shader> shaderCache; // Key: filename Value: Shader object
+	private String fname;
 
 	static {
 		shaderCache = new HashMap<>();
@@ -98,6 +101,8 @@ public abstract class Shader {
 	}
 
 	protected Shader(String filename) {
+		this.fname = filename;
+
 		program = glCreateProgram();
 
 		// Vertex shader
@@ -198,7 +203,7 @@ public abstract class Shader {
 	public void createUniform(String name) throws Exception {
 		int loc = glGetUniformLocation(program, name);
 		if (loc < 0) {
-			throw new Exception("Could not find uniform, is it used in the shader?: " + name);
+			throw new Exception("Could not find uniform, is it used in shader " + fname + "?: " + name);
 		}
 
 		uniforms.put(name, loc);
@@ -227,6 +232,10 @@ public abstract class Shader {
 
 	public void setUniform(String name, Vector2f vec2) {
 		glUniform2f(uniforms.get(name), vec2.x, vec2.y);
+	}
+
+	public void setUniform(String name, float[] arr) {
+		glUniform1fv(uniforms.get(name), Data.genGLBuff(arr));
 	}
 
 	public void renderStart(Renderer rend) {

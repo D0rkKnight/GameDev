@@ -181,6 +181,9 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 	 * @param decelMulti
 	 */
 	public void knockback(Vector2f knockbackVector, float movementMulti, float decelMulti) {
+		if (!pData.hasKnockback)
+			return;
+
 		if (knocked) {
 			if (Math.abs(pData.velo.x) < Math.abs(knockbackVector.x)) {
 				pData.velo.x = knockbackVector.x;

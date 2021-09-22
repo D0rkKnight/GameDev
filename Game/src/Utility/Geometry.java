@@ -18,6 +18,29 @@ public abstract class Geometry {
 		return pointsFromCorners(bl, ur);
 	}
 
+	public static Vector2f[] pointsFromCircle(Vector2f c, float r, int segs) {
+		return pointsFromCircle(c, r, segs, null);
+	}
+
+	public static Vector2f[] pointsFromCircle(Vector2f c, float r, int segs, float[] radBuff) {
+		Vector2f[] o = new Vector2f[segs];
+
+		for (int i = 0; i < segs; i++) {
+			float rad = (float) (i / (float) segs * 2 * Math.PI);
+			Vector2f dir = new Vector2f((float) Math.cos(rad), (float) Math.sin(rad));
+
+			Vector2f delta = new Vector2f(dir).mul(r);
+			Vector2f p = new Vector2f(c).add(delta);
+
+			o[i] = p;
+
+			if (radBuff != null)
+				radBuff[i] = rad;
+		}
+
+		return o;
+	}
+
 	/**
 	 * Given some information, figure out if there is a collision and how far back
 	 * to move the entity. TODO: Code this into a more general form

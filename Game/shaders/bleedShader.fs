@@ -7,8 +7,9 @@ in vec4 vertexColor;
 in vec4 pos;
 
 uniform sampler2D tex;
-uniform float Time;
 uniform vec2 center; //Ranges between -1 and 1
+uniform vec2 viewport;
+uniform float pulseRadii[64];
 
 // Range: -1 to 1
 float hash(vec2 p) {
@@ -53,11 +54,13 @@ float warp(vec2 uv) {
     return fbm(uv + 4.0 * b);
 }
 
-float conic (vec2 uv, vec2 c) {
-    vec2 sc = vec2(1280, 720) * c;
-    uv = uv * vec2(1280, 720);
 
-    return -length(uv-sc)/200.0+1.0;
+float slope = viewport.x/200.0;
+float conic (vec2 uv, vec2 c) {
+    vec2 sc = viewport * c;
+    uv = uv * viewport;
+
+    return -(length(uv-sc)/viewport.x)*slope;
 }
 
 void main() {
@@ -69,9 +72,9 @@ void main() {
 
 
 	// Draw wobble
-	float fps = 10.0;
-	float stepT = floor(Time * fps) / fps;
-	float wob = fbm((wuv + vec2(7.0, 2.0)) * 10.0 + hash(vec2(stepT)) * 100.0) * 0.005;
+	// float fps = 10.0;
+	// float stepT = floor(Time * fps) / fps;
+	// float wob = fbm((wuv + vec2(7.0, 2.0)) * 10.0 + hash(vec2(stepT)) * 100.0) * 0.005;
 	//uv += wob;
 
 	// Warp
@@ -81,29 +84,43 @@ void main() {
 	float g = conic(uv, cent);
 
 	// Inverse gradient
-	float gi = -conic(uv, cent) + 4.0;
+	float gi = -conic(uv, cent)/* + 5.0*/;
+  float gt = 0;
 
-	float sec = Time / 1000.0;
-  float dt = sec*1;
-	float gt = min(g+dt, gi-dt);
+  // Conic addition and subtraction
+  for (int i=0; i<pulseRadii.length(); i++) {
+    if (pulseRadii[i] >= -1000.0) {
+      float approachVal = slope * pulseRadii[i]; // It just works. o = 2 * m1 *r
+    	gt = max(min(g+approachVal/2, gi-approachVal/2) + 2.5, gt); // Add wedge to total form
+    }
+  }
 
 
 	// Reading noise
 	float n = fbm(wuv * 10.0);
-	g = g * (n*0.25 + 0.75);
-
-	// Color ramp
-
+	gt = gt * (n*0.25 + 0.75);
 
 	// Color ramp
 	float s = w + gt - 1.0;
 	vec3 c = texture(tex, texCord).xyz;
-	if (s > 0.5) {
+  float thresh = 0.5;
+	if (s > thresh) {
 			float t = length(texture(tex, texCord))/3.0;
 			if (t < 0.4) c = vec3(0);
-			else /*if (t < 0.6)*/ c = vec3(0.9, 0.05, 0.1);
+			else if (t < 0.6) c = vec3(0.9, 0.05, 0.1);
+
+      // Warp effect
+      // float warpV = s-thresh;
+      // warpV = warpV * warpV * (3.0 - 2.0 * warpV);
+      // float distScale = 1.0/(length(cent-uv) * 5.0+1.0);
+      //
+      // vec2 warpDelta = warpV * normalize(cent-uv) * 0.07 * distScale;
+      // c = texture(tex, uv + warpDelta).xyz;
 	}
 
 
 	fragColor = vec4(c, 1.0);
+
+  // Debugging
+  //fragColor = vec4((vec3(gt/5.0/*/10000.0*/ + pulseRadii[0]/10000.0) + vec3((center+viewport)/10000.0, 0))/*-vec3(150)*/, 1.0);
 }

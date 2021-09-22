@@ -32,6 +32,8 @@ public class SpiritFragment extends Enemy {
 		dim = new Vector2f(96, 32);
 		addColl(new Hurtbox(this, dim.x, dim.y));
 
+		pData.hasKnockback = false;
+
 		rendOriginPos.x = rendDims.x / 2;
 		entOriginPos.x = dim.x / 2;
 
