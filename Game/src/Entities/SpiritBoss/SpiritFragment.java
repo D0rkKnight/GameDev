@@ -1,4 +1,4 @@
-package Entities;
+package Entities.SpiritBoss;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;

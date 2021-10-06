@@ -5,11 +5,12 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import Collision.Collider.COD;
 import Collision.Shapes.Shape;
 import Entities.Framework.Entity;
 import Utility.Transformations.ModelTransform;
 
-public class Collider {
+public class Collider<T extends COD> {
 	public Vector2f position;
 	public float height;
 	public float width;
@@ -20,6 +21,29 @@ public class Collider {
 	private Vector2f[] verts; // Encapsulated in genVerts
 
 	public boolean isActive = true;
+
+	// Collision output data
+	public abstract static class COD<T> {
+		public abstract T getData(Matrix4f model, Matrix4f wTrans);
+	}
+
+	public static class CODVertex extends COD<Vector2f[]> {
+		@Override
+		public Vector2f[] getData(Matrix4f model, Matrix4f wTrans) {
+			return null;
+		}
+	}
+
+	public static class CODEllipse extends COD<Vector2f> {
+		@Override
+		public Vector2f getData(Matrix4f model, Matrix4f wTrans) {
+			return null;
+		}
+
+	}
+
+	// Plan is to specify output format which in turn then determines how the
+	// collider returns items.
 
 	public Collider(Entity owner, float width, float height) {
 		this(owner, width, height, Shape.ShapeEnum.SQUARE.v);
