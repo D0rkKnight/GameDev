@@ -2,8 +2,12 @@ package Entities.SpiritBoss;
 
 import java.util.ArrayList;
 
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
+import Collision.Collider;
+import Collision.Collider.CODCircle;
+import Collision.Collider.CODVertex;
 import Collision.Hurtbox;
 import Collision.Shapes.Shape;
 import Debugging.Debug;
@@ -43,7 +47,7 @@ public class SpiritBoss extends Boss {
 
 		// Hitbox
 		dim = new Vector2f(192, 192);
-		addColl(new Hurtbox(this, dim.x, dim.y));
+		addColl(new Hurtbox(this, new CODVertex(dim.x, dim.y)));
 
 		pData.hasKnockback = false;
 
@@ -71,6 +75,14 @@ public class SpiritBoss extends Boss {
 		// Testing
 		Vector2f[] verts = Geometry.pointsFromCircle(getCenter(), 200f, 20);
 		Debug.enqueueElement(new DebugPolygon(verts, 1000, Color.WHITE));
+		
+		// More testing
+		// TODO: Terrible process, please refine
+		float r = 500;
+		SpiritPulse pulse = new SpiritPulse("PULSE", new Vector2f(getCenter()).sub(r, r), "Test pulse", r);
+		Collider<CODCircle> coll = pulse.getColl().get(0);
+		Vector2f[] pulseVerts = coll.getCOD().getData(new Matrix4f(), pulse.getCenter()).genVerts(10);
+		Debug.enqueueElement(new DebugPolygon(pulseVerts, 1000, Color.WHITE));
 	}
 
 	@Override
@@ -106,9 +118,11 @@ public class SpiritBoss extends Boss {
 
 	private void calcPulses(float tSec) {
 		// Enqueue pulses
+		// TODO: figure out how to synchronize with hitboxes properly
 		BleedShader bleed = (BleedShader) DBEnum.BLEED.buff.rend.shader;
 		for (int i = 0; i < 5; i++) {
-			bleed.pulses[i] = (i - 4) * 1f + tSec * 0.5f;
+			float r = (i - 4) * 1f + tSec * 0.5f;
+			bleed.pulses[i] = r;
 		}
 
 //		// Testing (makes first ring track player

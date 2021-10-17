@@ -16,6 +16,7 @@ import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
+import Collision.Collider.CODVertex;
 
 /**
  * An attack with physical presence in the game world
@@ -74,7 +75,7 @@ public class Melee extends Entity implements Collidable, Aligned {
 		});
 
 		// Configure hitbox
-		Hitbox tempHB = new Hitbox(this, dim.x, dim.y);
+		Hitbox tempHB = new Hitbox(this, new CODVertex(dim.x, dim.y));
 		tempHB.cb = (comb) -> {
 
 			// Copied straight over from Projectile. TODO: Generalize some sort of solution

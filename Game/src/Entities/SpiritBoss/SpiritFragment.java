@@ -1,6 +1,7 @@
 package Entities.SpiritBoss;
 
 import org.joml.Vector2f;
+import Collision.Collider.CODVertex;
 import org.joml.Vector3f;
 
 import Collision.Hurtbox;
@@ -30,7 +31,7 @@ public class SpiritFragment extends Enemy {
 
 		// Hitbox
 		dim = new Vector2f(96, 32);
-		addColl(new Hurtbox(this, dim.x, dim.y));
+		addColl(new Hurtbox(this, new CODVertex(dim.x, dim.y)));
 
 		pData.hasKnockback = false;
 

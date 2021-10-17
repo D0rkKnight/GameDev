@@ -21,7 +21,7 @@ import Utility.Vector;
 import Wrappers.FrameData;
 import Wrappers.PhysicsData;
 
-public abstract class PhysicsEntity extends Entity implements Collidable, Aligned {
+public abstract class PhysicsEntity extends Entity implements Aligned {
 
 	// Velocity is handled as always relative to two axises. This is nice for its
 	// flexibility.
@@ -55,8 +55,6 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 	public PCBList collBehaviorList;
 	public PGBList generalBehaviorList;
 
-	public ArrayList<Collider> colls;
-
 	public boolean hasCollision = true;
 
 	public PhysicsEntity(String ID, Vector2f position, String name) {
@@ -77,8 +75,6 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 		decelMulti = 1f;
 
 		initPhysicsBehavior();
-
-		colls = new ArrayList<Collider>();
 
 		// Init framedata
 		initStructs();
@@ -273,30 +269,6 @@ public abstract class PhysicsEntity extends Entity implements Collidable, Aligne
 		for (Collider c : colls)
 			c.update();
 		;
-	}
-
-	@Override
-	public ArrayList<Collider> getColl() {
-		return colls;
-	}
-
-	@Override
-	public void addColl(Collider hb) {
-		if (!colls.contains(hb))
-			colls.add(hb);
-		else {
-			System.err.println("Duplicate collider assignment");
-		}
-	}
-
-	@Override
-	public void remColl(Collider hb) {
-		colls.remove(hb);
-	}
-
-	@Override
-	public void onColl(Collider otherHb) {
-
 	}
 
 	@Override

@@ -2,19 +2,34 @@ package Entities.SpiritBoss;
 
 import org.joml.Vector2f;
 
+import Collision.Collider.CODCircle;
+import Collision.Hitbox;
+import Entities.Framework.Aligned;
 import Entities.Framework.Entity;
+import Entities.Framework.PhysicsEntity.Alignment;
 
-public class SpiritPulse extends Entity {
+public class SpiritPulse extends Entity implements Aligned {
 
 	public float r;
-	public float w;
+	public Hitbox hb;
+	private Alignment align;
 
-	public SpiritPulse(String ID, Vector2f position, String name) {
+	public SpiritPulse(String ID, Vector2f position, String name, float radius) {
 		super(ID, position, name);
 
-		r = 100;
-		w = 10;
-
+		addColl(new Hitbox(this, new CODCircle(radius)));
+		dim = new Vector2f(radius*2);
+		
+		align = Alignment.ENEMY;
 	}
 
+	@Override
+	public Alignment getAlign() {
+		return align;
+	}
+
+	@Override
+	public void setAlign(Alignment align) {
+		this.align = align;
+	}
 }

@@ -23,7 +23,7 @@ import Utility.Transformations.ModelTransform;
  * @author Benjamin
  *
  */
-public abstract class Entity {
+public abstract class Entity implements Collidable {
 	protected String ID;
 	protected final Vector2f position = new Vector2f();
 	public static float gravity = 5f;
@@ -42,6 +42,7 @@ public abstract class Entity {
 
 	// For local transformations. Position/translation is added later.
 	public ModelTransform localTrans;
+	public ArrayList<Collider> colls;
 
 	public ArrayList<Entity> children;
 	private ArrayList<Entity> unsubscribeList = new ArrayList<>();
@@ -58,6 +59,8 @@ public abstract class Entity {
 		rendOriginPos = new Vector2f();
 		entOriginPos = new Vector2f();
 		children = new ArrayList<Entity>();
+		
+		colls = new ArrayList<Collider>();
 	}
 
 	public void calculate() {
@@ -188,5 +191,29 @@ public abstract class Entity {
 		for (Entity e : children) {
 			e.unsubSelf(subList, coll);
 		}
+	}
+	
+	@Override
+	public ArrayList<Collider> getColl() {
+		return colls;
+	}
+
+	@Override
+	public void addColl(Collider hb) {
+		if (!colls.contains(hb))
+			colls.add(hb);
+		else {
+			System.err.println("Duplicate collider assignment");
+		}
+	}
+
+	@Override
+	public void remColl(Collider hb) {
+		colls.remove(hb);
+	}
+
+	@Override
+	public void onColl(Collider otherHb) {
+
 	}
 }

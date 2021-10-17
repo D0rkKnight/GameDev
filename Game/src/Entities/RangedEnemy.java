@@ -1,6 +1,7 @@
 package Entities;
 
 import java.util.ArrayList;
+import Collision.Collider.CODVertex;
 import java.util.HashMap;
 
 import org.joml.Vector2f;
@@ -46,7 +47,7 @@ public class RangedEnemy extends Enemy {
 
 		// Hitbox
 		dim = new Vector2f(16, 96);
-		addColl(new Hurtbox(this, dim.x, dim.y));
+		addColl(new Hurtbox(this, new CODVertex(dim.x, dim.y)));
 
 		rendOriginPos.x = rendDims.x / 2;
 		entOriginPos.x = dim.x / 2;

@@ -6,70 +6,118 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import Collision.Collider.COD;
+import Collision.Collider.CODVertex;
 import Collision.Shapes.Shape;
 import Entities.Framework.Entity;
+import Utility.Ellipse;
 import Utility.Transformations.ModelTransform;
 
-public class Collider<T extends COD> {
+// CODVertex for testing
+public class Collider<T extends COD<?>> {
 	public Vector2f position;
-	public float height;
-	public float width;
 	public Entity owner;
-
-	public Shape shape;
 	public ModelTransform localTrans;
-	private Vector2f[] verts; // Encapsulated in genVerts
 
 	public boolean isActive = true;
+	public T cod;
 
 	// Collision output data
-	public abstract static class COD<T> {
-		public abstract T getData(Matrix4f model, Matrix4f wTrans);
+	public abstract static class COD<T> implements Cloneable {
+		public float height;
+		public float width;
+		public Collider owner;
+		
+		public COD(float width, float height) {
+			this.width = width;
+			this.height = height;
+		}
+		
+		public abstract T getData(Matrix4f model, Vector2f pos);
+		public abstract COD<?> clone();
 	}
 
 	public static class CODVertex extends COD<Vector2f[]> {
+		public Shape shape;
+		private Vector2f[] verts; // Encapsulated in genVerts
+		
+		public CODVertex(float width, float height, Shape shape) {
+			super(width, height);
+			this.shape = shape;
+
+			verts = new Vector2f[shape.vertices.length];
+		}
+		
+		public CODVertex(float width, float height) {
+			this(width, height, Shape.ShapeEnum.SQUARE.v);
+		}
+		
 		@Override
-		public Vector2f[] getData(Matrix4f model, Matrix4f wTrans) {
-			return null;
+		public Vector2f[] getData(Matrix4f model, Vector2f pos) {
+			// 2 steps: translate locally, then shift to world position.
+			Matrix4f worldTranslate = new Matrix4f().setTranslation(new Vector3f(pos.x, pos.y, 0));
+
+			for (int i = 0; i < verts.length; i++) {
+				Vector2f scaledVert = new Vector2f(shape.vertices[i]).mul(width, height);
+				Vector4f transed = new Vector4f(scaledVert, 0, 1).mul(model);
+				transed.mul(worldTranslate);
+				verts[i] = new Vector2f(transed.x, transed.y);
+			}
+
+			return verts;
+		}
+		
+		public CODVertex clone() {
+			return new CODVertex(width, height, shape);
 		}
 	}
 
-	public static class CODEllipse extends COD<Vector2f> {
-		@Override
-		public Vector2f getData(Matrix4f model, Matrix4f wTrans) {
-			return null;
+	public static class CODCircle extends COD<Ellipse> {
+		public CODCircle(float width, float height) {
+			super(width, height);
+		}
+		
+		public CODCircle(float r) {
+			this(r, r);
 		}
 
+		
+		// Returns radius and position
+		@Override
+		public Ellipse getData(Matrix4f model, Vector2f pos) {
+			Vector3f s = new Vector3f();
+			model.getScale(s);
+			
+			return new Ellipse(pos, new Vector2f(s.x * width, s.y * height));
+		}
+		
+		public CODCircle clone() {
+			return new CODCircle(width, height);
+		}
 	}
 
 	// Plan is to specify output format which in turn then determines how the
 	// collider returns items.
-
-	public Collider(Entity owner, float width, float height) {
-		this(owner, width, height, Shape.ShapeEnum.SQUARE.v);
-	}
-
-	public Collider(Entity owner, float width, float height, Shape shape) {
-		this.height = height;
-		this.width = width;
+	public Collider(Entity owner, COD<?> cod) {
 		this.owner = owner;
-		this.shape = shape;
-
-		// Local transformation, applied to vertices for collision.
-		localTrans = new ModelTransform();
-		verts = new Vector2f[shape.vertices.length];
-		if (owner.getPosition() != null)
-			this.position = owner.getPosition();
-
+		this.cod = (T) cod; //This is ok. Dunno why Eclipse can't resolve it.
+		this.cod.owner = this;
+		
 		// Any class with a hitbox MUST implement Collidable
 		if (!(owner instanceof Collidable)) {
 			new Exception("Owner does not implement Collidable.").printStackTrace();
 			System.exit(1);
 		}
-	}
+		
+		this.owner = owner;
 
+		// Local transformation, applied to vertices for collision.
+		localTrans = new ModelTransform();
+		if (owner.getPosition() != null)
+			this.position = owner.getPosition();
+	}
+	
 	public Collider(Collider hb, Entity owner) {
-		this(owner, hb.width, hb.height);
+		this(owner, hb.cod.clone());
 	}
 
 	public void update() {
@@ -89,17 +137,10 @@ public class Collider<T extends COD> {
 
 	// Generates vertices in world space
 	public Vector2f[] genWorldVerts() {
-		// 2 steps: translate locally, then shift to world position.
-		Matrix4f localModel = localTrans.genModel();
-		Matrix4f worldTranslate = new Matrix4f().setTranslation(new Vector3f(position.x, position.y, 0));
+		return (Vector2f[]) cod.getData(localTrans.genModel(), position);
+	}
 
-		for (int i = 0; i < verts.length; i++) {
-			Vector2f scaledVert = new Vector2f(shape.vertices[i]).mul(width, height);
-			Vector4f transed = new Vector4f(scaledVert, 0, 1).mul(localModel);
-			transed.mul(worldTranslate);
-			verts[i] = new Vector2f(transed.x, transed.y);
-		}
-
-		return verts;
+	public T getCOD() {
+		return cod;
 	}
 }

@@ -1,6 +1,7 @@
 package Entities;
 
 import org.joml.Vector2f;
+import Collision.Collider.CODVertex;
 
 import Collision.Hurtbox;
 import Collision.Behaviors.PGBGroundFriction;
@@ -28,7 +29,7 @@ public class PunchingBag extends Combatant {
 
 		this.renderer = rend;
 
-		addColl(new Hurtbox(this, rendDims.x, rendDims.y));
+		addColl(new Hurtbox(this, new CODVertex(rendDims.x, rendDims.y)));
 		this.dim = rendDims;
 
 		this.alignment = Combatant.Alignment.ENEMY;
