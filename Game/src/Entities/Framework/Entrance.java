@@ -21,6 +21,7 @@ import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
+import Collision.Collider.CODVertex;
 
 public class Entrance extends Entity implements Collidable {
 
@@ -47,7 +48,7 @@ public class Entrance extends Entity implements Collidable {
 
 		// Configure hitbox
 		this.hb = new ArrayList<>();
-		addColl(new Collider(this, dim.x, dim.y));
+		addColl(new Collider(this, new CODVertex(dim.x, dim.y)));
 
 		this.localMapPos = new Vector2i(mapX, mapY);
 		this.dir = dir;

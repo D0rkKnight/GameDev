@@ -287,8 +287,8 @@
             "scale": 2,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 399.75,
-                "y": 200
+                "x": 410.25,
+                "y": 199.75
             }
         },
         "Rules/Rule1.tmx": {
@@ -448,6 +448,7 @@
             "scaleInDock": 1
         }
     },
+    "last.objectTemplatePath": "C:/Users/shouh/Documents/GitHub/GameDev/Game/assets/Maps/Templates",
     "map.height": 50,
     "map.lastUsedExportFilter": "Tiled map files (*.tmx *.xml)",
     "map.lastUsedFormat": "tmx",

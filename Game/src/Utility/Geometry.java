@@ -19,17 +19,21 @@ public abstract class Geometry {
 	}
 
 	public static Vector2f[] pointsFromCircle(Vector2f c, float r, int segs) {
-		return pointsFromCircle(c, r, segs, null);
+		return pointsFromCircle(c, new Vector2f(r), segs, null);
+	}
+	
+	public static Vector2f[] pointsFromCircle(Vector2f c, float r, int segs, float[] radBuff) {
+		return pointsFromCircle(c, new Vector2f(r), segs, radBuff);
 	}
 
-	public static Vector2f[] pointsFromCircle(Vector2f c, float r, int segs, float[] radBuff) {
+	public static Vector2f[] pointsFromCircle(Vector2f c, Vector2f dims, int segs, float[] radBuff) {
 		Vector2f[] o = new Vector2f[segs];
 
 		for (int i = 0; i < segs; i++) {
 			float rad = (float) (i / (float) segs * 2 * Math.PI);
 			Vector2f dir = new Vector2f((float) Math.cos(rad), (float) Math.sin(rad));
 
-			Vector2f delta = new Vector2f(dir).mul(r);
+			Vector2f delta = new Vector2f(dir.x * dims.x, dir.y * dims.y);
 			Vector2f p = new Vector2f(c).add(delta);
 
 			o[i] = p;

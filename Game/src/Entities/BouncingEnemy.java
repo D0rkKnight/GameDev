@@ -1,6 +1,7 @@
 package Entities;
 
 import java.util.ArrayList;
+import Collision.Collider.CODVertex;
 
 import org.joml.Vector2f;
 
@@ -50,7 +51,7 @@ public abstract class BouncingEnemy extends Enemy {
 		this.renderer = rend;
 
 		// Configure hitbox
-		addColl(new Hitbox(this, dim.x, dim.y));
+		addColl(new Hitbox(this, new CODVertex(dim.x, dim.y)));
 
 		pData.walksUpSlopes = false;
 

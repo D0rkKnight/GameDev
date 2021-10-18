@@ -1,6 +1,7 @@
 package Entities;
 
 import org.joml.Matrix4f;
+import Collision.Collider.CODVertex;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
@@ -39,7 +40,7 @@ public class CrawlerEnemy extends Enemy {
 		this.renderer = rend;
 
 		// Configure hitbox
-		addColl(new Hitbox(this, dim.x, dim.y));
+		addColl(new Hitbox(this, new CODVertex(dim.x, dim.y)));
 
 		anchorOffset = new Vector2f(dim).div(-2);
 

@@ -1,6 +1,7 @@
 package Entities.PlayerPackage;
 
 import java.util.HashMap;
+import Collision.Collider.CODVertex;
 
 import org.joml.Math;
 import org.joml.Vector2f;
@@ -78,7 +79,7 @@ public abstract class PlayerFramework extends Combatant {
 		// Configure hitbox
 		dim = new Vector2f(15f, 60f);
 
-		mainHurtbox = new Hurtbox(this, dim.x, dim.y);
+		mainHurtbox = new Hurtbox(this, new CODVertex(dim.x, dim.y));
 		addColl(mainHurtbox);
 
 		jumpSpeed = 1f;

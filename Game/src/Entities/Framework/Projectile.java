@@ -1,6 +1,7 @@
 package Entities.Framework;
 
 import org.joml.Vector2f;
+import Collision.Collider.CODVertex;
 
 import Collision.Collider;
 import Collision.Hitbox;
@@ -24,7 +25,7 @@ public class Projectile extends PhysicsEntity {
 		this.renderer = rend;
 
 		// Configure hitbox
-		addColl(new Hitbox(this, dim.x, dim.y));
+		addColl(new Hitbox(this, new CODVertex(dim.x, dim.y)));
 
 		hasGravity = false;
 		this.alignment = align;

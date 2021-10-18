@@ -1,6 +1,7 @@
 package Entities;
 
 import org.joml.Vector2f;
+import Collision.Collider.CODVertex;
 
 import Collision.Hitbox;
 import Collision.Hurtbox;
@@ -39,11 +40,11 @@ public class FloaterEnemy extends Enemy {
 		ai = new Pathfinding();
 
 		// Configure hurtbox
-		Hurtbox hurtbox = new Hurtbox(this, dim.x, dim.y);
+		Hurtbox hurtbox = new Hurtbox(this, new CODVertex(dim.x, dim.y));
 		addColl(hurtbox);
 
 		// Configure hitbox
-		Hitbox hitbox = new Hitbox(this, dim.x, dim.y);
+		Hitbox hitbox = new Hitbox(this, new CODVertex(dim.x, dim.y));
 		hitbox.cb = (comb) -> {
 			if (comb instanceof PlayerFramework) {
 				PlayerFramework p = (PlayerFramework) comb;
