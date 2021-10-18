@@ -27,31 +27,32 @@ public class Collider<T extends COD<?>> implements Centered {
 		public float height;
 		public float width;
 		public Collider owner;
-		
+
 		public COD(float width, float height) {
 			this.width = width;
 			this.height = height;
 		}
-		
+
 		public abstract T getData(Matrix4f model, Vector2f pos);
+
 		public abstract COD<?> clone();
 	}
 
 	public static class CODVertex extends COD<Vector2f[]> {
 		public Shape shape;
 		private Vector2f[] verts; // Encapsulated in genVerts
-		
+
 		public CODVertex(float width, float height, Shape shape) {
 			super(width, height);
 			this.shape = shape;
 
 			verts = new Vector2f[shape.vertices.length];
 		}
-		
+
 		public CODVertex(float width, float height) {
 			this(width, height, Shape.ShapeEnum.SQUARE.v);
 		}
-		
+
 		@Override
 		public Vector2f[] getData(Matrix4f model, Vector2f pos) {
 			// 2 steps: translate locally, then shift to world position.
@@ -66,7 +67,7 @@ public class Collider<T extends COD<?>> implements Centered {
 
 			return verts;
 		}
-		
+
 		public CODVertex clone() {
 			return new CODVertex(width, height, shape);
 		}
@@ -76,21 +77,20 @@ public class Collider<T extends COD<?>> implements Centered {
 		public CODCircle(float width, float height) {
 			super(width, height);
 		}
-		
+
 		public CODCircle(float r) {
 			this(r, r);
 		}
 
-		
 		// Returns radius and position
 		@Override
 		public Ellipse getData(Matrix4f model, Vector2f pos) {
 			Vector3f s = new Vector3f();
 			model.getScale(s);
-			
+
 			return new Ellipse(pos, new Vector2f(s.x * width, s.y * height));
 		}
-		
+
 		public CODCircle clone() {
 			return new CODCircle(width, height);
 		}
@@ -100,15 +100,15 @@ public class Collider<T extends COD<?>> implements Centered {
 	// collider returns items.
 	public Collider(Entity owner, COD<?> cod) {
 		this.owner = owner;
-		this.cod = (T) cod; //This is ok. Dunno why Eclipse can't resolve it.
+		this.cod = (T) cod; // This is ok. Dunno why Eclipse can't resolve it.
 		this.cod.owner = this;
-		
+
 		// Any class with a hitbox MUST implement Collidable
 		if (!(owner instanceof Collidable)) {
 			new Exception("Owner does not implement Collidable.").printStackTrace();
 			System.exit(1);
 		}
-		
+
 		this.owner = owner;
 
 		// Local transformation, applied to vertices for collision.
@@ -116,7 +116,7 @@ public class Collider<T extends COD<?>> implements Centered {
 		if (owner.getPosition() != null)
 			this.position = owner.getPosition();
 	}
-	
+
 	public Collider(Collider hb, Entity owner) {
 		this(owner, hb.cod.clone());
 	}
@@ -138,7 +138,14 @@ public class Collider<T extends COD<?>> implements Centered {
 
 	// Generates vertices in world space
 	public Vector2f[] genWorldVerts() {
-		return (Vector2f[]) cod.getData(localTrans.genModel(), position);
+		// Hack
+
+		if (cod instanceof CODVertex)
+			return (Vector2f[]) cod.getData(localTrans.genModel(), position);
+		if (cod instanceof CODCircle)
+			return ((Ellipse) cod.getData(localTrans.genModel(), position)).genVerts(10);
+
+		return null;
 	}
 
 	public T getCOD() {

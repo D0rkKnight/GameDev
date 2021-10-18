@@ -83,7 +83,9 @@ public class SpiritBoss extends Boss {
 		Collider<CODCircle> coll = pulse.getColl().get(0);
 		System.out.println(coll.getCenter());
 		Vector2f[] pulseVerts = coll.getCOD().getData(new Matrix4f(), coll.position).genVerts(10);
-		Debug.enqueueElement(new DebugPolygon(pulseVerts, 1000, Color.WHITE));
+		// Debug.enqueueElement(new DebugPolygon(pulseVerts, 1000, Color.WHITE));
+
+		GameManager.subscribeEntity(pulse);
 	}
 
 	@Override
