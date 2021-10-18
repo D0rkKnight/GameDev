@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template>
- <object name="Spirit" type="SPIRIT_BOSS" width="32" height="32">
+ <object name="Spirit" type="SPIRIT_BOSS" width="96" height="96">
   <properties>
-   <property name="class" value="Entities.SpiritFragment"/>
+   <property name="class" value="Entities.SpiritBoss.SpiritBoss"/>
    <property name="id" type="int" value="0"/>
   </properties>
  </object>

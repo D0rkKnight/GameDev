@@ -1,6 +1,7 @@
 package Entities;
 
 import org.joml.Vector2f;
+import Collision.Collider.CODVertex;
 
 import Collision.Hurtbox;
 import Collision.Behaviors.PGBGroundFriction;
@@ -10,6 +11,7 @@ import Entities.Framework.Combatant;
 import Entities.Framework.Entity;
 import GameController.EntityData;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
@@ -21,13 +23,13 @@ public class PunchingBag extends Combatant {
 		super(ID, position, name, stats);
 
 		rendDims = new Vector2f(96, 128);
-		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
 		rend.spr = Debug.debugTex;
 
 		this.renderer = rend;
 
-		addColl(new Hurtbox(this, rendDims.x, rendDims.y));
+		addColl(new Hurtbox(this, new CODVertex(rendDims.x, rendDims.y)));
 		this.dim = rendDims;
 
 		this.alignment = Combatant.Alignment.ENEMY;

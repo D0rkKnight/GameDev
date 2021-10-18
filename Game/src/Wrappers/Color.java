@@ -5,6 +5,7 @@ import static org.lwjgl.opengl.GL11.glClearColor;
 public class Color {
 
 	public final static Color DARK_GRAY = new Color(0.3f, 0.3f, 0.3f);
+	public final static Color WHITE = new Color(1, 1, 1);
 
 	public float r;
 	public float g;

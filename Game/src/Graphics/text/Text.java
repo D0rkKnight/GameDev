@@ -27,7 +27,7 @@ public class Text {
 //			uvArr[i] = uvs.get(i);
 //
 //		// Render for debugging
-//		rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+//		rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 //		rend.init(new Transformation(new Vector2f(500, 500), Transformation.MatrixMode.SCREEN), pointArr, uvArr,
 //				new Color(1, 1, 1, 1));
 //		rend.spr = testFont.tex;

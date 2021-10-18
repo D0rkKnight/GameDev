@@ -10,11 +10,13 @@ import Collision.Hitbox;
 import Collision.Shapes.Shape;
 import Entities.Framework.PhysicsEntity.Alignment;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
+import Collision.Collider.CODVertex;
 
 /**
  * An attack with physical presence in the game world
@@ -50,7 +52,7 @@ public class Melee extends Entity implements Collidable, Aligned {
 
 		// Configure the renderer real quick
 		this.dim = dim;
-		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 		this.renderer = rend;
 
@@ -73,7 +75,7 @@ public class Melee extends Entity implements Collidable, Aligned {
 		});
 
 		// Configure hitbox
-		Hitbox tempHB = new Hitbox(this, dim.x, dim.y);
+		Hitbox tempHB = new Hitbox(this, new CODVertex(dim.x, dim.y));
 		tempHB.cb = (comb) -> {
 
 			// Copied straight over from Projectile. TODO: Generalize some sort of solution

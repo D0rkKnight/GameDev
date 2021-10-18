@@ -6,8 +6,8 @@ import Entities.Framework.PhysicsEntity.Alignment;
 
 public class Hurtbox extends Collider {
 
-	public Hurtbox(Combatant owner, float width, float height) {
-		super(owner, width, height);
+	public Hurtbox(Combatant owner, COD<?> cod) {
+		super(owner, cod);
 	}
 
 	@Override

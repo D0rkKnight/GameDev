@@ -105,7 +105,10 @@ public abstract class Enemy extends Combatant {
 
 		FrameData fd = new FrameData(segs, null, false);
 		fd.onEnd = () -> setEntityFD(StateID.MOVE);
-		fd.onEntry = () -> anim.switchAnim(StateTag.IDLE); // No stunned animation yet
+		fd.onEntry = () -> {
+			if (anim != null)
+				anim.switchAnim(StateTag.IDLE); // No stunned animation yet
+		};
 
 		return fd;
 	}

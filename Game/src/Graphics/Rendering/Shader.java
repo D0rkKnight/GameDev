@@ -17,6 +17,7 @@ import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 import static org.lwjgl.opengl.GL20.glLinkProgram;
 import static org.lwjgl.opengl.GL20.glShaderSource;
 import static org.lwjgl.opengl.GL20.glUniform1f;
+import static org.lwjgl.opengl.GL20.glUniform1fv;
 import static org.lwjgl.opengl.GL20.glUniform2f;
 import static org.lwjgl.opengl.GL20.glUniform4f;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
@@ -27,6 +28,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +38,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.lwjgl.system.MemoryStack;
 
+import Utility.Data;
 import Wrappers.Color;
 
 /*
@@ -48,6 +52,7 @@ public abstract class Shader {
 	protected Map<String, Integer> uniforms;
 
 	private static HashMap<String, Shader> shaderCache; // Key: filename Value: Shader object
+	private String fname;
 
 	static {
 		shaderCache = new HashMap<>();
@@ -71,12 +76,33 @@ public abstract class Shader {
 		}
 	}
 
-	public static Shader genShader(String filename) {
-		System.err.println("genShader() override not implemented");
+	public static Shader genShader(Class<?> clazz, String filename) {
+		try {
+			System.out.println(clazz.getName());
+			Constructor<?> con = clazz.getConstructor(String.class);
+
+			return cacheShader(filename, (fname) -> {
+				try {
+					return (Shader) con.newInstance(filename);
+				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+						| InvocationTargetException e) {
+					e.printStackTrace();
+					System.exit(1);
+				}
+
+				return null;
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
 		return null;
 	}
 
 	protected Shader(String filename) {
+		this.fname = filename;
+
 		program = glCreateProgram();
 
 		// Vertex shader
@@ -89,7 +115,8 @@ public abstract class Shader {
 
 		// Error detection
 		if (glGetShaderi(vs, GL_COMPILE_STATUS) != 1) {
-			System.err.println(glGetShaderInfoLog(vs));
+			new Exception(glGetShaderInfoLog(vs)).printStackTrace();
+			System.err.println(filename);
 			System.exit(1);
 		}
 
@@ -100,7 +127,8 @@ public abstract class Shader {
 
 		// Error detection
 		if (glGetShaderi(fs, GL_COMPILE_STATUS) != 1) {
-			System.err.println(glGetShaderInfoLog(fs));
+			new Exception(glGetShaderInfoLog(fs)).printStackTrace();
+			System.err.println(filename);
 			System.exit(1);
 		}
 
@@ -118,13 +146,15 @@ public abstract class Shader {
 		// Link and validate
 		glLinkProgram(program);
 		if (glGetProgrami(program, GL_LINK_STATUS) != 1) {
-			System.err.println(glGetProgramInfoLog(program));
+			new Exception(glGetProgramInfoLog(program)).printStackTrace();
+			System.err.println(filename);
 			System.exit(1);
 		}
 
 		glValidateProgram(program);
 		if (glGetProgrami(program, GL_VALIDATE_STATUS) != 1) {
-			System.err.println(glGetProgramInfoLog(program));
+			new Exception(glGetProgramInfoLog(program)).printStackTrace();
+			System.err.println(filename);
 			System.exit(1);
 		}
 
@@ -173,7 +203,7 @@ public abstract class Shader {
 	public void createUniform(String name) throws Exception {
 		int loc = glGetUniformLocation(program, name);
 		if (loc < 0) {
-			throw new Exception("Could not find uniform, is it used in the shader?: " + name);
+			throw new Exception("Could not find uniform, is it used in shader " + fname + "?: " + name);
 		}
 
 		uniforms.put(name, loc);
@@ -202,5 +232,13 @@ public abstract class Shader {
 
 	public void setUniform(String name, Vector2f vec2) {
 		glUniform2f(uniforms.get(name), vec2.x, vec2.y);
+	}
+
+	public void setUniform(String name, float[] arr) {
+		glUniform1fv(uniforms.get(name), Data.genGLBuff(arr));
+	}
+
+	public void renderStart(Renderer rend) {
+		bind();
 	}
 }

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
+import Collision.Collider.COD;
+import Collision.Collider.CODCircle;
+import Collision.Collider.CODVertex;
 import Collision.Behaviors.PhysicsCollisionBehavior;
 import Collision.Shapes.Shape;
 import Debugging.Debug;
@@ -13,6 +16,7 @@ import GameController.GameManager;
 import GameController.Time;
 import Tiles.Tile;
 import Utility.Arithmetic;
+import Utility.Ellipse;
 import Utility.Geometry;
 import Utility.Vector;
 import Wrappers.Color;
@@ -323,16 +327,55 @@ public abstract class Physics {
 			return null;
 	}
 
+	public static CrossCollisionCB[][] collMap = new CrossCollisionCB[2][2]; // Needs to be fully populated
+	public static ArrayList<Class<?>> registeredCODs = new ArrayList<>();
+
+	public static void buildCrossCollMap() {
+		registeredCODs.add(CODVertex.class);
+		registeredCODs.add(CODCircle.class);
+
+		CrossCollisionCB vert2vert = (COD<?> c1, COD<?> c2) -> {
+			Vector2f[] c1p = ((CODVertex) c1).getData();
+			Vector2f[] c2p = ((CODVertex) c2).getData();
+
+			return Geometry.separateAxisCheck(c1p, c2p, null, null, null);
+		};
+
+		CrossCollisionCB vert2circ = (COD<?> c1, COD<?> c2) -> {
+			Vector2f[] c1p = ((CODVertex) c1).getData();
+			Ellipse e = ((CODCircle) c2).getData();
+			Vector2f[] c2p = e.genVerts(10);
+
+			return Geometry.separateAxisCheck(c1p, c2p, null, null, null);
+		};
+
+		addCrossColl(CODVertex.class, CODVertex.class, vert2vert);
+		addCrossColl(CODVertex.class, CODCircle.class, vert2circ);
+	}
+
+	// Build that map
+	private static void addCrossColl(Class<?> c1, Class<?> c2, CrossCollisionCB cb) {
+		int i1 = registeredCODs.indexOf(c1);
+		int i2 = registeredCODs.indexOf(c2);
+
+		collMap[i1][i2] = cb;
+	}
+
 	public static void checkEntityCollision(Collider c1, Collider c2) {
-		// Do separate axis theorem on them
-		Vector2f[] c1Points = c1.genWorldVerts();
-		Vector2f[] c2Points = c2.genWorldVerts();
 
-		// TODO: Inch this. But this'll need some projection shenanigans. Oh, here we
-		// can just use the start and end point sets. SAO will need to be extended to
-		// accept that. That optimization will be usable in the player loop too.
+		// Lookup collision algorithm and execute it
+		int i1 = registeredCODs.indexOf(c1.getCOD().getClass()); // TODO: Laggy search, probably should use maps or smth
+		int i2 = registeredCODs.indexOf(c2.getCOD().getClass());
 
-		if (Geometry.separateAxisCheck(c1Points, c2Points, null, null, null)) {
+		// Pull cb
+		boolean hit;
+		CrossCollisionCB cb = collMap[i1][i2];
+		if (cb != null)
+			hit = cb.test(c1.getCOD(), c2.getCOD()); // Swap two parameters if no algo defined
+		else
+			hit = collMap[i2][i1].test(c2.getCOD(), c1.getCOD());
+
+		if (hit) {
 			c1.hitBy(c2);
 			c2.hitBy(c1);
 		}

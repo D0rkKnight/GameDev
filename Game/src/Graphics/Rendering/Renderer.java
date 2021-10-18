@@ -28,7 +28,7 @@ import Graphics.Elements.Mesh;
 import Utility.Transformations.ProjectedTransform;
 
 public abstract class Renderer {
-	protected Shader shader;
+	public Shader shader;
 
 	protected int vaoId;
 	protected int vboId;
@@ -70,7 +70,7 @@ public abstract class Renderer {
 			hasBufferUpdate = false;
 		}
 
-		shader.bind();
+		shader.renderStart(this);
 	}
 
 	protected void draw() {

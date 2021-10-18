@@ -8,7 +8,7 @@ import Collision.Behaviors.PhysicsCollisionBehavior;
 
 public class PhysicsData {
 	public boolean grounded;
-	public boolean wasGrounded;//something something about tampering
+	public boolean wasGrounded;// something something about tampering
 	public boolean isJumping;
 	public boolean collidedWithTile;
 	public Vector2f xDir;
@@ -25,7 +25,7 @@ public class PhysicsData {
 	public Vector2f moveDelta;
 	public ArrayList<PhysicsCollisionBehavior> groundedCollBehaviorList;
 	public ArrayList<PhysicsCollisionBehavior> nonGroundedCollBehaviorList;
-	
-	public boolean walksUpSlopes;
-}
 
+	public boolean walksUpSlopes;
+	public boolean hasKnockback = true;
+}

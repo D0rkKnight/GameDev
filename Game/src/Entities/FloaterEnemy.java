@@ -1,6 +1,7 @@
 package Entities;
 
 import org.joml.Vector2f;
+import Collision.Collider.CODVertex;
 
 import Collision.Hitbox;
 import Collision.Hurtbox;
@@ -14,6 +15,7 @@ import GameController.EntityData;
 import GameController.Time;
 import GameController.World;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Tiles.Tile;
 import Utility.Pathfinding;
@@ -29,7 +31,7 @@ public class FloaterEnemy extends Enemy {
 
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
-		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 
 		this.renderer = rend;
@@ -38,11 +40,11 @@ public class FloaterEnemy extends Enemy {
 		ai = new Pathfinding();
 
 		// Configure hurtbox
-		Hurtbox hurtbox = new Hurtbox(this, dim.x, dim.y);
+		Hurtbox hurtbox = new Hurtbox(this, new CODVertex(dim.x, dim.y));
 		addColl(hurtbox);
 
 		// Configure hitbox
-		Hitbox hitbox = new Hitbox(this, dim.x, dim.y);
+		Hitbox hitbox = new Hitbox(this, new CODVertex(dim.x, dim.y));
 		hitbox.cb = (comb) -> {
 			if (comb instanceof PlayerFramework) {
 				PlayerFramework p = (PlayerFramework) comb;

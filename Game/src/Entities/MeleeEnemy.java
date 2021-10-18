@@ -1,6 +1,7 @@
 package Entities;
 
 import java.util.ArrayList;
+import Collision.Collider.CODVertex;
 import java.util.HashMap;
 
 import org.joml.Vector2f;
@@ -21,6 +22,7 @@ import Graphics.Animation.Animator;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Utility.Timers.Timer;
 import Utility.Transformations.ProjectedTransform;
@@ -40,14 +42,14 @@ public class MeleeEnemy extends Enemy {
 		super(ID, position, name, stats);
 		// Configure the renderer real quick
 		rendDims = new Vector2f(64, 64);
-		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color());
 
 		this.renderer = rend;
 
 		// Configure hitbox
 		dim = new Vector2f(rendDims.x, rendDims.y * 1.5f);
-		addColl(new Hurtbox(this, dim.x, dim.y));
+		addColl(new Hurtbox(this, new CODVertex(dim.x, dim.y)));
 		rendOriginPos.y = -rendDims.y * 0.5f;
 		rendOriginPos.x = rendDims.x / 2;
 

@@ -15,11 +15,13 @@ import GameController.GameManager;
 import GameController.World;
 import GameController.procedural.WorldGate;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
+import Collision.Collider.CODVertex;
 
 public class Entrance extends Entity implements Collidable {
 
@@ -39,14 +41,14 @@ public class Entrance extends Entity implements Collidable {
 		super(ID, position, name);
 
 		dim = dims;
-		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
 
 		this.renderer = rend;
 
 		// Configure hitbox
 		this.hb = new ArrayList<>();
-		addColl(new Collider(this, dim.x, dim.y));
+		addColl(new Collider(this, new CODVertex(dim.x, dim.y)));
 
 		this.localMapPos = new Vector2i(mapX, mapY);
 		this.dir = dir;

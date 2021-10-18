@@ -1,6 +1,7 @@
 package Entities.PlayerPackage;
 
 import java.util.HashMap;
+import Collision.Collider.CODVertex;
 
 import org.joml.Math;
 import org.joml.Vector2f;
@@ -22,6 +23,7 @@ import Graphics.Animation.Animator;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Graphics.particles.GhostParticleSystem;
 import Utility.Arithmetic;
@@ -67,7 +69,7 @@ public abstract class PlayerFramework extends Combatant {
 		// TODO: Seems like the renderer just wants to be defined within the entity and
 		// not given from outside...
 		rendDims = new Vector2f(96, 96);
-		GeneralRenderer rend = new GeneralRenderer(SpriteShader.genShader("texShader"));
+		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
 
 		this.renderer = rend;
@@ -77,7 +79,7 @@ public abstract class PlayerFramework extends Combatant {
 		// Configure hitbox
 		dim = new Vector2f(15f, 60f);
 
-		mainHurtbox = new Hurtbox(this, dim.x, dim.y);
+		mainHurtbox = new Hurtbox(this, new CODVertex(dim.x, dim.y));
 		addColl(mainHurtbox);
 
 		jumpSpeed = 1f;

@@ -7,8 +7,8 @@ public class Hitbox extends Collider {
 
 	public HitboxCallback cb;
 
-	public Hitbox(Entity owner, float width, float height) {
-		super(owner, width, height);
+	public Hitbox(Entity owner, COD<?> cod) {
+		super(owner, cod);
 
 		// Alignment check
 		if (!(owner instanceof Aligned)) {
