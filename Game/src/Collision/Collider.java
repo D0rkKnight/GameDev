@@ -6,20 +6,21 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import Collision.Collider.COD;
-import Collision.Collider.CODVertex;
 import Collision.Shapes.Shape;
+import Entities.Framework.Centered;
 import Entities.Framework.Entity;
 import Utility.Ellipse;
+import Utility.Rect;
 import Utility.Transformations.ModelTransform;
 
 // CODVertex for testing
-public class Collider<T extends COD<?>> {
+public class Collider<T extends COD<?>> implements Centered {
 	public Vector2f position;
 	public Entity owner;
 	public ModelTransform localTrans;
 
 	public boolean isActive = true;
-	public T cod;
+	private T cod;
 
 	// Collision output data
 	public abstract static class COD<T> implements Cloneable {
@@ -142,5 +143,14 @@ public class Collider<T extends COD<?>> {
 
 	public T getCOD() {
 		return cod;
+	}
+
+	@Override
+	public Vector2f getCenter() {
+		// Debugging
+		Rect r = new Rect(new Vector2f(cod.width, cod.height)); // Use dimensions as base
+		Vector2f center = new Vector2f(position).add(r.getTransformedCenter(localTrans.genModel()));
+
+		return center;
 	}
 }

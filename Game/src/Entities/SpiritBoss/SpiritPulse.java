@@ -18,8 +18,8 @@ public class SpiritPulse extends Entity implements Aligned {
 		super(ID, position, name);
 
 		addColl(new Hitbox(this, new CODCircle(radius)));
-		dim = new Vector2f(radius*2);
-		
+		dim = new Vector2f(radius * 2); // Treated differently because circle collider (centered on center of circle)
+
 		align = Alignment.ENEMY;
 	}
 

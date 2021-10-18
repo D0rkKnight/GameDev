@@ -75,13 +75,14 @@ public class SpiritBoss extends Boss {
 		// Testing
 		Vector2f[] verts = Geometry.pointsFromCircle(getCenter(), 200f, 20);
 		Debug.enqueueElement(new DebugPolygon(verts, 1000, Color.WHITE));
-		
+
 		// More testing
 		// TODO: Terrible process, please refine
 		float r = 500;
-		SpiritPulse pulse = new SpiritPulse("PULSE", new Vector2f(getCenter()).sub(r, r), "Test pulse", r);
+		SpiritPulse pulse = new SpiritPulse("PULSE", new Vector2f(getCenter()), "Test pulse", r);
 		Collider<CODCircle> coll = pulse.getColl().get(0);
-		Vector2f[] pulseVerts = coll.getCOD().getData(new Matrix4f(), pulse.getCenter()).genVerts(10);
+		System.out.println(coll.getCenter());
+		Vector2f[] pulseVerts = coll.getCOD().getData(new Matrix4f(), coll.position).genVerts(10);
 		Debug.enqueueElement(new DebugPolygon(pulseVerts, 1000, Color.WHITE));
 	}
 

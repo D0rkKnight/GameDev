@@ -21,8 +21,8 @@ public class Ellipse {
 		for (int i=0; i<segs; i++) {
 			float rad = (float) (((float) i)/segs * 2 * Math.PI);
 			
-			float dx = (float) Math.cos(rad) * dims.x;
-			float dy = (float) Math.sin(rad) * dims.y;
+			float dx = (float) Math.cos(rad) * dims.x / 2; // Not radius, div by 2
+			float dy = (float) Math.sin(rad) * dims.y / 2;
 			
 			Vector2f v = new Vector2f(dx, dy).add(p);
 			vs[i] = v;

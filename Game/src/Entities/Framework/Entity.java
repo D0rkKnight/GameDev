@@ -23,7 +23,7 @@ import Utility.Transformations.ModelTransform;
  * @author Benjamin
  *
  */
-public abstract class Entity implements Collidable {
+public abstract class Entity implements Collidable, Centered {
 	protected String ID;
 	protected final Vector2f position = new Vector2f();
 	public static float gravity = 5f;
