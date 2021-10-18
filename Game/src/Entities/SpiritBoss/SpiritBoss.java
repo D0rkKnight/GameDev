@@ -2,7 +2,6 @@ package Entities.SpiritBoss;
 
 import java.util.ArrayList;
 
-import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import Collision.Collider;
@@ -82,7 +81,7 @@ public class SpiritBoss extends Boss {
 		SpiritPulse pulse = new SpiritPulse("PULSE", new Vector2f(getCenter()), "Test pulse", r);
 		Collider<CODCircle> coll = pulse.getColl().get(0);
 		System.out.println(coll.getCenter());
-		Vector2f[] pulseVerts = coll.getCOD().getData(new Matrix4f(), coll.position).genVerts(10);
+		Vector2f[] pulseVerts = coll.getCOD().getData().genVerts(10);
 		// Debug.enqueueElement(new DebugPolygon(pulseVerts, 1000, Color.WHITE));
 
 		GameManager.subscribeEntity(pulse);

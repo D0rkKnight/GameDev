@@ -124,6 +124,7 @@ public class GameManager {
 		Time.initTime();
 
 		ArenaController.init();
+		Physics.buildCrossCollMap();
 
 		TestSpace.init();
 

@@ -33,7 +33,7 @@ public class Collider<T extends COD<?>> implements Centered {
 			this.height = height;
 		}
 
-		public abstract T getData(Matrix4f model, Vector2f pos);
+		public abstract T getData();
 
 		public abstract COD<?> clone();
 	}
@@ -54,8 +54,11 @@ public class Collider<T extends COD<?>> implements Centered {
 		}
 
 		@Override
-		public Vector2f[] getData(Matrix4f model, Vector2f pos) {
+		public Vector2f[] getData() {
 			// 2 steps: translate locally, then shift to world position.
+			Matrix4f model = owner.localTrans.genModel();
+			Vector2f pos = owner.position;
+
 			Matrix4f worldTranslate = new Matrix4f().setTranslation(new Vector3f(pos.x, pos.y, 0));
 
 			for (int i = 0; i < verts.length; i++) {
@@ -84,7 +87,10 @@ public class Collider<T extends COD<?>> implements Centered {
 
 		// Returns radius and position
 		@Override
-		public Ellipse getData(Matrix4f model, Vector2f pos) {
+		public Ellipse getData() {
+			Matrix4f model = owner.localTrans.genModel();
+			Vector2f pos = owner.position;
+
 			Vector3f s = new Vector3f();
 			model.getScale(s);
 
@@ -141,9 +147,9 @@ public class Collider<T extends COD<?>> implements Centered {
 		// Hack
 
 		if (cod instanceof CODVertex)
-			return (Vector2f[]) cod.getData(localTrans.genModel(), position);
+			return (Vector2f[]) cod.getData();
 		if (cod instanceof CODCircle)
-			return ((Ellipse) cod.getData(localTrans.genModel(), position)).genVerts(10);
+			return ((Ellipse) cod.getData()).genVerts(10);
 
 		return null;
 	}
