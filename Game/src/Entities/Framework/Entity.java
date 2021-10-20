@@ -13,6 +13,7 @@ import GameController.Input;
 import Graphics.Drawer;
 import Graphics.Animation.Animator;
 import Graphics.Rendering.Renderer;
+import Utility.Rect;
 import Utility.Transformations.ModelTransform;
 
 /**
@@ -33,6 +34,7 @@ public abstract class Entity implements Collidable, Centered {
 	public Vector2f rendDims;
 
 	public String name;
+	public Vector2f dim;
 
 	public Animator anim;
 
@@ -57,7 +59,7 @@ public abstract class Entity implements Collidable, Centered {
 		rendOriginPos = new Vector2f();
 		entOriginPos = new Vector2f();
 		children = new ArrayList<Entity>();
-
+		
 		colls = new ArrayList<Collider>();
 	}
 
@@ -117,6 +119,14 @@ public abstract class Entity implements Collidable, Centered {
 
 	public Vector2f getPosition() {
 		return position;
+	}
+
+	public Vector2f getCenter() {
+		// Debugging
+		Rect r = new Rect(new Vector2f(dim)); // Use dimensions as base
+		Vector2f center = new Vector2f(position).add(r.getTransformedCenter(localTrans.genModel()));
+
+		return center;
 	}
 
 	/**
@@ -182,7 +192,7 @@ public abstract class Entity implements Collidable, Centered {
 			e.unsubSelf(subList, coll);
 		}
 	}
-
+	
 	@Override
 	public ArrayList<Collider> getColl() {
 		return colls;
