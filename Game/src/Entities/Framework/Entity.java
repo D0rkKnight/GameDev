@@ -9,7 +9,6 @@ import Collision.Collidable;
 import Collision.Collider;
 import Entities.Framework.EntityFlag.FlagFactory;
 import GameController.GameManager;
-import GameController.Input;
 import Graphics.Drawer;
 import Graphics.Animation.Animator;
 import Graphics.Rendering.Renderer;
@@ -22,7 +21,7 @@ import Utility.Transformations.ModelTransform;
  * @author Benjamin
  *
  */
-public abstract class Entity implements Collidable, Centered {
+public abstract class Entity implements Collidable {
 	protected String ID;
 	protected final Vector2f position = new Vector2f();
 	public static float gravity = 5f;
@@ -140,18 +139,19 @@ public abstract class Entity implements Collidable, Centered {
 
 	}
 
-	public boolean mouseHovered() {
-		try {
-			if (Input.mouseWorldPos.x > position.x && Input.mouseWorldPos.x < position.x + dim.x
-					&& Input.mouseWorldPos.y > position.y && Input.mouseWorldPos.y < position.y + dim.y) {
-				return true;
-			}
-			return false;
-		} catch (NullPointerException E) {
-			System.err.println("Nullpointer Error in Button, First cycle?");
-			return false;
-		}
-	}
+	// Rewrite into collider function
+//	public boolean mouseHovered() {
+//		try {
+//			if (Input.mouseWorldPos.x > position.x && Input.mouseWorldPos.x < position.x + dim.x
+//					&& Input.mouseWorldPos.y > position.y && Input.mouseWorldPos.y < position.y + dim.y) {
+//				return true;
+//			}
+//			return false;
+//		} catch (NullPointerException E) {
+//			System.err.println("Nullpointer Error in Button, First cycle?");
+//			return false;
+//		}
+//	}
 
 	public void flagEntity(FlagFactory iflagfactory) {
 		this.flag = iflagfactory.create(new Vector2f(position).add(0, 50f));

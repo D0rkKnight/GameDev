@@ -1,9 +1,9 @@
 package Entities.Framework;
 
 import org.joml.Vector2f;
-import Collision.Collider.CODVertex;
 
 import Collision.Collider;
+import Collision.Collider.CODVertex;
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
 import GameController.EntityData;
@@ -19,7 +19,7 @@ public class Projectile extends PhysicsEntity {
 		super(ID, position, name);
 
 		// Configure renderer (this is a hack)
-		dim = new Vector2f(8f, 8f);
+		Vector2f dim = new Vector2f(8f, 8f);
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
 		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color(1, 1, 0, 0));
 		this.renderer = rend;

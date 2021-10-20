@@ -24,10 +24,11 @@ import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL30;
 
+import Entities.Framework.Centered;
 import Graphics.Elements.Mesh;
 import Utility.Transformations.ProjectedTransform;
 
-public abstract class Renderer {
+public abstract class Renderer implements Centered {
 	public Shader shader;
 
 	protected int vaoId;
