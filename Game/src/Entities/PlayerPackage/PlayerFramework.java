@@ -1,11 +1,11 @@
 package Entities.PlayerPackage;
 
 import java.util.HashMap;
-import Collision.Collider.CODVertex;
 
 import org.joml.Math;
 import org.joml.Vector2f;
 
+import Collision.Collider.CODVertex;
 import Collision.Hurtbox;
 import Collision.Shapes.Shape;
 import Entities.Behavior.EntityFlippable;
@@ -62,6 +62,9 @@ public abstract class PlayerFramework extends Combatant {
 	// Temp
 	public Color baseCol;
 
+	// Origin data
+	public Vector2f attackOrigin;
+
 	public PlayerFramework(String ID, Vector2f position, String name, Stats stats) {
 		super(ID, position, name, stats);
 
@@ -88,6 +91,7 @@ public abstract class PlayerFramework extends Combatant {
 		initGraphics();
 		rendOriginPos.set(rendDims.x / 2, 0);
 		entOriginPos.x = dim.x / 2;
+		attackOrigin = new Vector2f(dim).mul(0.5f);
 
 		// Alignment
 		alignment = PhysicsEntity.Alignment.PLAYER;

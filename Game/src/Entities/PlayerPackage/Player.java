@@ -103,7 +103,7 @@ public class Player extends PlayerFramework {
 			if (Input.meleeAction) {
 				// Check ortho direction
 				// TODO: Clean up this boilerplate
-				Vector2f pos = new Vector2f(getPosition()).add(dim.x / 2, dim.y / 2);
+				Vector2f pos = new Vector2f(getPosition()).add(attackOrigin);
 				Vector2f orthoDir = orthoDirFromVector(new Vector2f(Input.mouseWorldPos).sub(pos));
 
 				if (orthoDir.y == 0 && pData.grounded) {
@@ -410,7 +410,7 @@ public class Player extends PlayerFramework {
 			Vector2f moveDir = new Vector2f(pData.velo).normalize();
 			float dist = 60;
 			Vector2f newP = new Vector2f(getPosition()).add(new Vector2f(moveDir).mul(dist));
-			newP.add(dim.x / 2, dim.y / 2); // Center on player
+			newP.add(attackOrigin); // Center on player
 
 			melee(this, newP, moveDir, dur, new Vector2f(90, 45));
 
@@ -464,7 +464,7 @@ public class Player extends PlayerFramework {
 	}
 
 	private static void meleeAtPoint(PlayerFramework p, Vector2f targetPos, int fLife, float meleeDis, Vector2f dims) {
-		Vector2f pos = new Vector2f(p.getPosition()).add(p.dim.x / 2, p.dim.y / 2);
+		Vector2f pos = new Vector2f(p.getPosition()).add(p.attackOrigin);
 
 		Vector2f dir = orthoDirFromVector(new Vector2f(targetPos).sub(pos));
 
@@ -477,7 +477,7 @@ public class Player extends PlayerFramework {
 
 	// Hacky solution, please fix
 	private static void meleeInDir(PlayerFramework p, Vector2f dir, int fLife, float meleeDis, Vector2f dims) {
-		Vector2f pos = new Vector2f(p.getPosition()).add(p.dim.x / 2, p.dim.y / 2);
+		Vector2f pos = new Vector2f(p.getPosition()).add(p.attackOrigin);
 
 		// Generate data for melee hitbox object
 		Vector2f dist = new Vector2f(dir).mul(meleeDis);
@@ -498,7 +498,8 @@ public class Player extends PlayerFramework {
 		float angle = Math.atan2(dir.y, dir.x);
 		Matrix4f rot = meleeEntity.localTrans.rot;
 
-		rot.translate(meleeEntity.dim.x / 2, meleeEntity.dim.y / 2, 0);
+		Vector2f cent = meleeEntity.getColl().get(0).globalCenter();
+		rot.translate(cent.x, cent.y, 0);
 		rot.rotateZ(angle);
 		rot.translate(-meleeEntity.dim.x / 2, -meleeEntity.dim.y / 2, 0);
 	}

@@ -52,12 +52,13 @@ public class SpiritBoss extends Boss {
 
 		rendOriginPos.x = rendDims.x / 2;
 		entOriginPos.x = dim.x / 2;
+		center.set(dim.x / 2, dim.y / 2);
 
 		setEntityFD(StateID.MOVE);
 
 		// Generate spirit fragments
 		float[] radBuff = new float[fragCount];
-		Vector2f[] fragPos = Geometry.pointsFromCircle(getCenter(), dist, fragCount, radBuff);
+		Vector2f[] fragPos = Geometry.pointsFromCircle(globalCenter(), dist, fragCount, radBuff);
 
 		for (int i = 0; i < fragPos.length; i++) {
 			SpiritFragment frag = new SpiritFragment(fragPos[i]);
@@ -72,15 +73,15 @@ public class SpiritBoss extends Boss {
 		calcPulses(0f);
 
 		// Testing
-		Vector2f[] verts = Geometry.pointsFromCircle(getCenter(), 200f, 20);
+		Vector2f[] verts = Geometry.pointsFromCircle(globalCenter(), 200f, 20);
 		Debug.enqueueElement(new DebugPolygon(verts, 1000, Color.WHITE));
 
 		// More testing
 		// TODO: Terrible process, please refine
 		float r = 500;
-		SpiritPulse pulse = new SpiritPulse("PULSE", new Vector2f(getCenter()), "Test pulse", r);
+		SpiritPulse pulse = new SpiritPulse("PULSE", new Vector2f(globalCenter()), "Test pulse", r);
 		Collider<CODCircle> coll = pulse.getColl().get(0);
-		System.out.println(coll.getCenter());
+		System.out.println(coll.globalCenter());
 		Vector2f[] pulseVerts = coll.getCOD().getData().genVerts(10);
 		// Debug.enqueueElement(new DebugPolygon(pulseVerts, 1000, Color.WHITE));
 
@@ -95,7 +96,7 @@ public class SpiritBoss extends Boss {
 
 			float nDist = dist + ((float) Math.sin(rad * 4 + (Time.timeSinceStart() / 1000f)) * 10);
 			Vector2f delta = new Vector2f(dir).mul(nDist);
-			Vector2f p = getCenter().add(delta);
+			Vector2f p = globalCenter().add(delta);
 
 			SpiritFragment frag = frags.get(i);
 			frag.getPosition().set(p);
@@ -115,7 +116,7 @@ public class SpiritBoss extends Boss {
 
 		// Testing stuff
 		BleedShader bleed = (BleedShader) DBEnum.BLEED.buff.rend.shader;
-		bleed.trans.setTrans(getCenter());
+		bleed.trans.setTrans(globalCenter());
 	}
 
 	private void calcPulses(float tSec) {

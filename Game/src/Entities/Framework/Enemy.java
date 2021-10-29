@@ -62,7 +62,7 @@ public abstract class Enemy extends Combatant {
 				findTarget();
 
 			if (target != null) {
-				Vector2f tVec = new Vector2f(target.getCenter()).sub(getCenter());
+				Vector2f tVec = new Vector2f(target.globalCenter()).sub(globalCenter());
 
 				// Handle pauses when switching side faced
 				int newSideFacing = Arithmetic.sign(tVec.x);

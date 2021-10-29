@@ -13,8 +13,9 @@ import GameController.Input;
 import Graphics.Drawer;
 import Graphics.Animation.Animator;
 import Graphics.Rendering.Renderer;
-import Utility.Rect;
+import Utility.Center;
 import Utility.Transformations.ModelTransform;
+import Utility.Transformations.Transformed;
 
 /**
  * superclass for all entities entities have to be initialized after
@@ -23,7 +24,7 @@ import Utility.Transformations.ModelTransform;
  * @author Benjamin
  *
  */
-public abstract class Entity implements Collidable, Centered {
+public abstract class Entity implements Collidable, Centered, Transformed {
 	protected String ID;
 	protected final Vector2f position = new Vector2f();
 	public static float gravity = 5f;
@@ -35,6 +36,7 @@ public abstract class Entity implements Collidable, Centered {
 
 	public String name;
 	public Vector2f dim;
+	protected Center center;
 
 	public Animator anim;
 
@@ -59,8 +61,10 @@ public abstract class Entity implements Collidable, Centered {
 		rendOriginPos = new Vector2f();
 		entOriginPos = new Vector2f();
 		children = new ArrayList<Entity>();
-		
+
 		colls = new ArrayList<Collider>();
+
+		center = new Center(this);
 	}
 
 	public void calculate() {
@@ -121,12 +125,13 @@ public abstract class Entity implements Collidable, Centered {
 		return position;
 	}
 
-	public Vector2f getCenter() {
-		// Debugging
-		Rect r = new Rect(new Vector2f(dim)); // Use dimensions as base
-		Vector2f center = new Vector2f(position).add(r.getTransformedCenter(localTrans.genModel()));
-
+	public Center center() {
 		return center;
+	}
+
+	public Vector2f globalCenter() {
+		// Debugging
+		return new Vector2f(position).add(center.local());
 	}
 
 	/**
@@ -192,7 +197,7 @@ public abstract class Entity implements Collidable, Centered {
 			e.unsubSelf(subList, coll);
 		}
 	}
-	
+
 	@Override
 	public ArrayList<Collider> getColl() {
 		return colls;
@@ -215,5 +220,9 @@ public abstract class Entity implements Collidable, Centered {
 	@Override
 	public void onColl(Collider otherHb) {
 
+	}
+
+	public ModelTransform getLocalTrans() {
+		return localTrans;
 	}
 }

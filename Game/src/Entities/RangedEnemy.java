@@ -1,11 +1,11 @@
 package Entities;
 
 import java.util.ArrayList;
-import Collision.Collider.CODVertex;
 import java.util.HashMap;
 
 import org.joml.Vector2f;
 
+import Collision.Collider.CODVertex;
 import Collision.Hurtbox;
 import Collision.Behaviors.PGBGroundFriction;
 import Collision.Shapes.Shape;
@@ -51,6 +51,7 @@ public class RangedEnemy extends Enemy {
 
 		rendOriginPos.x = rendDims.x / 2;
 		entOriginPos.x = dim.x / 2;
+		center.set(new Vector2f(dim.x / 2, dim.y / 2));
 
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("assets/Sprites/ranged_enemy.png"), 48, 48);
 		Animation a1 = new Animation(tAtlas.genSubTexSet(0, 0));
@@ -99,7 +100,7 @@ public class RangedEnemy extends Enemy {
 			if (target == null)
 				return;
 
-			Vector2f tVec = new Vector2f(target.getCenter()).sub(getCenter());
+			Vector2f tVec = new Vector2f(target.globalCenter()).sub(globalCenter());
 
 			int range = 500;
 			if (tVec.x * flip.sideFacing > 0 && tVec.length() < range) {
@@ -139,7 +140,7 @@ public class RangedEnemy extends Enemy {
 			anim.switchAnim(StateTag.WINDOWN);
 
 			// Fire a projectile
-			Projectile proj = new Projectile("PROJ", getCenter(), "Ranged enemy projectile", alignment);
+			Projectile proj = new Projectile("PROJ", globalCenter(), "Ranged enemy projectile", alignment);
 			proj.pData.velo.x = flip.sideFacing * 0.5f;
 			GameManager.subscribeEntity(proj);
 		}, 50));

@@ -9,18 +9,21 @@ import Collision.Collider.COD;
 import Collision.Shapes.Shape;
 import Entities.Framework.Centered;
 import Entities.Framework.Entity;
+import Utility.Center;
 import Utility.Ellipse;
-import Utility.Rect;
 import Utility.Transformations.ModelTransform;
+import Utility.Transformations.Transformed;
 
 // CODVertex for testing
-public class Collider<T extends COD<?>> implements Centered {
+public class Collider<T extends COD<?>> implements Centered, Transformed {
 	public Vector2f position;
 	public Entity owner;
 	public ModelTransform localTrans;
 
 	public boolean isActive = true;
 	private T cod;
+
+	protected Center center;
 
 	// Collision output data
 	public abstract static class COD<T> implements Cloneable {
@@ -121,6 +124,8 @@ public class Collider<T extends COD<?>> implements Centered {
 		localTrans = new ModelTransform();
 		if (owner.getPosition() != null)
 			this.position = owner.getPosition();
+
+		center = new Center(this);
 	}
 
 	public Collider(Collider hb, Entity owner) {
@@ -158,12 +163,17 @@ public class Collider<T extends COD<?>> implements Centered {
 		return cod;
 	}
 
-	@Override
-	public Vector2f getCenter() {
-		// Debugging
-		Rect r = new Rect(new Vector2f(cod.width, cod.height)); // Use dimensions as base
-		Vector2f center = new Vector2f(position).add(r.getTransformedCenter(localTrans.genModel()));
-
+	public Center center() {
 		return center;
+	}
+
+	@Override
+	public Vector2f globalCenter() {
+		return new Vector2f(position).add(center.local());
+	}
+
+	@Override
+	public ModelTransform getLocalTrans() {
+		return localTrans;
 	}
 }

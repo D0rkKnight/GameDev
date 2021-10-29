@@ -122,7 +122,7 @@ public class MeleeEnemy extends Enemy {
 			anim.switchAnim(StateTag.LUNGE);
 
 			// Attach a melee attack to self
-			Melee me = new Melee(getCenter(), this, new Vector2f(flip.sideFacing, 0), 1, 150, dim);
+			Melee me = new Melee(globalCenter(), this, new Vector2f(flip.sideFacing, 0), 1, 150, dim);
 			GameManager.subscribeEntity(me);
 		}, 50));
 
@@ -144,7 +144,7 @@ public class MeleeEnemy extends Enemy {
 			if (target == null)
 				return;
 
-			Vector2f tVec = new Vector2f(target.getCenter()).sub(getCenter());
+			Vector2f tVec = new Vector2f(target.globalCenter()).sub(globalCenter());
 
 			int meleeRange = 100;
 			if (tVec.x * flip.sideFacing > 0 && tVec.length() < meleeRange) {

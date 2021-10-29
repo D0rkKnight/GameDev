@@ -6,6 +6,7 @@ import org.joml.Vector2f;
 
 import Collision.Collidable;
 import Collision.Collider;
+import Collision.Collider.CODVertex;
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
 import Entities.Framework.PhysicsEntity.Alignment;
@@ -16,7 +17,6 @@ import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
-import Collision.Collider.CODVertex;
 
 /**
  * An attack with physical presence in the game world
