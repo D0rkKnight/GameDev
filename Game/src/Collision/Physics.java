@@ -4,9 +4,6 @@ import java.util.ArrayList;
 
 import org.joml.Vector2f;
 
-import Collision.Collider.COD;
-import Collision.Collider.CODCircle;
-import Collision.Collider.CODVertex;
 import Collision.Behaviors.PhysicsCollisionBehavior;
 import Collision.Shapes.Shape;
 import Debugging.Debug;
@@ -16,12 +13,15 @@ import GameController.GameManager;
 import GameController.Time;
 import Tiles.Tile;
 import Utility.Arithmetic;
-import Utility.Ellipse;
 import Utility.Geometry;
 import Utility.Vector;
 import Wrappers.Color;
 
 public abstract class Physics {
+
+	public static void init() {
+		Collider.buildCrossCollMap();
+	}
 
 	public static final float NUDGE_CONSTANT = 0.1f;
 
@@ -327,45 +327,13 @@ public abstract class Physics {
 			return null;
 	}
 
-	public static CrossCollisionCB[][] collMap = new CrossCollisionCB[2][2]; // Needs to be fully populated
-	public static ArrayList<Class<?>> registeredCODs = new ArrayList<>();
-
-	public static void buildCrossCollMap() {
-		registeredCODs.add(CODVertex.class);
-		registeredCODs.add(CODCircle.class);
-
-		CrossCollisionCB vert2vert = (COD<?> c1, COD<?> c2) -> {
-			Vector2f[] c1p = ((CODVertex) c1).getData();
-			Vector2f[] c2p = ((CODVertex) c2).getData();
-
-			return Geometry.separateAxisCheck(c1p, c2p, null, null, null);
-		};
-
-		CrossCollisionCB vert2circ = (COD<?> c1, COD<?> c2) -> {
-			Vector2f[] c1p = ((CODVertex) c1).getData();
-			Ellipse e = ((CODCircle) c2).getData();
-			Vector2f[] c2p = e.genVerts(10);
-
-			return Geometry.separateAxisCheck(c1p, c2p, null, null, null);
-		};
-
-		addCrossColl(CODVertex.class, CODVertex.class, vert2vert);
-		addCrossColl(CODVertex.class, CODCircle.class, vert2circ);
-	}
-
-	// Build that map
-	private static void addCrossColl(Class<?> c1, Class<?> c2, CrossCollisionCB cb) {
-		int i1 = registeredCODs.indexOf(c1);
-		int i2 = registeredCODs.indexOf(c2);
-
-		collMap[i1][i2] = cb;
-	}
-
 	public static void checkEntityCollision(Collider c1, Collider c2) {
+		ArrayList<Class<?>> rCODs = Collider.registeredCODs;
+		CrossCollisionCB[][] collMap = Collider.collMap;
 
 		// Lookup collision algorithm and execute it
-		int i1 = registeredCODs.indexOf(c1.getCOD().getClass()); // TODO: Laggy search, probably should use maps or smth
-		int i2 = registeredCODs.indexOf(c2.getCOD().getClass());
+		int i1 = rCODs.indexOf(c1.getCOD().getClass()); // TODO: Laggy search, probably should use maps or smth
+		int i2 = rCODs.indexOf(c2.getCOD().getClass());
 
 		// Pull cb
 		boolean hit;

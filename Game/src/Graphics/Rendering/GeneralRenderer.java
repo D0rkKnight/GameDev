@@ -37,8 +37,6 @@ public class GeneralRenderer extends Renderer {
 	protected void renderStart() {
 		super.renderStart();
 
-		setTransformMatrix();
-
 		// Enable blending
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -64,9 +62,6 @@ public class GeneralRenderer extends Renderer {
 		init(transform, vertices, uvs, col);
 	}
 
-	/**
-	 * Initialize
-	 */
 	public void init(ProjectedTransform transform, Vector2f[] vertices, Vector2f[] uvs, Color col) {
 		super.init(transform);
 

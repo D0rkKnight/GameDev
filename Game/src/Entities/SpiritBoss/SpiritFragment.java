@@ -1,9 +1,9 @@
 package Entities.SpiritBoss;
 
 import org.joml.Vector2f;
-import Collision.Collider.CODVertex;
 import org.joml.Vector3f;
 
+import Collision.Collider.CODVertex;
 import Collision.Hurtbox;
 import Collision.Shapes.Shape;
 import Debugging.Debug;
@@ -24,7 +24,7 @@ public class SpiritFragment extends Enemy {
 		// Rend
 		rendDims = new Vector2f(96, 32);
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color());
+		rend.init(new ProjectedTransform(), rendDims, Shape.ShapeEnum.SQUARE, new Color());
 		rend.spr = Debug.debugTex;
 
 		this.renderer = rend;
@@ -35,7 +35,7 @@ public class SpiritFragment extends Enemy {
 
 		pData.hasKnockback = false;
 
-		rendOriginPos.x = rendDims.x / 2;
+		this.renderer.getOrigin().x = rendDims.x / 2;
 		entOriginPos.x = dim.x / 2;
 
 		setEntityFD(StateID.MOVE);

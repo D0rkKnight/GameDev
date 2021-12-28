@@ -1,11 +1,11 @@
 package Entities;
 
 import java.util.ArrayList;
-import Collision.Collider.CODVertex;
 import java.util.HashMap;
 
 import org.joml.Vector2f;
 
+import Collision.Collider.CODVertex;
 import Collision.Hurtbox;
 import Collision.Behaviors.PGBGroundFriction;
 import Collision.Shapes.Shape;
@@ -41,7 +41,7 @@ public class RangedEnemy extends Enemy {
 		// Rend
 		rendDims = new Vector2f(96, 96);
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color());
+		rend.init(new ProjectedTransform(), rendDims, Shape.ShapeEnum.SQUARE, new Color());
 
 		this.renderer = rend;
 
@@ -49,7 +49,7 @@ public class RangedEnemy extends Enemy {
 		dim = new Vector2f(16, 96);
 		addColl(new Hurtbox(this, new CODVertex(dim.x, dim.y)));
 
-		rendOriginPos.x = rendDims.x / 2;
+		this.renderer.getOrigin().x = rendDims.x / 2;
 		entOriginPos.x = dim.x / 2;
 
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("assets/Sprites/ranged_enemy.png"), 48, 48);

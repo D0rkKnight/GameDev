@@ -39,7 +39,7 @@ public class SpiritBoss extends Boss {
 		// Rend
 		rendDims = new Vector2f(192, 192);
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color());
+		rend.init(new ProjectedTransform(), rendDims, Shape.ShapeEnum.SQUARE, new Color());
 		rend.spr = Debug.debugTex;
 
 		this.renderer = rend;
@@ -50,7 +50,7 @@ public class SpiritBoss extends Boss {
 
 		pData.hasKnockback = false;
 
-		rendOriginPos.x = rendDims.x / 2;
+		this.renderer.getOrigin().x = rendDims.x / 2;
 		entOriginPos.x = dim.x / 2;
 
 		setEntityFD(StateID.MOVE);

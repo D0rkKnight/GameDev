@@ -1,17 +1,20 @@
 package Entities.PlayerPackage;
 
 import java.util.HashMap;
-import Collision.Collider.CODVertex;
 
 import org.joml.Math;
 import org.joml.Vector2f;
 
+import Collision.Collider.CODVertex;
 import Collision.Hurtbox;
 import Collision.Shapes.Shape;
+import Debugging.Debug;
 import Entities.Behavior.EntityFlippable;
 import Entities.Framework.Combatant;
+import Entities.Framework.Entity;
 import Entities.Framework.PhysicsEntity;
 import Entities.Framework.Projectile;
+import Entities.Framework.SimpleEntity;
 import Entities.Framework.StateMachine.StateID;
 import Entities.Framework.StateMachine.StateTag;
 import GameController.GameManager;
@@ -70,7 +73,7 @@ public abstract class PlayerFramework extends Combatant {
 		// not given from outside...
 		rendDims = new Vector2f(96, 96);
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
+		rend.init(new ProjectedTransform(), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
 
 		this.renderer = rend;
 
@@ -86,7 +89,7 @@ public abstract class PlayerFramework extends Combatant {
 		dashSpeed = 2f;
 
 		initGraphics();
-		rendOriginPos.set(rendDims.x / 2, 0);
+		this.renderer.getOrigin().set(rendDims.x / 2, 0);
 		entOriginPos.x = dim.x / 2;
 
 		// Alignment
@@ -95,6 +98,19 @@ public abstract class PlayerFramework extends Combatant {
 		baseInvulnLength = 1000;
 
 		setEntityFD(StateID.I);
+
+		// TODO: goof test entity
+		Entity childEnt = new SimpleEntity();
+		setAsChild(childEnt);
+
+		GeneralRenderer cRend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
+		cRend.init(new ProjectedTransform(new Vector2f(0, 100)), rendDims, Shape.ShapeEnum.SQUARE,
+				new Color(1, 0, 0, 0));
+		cRend.spr = Debug.debugTex;
+		childEnt.renderer = cRend;
+
+		// TODO: Really should be accessed through parent hierarchy and not like this
+		GameManager.subscribeEntity(childEnt);
 	}
 
 	@Override
@@ -322,7 +338,14 @@ public abstract class PlayerFramework extends Combatant {
 
 		// Update trailing particle system
 		pSys.activeSubTex = anim.currentAnim.getFrame();
-		pSys.activeTransform = new ProjectedTransform(renderer.transform);
+		pSys.activeTransform = new ProjectedTransform();
+
+		// TODO: Fix hack
+		pSys.activeTransform.setModel(renderer.localTrans);
+		pSys.activeTransform.view.set(renderer.worldToScreen.view);
+		pSys.activeTransform.proj.set(renderer.worldToScreen.proj);
+		pSys.activeTransform.matrixMode = renderer.worldToScreen.matrixMode;
+
 		pSys.update();
 
 		super.calcFrame();

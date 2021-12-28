@@ -22,7 +22,7 @@ public class InteractableFlag extends EntityFlag {
 
 		dim = new Vector2f(30f, 30f);
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color(), tAtlas.genSubTex(0, 0));
+		rend.init(new ProjectedTransform(), dim, Shape.ShapeEnum.SQUARE, new Color(), tAtlas.genSubTex(0, 0));
 		this.renderer = rend;
 
 		rend.spr = tAtlas.tex;

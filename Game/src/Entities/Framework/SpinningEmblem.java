@@ -18,7 +18,7 @@ public class SpinningEmblem extends Entity {
 		// TODO Auto-generated constructor stub
 
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(position), new Vector2f(48, 48), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0),
+		rend.init(new ProjectedTransform(), new Vector2f(48, 48), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0),
 				subtex);
 		rend.spr = tex;
 		this.renderer = rend;

@@ -24,17 +24,22 @@ import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL30;
 
+import Entities.Framework.Anchored;
+import Entities.Framework.Entity;
 import Graphics.Elements.Mesh;
+import Utility.Transformations.ModelTransform;
 import Utility.Transformations.ProjectedTransform;
 
-public abstract class Renderer {
+public abstract class Renderer implements Anchored {
 	public Shader shader;
 
 	protected int vaoId;
 	protected int vboId;
 	protected Attribute[] attribs;
 
-	public ProjectedTransform transform;
+	public ModelTransform localTrans = new ModelTransform();
+	public ProjectedTransform worldToScreen = new ProjectedTransform();
+
 	protected Mesh mesh;
 	protected boolean hasBufferUpdate;
 
@@ -44,6 +49,9 @@ public abstract class Renderer {
 	public boolean hasInit;
 
 	protected static final int INDEX_VERTEX = 0;
+	public Entity parent;
+
+	Vector2f origin = new Vector2f();
 
 	Renderer(Shader shader) {
 		this.shader = shader;
@@ -71,6 +79,8 @@ public abstract class Renderer {
 		}
 
 		shader.renderStart(this);
+
+		setTransformMatrix();
 	}
 
 	protected void draw() {
@@ -84,7 +94,14 @@ public abstract class Renderer {
 	}
 
 	protected void init(ProjectedTransform transform) {
-		this.transform = transform;
+		// TODO: Fix this hack. For now break the transform apart. In the future, create
+		// two matrix types to handle this...
+		this.localTrans.setModel(transform);
+
+		this.worldToScreen.proj.set(transform.proj);
+		this.worldToScreen.view.set(transform.view);
+		this.worldToScreen.matrixMode = transform.matrixMode;
+
 		hasInit = true;
 	}
 
@@ -165,11 +182,18 @@ public abstract class Renderer {
 	// transform matrix
 	public void setTransformMatrix() {
 		// Setting model space transformations
-		Matrix4f mvp = transform.genMVP();
+		Matrix4f localToWorld = genL2WMat();
+		Matrix4f mvp = worldToScreen.genMVP().mul(localToWorld).mul(localTrans.genModel());
 
-		// Set matrix uniform
-		shader.bind();
 		shader.setUniform("MVP", mvp);
+	}
+
+	public Matrix4f genL2WMat() {
+		if (parent != null) {
+			return parent.genChildL2WMat();
+		}
+
+		return new Matrix4f();
 	}
 
 	protected float[] genVerts(Vector2f[] vertices) {
@@ -264,5 +288,13 @@ public abstract class Renderer {
 		static int getRowsize(ArrayList<Attribute> attribBuff) {
 			return attribBuff.get(0).stride;
 		}
+	}
+
+	public Vector2f getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(Vector2f o) {
+		this.origin = o;
 	}
 }

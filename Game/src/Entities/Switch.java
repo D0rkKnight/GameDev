@@ -27,7 +27,7 @@ public class Switch extends Entity implements Interactive {
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
 		GeneralRenderer rendTemp = (GeneralRenderer) this.renderer; // Renderer has been duplicated by now
-		rendTemp.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+		rendTemp.init(new ProjectedTransform(), dim, Shape.ShapeEnum.SQUARE, new Color());
 
 		rendTemp.spr = Debug.debugTex;
 		renderer = rendTemp;

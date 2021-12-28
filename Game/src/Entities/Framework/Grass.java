@@ -20,7 +20,7 @@ public class Grass extends Entity {
 		// Configure the renderer real quick
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("Assets/Sprites/props.png"), 32, 48);
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(GrassShader.class, "grassShader"));
-		rend.init(new ProjectedTransform(position), new Vector2f(32, 48), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0),
+		rend.init(new ProjectedTransform(), new Vector2f(32, 48), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0),
 				tAtlas.genSubTex(0, 0));
 		rend.spr = tAtlas.tex;
 		this.renderer = rend;

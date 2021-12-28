@@ -1,5 +1,7 @@
 package Collision;
 
+import java.util.ArrayList;
+
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -10,6 +12,7 @@ import Collision.Shapes.Shape;
 import Entities.Framework.Centered;
 import Entities.Framework.Entity;
 import Utility.Ellipse;
+import Utility.Geometry;
 import Utility.Rect;
 import Utility.Transformations.ModelTransform;
 
@@ -36,6 +39,10 @@ public class Collider<T extends COD<?>> implements Centered {
 		public abstract T getData();
 
 		public abstract COD<?> clone();
+
+//		public boolean hits(COD<?> oCOD, CrossCollisionCB test) {
+//
+//		}
 	}
 
 	public static class CODVertex extends COD<Vector2f[]> {
@@ -102,6 +109,8 @@ public class Collider<T extends COD<?>> implements Centered {
 		}
 	}
 
+	// Compound collider
+
 	// Plan is to specify output format which in turn then determines how the
 	// collider returns items.
 	public Collider(Entity owner, COD<?> cod) {
@@ -121,6 +130,40 @@ public class Collider<T extends COD<?>> implements Centered {
 		localTrans = new ModelTransform();
 		if (owner.getPosition() != null)
 			this.position = owner.getPosition();
+	}
+
+	public static CrossCollisionCB[][] collMap = new CrossCollisionCB[2][2]; // Needs to be fully populated
+	public static ArrayList<Class<?>> registeredCODs = new ArrayList<>();
+
+	public static void buildCrossCollMap() {
+		registeredCODs.add(CODVertex.class);
+		registeredCODs.add(CODCircle.class);
+
+		CrossCollisionCB vert2vert = (COD<?> c1, COD<?> c2) -> {
+			Vector2f[] c1p = ((CODVertex) c1).getData();
+			Vector2f[] c2p = ((CODVertex) c2).getData();
+
+			return Geometry.separateAxisCheck(c1p, c2p, null, null, null);
+		};
+
+		CrossCollisionCB vert2circ = (COD<?> c1, COD<?> c2) -> {
+			Vector2f[] c1p = ((CODVertex) c1).getData();
+			Ellipse e = ((CODCircle) c2).getData();
+			Vector2f[] c2p = e.genVerts(10);
+
+			return Geometry.separateAxisCheck(c1p, c2p, null, null, null);
+		};
+
+		addCrossColl(CODVertex.class, CODVertex.class, vert2vert);
+		addCrossColl(CODVertex.class, CODCircle.class, vert2circ);
+	}
+
+	// Build that map
+	private static void addCrossColl(Class<?> c1, Class<?> c2, CrossCollisionCB cb) {
+		int i1 = registeredCODs.indexOf(c1);
+		int i2 = registeredCODs.indexOf(c2);
+
+		collMap[i1][i2] = cb;
 	}
 
 	public Collider(Collider hb, Entity owner) {
@@ -144,8 +187,8 @@ public class Collider<T extends COD<?>> implements Centered {
 
 	// Generates vertices in world space
 	public Vector2f[] genWorldVerts() {
-		// Hack
 
+		// Hack
 		if (cod instanceof CODVertex)
 			return (Vector2f[]) cod.getData();
 		if (cod instanceof CODCircle)
@@ -160,7 +203,6 @@ public class Collider<T extends COD<?>> implements Centered {
 
 	@Override
 	public Vector2f getCenter() {
-		// Debugging
 		Rect r = new Rect(new Vector2f(cod.width, cod.height)); // Use dimensions as base
 		Vector2f center = new Vector2f(position).add(r.getTransformedCenter(localTrans.genModel()));
 

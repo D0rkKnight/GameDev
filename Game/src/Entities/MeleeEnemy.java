@@ -1,11 +1,11 @@
 package Entities;
 
 import java.util.ArrayList;
-import Collision.Collider.CODVertex;
 import java.util.HashMap;
 
 import org.joml.Vector2f;
 
+import Collision.Collider.CODVertex;
 import Collision.Hurtbox;
 import Collision.Behaviors.PGBGroundFriction;
 import Collision.Shapes.Shape;
@@ -43,15 +43,15 @@ public class MeleeEnemy extends Enemy {
 		// Configure the renderer real quick
 		rendDims = new Vector2f(64, 64);
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color());
+		rend.init(new ProjectedTransform(), rendDims, Shape.ShapeEnum.SQUARE, new Color());
 
 		this.renderer = rend;
 
 		// Configure hitbox
 		dim = new Vector2f(rendDims.x, rendDims.y * 1.5f);
 		addColl(new Hurtbox(this, new CODVertex(dim.x, dim.y)));
-		rendOriginPos.y = -rendDims.y * 0.5f;
-		rendOriginPos.x = rendDims.x / 2;
+		this.renderer.getOrigin().y = -rendDims.y * 0.5f;
+		this.renderer.getOrigin().x = rendDims.x / 2;
 
 		entOriginPos.x = dim.x / 2;
 

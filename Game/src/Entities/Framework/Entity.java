@@ -2,6 +2,7 @@ package Entities.Framework;
 
 import java.util.ArrayList;
 
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -29,7 +30,6 @@ public abstract class Entity implements Collidable, Centered {
 	public static float gravity = 5f;
 
 	public Renderer renderer; // Null by default
-	public Vector2f rendOriginPos;
 	public Vector2f entOriginPos;
 	public Vector2f rendDims;
 
@@ -56,10 +56,9 @@ public abstract class Entity implements Collidable, Centered {
 		}
 		this.name = name;
 
-		rendOriginPos = new Vector2f();
 		entOriginPos = new Vector2f();
 		children = new ArrayList<Entity>();
-		
+
 		colls = new ArrayList<Collider>();
 	}
 
@@ -88,26 +87,57 @@ public abstract class Entity implements Collidable, Centered {
 	public void calcFrame() {
 		// Let's not rotate around a point yet
 		if (renderer != null) {
-			renderer.transform.trans.set(localTrans.trans);
-			renderer.transform.rot.set(localTrans.rot);
+			// TODO: Remove hack
+			renderer.parent = this;
 
-			// Set scaling
-			renderer.transform.scale.identity();
-
-			Vector2f offset = new Vector2f(entOriginPos).sub(rendOriginPos); // Shifts rendered object so that shifted
-																				// scaling is applied properly
-
-			renderer.transform.scale.translate(new Vector3f(offset.x, offset.y, 0));
-			renderer.transform.scale.mulLocal(localTrans.scale); // Left multiply so the origin offset
-																	// is applied first
-
-			Vector2f totalOffset = new Vector2f(position);
-
-			renderer.transform.trans.translate(new Vector3f(totalOffset.x, totalOffset.y, 0));
+//			if (this instanceof Player) {
+//				System.out.println("\n________________________\n");
+//				System.out.println("Loc: " + renderer.localTrans.genModel());
+//				System.out.println("L2W: " + renderer.genL2WMat());
+//				System.out.println("W2S: " + renderer.worldToScreen.genModel());
+//			}
 		}
 
 		if (anim != null)
 			anim.update();
+	}
+
+	/**
+	 * Produces a matrix that converts children coordinates into their world space
+	 * counterparts
+	 * 
+	 * Top level entity
+	 * 
+	 * @return
+	 */
+	public Matrix4f genChildL2WMat() {
+
+		// Generate local to parent space matrix
+		ModelTransform lMat = new ModelTransform(localTrans);
+
+		lMat.scale.identity();
+		Vector2f offset = new Vector2f(entOriginPos).sub(renderer.getOrigin()); // Shifts rendered object
+
+		// scaling is applied properly
+		lMat.scale.translate(new Vector3f(offset.x, offset.y, 0));
+		lMat.scale.mulLocal(localTrans.scale); // Left multiply so the origin offset
+												// is applied first
+
+		// Apply positional translation while still in local space
+		lMat.trans.translate(new Vector3f(position.x, position.y, 0));
+
+		// Reify local to parent space matrix
+		Matrix4f l2p = lMat.genModel();
+
+		// Assign output matrix
+		Matrix4f o = l2p;
+
+		if (parent != null) {
+			// Multiply recursively
+			o = parent.genChildL2WMat().mul(l2p);
+		}
+
+		return o;
 	}
 
 	/**
@@ -122,7 +152,6 @@ public abstract class Entity implements Collidable, Centered {
 	}
 
 	public Vector2f getCenter() {
-		// Debugging
 		Rect r = new Rect(new Vector2f(dim)); // Use dimensions as base
 		Vector2f center = new Vector2f(position).add(r.getTransformedCenter(localTrans.genModel()));
 
@@ -192,7 +221,7 @@ public abstract class Entity implements Collidable, Centered {
 			e.unsubSelf(subList, coll);
 		}
 	}
-	
+
 	@Override
 	public ArrayList<Collider> getColl() {
 		return colls;
