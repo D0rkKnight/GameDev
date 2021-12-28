@@ -181,6 +181,7 @@ public abstract class Renderer implements Anchored {
 	// Hmm this needs an MVP uniform, well if there isn't one then don't set the
 	// transform matrix
 	public void setTransformMatrix() {
+
 		// Setting model space transformations
 		Matrix4f localToWorld = genL2WMat();
 		Matrix4f mvp = worldToScreen.genMVP().mul(localToWorld).mul(localTrans.genModel());
@@ -188,9 +189,20 @@ public abstract class Renderer implements Anchored {
 		shader.setUniform("MVP", mvp);
 	}
 
+	/**
+	 * Generates a mat that converts from local space coords to world space coords.
+	 * Includes translation from variable anchors.
+	 * 
+	 * @return
+	 */
+
 	public Matrix4f genL2WMat() {
 		if (parent != null) {
-			return parent.genChildL2WMat();
+			Matrix4f originOffset = new Matrix4f();
+			originOffset.translate(-origin.x, -origin.y, 0);
+
+			Matrix4f o = parent.genChildL2WMat().mul(originOffset);
+			return o;
 		}
 
 		return new Matrix4f();

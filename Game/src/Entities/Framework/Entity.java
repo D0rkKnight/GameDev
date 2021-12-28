@@ -115,27 +115,25 @@ public abstract class Entity implements Collidable, Centered {
 		// Generate local to parent space matrix
 		ModelTransform lMat = new ModelTransform(localTrans);
 
-		lMat.scale.identity();
-		Vector2f offset = new Vector2f(entOriginPos).sub(renderer.getOrigin()); // Shifts rendered object
-
-		// scaling is applied properly
-		lMat.scale.translate(new Vector3f(offset.x, offset.y, 0));
-		lMat.scale.mulLocal(localTrans.scale); // Left multiply so the origin offset
-												// is applied first
-
-		// Apply positional translation while still in local space
+		// Apply positional translation while still in local space (left side positional
+		// translation)
 		lMat.trans.translate(new Vector3f(position.x, position.y, 0));
 
-		// Reify local to parent space matrix
+		// Reify L2P (local to parent) space matrix
 		Matrix4f l2p = lMat.genModel();
 
 		// Assign output matrix
 		Matrix4f o = l2p;
 
+		// Left side L2W mult
 		if (parent != null) {
 			// Multiply recursively
 			o = parent.genChildL2WMat().mul(l2p);
 		}
+
+		// Right side anchor shift mult
+		Matrix4f anchorTrans = new Matrix4f().translate(entOriginPos.x, entOriginPos.y, 0);
+		o.mul(anchorTrans);
 
 		return o;
 	}
