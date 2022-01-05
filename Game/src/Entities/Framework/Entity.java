@@ -24,13 +24,13 @@ import Utility.Transformations.ModelTransform;
  * @author Benjamin
  *
  */
-public abstract class Entity implements Collidable, Centered {
+public abstract class Entity implements Collidable, Centered, Anchored {
 	protected String ID;
 	protected final Vector2f position = new Vector2f();
 	public static float gravity = 5f;
 
 	public Renderer renderer; // Null by default
-	public Vector2f entOriginPos;
+	public Vector2f origin;
 	public Vector2f rendDims;
 
 	public String name;
@@ -56,7 +56,7 @@ public abstract class Entity implements Collidable, Centered {
 		}
 		this.name = name;
 
-		entOriginPos = new Vector2f();
+		origin = new Vector2f();
 		children = new ArrayList<Entity>();
 
 		colls = new ArrayList<Collider>();
@@ -94,7 +94,7 @@ public abstract class Entity implements Collidable, Centered {
 //				System.out.println("\n________________________\n");
 //				System.out.println("Loc: " + renderer.localTrans.genModel());
 //				System.out.println("L2W: " + renderer.genL2WMat());
-//				System.out.println("W2S: " + renderer.worldToScreen.genModel());
+//				System.out.println("W2S: " + renderer.worldToScreen.genMVP());
 //			}
 		}
 
@@ -131,8 +131,8 @@ public abstract class Entity implements Collidable, Centered {
 			o = parent.genChildL2WMat().mul(l2p);
 		}
 
-		// Right side anchor shift mult
-		Matrix4f anchorTrans = new Matrix4f().translate(entOriginPos.x, entOriginPos.y, 0);
+		// Right side anchor shift multiplication
+		Matrix4f anchorTrans = new Matrix4f().translate(origin.x, origin.y, 0);
 		o.mul(anchorTrans);
 
 		return o;
@@ -154,6 +154,10 @@ public abstract class Entity implements Collidable, Centered {
 		Vector2f center = new Vector2f(position).add(r.getTransformedCenter(localTrans.genModel()));
 
 		return center;
+	}
+
+	public Vector2f getOrigin() {
+		return origin;
 	}
 
 	/**

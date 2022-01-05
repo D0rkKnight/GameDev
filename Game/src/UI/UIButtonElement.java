@@ -1,7 +1,5 @@
 package UI;
 
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
-
 import org.joml.Vector2f;
 
 import GameController.Input;
@@ -31,14 +29,16 @@ public class UIButtonElement extends UIBoxElement {
 		isHovered = false;
 
 		// If in between
-		if (mPos.x > sPos.x && mPos.y > sPos.y) {
-			if (mPos.x < sPos.x + dims.x && mPos.y < sPos.y + dims.y) {
-				isHovered = true;
+//		if (mPos.x > sPos.x && mPos.y > sPos.y) {
+//			if (mPos.x < sPos.x + dims.x && mPos.y < sPos.y + dims.y) {
+//				isHovered = true;
+//
+//				if (Input.clickArr[GLFW_MOUSE_BUTTON_LEFT])
+//					onClick();
+//			}
+//		}
 
-				if (Input.clickArr[GLFW_MOUSE_BUTTON_LEFT])
-					onClick();
-			}
-		}
+		// TODO: Fix this
 
 		if (isHovered && !wasHovered)
 			onHoverEnter();

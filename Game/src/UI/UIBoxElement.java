@@ -15,8 +15,8 @@ public class UIBoxElement extends UIDrawElement {
 		super(pos, dims);
 
 		GeneralRenderer sprRend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		sprRend.init(new ProjectedTransform(new Vector2f(), ProjectedTransform.MatrixMode.SCREEN), dims, Shape.ShapeEnum.SQUARE,
-				col);
+		sprRend.init(new ProjectedTransform(new Vector2f(0, -dims.y), ProjectedTransform.MatrixMode.SCREEN), dims,
+				Shape.ShapeEnum.SQUARE, col);
 		this.rend = sprRend;
 	}
 

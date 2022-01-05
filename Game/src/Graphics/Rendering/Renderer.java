@@ -27,6 +27,7 @@ import org.lwjgl.opengl.GL30;
 import Entities.Framework.Anchored;
 import Entities.Framework.Entity;
 import Graphics.Elements.Mesh;
+import UI.UIElement;
 import Utility.Transformations.ModelTransform;
 import Utility.Transformations.ProjectedTransform;
 
@@ -49,7 +50,7 @@ public abstract class Renderer implements Anchored {
 	public boolean hasInit;
 
 	protected static final int INDEX_VERTEX = 0;
-	public Entity parent;
+	public Object parent;
 
 	Vector2f origin = new Vector2f();
 
@@ -197,11 +198,24 @@ public abstract class Renderer implements Anchored {
 	 */
 
 	public Matrix4f genL2WMat() {
-		if (parent != null) {
+		if (parent != null && parent instanceof Entity) {
+			Entity ent = (Entity) parent;
+
 			Matrix4f originOffset = new Matrix4f();
 			originOffset.translate(-origin.x, -origin.y, 0);
 
-			Matrix4f o = parent.genChildL2WMat().mul(originOffset);
+			Matrix4f o = ent.genChildL2WMat().mul(originOffset);
+			return o;
+		}
+
+		if (parent != null && parent instanceof UIElement) {
+			UIElement uiE = (UIElement) parent;
+
+			Matrix4f originOffset = new Matrix4f();
+			originOffset.translate(-origin.x, -origin.y, 0);
+
+			Matrix4f o = uiE.genChildL2WMat().mul(originOffset);
+
 			return o;
 		}
 

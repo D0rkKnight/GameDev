@@ -50,7 +50,7 @@ public class RangedEnemy extends Enemy {
 		addColl(new Hurtbox(this, new CODVertex(dim.x, dim.y)));
 
 		this.renderer.getOrigin().x = rendDims.x / 2;
-		entOriginPos.x = dim.x / 2;
+		origin.x = dim.x / 2;
 
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("assets/Sprites/ranged_enemy.png"), 48, 48);
 		Animation a1 = new Animation(tAtlas.genSubTexSet(0, 0));

@@ -53,7 +53,7 @@ public class MeleeEnemy extends Enemy {
 		this.renderer.getOrigin().y = -rendDims.y * 0.5f;
 		this.renderer.getOrigin().x = rendDims.x / 2;
 
-		entOriginPos.x = dim.x / 2;
+		origin.x = dim.x / 2;
 
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("assets/Sprites/bell_enemy.png"), 32, 32);
 		Animation a1 = new Animation(tAtlas.genSubTexSet(0, 0, 5, 0));

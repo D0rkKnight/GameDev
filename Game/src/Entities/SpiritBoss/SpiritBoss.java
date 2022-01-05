@@ -51,7 +51,7 @@ public class SpiritBoss extends Boss {
 		pData.hasKnockback = false;
 
 		this.renderer.getOrigin().x = rendDims.x / 2;
-		entOriginPos.x = dim.x / 2;
+		origin.x = dim.x / 2;
 
 		setEntityFD(StateID.MOVE);
 

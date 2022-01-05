@@ -12,6 +12,7 @@ import GameController.Camera;
 import GameController.GameManager;
 import Graphics.Drawer;
 import Graphics.Rendering.GeneralRenderer;
+import Graphics.Rendering.Renderer;
 import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Wrappers.Color;
@@ -45,16 +46,24 @@ public class UI implements NewWaveListener {
 		CEnum.RUNNING.state = new UICanvas(new Vector2f(), Camera.main.viewport);
 
 		Stats pStats = GameManager.player.stats;
-		healthBar = new UIBarCanvas(new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader")), new Vector2f(10, 10),
-				new Vector2f(200, 20), new Color(0.3f, 0.3f, 1, 1));
+		healthBar = new UIBarCanvas(new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader")),
+				new Vector2f(10, 10), new Vector2f(200, 20), new Color(0.3f, 0.3f, 1, 1));
 		healthBar.setAnchor(UIBoxElement.ANCHOR_UL);
 		healthBar.setUpdateCb(() -> {
 			healthBar.bar.fillRatio = (pStats.health) / (pStats.maxHealth);
+
+			Renderer rend = healthBar.bg.rend;
+			System.out.println("\n________________________\n");
+			System.out.println("Loc: " + rend.localTrans.genModel());
+			System.out.println("L2W: " + rend.genL2WMat());
+			System.out.println("W2S: " + rend.worldToScreen.genMVP());
+
+			System.out.println(Camera.main.viewport.x);
 		});
 		CEnum.RUNNING.state.addElement(healthBar);
 
-		staminaBar = new UIBarCanvas(new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader")), new Vector2f(10, 35),
-				new Vector2f(200, 20), new Color(0.3f, 1, 1, 1));
+		staminaBar = new UIBarCanvas(new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader")),
+				new Vector2f(10, 35), new Vector2f(200, 20), new Color(0.3f, 1, 1, 1));
 		staminaBar.setAnchor(UIBoxElement.ANCHOR_UL);
 		staminaBar.setUpdateCb(() -> {
 			staminaBar.bar.fillRatio = (pStats.stamina) / (pStats.maxStamina);
@@ -63,7 +72,7 @@ public class UI implements NewWaveListener {
 
 		waveLabel = new UITextElement("Current Wave: ", new Vector2f(Camera.main.viewport.x / 2, 10),
 				new Vector2f(300, 30));
-		waveLabel.relPos.sub(waveLabel.getTextDims().x / 2, 0);
+		// waveLabel.relPos.sub(waveLabel.getTextDims().x / 2, 0);
 
 		CEnum.RUNNING.state.addElement(waveLabel);
 

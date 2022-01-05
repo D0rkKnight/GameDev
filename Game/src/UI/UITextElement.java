@@ -50,7 +50,8 @@ public class UITextElement extends UIDrawElement {
 		col = new Color(1, 1, 1, 1);
 
 		GeneralRenderer genRend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		genRend.init(new ProjectedTransform(pos, ProjectedTransform.MatrixMode.SCREEN), pointArr, uvArr, col);
+		genRend.init(new ProjectedTransform(new Vector2f(), ProjectedTransform.MatrixMode.SCREEN), pointArr, uvArr,
+				col);
 		genRend.spr = font.tex;
 		rend = genRend;
 	}
@@ -74,12 +75,12 @@ public class UITextElement extends UIDrawElement {
 		genRend.rebuildMesh(pointArr, uvArr, col);
 	}
 
-	@Override
-	protected void genWPos() {
-		super.genWPos();
-
-		// Font ascent for first line's difference
-		// TODO: should probably move this to be for the renderer...
-		sPos.add(0, font.ascent - dims.y);
-	}
+//	@Override
+//	protected void genWPos() {
+//		super.genWPos();
+//
+//		// Font ascent for first line's difference
+//		// TODO: should probably move this to be for the renderer...
+//		sPos.add(0, font.ascent - dims.y);
+//	}
 }
