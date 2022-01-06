@@ -99,7 +99,7 @@ public class UIElement {
 			origin.zero();
 			break;
 		case ANCHOR_MID:
-			origin.set(dims).div(2, -2);
+			origin.set(dims).div(-2, 2); // Remember that UI elements expands downwards
 			break;
 		default:
 			new Exception("Anchor not recognized").printStackTrace();

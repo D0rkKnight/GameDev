@@ -2,6 +2,7 @@ package UI;
 
 import java.util.ArrayList;
 
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import Graphics.Rendering.GeneralRenderer;
@@ -19,6 +20,8 @@ public class UITextElement extends UIDrawElement {
 	private Color col;
 
 	private Vector2f textDims;
+
+	boolean childrenCentered = true;
 
 	public Vector2f getTextDims() {
 		return textDims;
@@ -65,22 +68,27 @@ public class UITextElement extends UIDrawElement {
 
 		Vector2f[] pointArr = new Vector2f[points.size()];
 		Vector2f[] uvArr = new Vector2f[uvs.size()];
-		for (int i = 0; i < points.size(); i++)
+		float rw = 0; // Raw width in local units
+
+		for (int i = 0; i < points.size(); i++) {
 			pointArr[i] = points.get(i);
+		}
 		for (int i = 0; i < uvs.size(); i++)
 			uvArr[i] = uvs.get(i);
 
 		GeneralRenderer genRend = (GeneralRenderer) rend;
-
 		genRend.rebuildMesh(pointArr, uvArr, col);
 	}
 
-//	@Override
-//	protected void genWPos() {
-//		super.genWPos();
-//
-//		// Font ascent for first line's difference
-//		// TODO: should probably move this to be for the renderer...
-//		sPos.add(0, font.ascent - dims.y);
-//	}
+	public Matrix4f genChildL2WMat() {
+		Matrix4f mat = super.genChildL2WMat();
+		if (childrenCentered) {
+			float shift = (dims.x - textDims.x) / 2;
+			mat.translate(shift, 0, 0);
+		}
+
+		mat.translate(0, -font.ascent, 0);
+
+		return mat;
+	}
 }

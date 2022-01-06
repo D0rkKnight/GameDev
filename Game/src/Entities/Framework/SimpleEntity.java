@@ -21,8 +21,6 @@ public class SimpleEntity extends Entity {
 
 	public void render() {
 		super.render();
-
-		System.out.println("Rendering");
 	}
 
 }

@@ -12,7 +12,6 @@ import GameController.Camera;
 import GameController.GameManager;
 import Graphics.Drawer;
 import Graphics.Rendering.GeneralRenderer;
-import Graphics.Rendering.Renderer;
 import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
 import Wrappers.Color;
@@ -52,13 +51,11 @@ public class UI implements NewWaveListener {
 		healthBar.setUpdateCb(() -> {
 			healthBar.bar.fillRatio = (pStats.health) / (pStats.maxHealth);
 
-			Renderer rend = healthBar.bg.rend;
-			System.out.println("\n________________________\n");
-			System.out.println("Loc: " + rend.localTrans.genModel());
-			System.out.println("L2W: " + rend.genL2WMat());
-			System.out.println("W2S: " + rend.worldToScreen.genMVP());
-
-			System.out.println(Camera.main.viewport.x);
+//			Renderer rend = healthBar.bg.rend;
+//			System.out.println("\n________________________\n");
+//			System.out.println("Loc: " + rend.localTrans.genModel());
+//			System.out.println("L2W: " + rend.genL2WMat());
+//			System.out.println("W2S: " + rend.worldToScreen.genMVP());
 		});
 		CEnum.RUNNING.state.addElement(healthBar);
 
@@ -72,8 +69,7 @@ public class UI implements NewWaveListener {
 
 		waveLabel = new UITextElement("Current Wave: ", new Vector2f(Camera.main.viewport.x / 2, 10),
 				new Vector2f(300, 30));
-		// waveLabel.relPos.sub(waveLabel.getTextDims().x / 2, 0);
-
+		waveLabel.setAnchor(UIBoxElement.ANCHOR_MID);
 		CEnum.RUNNING.state.addElement(waveLabel);
 
 		// Initialize paused game state

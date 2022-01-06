@@ -6,6 +6,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
+import Collision.Shapes.ShapeRect;
+
 public class Rect {
 	public Vector2f dims;
 
@@ -46,5 +48,21 @@ public class Rect {
 		}
 
 		return new Vector2f(ur).sub(bl);
+	}
+
+	/**
+	 * Goes br, ur, ul, bl
+	 * 
+	 * @param dims
+	 * @return
+	 */
+	public static Vector2f[] getPointCollectionFromDims(Vector2f dims) {
+		ShapeRect sr = new ShapeRect();
+		Vector2f[] o = new Vector2f[sr.vertices.length];
+		for (int i = 0; i < sr.vertices.length; i++) {
+			o[i] = sr.vertices[i].mul(dims);
+		}
+
+		return o;
 	}
 }

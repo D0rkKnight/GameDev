@@ -80,7 +80,6 @@ public class SpiritBoss extends Boss {
 		float r = 500;
 		SpiritPulse pulse = new SpiritPulse("PULSE", new Vector2f(getCenter()), "Test pulse", r);
 		Collider<CODCircle> coll = pulse.getColl().get(0);
-		System.out.println(coll.getCenter());
 		Vector2f[] pulseVerts = coll.getCOD().getData().genVerts(10);
 		// Debug.enqueueElement(new DebugPolygon(pulseVerts, 1000, Color.WHITE));
 
