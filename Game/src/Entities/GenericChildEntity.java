@@ -19,14 +19,6 @@ public class GenericChildEntity extends Entity implements Collidable {
 	}
 
 	@Override
-	public void calculate() {
-		super.calculate();
-
-		if (parent != null)
-			position.set(parent.getPosition());
-	}
-
-	@Override
 	public void onColl(Collider otherHb) {
 		// TODO Auto-generated method stub
 

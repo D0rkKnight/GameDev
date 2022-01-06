@@ -24,6 +24,7 @@ import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL30;
 
+import Collision.Collider;
 import Entities.Framework.Anchored;
 import Entities.Framework.Entity;
 import Graphics.Elements.Mesh;
@@ -215,6 +216,17 @@ public abstract class Renderer implements Anchored {
 			originOffset.translate(-origin.x, -origin.y, 0);
 
 			Matrix4f o = uiE.genChildL2WMat().mul(originOffset);
+
+			return o;
+		}
+
+		if (parent != null && parent instanceof Collider) {
+			Collider coll = (Collider) parent;
+
+			Matrix4f originOffset = new Matrix4f();
+			originOffset.translate(-origin.x, -origin.y, 0);
+
+			Matrix4f o = coll.genChildL2WMat().mul(originOffset);
 
 			return o;
 		}

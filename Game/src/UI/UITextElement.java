@@ -68,7 +68,6 @@ public class UITextElement extends UIDrawElement {
 
 		Vector2f[] pointArr = new Vector2f[points.size()];
 		Vector2f[] uvArr = new Vector2f[uvs.size()];
-		float rw = 0; // Raw width in local units
 
 		for (int i = 0; i < points.size(); i++) {
 			pointArr[i] = points.get(i);

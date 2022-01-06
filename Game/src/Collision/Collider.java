@@ -11,6 +11,7 @@ import Collision.Collider.COD;
 import Collision.Shapes.Shape;
 import Entities.Framework.Centered;
 import Entities.Framework.Entity;
+import Entities.PlayerPackage.Player;
 import Utility.Ellipse;
 import Utility.Geometry;
 import Utility.Rect;
@@ -18,7 +19,9 @@ import Utility.Transformations.ModelTransform;
 
 // CODVertex for testing
 public class Collider<T extends COD<?>> implements Centered {
-	public Vector2f position;
+	public Vector2f pos;
+	public Vector2f offset;
+
 	public Entity owner;
 	public ModelTransform localTrans;
 
@@ -63,16 +66,12 @@ public class Collider<T extends COD<?>> implements Centered {
 		@Override
 		public Vector2f[] getData() {
 			// 2 steps: translate locally, then shift to world position.
-			Matrix4f model = owner.localTrans.genModel();
-			Vector2f pos = owner.position;
-
-			Matrix4f worldTranslate = new Matrix4f().setTranslation(new Vector3f(pos.x, pos.y, 0));
+			Matrix4f l2w = owner.genChildL2WMat();
 
 			for (int i = 0; i < verts.length; i++) {
 				Vector2f scaledVert = new Vector2f(shape.vertices[i]).mul(width, height);
-				Vector4f transed = new Vector4f(scaledVert, 0, 1).mul(model);
-				transed.mul(worldTranslate);
-				verts[i] = new Vector2f(transed.x, transed.y);
+				Vector4f wp = new Vector4f(scaledVert, 0, 1).mul(l2w);
+				verts[i] = new Vector2f(wp.x, wp.y);
 			}
 
 			return verts;
@@ -95,13 +94,16 @@ public class Collider<T extends COD<?>> implements Centered {
 		// Returns radius and position
 		@Override
 		public Ellipse getData() {
-			Matrix4f model = owner.localTrans.genModel();
-			Vector2f pos = owner.position;
+			Matrix4f model = owner.genChildL2WMat();
+			Vector3f vp3 = new Vector3f();
+			model.getTranslation(vp3);
+
+			Vector2f pos = new Vector2f(vp3.x, vp3.y);
 
 			Vector3f s = new Vector3f();
 			model.getScale(s);
 
-			return new Ellipse(pos, new Vector2f(s.x * width, s.y * height));
+			return new Ellipse(pos, new Vector2f(s.x * width, s.y * height)); // Hack :/
 		}
 
 		public CODCircle clone() {
@@ -109,14 +111,19 @@ public class Collider<T extends COD<?>> implements Centered {
 		}
 	}
 
+	public Collider(Entity owner, COD<?> cod) {
+		this(new Vector2f(), owner, cod);
+	}
+
 	// Compound collider
 
 	// Plan is to specify output format which in turn then determines how the
 	// collider returns items.
-	public Collider(Entity owner, COD<?> cod) {
+	public Collider(Vector2f pos, Entity owner, COD<?> cod) {
 		this.owner = owner;
 		this.cod = (T) cod; // This is ok. Dunno why Eclipse can't resolve it.
 		this.cod.owner = this;
+		this.pos = pos;
 
 		// Any class with a hitbox MUST implement Collidable
 		if (!(owner instanceof Collidable)) {
@@ -128,8 +135,6 @@ public class Collider<T extends COD<?>> implements Centered {
 
 		// Local transformation, applied to vertices for collision.
 		localTrans = new ModelTransform();
-		if (owner.getPosition() != null)
-			this.position = owner.getPosition();
 	}
 
 	public static CrossCollisionCB[][] collMap = new CrossCollisionCB[2][2]; // Needs to be fully populated
@@ -171,9 +176,11 @@ public class Collider<T extends COD<?>> implements Centered {
 	}
 
 	public void update() {
-		// Pull data
-		position = new Vector2f(owner.getPosition());
-		localTrans.setModel(owner.localTrans);
+		if (owner instanceof Player) {
+			System.out.println("\n________________________\n");
+			System.out.println("Loc: " + localTrans.genModel());
+			System.out.println("L2W: " + genChildL2WMat());
+		}
 	}
 
 	/**
@@ -183,6 +190,34 @@ public class Collider<T extends COD<?>> implements Centered {
 	 */
 	void hitBy(Collider hb) {
 		((Collidable) owner).onColl(hb);
+	}
+
+	public Matrix4f genChildL2WMat() {
+		// Generate local to parent space matrix
+		ModelTransform lMat = new ModelTransform(localTrans);
+
+		// Apply positional translation while still in local space (left side positional
+		// translation)
+		lMat.trans.translate(new Vector3f(pos.x, pos.y, 0));
+
+		// Reify L2P (local to parent) space matrix
+		Matrix4f l2p = lMat.genModel();
+
+		// Assign output matrix
+		Matrix4f o = l2p;
+
+		// Left side L2W mult
+		if (owner != null) {
+			// Multiply recursively
+			o = owner.genChildL2WMat().mul(l2p);
+		}
+
+		// Right side anchor shift multiplication
+		Matrix4f anchorTrans = new Matrix4f().translate(offset.x, offset.y, 0);
+		o.mul(anchorTrans);
+		// No origin, just assume anchored at (0, 0)
+
+		return o;
 	}
 
 	// Generates vertices in world space
@@ -204,7 +239,7 @@ public class Collider<T extends COD<?>> implements Centered {
 	@Override
 	public Vector2f getCenter() {
 		Rect r = new Rect(new Vector2f(cod.width, cod.height)); // Use dimensions as base
-		Vector2f center = new Vector2f(position).add(r.getTransformedCenter(localTrans.genModel()));
+		Vector2f center = r.getTransformedCenter(genChildL2WMat());
 
 		return center;
 	}
