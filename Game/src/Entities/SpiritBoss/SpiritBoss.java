@@ -32,7 +32,7 @@ import Wrappers.FrameData.FrameSegment;
 public class SpiritBoss extends Boss {
 
 	ArrayList<SpiritFragment> frags = new ArrayList<>();
-	int fragCount = 24;
+	int fragCount = 50;
 	
 	float ringRadius;
 	float spin = 0;
