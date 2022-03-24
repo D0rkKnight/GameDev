@@ -40,8 +40,6 @@ public class SpiritFragment extends Enemy {
 		this.renderer.getOrigin().x = rendDims.x / 2;
 		origin.x = dim.x / 2;
 
-		setEntityFD(StateID.MOVE);
-
 		hasCollision = false;
 
 		localTrans.scale.setTranslation(new Vector3f(0, -dim.y / 2, 0));

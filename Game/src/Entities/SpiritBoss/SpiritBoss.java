@@ -25,13 +25,28 @@ import Graphics.Rendering.SpriteShader;
 import Utility.Geometry;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
+import Wrappers.FrameData;
 import Wrappers.Stats;
+import Wrappers.FrameData.FrameSegment;
 
 public class SpiritBoss extends Boss {
 
 	ArrayList<SpiritFragment> frags = new ArrayList<>();
 	int fragCount = 24;
-	float dist = 100f;
+	
+	float ringRadius;
+	float spin = 0;
+	float spinSpeed; // Radians per second
+	
+	float wobble = 0;
+	float wobbleSpeed;
+	float wobbleAltitude;
+	float wobbleRollDensity;
+	
+	ArrayList<Float> peaks = new ArrayList<>();
+	float peakHeight = 200f;
+	float peakNarrowness = 1f;
+	
 
 	public SpiritBoss(String ID, Vector2f position, String name, Stats stats) {
 		super(ID, position, name, stats);
@@ -54,12 +69,10 @@ public class SpiritBoss extends Boss {
 
 		this.renderer.getOrigin().x = rendDims.x / 2;
 		origin.x = dim.x / 2;
-
-		setEntityFD(StateID.MOVE);
-
+		
 		// Generate spirit fragments
 		float[] radBuff = new float[fragCount];
-		Vector2f[] fragPos = Geometry.pointsFromCircle(getCenter(), dist, fragCount, radBuff);
+		Vector2f[] fragPos = Geometry.pointsFromCircle(getCenter(), ringRadius, fragCount, radBuff);
 
 		for (int i = 0; i < fragPos.length; i++) {
 			SpiritFragment frag = new SpiritFragment(fragPos[i]);
@@ -86,15 +99,42 @@ public class SpiritBoss extends Boss {
 		// Debug.enqueueElement(new DebugPolygon(pulseVerts, 1000, Color.WHITE));
 
 		GameManager.subscribeEntity(pulse);
+		
+		
+		peaks.add(0f);
+		peaks.add((float) Math.PI);
+		
+		setEntityFD(StateID.I);
 	}
 
 	@Override
 	public void calculate() {
+		super.calculate();
+		
+		if (target == null) findTarget();
+		
+		spin += spinSpeed * Time.deltaT() / 1000f;
+		wobble += wobbleSpeed * Time.deltaT() / 1000f;
+		
+		// Fragment projection
 		for (int i = 0; i < fragCount; i++) {
-			float rad = (float) (i / (float) fragCount * 2 * Math.PI) + (Time.timeSinceStart() / 3000f);
+			float rad = (float) (i / (float) fragCount * 2 * Math.PI) + spin;
+			rad %= 2*Math.PI;
 			Vector2f dir = new Vector2f((float) Math.cos(rad), (float) Math.sin(rad));
 
-			float nDist = dist + ((float) Math.sin(rad * 4 + (Time.timeSinceStart() / 1000f)) * 10);
+			float nDist = ringRadius + ((float) Math.sin(rad * wobbleRollDensity + wobble) * wobbleAltitude);
+			
+			// Add peak height
+			for (float pk : peaks) {
+				float unmodDFP = rad-pk;
+				float distFromPeak = Math.abs(unmodDFP);
+				
+				// Measure going the other way
+				if (distFromPeak > Math.PI) distFromPeak = 2*(float)Math.PI - distFromPeak;
+				
+				nDist += peakHeight / (distFromPeak * peakNarrowness + 1);
+			}
+			
 			Vector2f delta = new Vector2f(dir).mul(nDist);
 			Vector2f p = getCenter().add(delta);
 
@@ -141,5 +181,97 @@ public class SpiritBoss extends Boss {
 //		float dist = spPos.distance(cPos);
 //		bleed.pulses[0] = dist;
 	}
-
+	
+	@Override
+	protected void genTags() {
+		super.genTags();
+	}
+	
+	@Override
+	protected void assignFD() {
+		super.assignFD();
+		
+		addFD(StateID.I, genIDLE());
+		addFD(StateID.ATTACK, genATTACK());
+	}
+	
+	private FrameData genIDLE() {
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		segs.add(new FrameSegment(100, 0)); // Lasts for a bit
+		
+		FrameData fd = new FrameData(segs, null, false);
+		fd.onEntry = () -> {
+			ringRadius = 100f;
+			spinSpeed = 1f;
+			wobbleSpeed = 2f;
+			wobbleAltitude = 10f;
+			wobbleRollDensity = 4f;
+			peakHeight = 200f;
+			peakNarrowness = 4f;
+			
+			peaks.clear();
+		};
+		
+		fd.onEnd = () -> {
+			setEntityFD(StateID.ATTACK);
+		};
+		
+		return fd;
+	}
+	
+	private FrameData genATTACK() {
+		int stopTerm = 70;
+		int wait = 20;
+		int spikeHold = 30;
+		
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		ArrayList<FrameData.Event> evs = new ArrayList<>();
+		FrameSegment seg1 = new FrameSegment(stopTerm, 0);
+		seg1.addCB(() -> {
+			spinSpeed *= 0.95f; // lerp towards a stop
+			wobbleSpeed *= 0.95f;
+			peakHeight += (200f - peakHeight) * 0.1;
+			
+			// Point a peak at the player
+			Vector2f d2p = new Vector2f(target.getPosition()).sub(position);
+			
+			float rad = new Vector2f(1, 0).angle(d2p);
+			if (rad < 0) rad += 2*Math.PI;
+			peaks.set(0, rad);
+			
+			System.out.println(rad);
+		});
+		segs.add(seg1);
+		
+		FrameData.Event ev1 = new FrameData.Event(() -> {
+			spinSpeed = 0;
+		}, stopTerm);
+		evs.add(ev1);
+		
+		FrameSegment seg2 = new FrameSegment(wait, stopTerm);
+		segs.add(seg2);
+		
+		FrameSegment seg3 = new FrameSegment(spikeHold, stopTerm + wait);
+		seg3.addCB(() -> {
+			
+			// Spiking effect
+			peakHeight += (500f - peakHeight) * 0.5;
+			peakNarrowness += (10 - peakNarrowness) * 0.1;
+		});
+		segs.add(seg3);
+		
+		FrameData fd = new FrameData(segs, evs, false);
+		
+		fd.onEntry = () -> {
+			spinSpeed = 10f;
+			peakHeight = 0f;
+			
+			peaks.clear();
+			peaks.add(0f);
+		};
+		
+		fd.onEnd = () -> setEntityFD(StateID.I);
+		
+		return fd;
+	}
 }

@@ -3,25 +3,25 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "Testing/test_arena.tmx",
+    "activeFile": "Testing/boss_arena.tmx",
     "automapping.whileDrawing": true,
     "expandedProjectPaths": [
-        "Tilesets/Forest",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules/cave",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/grassland",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/dungeon",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE",
-        "Testing",
         "C:/Users/Hanzen Shou/Documents/GitBash/GameDev/Game/assets",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/orthogonal_height_type",
-        "Forest",
-        "Templates",
-        ".",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules/cave",
+        "Testing",
         "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World/rules",
-        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave/rules"
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave/rules",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/cave",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master",
+        "Forest",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/grassland",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/The Mana World",
+        ".",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/orthogonal_height_type",
+        "Templates",
+        "C:/Users/Hanzen Shou/Downloads/tiled_examples-master/FLARE/dungeon",
+        "Tilesets/Forest"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -351,8 +351,8 @@
             "scale": 2,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 416.25,
-                "y": 218.25
+                "x": 369.75,
+                "y": 358.75
             }
         },
         "Testing/test_arena.tmx": {
@@ -467,13 +467,15 @@
     "map.width": 100,
     "openFiles": [
         "Forest/forestX.tmx",
-        "Testing/test_arena.tmx"
+        "Testing/test_arena.tmx",
+        "Testing/boss_arena.tmx"
     ],
     "project": "PROJECT.tiled-project",
     "property.type": "int",
     "recentFiles": [
         "Forest/forestX.tmx",
         "Testing/test_arena.tmx",
+        "Testing/boss_arena.tmx",
         "Forest/forestE.tmx",
         "Forest/forest2.tmx",
         "Forest/forestDC.tmx",
@@ -482,8 +484,7 @@
         "Tilesets/Forest/forestTSet.tsx",
         "Tilesets/coll8x8.tsx",
         "test4.tmx",
-        "test3.tmx",
-        "test.tmx"
+        "test3.tmx"
     ],
     "tileset.lastUsedFilter": "Tiled tileset files (*.tsx *.xml)",
     "tileset.lastUsedFormat": "tsx",
