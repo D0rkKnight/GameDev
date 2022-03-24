@@ -124,6 +124,7 @@ public class Collider<T extends COD<?>> implements Centered {
 		this.cod = (T) cod; // This is ok. Dunno why Eclipse can't resolve it.
 		this.cod.owner = this;
 		this.pos = pos;
+		this.offset = new Vector2f();
 
 		// Any class with a hitbox MUST implement Collidable
 		if (!(owner instanceof Collidable)) {
@@ -176,10 +177,11 @@ public class Collider<T extends COD<?>> implements Centered {
 	}
 
 	public void update() {
-		if (owner instanceof Player) {
+		if (owner instanceof Player && this instanceof Hitbox) {
 			System.out.println("\n________________________\n");
 			System.out.println("Loc: " + localTrans.genModel());
 			System.out.println("L2W: " + genChildL2WMat());
+			System.out.println("Offset: " + offset);
 		}
 	}
 

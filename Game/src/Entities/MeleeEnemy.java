@@ -49,7 +49,9 @@ public class MeleeEnemy extends Enemy {
 
 		// Configure hitbox
 		dim = new Vector2f(rendDims.x, rendDims.y * 1.5f);
-		addColl(new Hurtbox(this, new CODVertex(dim.x, dim.y)));
+		Hurtbox hurtbox = new Hurtbox(this, new CODVertex(dim.x, dim.y));
+		hurtbox.offset.set(-dim.x/2, 0);
+		addColl(hurtbox);
 		this.renderer.getOrigin().y = -rendDims.y * 0.5f;
 		this.renderer.getOrigin().x = rendDims.x / 2;
 

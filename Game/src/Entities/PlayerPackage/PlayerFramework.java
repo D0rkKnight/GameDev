@@ -61,6 +61,7 @@ public abstract class PlayerFramework extends Combatant {
 	GhostParticleSystem pSys;
 
 	protected Hurtbox mainHurtbox;
+	protected Vector2f meleeOrigin;
 
 	// Temp
 	public Color baseCol;
@@ -79,11 +80,14 @@ public abstract class PlayerFramework extends Combatant {
 
 		baseCol = new Color(0, 0, 0, 1);
 
-		// Configure hitbox
+		// Configure colliders & offsets
 		dim = new Vector2f(15f, 60f);
 
 		mainHurtbox = new Hurtbox(this, new CODVertex(dim.x, dim.y));
+		mainHurtbox.offset.set(-dim.x/2, 0);
 		addColl(mainHurtbox);
+		
+		meleeOrigin = new Vector2f(0, dim.y/2);
 
 		jumpSpeed = 1f;
 		dashSpeed = 2f;
@@ -98,19 +102,6 @@ public abstract class PlayerFramework extends Combatant {
 		baseInvulnLength = 1000;
 
 		setEntityFD(StateID.I);
-
-		// TODO: goof test entity
-		Entity childEnt = new SimpleEntity();
-		setAsChild(childEnt);
-
-		GeneralRenderer cRend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		cRend.init(new ProjectedTransform(new Vector2f(0, 100)), rendDims, Shape.ShapeEnum.SQUARE,
-				new Color(1, 0, 0, 0));
-		cRend.spr = Debug.debugTex;
-		childEnt.renderer = cRend;
-
-		// TODO: Really should be accessed through parent hierarchy and not like this
-		GameManager.subscribeEntity(childEnt);
 	}
 
 	@Override

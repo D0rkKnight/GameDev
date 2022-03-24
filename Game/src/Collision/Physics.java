@@ -108,6 +108,8 @@ public abstract class Physics {
 
 				// Debug.enqueueElement(new DebugBox(new Vector2f(newPos).add(deltaInch), new
 				// Vector2f(e.dim.x, e.dim.y), 1));
+				
+				// Draws entity bounds
 				Debug.enqueueElement(new DebugBox(newPos, e.dim, new Color(0, 1, 0, 1), 1));
 
 				// Move (this modifies deltaInch)

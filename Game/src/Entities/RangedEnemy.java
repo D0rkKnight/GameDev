@@ -47,7 +47,9 @@ public class RangedEnemy extends Enemy {
 
 		// Hitbox
 		dim = new Vector2f(16, 96);
-		addColl(new Hurtbox(this, new CODVertex(dim.x, dim.y)));
+		Hurtbox hurtbox = new Hurtbox(this, new CODVertex(dim.x, dim.y));
+		hurtbox.offset.set(-dim.x/2, 0);
+		addColl(hurtbox);
 
 		this.renderer.getOrigin().x = rendDims.x / 2;
 		origin.x = dim.x / 2;

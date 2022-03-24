@@ -347,12 +347,20 @@
                 "y": 40.0535236396075
             }
         },
-        "Testing/test_arena.tmx": {
+        "Testing/boss_arena.tmx": {
             "scale": 2,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 433,
-                "y": 154.5
+                "x": 416.25,
+                "y": 218.25
+            }
+        },
+        "Testing/test_arena.tmx": {
+            "scale": 1,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 402.5,
+                "y": 355.5
             }
         },
         "Tilemaps/set.tsx": {

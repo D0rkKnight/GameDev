@@ -31,7 +31,9 @@ public class SpiritFragment extends Enemy {
 
 		// Hitbox
 		dim = new Vector2f(96, 32);
-		addColl(new Hurtbox(this, new CODVertex(dim.x, dim.y)));
+		Hurtbox hurtbox = new Hurtbox(this, new CODVertex(dim.x, dim.y));
+		hurtbox.offset.set(-dim.x/2, 0);
+		addColl(hurtbox);
 
 		pData.hasKnockback = false;
 
