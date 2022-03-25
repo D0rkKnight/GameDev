@@ -224,7 +224,7 @@ public abstract class Physics {
 
 				Vector2f tempNormal = new Vector2f(0, 0);
 
-				Float d = getIntersection(t.getHammerState().v, bl, ur, x, y, moveDir, tempNormal);
+				Float d = getIntersection(t.getShape().v, bl, ur, x, y, moveDir, tempNormal);
 				if (d != null) {
 					if (Math.abs(d) > Math.abs(maxMoveDist)) {
 						maxMoveDist = d;

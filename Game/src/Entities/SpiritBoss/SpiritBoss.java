@@ -11,12 +11,14 @@ import Collision.Hurtbox;
 import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Debugging.DebugPolygon;
+import Entities.Laser;
 import Entities.Framework.Boss;
 import Entities.Framework.Entity;
 import Entities.Framework.StateMachine.StateID;
 import GameController.EntityData;
 import GameController.GameManager;
 import GameController.Time;
+import GameController.World;
 import Graphics.Drawer.DBEnum;
 import Graphics.Elements.Texture;
 import Graphics.Elements.TextureAtlas;
@@ -24,12 +26,13 @@ import Graphics.Rendering.BleedShader;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Shader;
 import Graphics.Rendering.SpriteShader;
+import Tiles.Tile;
 import Utility.Geometry;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
 import Wrappers.FrameData;
-import Wrappers.Stats;
 import Wrappers.FrameData.FrameSegment;
+import Wrappers.Stats;
 
 public class SpiritBoss extends Boss {
 
@@ -214,6 +217,7 @@ public class SpiritBoss extends Boss {
 		
 		addFD(StateID.I, genIDLE());
 		addFD(StateID.SPIKE, genSPIKE());
+		addFD(StateID.LASER, genLASER());
 	}
 	
 	private FrameData genIDLE() {
@@ -242,7 +246,7 @@ public class SpiritBoss extends Boss {
 		};
 		
 		fd.onEnd = () -> {
-			setEntityFD(StateID.SPIKE);
+			setEntityFD(StateID.LASER);
 		};
 		
 		return fd;
@@ -321,6 +325,54 @@ public class SpiritBoss extends Boss {
 			for (SpiritFragment fr : frags) fr.localTrans.scale.identity();
 			setEntityFD(StateID.I);
 		};
+		
+		return fd;
+	}
+
+	private FrameData genLASER() {
+		ArrayList<FrameSegment> segs = new ArrayList<>();
+		FrameSegment seg1 = new FrameSegment(100, 0);
+		
+		segs.add(seg1);
+		
+		FrameData fd = new FrameData(segs, null, false);
+		
+		fd.onEntry = () -> {
+			// Spawn laser
+			Vector2f ray2target = new Vector2f(target.getCenter()).sub(getCenter()).normalize();
+			
+			// Pull grid and march in the given direction
+			Tile[][] grid = World.currmap.grids.get("collision");
+			
+			Vector2f raySearchLoc = new Vector2f(getCenter());
+			int mapH = GameManager.tileSize * grid[0].length;
+			int mapW = GameManager.tileSize * grid.length;
+			
+			// Raymarch to find the ending location
+			while (true) {
+				// Check if in bounds
+				if (raySearchLoc.x < 0 || raySearchLoc.x >= mapW) break;
+				if (raySearchLoc.y < 0 || raySearchLoc.y >= mapH) break;
+				
+				// Check if clashing with tile
+				int tx = (int) (raySearchLoc.x / GameManager.tileSize);
+				int ty = (int) (raySearchLoc.y / GameManager.tileSize);
+				
+				if (grid[tx][ty] != null) break;
+				
+				// Advance vector
+				Vector2f rayDelta = new Vector2f(ray2target).normalize().mul(GameManager.tileSize);
+				raySearchLoc.add(rayDelta);
+			}
+			
+			// Create the laser block
+			Vector2f rayDelta = new Vector2f(raySearchLoc).sub(getCenter());
+			Laser las = new Laser(new Vector2f(), rayDelta, this, 1200);
+			setAsChild(las);
+			GameManager.subscribeEntity(las);
+		};
+		
+		fd.onEnd = () -> setEntityFD(StateID.I);
 		
 		return fd;
 	}

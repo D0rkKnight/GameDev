@@ -9,6 +9,9 @@ import static org.lwjgl.opengl.GL11.glEnable;
 import java.util.ArrayList;
 
 import org.joml.Vector2f;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL32;
 
 import Collision.Shapes.Shape;
 import Debugging.Debug;
@@ -21,6 +24,7 @@ public class GeneralRenderer extends Renderer {
 
 	public Texture spr;
 	public boolean flipUVs = false;
+	public int texWrapType = GL11.GL_REPEAT;
 
 	protected static final int INDEX_UV = 1;
 	protected static final int INDEX_COLOR = 2;
@@ -40,6 +44,9 @@ public class GeneralRenderer extends Renderer {
 		// Enable blending
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, texWrapType);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, texWrapType);
 
 		spr.bind();
 	}

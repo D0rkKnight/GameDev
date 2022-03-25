@@ -44,7 +44,7 @@ public class Tile {
 		this(t.shape, t.subTex, t.tGFX, pos, rect);
 	}
 
-	public ShapeEnum getHammerState() {
+	public ShapeEnum getShape() {
 		return shape;
 	}
 }

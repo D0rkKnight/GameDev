@@ -29,7 +29,7 @@ public class SpiritEye extends Enemy {
 		rend.getOrigin().set(rendDims.x/2, rendDims.y/2);
 
 		this.renderer = rend;
-		rendZ = -1; // Render before boss
+		rendZ = -2; // Render before boss
 		
 		// Colliders
 		dim = new Vector2f(rendDims);

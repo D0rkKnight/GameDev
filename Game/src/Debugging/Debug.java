@@ -47,7 +47,7 @@ public class Debug {
 
 		showCollisions = false;
 		showHitboxes = true;
-		debugElementsEnabled = false;
+		debugElementsEnabled = true;
 		drawEdges = false;
 		logIssues = true;
 
