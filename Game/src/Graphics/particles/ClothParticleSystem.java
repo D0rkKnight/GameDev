@@ -95,7 +95,7 @@ public class ClothParticleSystem extends ParticleSystem<ClothParticle> {
 		}
 
 		rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(new Vector2f()), verts, uvs, new Color(1, 1, 1, 1));
+		rend.init(new ProjectedTransform(), verts, uvs, new Color(1, 1, 1, 1));
 		rend.setIndexBuffer(indexes);
 	}
 

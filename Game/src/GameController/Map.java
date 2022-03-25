@@ -303,7 +303,7 @@ public class Map {
 				if (t == null)
 					continue;
 
-				Shape shape = t.getHammerState().v;
+				Shape shape = t.getShape().v;
 				Vector2f pGrid = new Vector2f(i, j); // Position of the shape in grid cords
 
 				// Try to find point p in hammershape.

@@ -33,9 +33,9 @@ import audio.Audio;
 public class GameManager {
 
 	// Lookup table for different kinds of tiles
-	static HashMap<String, HashMap<Integer, Tile>> tileLookup;
+	public static HashMap<String, HashMap<Integer, Tile>> tileLookup;
 	// Lookup table for different kinds of accessories
-//	private HashMap<Integer, Accessory> accessoryLookup;
+	//	private HashMap<Integer, Accessory> accessoryLookup;
 	// static HashMap<String, Entity> entityHash;
 
 	// Entity positions in current room
@@ -124,7 +124,7 @@ public class GameManager {
 		Time.initTime();
 
 		ArenaController.init();
-		Physics.buildCrossCollMap();
+		Physics.init();
 
 		TestSpace.init();
 

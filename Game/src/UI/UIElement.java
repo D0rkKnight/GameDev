@@ -2,14 +2,16 @@ package UI;
 
 import java.util.ArrayList;
 
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import Utility.Callback;
+import Utility.Transformations.ModelTransform;
 
 public class UIElement {
 
-	Vector2f relPos; // Relative position
-	Vector2f sPos; // Screen position
+	ModelTransform localTrans;
+	Vector2f pos;
 	Vector2f dims;
 
 	UIElement parent;
@@ -18,7 +20,7 @@ public class UIElement {
 
 	private ArrayList<UIElement> children;
 
-	protected Vector2f offset;
+	protected Vector2f origin;
 	public static final int ANCHOR_UL = 0;
 	public static final int ANCHOR_BL = 1;
 	public static final int ANCHOR_MID = 2;
@@ -26,20 +28,16 @@ public class UIElement {
 	boolean wPosGenerated = false;
 
 	public UIElement(Vector2f pos, Vector2f dims) {
-		this.relPos = pos;
+		this.pos = pos;
+		this.localTrans = new ModelTransform();
 		this.dims = dims;
-		this.sPos = new Vector2f();
 
 		children = new ArrayList<>();
 
-		offset = new Vector2f(); // None by default
+		origin = new Vector2f(); // None by default
 	}
 
 	public void render() {
-		// Generate world position if not generated yet
-		if (!wPosGenerated)
-			genWPos();
-
 		for (UIElement c : children)
 			c.render();
 	}
@@ -54,21 +52,29 @@ public class UIElement {
 
 	protected void onAttach(UIElement newParent) {
 		parent = newParent;
-		genWPos();
 	}
 
-	protected void genWPos() {
-		sPos.zero();
+	public Matrix4f genChildL2WMat() {
+		ModelTransform lMat = new ModelTransform(localTrans);
+		lMat.trans.translate(pos.x, -pos.y, 0);
 
+		// Reify L2P (local to parent) space matrix
+		Matrix4f l2p = lMat.genModel();
+
+		// Assign output matrix
+		Matrix4f o = l2p;
+
+		// Left side L2W mult
 		if (parent != null) {
-			parent.genWPos(); // Kindly request parent to regenerate their screen position
-
-			sPos.add(parent.sPos);
+			// Multiply recursively
+			o = parent.genChildL2WMat().mul(l2p);
 		}
 
-		sPos.add(relPos).add(offset);
+		// Right side anchor shift mult
+		Matrix4f anchorTrans = new Matrix4f().translate(origin.x, origin.y, 0);
+		o.mul(anchorTrans);
 
-		wPosGenerated = true;
+		return o;
 	}
 
 	public void setUpdateCb(Callback newCb) {
@@ -82,23 +88,22 @@ public class UIElement {
 	}
 
 	public void setAnchor(int anchorId) {
-		// This is all in 4th quadrant coordinates
+		// This is all in the 4th quadrant
+		// Remember that items in the space are expected to have negative y values
 
 		switch (anchorId) {
 		case ANCHOR_BL:
-			offset.set(0, -dims.y);
+			origin.set(0, -dims.y);
 			break;
 		case ANCHOR_UL:
-			offset.zero();
+			origin.zero();
 			break;
 		case ANCHOR_MID:
-			offset.set(dims).div(-2);
+			origin.set(dims).div(-2, 2); // Remember that UI elements expands downwards
 			break;
 		default:
 			new Exception("Anchor not recognized").printStackTrace();
 			break;
 		}
-
-		genWPos();
 	}
 }

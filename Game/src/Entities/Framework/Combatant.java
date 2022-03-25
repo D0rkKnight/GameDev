@@ -41,7 +41,8 @@ public abstract class Combatant extends PhysicsEntity {
 		GeneralRenderer sprRen = (GeneralRenderer) renderer;
 		sprRen.updateColors(new Color(1, 0, 0));
 
-		hurtTimer = new FlickerTimer(500, 50, new Color(1, 1, 1), new Color(1, 0, 0), this, new TimerCallback() {
+		hurtTimer = new FlickerTimer(500, 50, new Color(1, 1, 1), new Color(1, 0, 0), this, 
+				new TimerCallback() {
 			@Override
 			public void invoke(Timer timer) {
 				hurtTimer = null; // Color reset is handled

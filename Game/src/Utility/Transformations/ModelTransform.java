@@ -56,12 +56,7 @@ public class ModelTransform {
 
 	public void setTrans(Vector2f pos) {
 
-		Vector3f result = new Vector3f();
-
-		if (matrixMode == MatrixMode.SCREEN) // TODO: remove this horrible jank...
-			result.set(pos.x, -pos.y, 0);
-		else
-			result.set(pos.x, pos.y, 0);
+		Vector3f result = new Vector3f(pos.x, pos.y, 0);
 
 		trans.identity().setTranslation(result);
 	}

@@ -25,7 +25,7 @@ public class Pedestal extends Entity implements Interactive {
 
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("Assets/Sprites/props.png"), 48, 48);
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(position), new Vector2f(48, 48), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0),
+		rend.init(new ProjectedTransform(), new Vector2f(48, 48), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0),
 				tAtlas.genSubTex(1, 0));
 		rend.spr = tAtlas.tex;
 		this.renderer = rend;
@@ -47,8 +47,6 @@ public class Pedestal extends Entity implements Interactive {
 		if (powerup == null)
 			return;
 
-		// TODO Auto-generated method stub
-		System.out.println("You gained a powerup!");
 		powerup.invoke(p);
 
 		powerup.Destroy();

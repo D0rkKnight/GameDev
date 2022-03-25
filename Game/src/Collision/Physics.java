@@ -3,25 +3,27 @@ package Collision;
 import java.util.ArrayList;
 
 import org.joml.Vector2f;
+import org.joml.Vector4f;
 
-import Collision.Collider.COD;
-import Collision.Collider.CODCircle;
-import Collision.Collider.CODVertex;
 import Collision.Behaviors.PhysicsCollisionBehavior;
 import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Debugging.DebugBox;
 import Entities.Framework.PhysicsEntity;
+import Entities.SpiritBoss.SpiritEye;
 import GameController.GameManager;
 import GameController.Time;
 import Tiles.Tile;
 import Utility.Arithmetic;
-import Utility.Ellipse;
 import Utility.Geometry;
 import Utility.Vector;
 import Wrappers.Color;
 
 public abstract class Physics {
+
+	public static void init() {
+		Collider.buildCrossCollMap();
+	}
 
 	public static final float NUDGE_CONSTANT = 0.1f;
 
@@ -108,7 +110,13 @@ public abstract class Physics {
 
 				// Debug.enqueueElement(new DebugBox(new Vector2f(newPos).add(deltaInch), new
 				// Vector2f(e.dim.x, e.dim.y), 1));
-				Debug.enqueueElement(new DebugBox(newPos, e.dim, new Color(0, 1, 0, 1), 1));
+				
+				// Draws entity bounds
+				
+				// Mul against <0, 0, 0, 1> since the dimensional box is anchored at <0, 0>
+				Vector4f transPos = new Vector4f(0, 0, 0, 1).mul(e.genChildL2WMat());
+				Debug.enqueueElement(new DebugBox(new Vector2f(transPos.x, transPos.y),
+						e.dim, new Color(0, 1, 0, 1), 1));
 
 				// Move (this modifies deltaInch)
 				boolean isSuccess = Physics.moveTo(newPos, deltaInch, velo, e, grid, dir, axises);
@@ -216,7 +224,7 @@ public abstract class Physics {
 
 				Vector2f tempNormal = new Vector2f(0, 0);
 
-				Float d = getIntersection(t.getHammerState().v, bl, ur, x, y, moveDir, tempNormal);
+				Float d = getIntersection(t.getShape().v, bl, ur, x, y, moveDir, tempNormal);
 				if (d != null) {
 					if (Math.abs(d) > Math.abs(maxMoveDist)) {
 						maxMoveDist = d;
@@ -327,45 +335,13 @@ public abstract class Physics {
 			return null;
 	}
 
-	public static CrossCollisionCB[][] collMap = new CrossCollisionCB[2][2]; // Needs to be fully populated
-	public static ArrayList<Class<?>> registeredCODs = new ArrayList<>();
-
-	public static void buildCrossCollMap() {
-		registeredCODs.add(CODVertex.class);
-		registeredCODs.add(CODCircle.class);
-
-		CrossCollisionCB vert2vert = (COD<?> c1, COD<?> c2) -> {
-			Vector2f[] c1p = ((CODVertex) c1).getData();
-			Vector2f[] c2p = ((CODVertex) c2).getData();
-
-			return Geometry.separateAxisCheck(c1p, c2p, null, null, null);
-		};
-
-		CrossCollisionCB vert2circ = (COD<?> c1, COD<?> c2) -> {
-			Vector2f[] c1p = ((CODVertex) c1).getData();
-			Ellipse e = ((CODCircle) c2).getData();
-			Vector2f[] c2p = e.genVerts(10);
-
-			return Geometry.separateAxisCheck(c1p, c2p, null, null, null);
-		};
-
-		addCrossColl(CODVertex.class, CODVertex.class, vert2vert);
-		addCrossColl(CODVertex.class, CODCircle.class, vert2circ);
-	}
-
-	// Build that map
-	private static void addCrossColl(Class<?> c1, Class<?> c2, CrossCollisionCB cb) {
-		int i1 = registeredCODs.indexOf(c1);
-		int i2 = registeredCODs.indexOf(c2);
-
-		collMap[i1][i2] = cb;
-	}
-
 	public static void checkEntityCollision(Collider c1, Collider c2) {
+		ArrayList<Class<?>> rCODs = Collider.registeredCODs;
+		CrossCollisionCB[][] collMap = Collider.collMap;
 
 		// Lookup collision algorithm and execute it
-		int i1 = registeredCODs.indexOf(c1.getCOD().getClass()); // TODO: Laggy search, probably should use maps or smth
-		int i2 = registeredCODs.indexOf(c2.getCOD().getClass());
+		int i1 = rCODs.indexOf(c1.getCOD().getClass()); // TODO: Laggy search, probably should use maps or smth
+		int i2 = rCODs.indexOf(c2.getCOD().getClass());
 
 		// Pull cb
 		boolean hit;

@@ -1,8 +1,8 @@
 package Entities;
 
 import org.joml.Vector2f;
-import Collision.Collider.CODVertex;
 
+import Collision.Collider.CODVertex;
 import Collision.Hurtbox;
 import Collision.Behaviors.PGBGroundFriction;
 import Collision.Shapes.Shape;
@@ -24,7 +24,7 @@ public class PunchingBag extends Combatant {
 
 		rendDims = new Vector2f(96, 128);
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
+		rend.init(new ProjectedTransform(), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
 		rend.spr = Debug.debugTex;
 
 		this.renderer = rend;

@@ -1,10 +1,10 @@
 package Entities;
 
 import java.util.ArrayList;
-import Collision.Collider.CODVertex;
 
 import org.joml.Vector2f;
 
+import Collision.Collider.CODVertex;
 import Collision.Hitbox;
 import Collision.Behaviors.PCBDeflect;
 import Collision.Shapes.Shape;
@@ -46,7 +46,7 @@ public abstract class BouncingEnemy extends Enemy {
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+		rend.init(new ProjectedTransform(), dim, Shape.ShapeEnum.SQUARE, new Color());
 
 		this.renderer = rend;
 

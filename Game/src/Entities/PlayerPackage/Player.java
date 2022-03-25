@@ -463,41 +463,39 @@ public class Player extends PlayerFramework {
 		return fd;
 	}
 
-	private static void meleeAtPoint(PlayerFramework p, Vector2f targetPos, int fLife, float meleeDis, Vector2f dims) {
+	private void meleeAtPoint(PlayerFramework p, Vector2f targetPos, int fLife, float meleeDis, Vector2f dims) {
 		Vector2f pos = new Vector2f(p.getPosition()).add(p.dim.x / 2, p.dim.y / 2);
 
 		Vector2f dir = orthoDirFromVector(new Vector2f(targetPos).sub(pos));
 
 		// Generate data for melee hitbox object
-		Vector2f dist = new Vector2f(dir).mul(meleeDis);
-		Vector2f mPos = new Vector2f(pos).add(dist);
+		Vector2f delta = new Vector2f(dir).mul(meleeDis);
 
-		melee(p, mPos, dir, fLife, dims);
+		melee(p, delta, dir, fLife, dims);
 	}
 
 	// Hacky solution, please fix
-	private static void meleeInDir(PlayerFramework p, Vector2f dir, int fLife, float meleeDis, Vector2f dims) {
-		Vector2f pos = new Vector2f(p.getPosition()).add(p.dim.x / 2, p.dim.y / 2);
-
+	private void meleeInDir(PlayerFramework p, Vector2f dir, int fLife, float meleeDis, Vector2f dims) {
 		// Generate data for melee hitbox object
-		Vector2f dist = new Vector2f(dir).mul(meleeDis);
-		Vector2f mPos = new Vector2f(pos).add(dist);
+		Vector2f delta = new Vector2f(dir).mul(meleeDis);
 
-		melee(p, mPos, dir, fLife, dims);
+		melee(p, delta, dir, fLife, dims);
 	}
 
-	private static void melee(PlayerFramework p, Vector2f pos, Vector2f dir, int fLife, Vector2f dims) {
+	private void melee(PlayerFramework p, Vector2f delta, Vector2f dir, int fLife, Vector2f dims) {
 		Vector2f nDir = new Vector2f(dir).normalize();
 
 		// TODO: Check
 		long tLife = FrameData.frameToTDelta(fLife);
-
-		Melee meleeEntity = new Melee("MELEE", pos, "Melee", p, nDir, 2, tLife, dims);
+		
+		Vector2f tDelt = new Vector2f(delta).add(meleeOrigin);
+		Melee meleeEntity = new Melee("MELEE", tDelt, "Melee", p, nDir, 2, tLife, dims);
 		GameManager.subscribeEntity(meleeEntity);
 
 		float angle = Math.atan2(dir.y, dir.x);
 		Matrix4f rot = meleeEntity.localTrans.rot;
-
+		
+		// Rotate around center
 		rot.translate(meleeEntity.dim.x / 2, meleeEntity.dim.y / 2, 0);
 		rot.rotateZ(angle);
 		rot.translate(-meleeEntity.dim.x / 2, -meleeEntity.dim.y / 2, 0);

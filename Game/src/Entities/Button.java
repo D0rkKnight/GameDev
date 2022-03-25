@@ -33,7 +33,7 @@ public class Button extends Entity implements Interactive {
 		// Configure the renderer real quick
 		dim = new Vector2f(30f, 30f);
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+		rend.init(new ProjectedTransform(), dim, Shape.ShapeEnum.SQUARE, new Color());
 
 		this.renderer = rend;
 	}

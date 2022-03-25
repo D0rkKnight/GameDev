@@ -7,6 +7,7 @@ import org.joml.Vector2i;
 
 import Collision.Collidable;
 import Collision.Collider;
+import Collision.Collider.CODVertex;
 import Collision.Shapes.Shape;
 import Entities.PlayerPackage.PlayerFramework;
 import GameController.EntityData;
@@ -21,7 +22,6 @@ import Utility.Timers.Timer;
 import Utility.Timers.TimerCallback;
 import Utility.Transformations.ProjectedTransform;
 import Wrappers.Color;
-import Collision.Collider.CODVertex;
 
 public class Entrance extends Entity implements Collidable {
 
@@ -42,7 +42,7 @@ public class Entrance extends Entity implements Collidable {
 
 		dim = dims;
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+		rend.init(new ProjectedTransform(), dim, Shape.ShapeEnum.SQUARE, new Color());
 
 		this.renderer = rend;
 

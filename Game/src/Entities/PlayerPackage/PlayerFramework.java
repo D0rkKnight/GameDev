@@ -1,17 +1,20 @@
 package Entities.PlayerPackage;
 
 import java.util.HashMap;
-import Collision.Collider.CODVertex;
 
 import org.joml.Math;
 import org.joml.Vector2f;
 
+import Collision.Collider.CODVertex;
 import Collision.Hurtbox;
 import Collision.Shapes.Shape;
+import Debugging.Debug;
 import Entities.Behavior.EntityFlippable;
 import Entities.Framework.Combatant;
+import Entities.Framework.Entity;
 import Entities.Framework.PhysicsEntity;
 import Entities.Framework.Projectile;
+import Entities.Framework.SimpleEntity;
 import Entities.Framework.StateMachine.StateID;
 import Entities.Framework.StateMachine.StateTag;
 import GameController.GameManager;
@@ -58,6 +61,7 @@ public abstract class PlayerFramework extends Combatant {
 	GhostParticleSystem pSys;
 
 	protected Hurtbox mainHurtbox;
+	protected Vector2f meleeOrigin;
 
 	// Temp
 	public Color baseCol;
@@ -70,24 +74,27 @@ public abstract class PlayerFramework extends Combatant {
 		// not given from outside...
 		rendDims = new Vector2f(96, 96);
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(position), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
+		rend.init(new ProjectedTransform(), rendDims, Shape.ShapeEnum.SQUARE, new Color(1, 0, 0, 0));
 
 		this.renderer = rend;
 
 		baseCol = new Color(0, 0, 0, 1);
 
-		// Configure hitbox
+		// Configure colliders & offsets
 		dim = new Vector2f(15f, 60f);
 
 		mainHurtbox = new Hurtbox(this, new CODVertex(dim.x, dim.y));
+		mainHurtbox.offset.set(-dim.x/2, 0);
 		addColl(mainHurtbox);
+		
+		meleeOrigin = new Vector2f(0, dim.y/2);
 
 		jumpSpeed = 1f;
 		dashSpeed = 2f;
 
 		initGraphics();
-		rendOriginPos.set(rendDims.x / 2, 0);
-		entOriginPos.x = dim.x / 2;
+		this.renderer.getOrigin().set(rendDims.x / 2, 0);
+		offset.x = dim.x / 2;
 
 		// Alignment
 		alignment = PhysicsEntity.Alignment.PLAYER;
@@ -322,7 +329,14 @@ public abstract class PlayerFramework extends Combatant {
 
 		// Update trailing particle system
 		pSys.activeSubTex = anim.currentAnim.getFrame();
-		pSys.activeTransform = new ProjectedTransform(renderer.transform);
+		pSys.activeTransform = new ProjectedTransform();
+
+		// TODO: Fix hack
+		pSys.activeTransform.setModel(renderer.localTrans);
+		pSys.activeTransform.view.set(renderer.worldToScreen.view);
+		pSys.activeTransform.proj.set(renderer.worldToScreen.proj);
+		pSys.activeTransform.matrixMode = renderer.worldToScreen.matrixMode;
+
 		pSys.update();
 
 		super.calcFrame();

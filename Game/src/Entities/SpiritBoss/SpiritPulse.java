@@ -20,7 +20,6 @@ public class SpiritPulse extends Entity implements Aligned {
 
 		Hitbox hb = new Hitbox(this, new CODCircle(radius));
 		hb.cb = (Combatant c) -> {
-			System.out.println("hit");
 		};
 
 		addColl(hb);

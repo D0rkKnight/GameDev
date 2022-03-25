@@ -53,7 +53,7 @@ public class Debug {
 
 		Drawer.windowResizeable = false;
 
-		forceMapUsage = "assets/Maps/Testing/test_arena.tmx";
+		forceMapUsage = "assets/Maps/Testing/boss_arena.tmx";
 	}
 
 	public static void init() {

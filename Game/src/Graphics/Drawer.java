@@ -105,7 +105,7 @@ public class Drawer {
 			Vector2i screenDims = Drawer.GetWindowSize();
 			GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "outlineShader"));
 			rend.flipUVs = true;
-			rend.init(new ProjectedTransform(new Vector2f(0, screenDims.y), ProjectedTransform.MatrixMode.SCREEN),
+			rend.init(new ProjectedTransform(new Vector2f(0, -screenDims.y), ProjectedTransform.MatrixMode.SCREEN),
 					new Vector2f(screenDims), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0));
 
 			Color.setGLClear(new Color(0, 0, 0, 0));
@@ -129,7 +129,7 @@ public class Drawer {
 			Vector2i screenDims = Drawer.GetWindowSize();
 			DBEnum.MAIN.buff = DrawBuffer.genEmptyBuffer(screenDims.x, screenDims.y, fBuffRend);
 
-			fBuffRend.init(new ProjectedTransform(new Vector2f(0, screenDims.y), ProjectedTransform.MatrixMode.SCREEN),
+			fBuffRend.init(new ProjectedTransform(new Vector2f(0, -screenDims.y), ProjectedTransform.MatrixMode.SCREEN),
 					new Vector2f(screenDims), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0));
 			fBuffRend.spr = DBEnum.MAIN.buff.tex;
 		}
@@ -143,7 +143,7 @@ public class Drawer {
 			Vector2i screenDims = Drawer.GetWindowSize();
 			DBEnum.BLEED.buff = DrawBuffer.genEmptyBuffer(screenDims.x, screenDims.y, fBuffRend);
 
-			fBuffRend.init(new ProjectedTransform(new Vector2f(0, screenDims.y), ProjectedTransform.MatrixMode.SCREEN),
+			fBuffRend.init(new ProjectedTransform(new Vector2f(0, -screenDims.y), ProjectedTransform.MatrixMode.SCREEN),
 					new Vector2f(screenDims), Shape.ShapeEnum.SQUARE, new Color(0, 0, 0, 0));
 			fBuffRend.spr = DBEnum.MAIN.buff.tex;
 

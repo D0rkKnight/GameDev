@@ -2,6 +2,7 @@ package UI;
 
 import java.util.ArrayList;
 
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import Graphics.Rendering.GeneralRenderer;
@@ -19,6 +20,8 @@ public class UITextElement extends UIDrawElement {
 	private Color col;
 
 	private Vector2f textDims;
+
+	boolean childrenCentered = true;
 
 	public Vector2f getTextDims() {
 		return textDims;
@@ -44,13 +47,13 @@ public class UITextElement extends UIDrawElement {
 
 		// Get dimensions
 		textDims = Rect.getDimsFromPointCollection(points);
-		System.out.println(textDims);
 
 		// Build renderer
 		col = new Color(1, 1, 1, 1);
 
 		GeneralRenderer genRend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		genRend.init(new ProjectedTransform(pos, ProjectedTransform.MatrixMode.SCREEN), pointArr, uvArr, col);
+		genRend.init(new ProjectedTransform(new Vector2f(), ProjectedTransform.MatrixMode.SCREEN), pointArr, uvArr,
+				col);
 		genRend.spr = font.tex;
 		rend = genRend;
 	}
@@ -64,22 +67,26 @@ public class UITextElement extends UIDrawElement {
 
 		Vector2f[] pointArr = new Vector2f[points.size()];
 		Vector2f[] uvArr = new Vector2f[uvs.size()];
-		for (int i = 0; i < points.size(); i++)
+
+		for (int i = 0; i < points.size(); i++) {
 			pointArr[i] = points.get(i);
+		}
 		for (int i = 0; i < uvs.size(); i++)
 			uvArr[i] = uvs.get(i);
 
 		GeneralRenderer genRend = (GeneralRenderer) rend;
-
 		genRend.rebuildMesh(pointArr, uvArr, col);
 	}
 
-	@Override
-	protected void genWPos() {
-		super.genWPos();
+	public Matrix4f genChildL2WMat() {
+		Matrix4f mat = super.genChildL2WMat();
+		if (childrenCentered) {
+			float shift = (dims.x - textDims.x) / 2;
+			mat.translate(shift, 0, 0);
+		}
 
-		// Font ascent for first line's difference
-		// TODO: should probably move this to be for the renderer...
-		sPos.add(0, font.ascent - dims.y);
+		mat.translate(0, -font.ascent, 0);
+
+		return mat;
 	}
 }

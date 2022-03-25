@@ -24,17 +24,24 @@ import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL30;
 
+import Collision.Collider;
+import Entities.Framework.Anchored;
+import Entities.Framework.Entity;
 import Graphics.Elements.Mesh;
+import UI.UIElement;
+import Utility.Transformations.ModelTransform;
 import Utility.Transformations.ProjectedTransform;
 
-public abstract class Renderer {
+public abstract class Renderer implements Anchored {
 	public Shader shader;
 
 	protected int vaoId;
 	protected int vboId;
 	protected Attribute[] attribs;
 
-	public ProjectedTransform transform;
+	public ModelTransform localTrans = new ModelTransform();
+	public ProjectedTransform worldToScreen = new ProjectedTransform();
+
 	protected Mesh mesh;
 	protected boolean hasBufferUpdate;
 
@@ -44,6 +51,9 @@ public abstract class Renderer {
 	public boolean hasInit;
 
 	protected static final int INDEX_VERTEX = 0;
+	public Object parent;
+
+	Vector2f origin = new Vector2f();
 
 	Renderer(Shader shader) {
 		this.shader = shader;
@@ -71,6 +81,8 @@ public abstract class Renderer {
 		}
 
 		shader.renderStart(this);
+
+		setTransformMatrix();
 	}
 
 	protected void draw() {
@@ -84,7 +96,14 @@ public abstract class Renderer {
 	}
 
 	protected void init(ProjectedTransform transform) {
-		this.transform = transform;
+		// TODO: Fix this hack. For now break the transform apart. In the future, create
+		// two matrix types to handle this...
+		this.localTrans.setModel(transform);
+
+		this.worldToScreen.proj.set(transform.proj);
+		this.worldToScreen.view.set(transform.view);
+		this.worldToScreen.matrixMode = transform.matrixMode;
+
 		hasInit = true;
 	}
 
@@ -164,12 +183,55 @@ public abstract class Renderer {
 	// Hmm this needs an MVP uniform, well if there isn't one then don't set the
 	// transform matrix
 	public void setTransformMatrix() {
-		// Setting model space transformations
-		Matrix4f mvp = transform.genMVP();
 
-		// Set matrix uniform
-		shader.bind();
+		// Setting model space transformations
+		Matrix4f localToWorld = genL2WMat();
+		Matrix4f mvp = worldToScreen.genMVP().mul(localToWorld).mul(localTrans.genModel());
+
 		shader.setUniform("MVP", mvp);
+	}
+
+	/**
+	 * Generates a mat that converts from local space coords to world space coords.
+	 * Includes translation from variable anchors.
+	 * 
+	 * @return
+	 */
+
+	public Matrix4f genL2WMat() {
+		if (parent != null && parent instanceof Entity) {
+			Entity ent = (Entity) parent;
+
+			Matrix4f originOffset = new Matrix4f();
+			originOffset.translate(-origin.x, -origin.y, 0);
+
+			Matrix4f o = ent.genChildL2WMat().mul(originOffset);
+			return o;
+		}
+
+		if (parent != null && parent instanceof UIElement) {
+			UIElement uiE = (UIElement) parent;
+
+			Matrix4f originOffset = new Matrix4f();
+			originOffset.translate(-origin.x, -origin.y, 0);
+
+			Matrix4f o = uiE.genChildL2WMat().mul(originOffset);
+
+			return o;
+		}
+
+		if (parent != null && parent instanceof Collider) {
+			Collider coll = (Collider) parent;
+
+			Matrix4f originOffset = new Matrix4f();
+			originOffset.translate(-origin.x, -origin.y, 0);
+
+			Matrix4f o = coll.genChildL2WMat().mul(originOffset);
+
+			return o;
+		}
+
+		return new Matrix4f();
 	}
 
 	protected float[] genVerts(Vector2f[] vertices) {
@@ -264,5 +326,13 @@ public abstract class Renderer {
 		static int getRowsize(ArrayList<Attribute> attribBuff) {
 			return attribBuff.get(0).stride;
 		}
+	}
+
+	public Vector2f getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(Vector2f o) {
+		this.origin = o;
 	}
 }

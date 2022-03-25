@@ -1,11 +1,11 @@
 package Entities;
 
 import org.joml.Matrix4f;
-import Collision.Collider.CODVertex;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 
+import Collision.Collider.CODVertex;
 import Collision.Hitbox;
 import Collision.Shapes.Shape;
 import Entities.Framework.Enemy;
@@ -35,7 +35,7 @@ public class CrawlerEnemy extends Enemy {
 		// Configure the renderer real quick
 		dim = new Vector2f(96f, 96f);
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(position), dim, Shape.ShapeEnum.SQUARE, new Color());
+		rend.init(new ProjectedTransform(), dim, Shape.ShapeEnum.SQUARE, new Color());
 		rend.spr = Texture.getTex("assets/Sprites/circle_saw.png");
 		this.renderer = rend;
 
