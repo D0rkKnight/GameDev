@@ -55,7 +55,7 @@ public class MeleeEnemy extends Enemy {
 		this.renderer.getOrigin().y = -rendDims.y * 0.5f;
 		this.renderer.getOrigin().x = rendDims.x / 2;
 
-		origin.x = dim.x / 2;
+		offset.x = dim.x / 2;
 
 		TextureAtlas tAtlas = new TextureAtlas(Texture.getTex("assets/Sprites/bell_enemy.png"), 32, 32);
 		Animation a1 = new Animation(tAtlas.genSubTexSet(0, 0, 5, 0));
@@ -117,8 +117,6 @@ public class MeleeEnemy extends Enemy {
 
 		ArrayList<Event> evs = new ArrayList<>();
 		evs.add(new Event(() -> {
-			System.out.println("Attack");
-
 			pData.velo.x = 1 * flip.sideFacing;
 
 			anim.switchAnim(StateTag.LUNGE);

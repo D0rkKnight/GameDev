@@ -78,7 +78,6 @@ public abstract class Shader {
 
 	public static Shader genShader(Class<?> clazz, String filename) {
 		try {
-			System.out.println(clazz.getName());
 			Constructor<?> con = clazz.getConstructor(String.class);
 
 			return cacheShader(filename, (fname) -> {

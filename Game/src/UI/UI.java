@@ -50,12 +50,6 @@ public class UI implements NewWaveListener {
 		healthBar.setAnchor(UIBoxElement.ANCHOR_UL);
 		healthBar.setUpdateCb(() -> {
 			healthBar.bar.fillRatio = (pStats.health) / (pStats.maxHealth);
-
-//			Renderer rend = healthBar.bg.rend;
-//			System.out.println("\n________________________\n");
-//			System.out.println("Loc: " + rend.localTrans.genModel());
-//			System.out.println("L2W: " + rend.genL2WMat());
-//			System.out.println("W2S: " + rend.worldToScreen.genMVP());
 		});
 		CEnum.RUNNING.state.addElement(healthBar);
 

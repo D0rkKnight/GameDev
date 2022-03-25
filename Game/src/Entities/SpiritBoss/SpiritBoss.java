@@ -18,6 +18,8 @@ import GameController.EntityData;
 import GameController.GameManager;
 import GameController.Time;
 import Graphics.Drawer.DBEnum;
+import Graphics.Elements.Texture;
+import Graphics.Elements.TextureAtlas;
 import Graphics.Rendering.BleedShader;
 import Graphics.Rendering.GeneralRenderer;
 import Graphics.Rendering.Shader;
@@ -47,41 +49,55 @@ public class SpiritBoss extends Boss {
 	float peakHeight = 200f;
 	float peakNarrowness = 1f;
 	
+	// Eye (looks at you)
+	private SpiritEye eye;
+	private float eyeTrackDistance = 50f;
+	
 
 	public SpiritBoss(String ID, Vector2f position, String name, Stats stats) {
 		super(ID, position, name, stats);
 
 		// Rend
 		rendDims = new Vector2f(192, 192);
+		TextureAtlas texAtlas = new TextureAtlas(Texture.getTex("Assets/Sprites/spirit_boss.png"), 32, 32);
+		
 		GeneralRenderer rend = new GeneralRenderer(Shader.genShader(SpriteShader.class, "texShader"));
-		rend.init(new ProjectedTransform(), rendDims, Shape.ShapeEnum.SQUARE, new Color());
-		rend.spr = Debug.debugTex;
+		rend.init(new ProjectedTransform(), rendDims, Shape.ShapeEnum.SQUARE, 
+				new Color(), texAtlas.genSubTex(0, 0, 6, 6));
+		rend.spr = texAtlas.tex;
 
 		this.renderer = rend;
 
 		// Hitbox
 		dim = new Vector2f(192, 192);
 		Hurtbox hurtbox = new Hurtbox(this, new CODVertex(dim.x, dim.y));
-		hurtbox.offset.set(-dim.x/2, 0);
+		hurtbox.offset.set(-dim.x/2, -dim.y/2);
 		addColl(hurtbox);
 
 		pData.hasKnockback = false;
 
 		this.renderer.getOrigin().x = rendDims.x / 2;
-		origin.x = dim.x / 2;
+		this.renderer.getOrigin().y = rendDims.y / 2;
+		offset.x = dim.x / 2;
+		offset.y = dim.y / 2;
 		
 		// Generate spirit fragments
 		float[] radBuff = new float[fragCount];
 		Vector2f[] fragPos = Geometry.pointsFromCircle(getCenter(), ringRadius, fragCount, radBuff);
 
 		for (int i = 0; i < fragPos.length; i++) {
-			SpiritFragment frag = new SpiritFragment(fragPos[i]);
+			SpiritFragment frag = new SpiritFragment(fragPos[i], this);
 			GameManager.subscribeEntity(frag);
 
 			frag.localTrans.rot.setRotationXYZ(0, 0, radBuff[i]);
 
 			frags.add(frag);
 		}
+		
+		// Generate Eye
+		eye = new SpiritEye("EYE", new Vector2f(), "Spirit Eye", new Stats());
+		setAsChild(eye);
+		GameManager.subscribeEntity(eye);
 
 		// Enqueue pulses
 		calcPulses(0f);
@@ -144,6 +160,11 @@ public class SpiritBoss extends Boss {
 		}
 
 		calcPulses((float) (Time.timeSinceStart() / 1000.0));
+		
+		// Track the eye
+		Vector2f ray2Target = new Vector2f(target.getCenter()).sub(getCenter())
+				.normalize().mul(eyeTrackDistance);
+		eye.getPosition().set(ray2Target);
 	}
 
 	public static Entity createNew(EntityData vals, Vector2f pos, Vector2f dims) {
@@ -192,7 +213,7 @@ public class SpiritBoss extends Boss {
 		super.assignFD();
 		
 		addFD(StateID.I, genIDLE());
-		addFD(StateID.ATTACK, genATTACK());
+		addFD(StateID.SPIKE, genSPIKE());
 	}
 	
 	private FrameData genIDLE() {
@@ -201,25 +222,33 @@ public class SpiritBoss extends Boss {
 		
 		FrameData fd = new FrameData(segs, null, false);
 		fd.onEntry = () -> {
-			ringRadius = 100f;
-			spinSpeed = 1f;
-			wobbleSpeed = 2f;
-			wobbleAltitude = 10f;
-			wobbleRollDensity = 4f;
-			peakHeight = 200f;
-			peakNarrowness = 4f;
+			//peaks.clear();
+			// Deactivate all fragment hitboxes
+			for (SpiritFragment fr : frags) fr.hitbox.isActive = false;
+		};
+		
+		// Lerp to stable orbit
+		fd.cb = () -> {
+			ringRadius += (100f-ringRadius) * 0.1;
+			spinSpeed += (1f-spinSpeed) * 0.1;
+			wobbleSpeed += (2f-wobbleSpeed) * 0.1;
+			wobbleAltitude += (10f-wobbleAltitude) * 0.1;
+			wobbleRollDensity += (7f-wobbleRollDensity) * 0.1;
+			peakHeight *= 0.7;
+			peakNarrowness += (4f-peakNarrowness) * 0.1;
 			
-			peaks.clear();
+			// Wipe peaks when zeroed
+			if (peakHeight <= 1f) peaks.clear();
 		};
 		
 		fd.onEnd = () -> {
-			setEntityFD(StateID.ATTACK);
+			setEntityFD(StateID.SPIKE);
 		};
 		
 		return fd;
 	}
 	
-	private FrameData genATTACK() {
+	private FrameData genSPIKE() {
 		int stopTerm = 70;
 		int wait = 20;
 		int spikeHold = 30;
@@ -238,8 +267,6 @@ public class SpiritBoss extends Boss {
 			float rad = new Vector2f(1, 0).angle(d2p);
 			if (rad < 0) rad += 2*Math.PI;
 			peaks.set(0, rad);
-			
-			System.out.println(rad);
 		});
 		segs.add(seg1);
 		
@@ -249,6 +276,26 @@ public class SpiritBoss extends Boss {
 		evs.add(ev1);
 		
 		FrameSegment seg2 = new FrameSegment(wait, stopTerm);
+		seg2.addCB(() -> {
+			float peakR = peaks.get(0);
+			
+			// Roll the spin to align with the spike
+			float normSpin = (peakR-spin);
+			while (normSpin < 0) normSpin += 2*Math.PI;
+			normSpin %= (float)(2*Math.PI);
+			normSpin += (float)(2*Math.PI/fragCount/2); // Center fragment 
+			
+			int closestFrag = (int) (fragCount*(normSpin/2/Math.PI)) % fragCount; // Frag range mapped to normalized spin
+			
+			float fragRad = (float) ((float) closestFrag / fragCount * 2 * Math.PI + spin) % (float) (2*Math.PI);
+			float fragDiff = peakR - fragRad; // How ahead the closest fragment the player is
+
+			spin += fragDiff * 0.1; // Align the spin as the natural spin speed approaches zero
+			
+			SpiritFragment fragEnt = frags.get(closestFrag);
+			fragEnt.hitbox.isActive = true;
+		});
+		
 		segs.add(seg2);
 		
 		FrameSegment seg3 = new FrameSegment(spikeHold, stopTerm + wait);
@@ -270,7 +317,10 @@ public class SpiritBoss extends Boss {
 			peaks.add(0f);
 		};
 		
-		fd.onEnd = () -> setEntityFD(StateID.I);
+		fd.onEnd = () -> {
+			for (SpiritFragment fr : frags) fr.localTrans.scale.identity();
+			setEntityFD(StateID.I);
+		};
 		
 		return fd;
 	}

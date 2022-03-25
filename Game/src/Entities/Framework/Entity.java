@@ -30,8 +30,9 @@ public abstract class Entity implements Collidable, Centered, Anchored {
 	public static float gravity = 5f;
 
 	public Renderer renderer; // Null by default
-	public Vector2f origin;
+	public Vector2f offset;
 	public Vector2f rendDims;
+	public int rendZ = 0; // Determines secondary draw order (within DOE classes)
 
 	public String name;
 	public Vector2f dim;
@@ -56,7 +57,7 @@ public abstract class Entity implements Collidable, Centered, Anchored {
 		}
 		this.name = name;
 
-		origin = new Vector2f();
+		offset = new Vector2f();
 		children = new ArrayList<Entity>();
 
 		colls = new ArrayList<Collider>();
@@ -89,13 +90,6 @@ public abstract class Entity implements Collidable, Centered, Anchored {
 		if (renderer != null) {
 			// TODO: Remove hack
 			renderer.parent = this;
-
-//			if (this instanceof Player) {
-//				System.out.println("\n________________________\n");
-//				System.out.println("Loc: " + renderer.localTrans.genModel());
-//				System.out.println("L2W: " + renderer.genL2WMat());
-//				System.out.println("W2S: " + renderer.worldToScreen.genMVP());
-//			}
 		}
 
 		if (anim != null)
@@ -132,7 +126,7 @@ public abstract class Entity implements Collidable, Centered, Anchored {
 		}
 
 		// Right side anchor shift multiplication
-		Matrix4f anchorTrans = new Matrix4f().translate(origin.x, origin.y, 0);
+		Matrix4f anchorTrans = new Matrix4f().translate(offset.x, offset.y, 0);
 		o.mul(anchorTrans);
 
 		return o;
@@ -157,7 +151,7 @@ public abstract class Entity implements Collidable, Centered, Anchored {
 	}
 
 	public Vector2f getOrigin() {
-		return origin;
+		return offset;
 	}
 
 	/**

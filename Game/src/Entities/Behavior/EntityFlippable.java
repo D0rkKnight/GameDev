@@ -16,7 +16,7 @@ public class EntityFlippable {
 	public void update(Entity e) {
 		// Scale to the side facing
 		if (sideFacing != 0) {
-			e.localTrans.scale.identity().scaleAround(sideFacing * flipConst, 1, 1, e.origin.x, 0, 0);
+			e.localTrans.scale.identity().scaleAround(sideFacing * flipConst, 1, 1, e.offset.x, 0, 0);
 		}
 	}
 }

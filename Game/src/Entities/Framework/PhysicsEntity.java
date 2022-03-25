@@ -201,6 +201,10 @@ public abstract class PhysicsEntity extends Entity implements Aligned {
 			this.decelMulti = decelMulti;
 		}
 	}
+	
+	public void knockback(Vector2f knockV) {
+		knockback(knockV, 0.5f, 1);
+	}
 
 	public void setEntityFD(FrameData fd) {
 		// TODO: pass by value, not by reference
@@ -213,6 +217,10 @@ public abstract class PhysicsEntity extends Entity implements Aligned {
 		FrameData fd = fdMap.get(id);
 		if (fd == null) throw new RuntimeException("No framedata found for the given tag");
 		setEntityFD(fd);
+	}
+	
+	public boolean hasEntityFD(StateID id) {
+		return fdMap.containsKey(id);
 	}
 
 	protected void addFD(StateID id, FrameData fd) {

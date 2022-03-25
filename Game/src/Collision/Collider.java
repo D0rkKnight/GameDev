@@ -177,12 +177,6 @@ public class Collider<T extends COD<?>> implements Centered {
 	}
 
 	public void update() {
-		if (owner instanceof Player && this instanceof Hitbox) {
-			System.out.println("\n________________________\n");
-			System.out.println("Loc: " + localTrans.genModel());
-			System.out.println("L2W: " + genChildL2WMat());
-			System.out.println("Offset: " + offset);
-		}
 	}
 
 	/**

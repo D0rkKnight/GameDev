@@ -94,7 +94,7 @@ public abstract class PlayerFramework extends Combatant {
 
 		initGraphics();
 		this.renderer.getOrigin().set(rendDims.x / 2, 0);
-		origin.x = dim.x / 2;
+		offset.x = dim.x / 2;
 
 		// Alignment
 		alignment = PhysicsEntity.Alignment.PLAYER;

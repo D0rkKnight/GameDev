@@ -47,8 +47,6 @@ public class Pedestal extends Entity implements Interactive {
 		if (powerup == null)
 			return;
 
-		// TODO Auto-generated method stub
-		System.out.println("You gained a powerup!");
 		powerup.invoke(p);
 
 		powerup.Destroy();

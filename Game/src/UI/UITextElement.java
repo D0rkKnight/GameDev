@@ -47,7 +47,6 @@ public class UITextElement extends UIDrawElement {
 
 		// Get dimensions
 		textDims = Rect.getDimsFromPointCollection(points);
-		System.out.println(textDims);
 
 		// Build renderer
 		col = new Color(1, 1, 1, 1);

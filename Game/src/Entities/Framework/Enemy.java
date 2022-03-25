@@ -22,6 +22,7 @@ public abstract class Enemy extends Combatant {
 
 	protected Combatant target;
 	protected Pathfinding ai;
+	protected boolean stunnable = false;
 
 	public Enemy(String ID, Vector2f position, String name, Stats stats) {
 		super(ID, position, name, stats);
@@ -104,7 +105,12 @@ public abstract class Enemy extends Combatant {
 		segs.add(new FrameSegment(50, 0));
 
 		FrameData fd = new FrameData(segs, null, false);
-		fd.onEnd = () -> setEntityFD(StateID.MOVE);
+		fd.onEnd = () -> {
+			if (hasEntityFD(StateID.MOVE)) setEntityFD(StateID.MOVE);
+			if (hasEntityFD(StateID.I)) setEntityFD(StateID.I);
+			
+			throw new RuntimeException("Stun state cannot transition into a valid state");
+		};
 		fd.onEntry = () -> {
 			if (anim != null)
 				anim.switchAnim(StateTag.IDLE); // No stunned animation yet
@@ -116,7 +122,7 @@ public abstract class Enemy extends Combatant {
 	@Override
 	public void hurtBy(Hitbox other) {
 		Aligned otherOwner = (Aligned) other.owner;
-		if (Combatant.getOpposingAlignment(otherOwner.getAlign()) == alignment) {
+		if (Combatant.getOpposingAlignment(otherOwner.getAlign()) == alignment && stunnable) {
 			setEntityFD(StateID.STUNNED);
 		}
 	}

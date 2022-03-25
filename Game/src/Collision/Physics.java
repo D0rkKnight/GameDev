@@ -3,12 +3,14 @@ package Collision;
 import java.util.ArrayList;
 
 import org.joml.Vector2f;
+import org.joml.Vector4f;
 
 import Collision.Behaviors.PhysicsCollisionBehavior;
 import Collision.Shapes.Shape;
 import Debugging.Debug;
 import Debugging.DebugBox;
 import Entities.Framework.PhysicsEntity;
+import Entities.SpiritBoss.SpiritEye;
 import GameController.GameManager;
 import GameController.Time;
 import Tiles.Tile;
@@ -110,7 +112,11 @@ public abstract class Physics {
 				// Vector2f(e.dim.x, e.dim.y), 1));
 				
 				// Draws entity bounds
-				Debug.enqueueElement(new DebugBox(newPos, e.dim, new Color(0, 1, 0, 1), 1));
+				
+				// Mul against <0, 0, 0, 1> since the dimensional box is anchored at <0, 0>
+				Vector4f transPos = new Vector4f(0, 0, 0, 1).mul(e.genChildL2WMat());
+				Debug.enqueueElement(new DebugBox(new Vector2f(transPos.x, transPos.y),
+						e.dim, new Color(0, 1, 0, 1), 1));
 
 				// Move (this modifies deltaInch)
 				boolean isSuccess = Physics.moveTo(newPos, deltaInch, velo, e, grid, dir, axises);
